@@ -275,16 +275,20 @@ function aiopms_get_openai_suggestions($business_type, $business_details, $seo_k
 
         $url = 'https://api.openai.com/v1/chat/completions';
         
-        // Build enhanced SEO prompt
-        $seo_context = '';
-        if (!empty($seo_keywords)) {
-            $seo_context .= "SEO Keywords: {$seo_keywords}. ";
-        }
-        if (!empty($target_audience)) {
-            $seo_context .= "Target Audience: {$target_audience}. ";
-        }
+        // Build enhanced SEO prompt using custom prompt system
+        $prompt = aiopms_build_ai_prompt( $business_type, $business_details, $seo_keywords, $target_audience, 'standard' );
         
-        $prompt = "## ROLE & CONTEXT
+        // If no custom prompt, use the original detailed prompt
+        if ( empty( get_option( 'aiopms_custom_prompt', '' ) ) ) {
+            $seo_context = '';
+            if (!empty($seo_keywords)) {
+                $seo_context .= "SEO Keywords: {$seo_keywords}. ";
+            }
+            if (!empty($target_audience)) {
+                $seo_context .= "Target Audience: {$target_audience}. ";
+            }
+            
+            $prompt = "## ROLE & CONTEXT
 You are an expert SEO strategist and information architect specializing in website structure optimization for maximum search visibility and user experience.
 
 ## BUSINESS CONTEXT
@@ -370,6 +374,7 @@ Use hyphens for nesting only when there's a clear hierarchical relationship
 Focus on creating a website architecture that makes sense for THIS specific business, not a generic template. Use semantic SEO principles and common sense to determine which pages are actually needed.
 
 Focus on creating a complete website architecture that will rank well and convert visitors.";
+        }
 
         $body = json_encode([
             'model' => 'gpt-3.5-turbo',
@@ -455,16 +460,20 @@ function aiopms_get_gemini_suggestions($business_type, $business_details, $seo_k
 
         $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=' . $api_key;
         
-        // Build enhanced SEO prompt
-        $seo_context = '';
-        if (!empty($seo_keywords)) {
-            $seo_context .= "SEO Keywords: {$seo_keywords}. ";
-        }
-        if (!empty($target_audience)) {
-            $seo_context .= "Target Audience: {$target_audience}. ";
-        }
+        // Build enhanced SEO prompt using custom prompt system
+        $prompt = aiopms_build_ai_prompt( $business_type, $business_details, $seo_keywords, $target_audience, 'standard' );
         
-        $prompt = "## ROLE & CONTEXT
+        // If no custom prompt, use the original detailed prompt
+        if ( empty( get_option( 'aiopms_custom_prompt', '' ) ) ) {
+            $seo_context = '';
+            if (!empty($seo_keywords)) {
+                $seo_context .= "SEO Keywords: {$seo_keywords}. ";
+            }
+            if (!empty($target_audience)) {
+                $seo_context .= "Target Audience: {$target_audience}. ";
+            }
+            
+            $prompt = "## ROLE & CONTEXT
 You are an expert SEO strategist and information architect specializing in website structure optimization for maximum search visibility and user experience.
 
 ## BUSINESS CONTEXT
@@ -550,6 +559,7 @@ Use hyphens for nesting only when there's a clear hierarchical relationship
 Focus on creating a website architecture that makes sense for THIS specific business, not a generic template. Use semantic SEO principles and common sense to determine which pages are actually needed.
 
 Focus on creating a complete website architecture that will rank well and convert visitors.";
+        }
 
         $body = json_encode([
             'contents' => [['parts' => [['text' => $prompt]]]],
@@ -626,16 +636,20 @@ function aiopms_get_deepseek_suggestions($business_type, $business_details, $seo
 
         $url = 'https://api.deepseek.com/v1/chat/completions';
         
-        // Build enhanced SEO prompt
-        $seo_context = '';
-        if (!empty($seo_keywords)) {
-            $seo_context .= "SEO Keywords: {$seo_keywords}. ";
-        }
-        if (!empty($target_audience)) {
-            $seo_context .= "Target Audience: {$target_audience}. ";
-        }
+        // Build enhanced SEO prompt using custom prompt system
+        $prompt = aiopms_build_ai_prompt( $business_type, $business_details, $seo_keywords, $target_audience, 'standard' );
         
-        $prompt = "## ROLE & CONTEXT
+        // If no custom prompt, use the original detailed prompt
+        if ( empty( get_option( 'aiopms_custom_prompt', '' ) ) ) {
+            $seo_context = '';
+            if (!empty($seo_keywords)) {
+                $seo_context .= "SEO Keywords: {$seo_keywords}. ";
+            }
+            if (!empty($target_audience)) {
+                $seo_context .= "Target Audience: {$target_audience}. ";
+            }
+            
+            $prompt = "## ROLE & CONTEXT
 You are an expert SEO strategist and information architect specializing in website structure optimization for maximum search visibility and user experience.
 
 ## BUSINESS CONTEXT
@@ -721,6 +735,7 @@ Use hyphens for nesting only when there's a clear hierarchical relationship
 Focus on creating a website architecture that makes sense for THIS specific business, not a generic template. Use semantic SEO principles and common sense to determine which pages are actually needed.
 
 Focus on creating a complete website architecture that will rank well and convert visitors.";
+        }
 
         $body = json_encode([
             'model' => 'deepseek-chat',
@@ -1731,154 +1746,68 @@ function aiopms_get_deepseek_advanced_suggestions($business_type, $business_deta
 
 // Build the advanced AI prompt for dynamic business analysis
 function aiopms_build_advanced_ai_prompt($business_type, $business_details, $seo_keywords, $target_audience) {
-    return "## ROLE & CONTEXT
-You are an expert digital strategist and WordPress developer specializing in creating comprehensive content ecosystems for businesses. Your task is to analyze a specific business and generate both standard pages AND custom post types that would be most valuable for that business model.
-
-## BUSINESS CONTEXT TO ANALYZE
-- **Business Type**: {$business_type}
-- **Business Details**: {$business_details}
-- **Target Audience**: {$target_audience}
-- **Primary Keywords**: {$seo_keywords}
-
-## CRITICAL REQUIREMENTS
-
-### 1. DYNAMIC BUSINESS ANALYSIS
-- **DO NOT use predefined templates or examples**
-- **Analyze THIS specific business** and determine what content would be most valuable
-- **Think about the business model** - what type of content would help this business succeed?
-- **Consider the target audience** - what information would they be looking for?
-- **Think about conversion** - what content would help turn visitors into customers?
-
-### 2. INTELLIGENT CONTENT SUGGESTIONS
-For each suggestion, provide:
-- **Clear reasoning** for why this content type is valuable for THIS business
-- **Specific custom fields** that would be useful for managing this content
-- **Sample content ideas** that would be relevant to this business
-
-### 3. CUSTOM POST TYPE ANALYSIS
-Consider what types of content this business would need to manage regularly:
-- **Portfolio/Showcase content** (for service businesses)
-- **Product catalogs** (for e-commerce)
-- **Case studies** (for agencies/consultants)
-- **Testimonials** (for service businesses)
-- **Team members** (for professional services)
-- **Events** (for event-based businesses)
-- **Courses/Tutorials** (for educational businesses)
-- **News/Updates** (for any business with regular updates)
-
-## OUTPUT FORMAT
-
-Return your analysis in this EXACT JSON format:
-
-{
-  \"business_analysis\": {
-    \"business_model\": \"Brief description of the business model\",
-    \"content_needs\": \"What types of content this business needs\",
-    \"target_audience_insights\": \"What the target audience is looking for\"
-  },
-  \"standard_pages\": [
-    {
-      \"title\": \"Page Title\",
-      \"meta_description\": \"SEO-optimized meta description (155-160 chars)\",
-      \"reasoning\": \"Why this page is essential for this business\",
-      \"hierarchy_level\": 0
-    }
-  ],
-  \"custom_post_types\": [
-    {
-      \"name\": \"post_type_slug\",
-      \"label\": \"Display Name\",
-      \"description\": \"What this post type is for\",
-      \"reasoning\": \"Why this post type is valuable for this specific business\",
-      \"custom_fields\": [
-        {
-          \"name\": \"field_slug\",
-          \"label\": \"Field Label\",
-          \"type\": \"text|textarea|select|image|url|number|date\",
-          \"description\": \"What this field is for\",
-          \"required\": true|false
-        }
-      ],
-      \"sample_entries\": [
-        {
-          \"title\": \"Sample Entry Title\",
-          \"content\": \"Brief description of what this entry would contain\"
-        }
-      ]
-    }
-  ]
+    // Use the custom prompt system for advanced mode
+    return aiopms_build_ai_prompt( $business_type, $business_details, $seo_keywords, $target_audience, 'advanced' );
 }
 
-## ANALYSIS GUIDELINES
-
-### For Standard Pages:
-- Include only pages that make sense for THIS specific business
-- Consider what pages customers would expect to find
-- Think about the customer journey and what information they need
-- Include both commercial and informational pages
-
-### For Custom Post Types:
-- Think about what content this business creates regularly
-- Consider what would help showcase their expertise
-- Think about what would help with SEO and user engagement
-- Consider what would help convert visitors to customers
-
-### For Custom Fields:
-- Choose fields that would be genuinely useful for this business
-- Consider what information customers would want to see
-- Think about what would help with content management
-- Include fields that would enhance SEO
-
-## EXAMPLES OF GOOD ANALYSIS:
-
-**Digital Marketing Agency** might need:
-- Standard pages: Home, About, Services, Contact, Blog
-- Custom post type: \"Case Studies\" with fields like Client Name, Industry, Results, Project Duration, Testimonial
-
-**Pet Grooming Service** might need:
-- Standard pages: Home, Services, About, Contact, Gallery
-- Custom post type: \"Services\" with fields like Service Name, Price, Duration, Pet Types, Description
-
-**Online Course Platform** might need:
-- Standard pages: Home, Courses, About, Contact, Pricing
-- Custom post type: \"Courses\" with fields like Course Title, Price, Duration, Skill Level, Prerequisites, Instructor
-
-**Wedding Photography Business** might need:
-- Standard pages: Home, Portfolio, Services, About, Contact
-- Custom post type: \"Portfolio\" with fields like Event Type, Date, Location, Couple Names, Photo Count, Gallery
-
-## REMEMBER:
-- Analyze the SPECIFIC business provided
-- Don't use generic templates
-- Think about what would actually help this business succeed
-- Consider the target audience and their needs
-- Focus on content that would drive conversions
-
-Provide a comprehensive analysis that would create a complete content ecosystem for this specific business.";
-}
-
-// Parse the AI response into structured data
 function aiopms_parse_advanced_ai_response($ai_response) {
     $parsed = [
         'pages' => [],
         'custom_post_types' => []
     ];
-
-    // Try to extract JSON from the response
-    $json_start = strpos($ai_response, '{');
-    $json_end = strrpos($ai_response, '}') + 1;
     
-    if ($json_start !== false && $json_end !== false) {
-        $json_string = substr($ai_response, $json_start, $json_end - $json_start);
-        $data = json_decode($json_string, true);
+    // Try to parse JSON response
+    $data = json_decode($ai_response, true);
+    
+    if (json_last_error() === JSON_ERROR_NONE && is_array($data)) {
+        // Handle standard pages
+        if (isset($data['standard_pages']) && is_array($data['standard_pages'])) {
+            foreach ($data['standard_pages'] as $page) {
+                if (isset($page['title'])) {
+                    $parsed['pages'][] = [
+                        'title' => sanitize_text_field($page['title']),
+                        'meta_description' => sanitize_text_field($page['meta_description'] ?? ''),
+                        'reasoning' => sanitize_text_field($page['reasoning'] ?? ''),
+                        'hierarchy_level' => intval($page['hierarchy_level'] ?? 0)
+                    ];
+                }
+            }
+        }
         
-        if ($data) {
-            $parsed['pages'] = isset($data['standard_pages']) ? $data['standard_pages'] : [];
-            $parsed['custom_post_types'] = isset($data['custom_post_types']) ? $data['custom_post_types'] : [];
-            $parsed['business_analysis'] = isset($data['business_analysis']) ? $data['business_analysis'] : [];
+        // Handle custom post types
+        if (isset($data['custom_post_types']) && is_array($data['custom_post_types'])) {
+            foreach ($data['custom_post_types'] as $cpt) {
+                if (isset($cpt['name']) && isset($cpt['label'])) {
+                    $parsed['custom_post_types'][] = [
+                        'name' => sanitize_text_field($cpt['name']),
+                        'label' => sanitize_text_field($cpt['label']),
+                        'description' => sanitize_text_field($cpt['description'] ?? ''),
+                        'reasoning' => sanitize_text_field($cpt['reasoning'] ?? ''),
+                        'custom_fields' => $cpt['custom_fields'] ?? [],
+                        'sample_entries' => $cpt['sample_entries'] ?? []
+                    ];
+                }
+            }
+        }
+    } else {
+        // Fallback: try to parse as simple list format
+        $lines = explode("\n", $ai_response);
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (empty($line) || strpos($line, ':') === false) continue;
+            
+            $parts = explode(':', $line, 2);
+            if (count($parts) === 2) {
+                $parsed['pages'][] = [
+                    'title' => sanitize_text_field(trim($parts[0])),
+                    'meta_description' => sanitize_text_field(trim($parts[1])),
+                    'reasoning' => '',
+                    'hierarchy_level' => 0
+                ];
+            }
         }
     }
-
+    
     return $parsed;
 }
 
@@ -2254,4 +2183,63 @@ function aiopms_generate_sample_field_value($field) {
         default:
             return 'Sample ' . $field['label'];
     }
+}
+
+/**
+ * Build AI prompt with custom prompt support.
+ * 
+ * @since 3.0
+ * @param string $business_type
+ * @param string $business_details
+ * @param string $seo_keywords
+ * @param string $target_audience
+ * @param string $prompt_type 'standard' or 'advanced'
+ * @return string
+ */
+function aiopms_build_ai_prompt( $business_type, $business_details, $seo_keywords, $target_audience, $prompt_type = 'standard' ) {
+    // Get custom prompt or use default
+    $custom_prompt = get_option( 'aiopms_custom_prompt', '' );
+    $default_prompt = aiopms_get_default_ai_prompt();
+    $prompt_template = !empty( $custom_prompt ) ? $custom_prompt : $default_prompt;
+    
+    // Replace variables in the prompt
+    $prompt = str_replace( '{business_type}', $business_type, $prompt_template );
+    $prompt = str_replace( '{business_details}', $business_details, $prompt );
+    $prompt = str_replace( '{seo_keywords}', $seo_keywords, $prompt );
+    $prompt = str_replace( '{target_audience}', $target_audience, $prompt );
+    $prompt = str_replace( '{current_date}', current_time( 'F j, Y' ), $prompt );
+    
+    // If using custom prompt, we need to add the specific format requirements
+    if ( !empty( $custom_prompt ) ) {
+        if ( $prompt_type === 'standard' ) {
+            $prompt .= "\n\n## OUTPUT FORMAT
+Generate a comprehensive list of essential website pages. For each page, provide:
+1. Page Title (use hyphens '-' for nesting child pages to indicate hierarchy)
+2. SEO-optimized Meta Description (separated by ':+' from the title)
+
+Return the response as a simple list format:
+Page Title 1:+Meta Description 1
+Page Title 2:+Meta Description 2
+...";
+        } else {
+            $prompt .= "\n\n## OUTPUT FORMAT
+Return a JSON array with the following structure for each page:
+{
+  \"title\": \"Page Title (SEO-optimized)\",
+  \"slug\": \"page-slug\",
+  \"description\": \"Brief description of the page content and purpose\",
+  \"keywords\": [\"primary keyword\", \"secondary keyword\", \"long-tail keyword\"],
+  \"intent\": \"informational|commercial|transactional|navigational\",
+  \"priority\": \"high|medium|low\",
+  \"parent\": \"parent-page-slug or null for top-level\",
+  \"content_suggestions\": [
+    \"Main heading suggestion\",
+    \"Key sections to include\",
+    \"Call-to-action recommendations\"
+  ]
+}";
+        }
+    }
+    
+    return $prompt;
 }

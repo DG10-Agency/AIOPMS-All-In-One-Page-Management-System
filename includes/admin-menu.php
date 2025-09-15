@@ -54,6 +54,11 @@ function aiopms_admin_page() {
 			'icon'        => '🚀',
 			'description' => __( 'Generate pages with AI assistance', 'aiopms' ),
 		),
+		'bulk-management' => array(
+			'title'       => __( 'Bulk Management', 'aiopms' ),
+			'icon'        => '🗑️',
+			'description' => __( 'Bulk page deletion and management', 'aiopms' ),
+		),
 		'schema'          => array(
 			'title'       => __( 'Schema Generator', 'aiopms' ),
 			'icon'        => '🏷️',
@@ -142,6 +147,8 @@ function aiopms_admin_page() {
 							aiopms_csv_upload_tab();
 						} elseif ( 'ai' === $active_tab ) {
 							aiopms_ai_generation_tab();
+						} elseif ( 'bulk-management' === $active_tab ) {
+							aiopms_bulk_management_tab();
 						} elseif ( 'schema' === $active_tab ) {
 							aiopms_schema_generator_tab();
 						} elseif ( 'menu' === $active_tab ) {
@@ -2390,6 +2397,428 @@ function aiopms_keyword_analysis_tab() {
     
     .notice-info {
         border-left-color: #00a0d2;
+    }
+    </style>
+    <?php
+}
+
+/**
+ * Display bulk management tab content.
+ * 
+ * @since 3.0
+ */
+function aiopms_bulk_management_tab() {
+    ?>
+    <div class="aiopms-bulk-management-container">
+        <div class="aiopms-bulk-management-header">
+            <h2><?php esc_html_e( 'Bulk Page Management', 'aiopms' ); ?></h2>
+            <p><?php esc_html_e( 'Safely delete multiple pages with advanced filtering and recovery options.', 'aiopms' ); ?></p>
+        </div>
+
+        <div class="aiopms-bulk-management-content">
+            <!-- Safety Warning -->
+            <div class="aiopms-safety-warning">
+                <div class="aiopms-warning-icon">⚠️</div>
+                <div class="aiopms-warning-content">
+                    <h3><?php esc_html_e( 'Important Safety Notice', 'aiopms' ); ?></h3>
+                    <p><?php esc_html_e( 'Bulk deletion is permanent and cannot be undone. Always create a backup before proceeding.', 'aiopms' ); ?></p>
+                </div>
+            </div>
+
+            <!-- Filter Options -->
+            <div class="aiopms-bulk-filters">
+                <h3><?php esc_html_e( 'Filter Pages for Deletion', 'aiopms' ); ?></h3>
+                
+                <form id="aiopms-bulk-filter-form" class="aiopms-filter-form">
+                    <?php wp_nonce_field( 'aiopms_bulk_management', 'aiopms_bulk_nonce' ); ?>
+                    
+                    <div class="aiopms-filter-row">
+                        <div class="aiopms-filter-group">
+                            <label for="aiopms-deletion-type"><?php esc_html_e( 'Deletion Type:', 'aiopms' ); ?></label>
+                            <select id="aiopms-deletion-type" name="deletion_type" class="aiopms-form-select">
+                                <option value="ai-generated"><?php esc_html_e( 'AI-Generated Pages Only', 'aiopms' ); ?></option>
+                                <option value="plugin-created"><?php esc_html_e( 'All Plugin-Created Pages', 'aiopms' ); ?></option>
+                                <option value="date-range"><?php esc_html_e( 'Pages from Date Range', 'aiopms' ); ?></option>
+                                <option value="status"><?php esc_html_e( 'Pages by Status', 'aiopms' ); ?></option>
+                                <option value="custom"><?php esc_html_e( 'Custom Selection', 'aiopms' ); ?></option>
+                            </select>
+                        </div>
+
+                        <div class="aiopms-filter-group" id="aiopms-date-range-filters" style="display: none;">
+                            <label for="aiopms-start-date"><?php esc_html_e( 'Start Date:', 'aiopms' ); ?></label>
+                            <input type="date" id="aiopms-start-date" name="start_date" class="aiopms-form-input">
+                            
+                            <label for="aiopms-end-date"><?php esc_html_e( 'End Date:', 'aiopms' ); ?></label>
+                            <input type="date" id="aiopms-end-date" name="end_date" class="aiopms-form-input">
+                        </div>
+
+                        <div class="aiopms-filter-group" id="aiopms-status-filters" style="display: none;">
+                            <label for="aiopms-page-status"><?php esc_html_e( 'Page Status:', 'aiopms' ); ?></label>
+                            <select id="aiopms-page-status" name="page_status" class="aiopms-form-select">
+                                <option value="draft"><?php esc_html_e( 'Draft', 'aiopms' ); ?></option>
+                                <option value="pending"><?php esc_html_e( 'Pending Review', 'aiopms' ); ?></option>
+                                <option value="private"><?php esc_html_e( 'Private', 'aiopms' ); ?></option>
+                                <option value="trash"><?php esc_html_e( 'Trash', 'aiopms' ); ?></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="aiopms-filter-actions">
+                        <button type="button" id="aiopms-preview-pages" class="dg10-btn dg10-btn-primary">
+                            <?php esc_html_e( 'Preview Pages', 'aiopms' ); ?>
+                        </button>
+                        <button type="button" id="aiopms-clear-filters" class="dg10-btn dg10-btn-secondary">
+                            <?php esc_html_e( 'Clear Filters', 'aiopms' ); ?>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Preview Results -->
+            <div id="aiopms-preview-results" class="aiopms-preview-results" style="display: none;">
+                <h3><?php esc_html_e( 'Pages to be Deleted', 'aiopms' ); ?></h3>
+                <div id="aiopms-pages-list" class="aiopms-pages-list"></div>
+                <div id="aiopms-deletion-summary" class="aiopms-deletion-summary"></div>
+            </div>
+
+            <!-- Confirmation Modal -->
+            <div id="aiopms-deletion-modal" class="aiopms-modal" style="display: none;">
+                <div class="aiopms-modal-content">
+                    <div class="aiopms-modal-header">
+                        <h3><?php esc_html_e( 'Confirm Bulk Deletion', 'aiopms' ); ?></h3>
+                        <button type="button" class="aiopms-modal-close">&times;</button>
+                    </div>
+                    <div class="aiopms-modal-body">
+                        <div class="aiopms-confirmation-warning">
+                            <div class="aiopms-warning-icon">🚨</div>
+                            <div class="aiopms-warning-content">
+                                <h4><?php esc_html_e( 'This action cannot be undone!', 'aiopms' ); ?></h4>
+                                <p><?php esc_html_e( 'You are about to permanently delete the selected pages. This action cannot be reversed.', 'aiopms' ); ?></p>
+                            </div>
+                        </div>
+                        
+                        <div class="aiopms-confirmation-details">
+                            <p><strong><?php esc_html_e( 'Pages to delete:', 'aiopms' ); ?></strong> <span id="aiopms-confirmation-count">0</span></p>
+                            <p><strong><?php esc_html_e( 'Deletion type:', 'aiopms' ); ?></strong> <span id="aiopms-confirmation-type">-</span></p>
+                        </div>
+
+                        <div class="aiopms-confirmation-input">
+                            <label for="aiopms-confirm-text">
+                                <?php esc_html_e( 'Type "DELETE" to confirm:', 'aiopms' ); ?>
+                            </label>
+                            <input type="text" id="aiopms-confirm-text" name="confirm_text" class="aiopms-form-input" placeholder="DELETE">
+                        </div>
+
+                        <div class="aiopms-backup-options">
+                            <label>
+                                <input type="checkbox" id="aiopms-create-backup" name="create_backup" checked>
+                                <?php esc_html_e( 'Create backup before deletion', 'aiopms' ); ?>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="aiopms-modal-footer">
+                        <button type="button" id="aiopms-cancel-deletion" class="dg10-btn dg10-btn-secondary">
+                            <?php esc_html_e( 'Cancel', 'aiopms' ); ?>
+                        </button>
+                        <button type="button" id="aiopms-confirm-deletion" class="dg10-btn dg10-btn-error" disabled>
+                            <?php esc_html_e( 'Delete Pages', 'aiopms' ); ?>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Indicator -->
+            <div id="aiopms-deletion-progress" class="aiopms-deletion-progress" style="display: none;">
+                <div class="aiopms-progress-header">
+                    <h3><?php esc_html_e( 'Deleting Pages...', 'aiopms' ); ?></h3>
+                </div>
+                <div class="aiopms-progress-bar">
+                    <div id="aiopms-progress-fill" class="aiopms-progress-fill"></div>
+                </div>
+                <div id="aiopms-progress-text" class="aiopms-progress-text">
+                    <?php esc_html_e( 'Preparing deletion...', 'aiopms' ); ?>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div id="aiopms-deletion-results" class="aiopms-deletion-results" style="display: none;">
+                <h3><?php esc_html_e( 'Deletion Complete', 'aiopms' ); ?></h3>
+                <div id="aiopms-results-content" class="aiopms-results-content"></div>
+                <div class="aiopms-results-actions">
+                    <button type="button" id="aiopms-export-results" class="dg10-btn dg10-btn-secondary">
+                        <?php esc_html_e( 'Export Results', 'aiopms' ); ?>
+                    </button>
+                    <button type="button" id="aiopms-new-deletion" class="dg10-btn dg10-btn-primary">
+                        <?php esc_html_e( 'New Deletion', 'aiopms' ); ?>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+    .aiopms-bulk-management-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .aiopms-bulk-management-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .aiopms-bulk-management-header h2 {
+        color: var(--dg10-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .aiopms-safety-warning {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border: 2px solid #f59e0b;
+        border-radius: 0.75rem;
+        margin-bottom: 2rem;
+    }
+
+    .aiopms-warning-icon {
+        font-size: 2rem;
+        flex-shrink: 0;
+    }
+
+    .aiopms-warning-content h3 {
+        margin: 0 0 0.5rem 0;
+        color: #92400e;
+    }
+
+    .aiopms-warning-content p {
+        margin: 0;
+        color: #92400e;
+    }
+
+    .aiopms-bulk-filters {
+        background: var(--dg10-white);
+        border: 1px solid #e5e7eb;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .aiopms-filter-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .aiopms-filter-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        align-items: end;
+    }
+
+    .aiopms-filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .aiopms-filter-group label {
+        font-weight: 600;
+        color: var(--dg10-dark-blue);
+    }
+
+    .aiopms-filter-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .aiopms-preview-results {
+        background: var(--dg10-white);
+        border: 1px solid #e5e7eb;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .aiopms-pages-list {
+        max-height: 400px;
+        overflow-y: auto;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .aiopms-page-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .aiopms-page-item:last-child {
+        border-bottom: none;
+    }
+
+    .aiopms-page-info {
+        flex: 1;
+    }
+
+    .aiopms-page-title {
+        font-weight: 600;
+        color: var(--dg10-dark-blue);
+        margin-bottom: 0.25rem;
+    }
+
+    .aiopms-page-meta {
+        font-size: 0.875rem;
+        color: var(--dg10-neutral);
+    }
+
+    .aiopms-deletion-summary {
+        background: #f3f4f6;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        text-align: center;
+    }
+
+    .aiopms-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+    }
+
+    .aiopms-modal-content {
+        background: var(--dg10-white);
+        border-radius: 0.75rem;
+        max-width: 500px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .aiopms-modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .aiopms-modal-header h3 {
+        margin: 0;
+        color: var(--dg10-dark-blue);
+    }
+
+    .aiopms-modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: var(--dg10-neutral);
+    }
+
+    .aiopms-modal-body {
+        padding: 1.5rem;
+    }
+
+    .aiopms-confirmation-warning {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1rem;
+        background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+        border: 2px solid #ef4444;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .aiopms-confirmation-details {
+        background: #f9fafb;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .aiopms-confirmation-input {
+        margin-bottom: 1.5rem;
+    }
+
+    .aiopms-backup-options {
+        margin-bottom: 1rem;
+    }
+
+    .aiopms-modal-footer {
+        display: flex;
+        gap: 1rem;
+        padding: 1.5rem;
+        border-top: 1px solid #e5e7eb;
+        justify-content: flex-end;
+    }
+
+    .aiopms-deletion-progress {
+        background: var(--dg10-white);
+        border: 1px solid #e5e7eb;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .aiopms-progress-bar {
+        width: 100%;
+        height: 8px;
+        background: #e5e7eb;
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 1rem 0;
+    }
+
+    .aiopms-progress-fill {
+        height: 100%;
+        background: linear-gradient(135deg, var(--dg10-primary) 0%, var(--dg10-accent) 100%);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+        width: 0%;
+    }
+
+    .aiopms-deletion-results {
+        background: var(--dg10-white);
+        border: 1px solid #e5e7eb;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .aiopms-results-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .aiopms-filter-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .aiopms-filter-actions {
+            flex-direction: column;
+        }
+        
+        .aiopms-modal-footer {
+            flex-direction: column;
+        }
     }
     </style>
     <?php

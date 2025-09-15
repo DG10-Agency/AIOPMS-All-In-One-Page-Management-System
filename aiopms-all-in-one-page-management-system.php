@@ -967,6 +967,7 @@ require_once AIOPMS_PLUGIN_PATH . 'includes/hierarchy-manager.php';
 require_once AIOPMS_PLUGIN_PATH . 'includes/menu-generator.php';
 require_once AIOPMS_PLUGIN_PATH . 'includes/schema-generator.php';
 require_once AIOPMS_PLUGIN_PATH . 'includes/keyword-analyzer.php';
+require_once AIOPMS_PLUGIN_PATH . 'includes/bulk-management.php';
 
 /**
  * Enqueue scripts and styles for admin pages.

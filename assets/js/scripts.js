@@ -128,8 +128,6 @@ jQuery(document).ready(function($) {
         // Initialize file upload accessibility
         initFileUploadAccessibility();
         
-        // Initialize accessibility testing
-        initAccessibilityTesting();
     }
     
     /**
@@ -531,107 +529,6 @@ jQuery(document).ready(function($) {
         });
     }
     
-    /**
-     * Initialize accessibility testing and validation
-     */
-    function initAccessibilityTesting() {
-        // Add accessibility testing tools in development mode
-        if (window.location.hostname === 'localhost' || window.location.hostname.includes('dev')) {
-            // Add accessibility testing button
-            $('body').append(`
-                <div id="aiopms-accessibility-tools" style="position: fixed; top: 10px; right: 10px; z-index: 999999; background: #000; color: #fff; padding: 10px; border-radius: 5px; font-size: 12px;">
-                    <button id="test-contrast" style="margin: 2px; padding: 5px;">Test Contrast</button>
-                    <button id="test-keyboard" style="margin: 2px; padding: 5px;">Test Keyboard</button>
-                    <button id="test-screen-reader" style="margin: 2px; padding: 5px;">Test Screen Reader</button>
-                </div>
-            `);
-            
-            // Test contrast ratios
-            $('#test-contrast').on('click', function() {
-                testContrastRatios();
-            });
-            
-            // Test keyboard navigation
-            $('#test-keyboard').on('click', function() {
-                testKeyboardNavigation();
-            });
-            
-            // Test screen reader announcements
-            $('#test-screen-reader').on('click', function() {
-                testScreenReaderAnnouncements();
-            });
-        }
-    }
-    
-    /**
-     * Test contrast ratios
-     */
-    function testContrastRatios() {
-        const elements = $('*').filter(function() {
-            const $el = $(this);
-            const computedStyle = window.getComputedStyle(this);
-            const color = computedStyle.color;
-            const backgroundColor = computedStyle.backgroundColor;
-            return color !== 'rgba(0, 0, 0, 0)' && backgroundColor !== 'rgba(0, 0, 0, 0)';
-        });
-        
-        let results = [];
-        elements.each(function() {
-            const $el = $(this);
-            const text = $el.text().trim();
-            if (text.length > 0) {
-                results.push({
-                    element: this,
-                    text: text.substring(0, 50),
-                    contrast: 'N/A' // Would need actual contrast calculation
-                });
-            }
-        });
-        
-        console.log('Contrast Test Results:', results);
-        announceToScreenReader('Contrast test completed. Check console for results.');
-    }
-    
-    /**
-     * Test keyboard navigation
-     */
-    function testKeyboardNavigation() {
-        const focusableElements = $('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-        let results = [];
-        
-        focusableElements.each(function(index) {
-            const $el = $(this);
-            results.push({
-                index: index,
-                element: this,
-                tagName: this.tagName,
-                text: $el.text().trim().substring(0, 30),
-                hasAriaLabel: !!$el.attr('aria-label'),
-                hasAriaLabelledBy: !!$el.attr('aria-labelledby'),
-                tabIndex: $el.attr('tabindex')
-            });
-        });
-        
-        console.log('Keyboard Navigation Test Results:', results);
-        announceToScreenReader(`Found ${results.length} focusable elements. Check console for details.`);
-    }
-    
-    /**
-     * Test screen reader announcements
-     */
-    function testScreenReaderAnnouncements() {
-        const testMessages = [
-            'Testing screen reader announcements',
-            'This is a test of the live region functionality',
-            'Accessibility testing complete'
-        ];
-        
-        testMessages.forEach((message, index) => {
-            setTimeout(() => {
-                announceToScreenReader(message);
-            }, index * 1000);
-        });
-    }
     
     // Add keyboard navigation support
     $('.dg10-sidebar-nav-item').on('keydown', function(e) {
@@ -970,4 +867,315 @@ jQuery(document).ready(function($) {
             }, 3000);
         }
     });
+
+    // ===== BULK MANAGEMENT FUNCTIONALITY =====
+    
+    // Initialize bulk management features
+    initBulkManagement();
+    
+    function initBulkManagement() {
+        // Handle deletion type change
+        $('#aiopms-deletion-type').on('change', function() {
+            const deletionType = $(this).val();
+            toggleFilterOptions(deletionType);
+        });
+        
+        // Handle preview pages button
+        $('#aiopms-preview-pages').on('click', function() {
+            previewPagesForDeletion();
+        });
+        
+        // Handle clear filters button
+        $('#aiopms-clear-filters').on('click', function() {
+            clearFilters();
+        });
+        
+        // Handle confirmation text input
+        $('#aiopms-confirm-text').on('input', function() {
+            const confirmText = $(this).val();
+            const deleteButton = $('#aiopms-confirm-deletion');
+            
+            if (confirmText === 'DELETE') {
+                deleteButton.prop('disabled', false);
+            } else {
+                deleteButton.prop('disabled', true);
+            }
+        });
+        
+        // Handle modal close
+        $('.aiopms-modal-close, #aiopms-cancel-deletion').on('click', function() {
+            closeDeletionModal();
+        });
+        
+        // Handle confirm deletion
+        $('#aiopms-confirm-deletion').on('click', function() {
+            executeBulkDeletion();
+        });
+        
+        // Handle new deletion button
+        $('#aiopms-new-deletion').on('click', function() {
+            resetBulkManagement();
+        });
+        
+        // Handle export results
+        $('#aiopms-export-results').on('click', function() {
+            exportDeletionResults();
+        });
+    }
+    
+    function toggleFilterOptions(deletionType) {
+        // Hide all filter groups
+        $('#aiopms-date-range-filters, #aiopms-status-filters').hide();
+        
+        // Show relevant filter group
+        switch(deletionType) {
+            case 'date-range':
+                $('#aiopms-date-range-filters').show();
+                break;
+            case 'status':
+                $('#aiopms-status-filters').show();
+                break;
+        }
+    }
+    
+    function previewPagesForDeletion() {
+        const formData = {
+            action: 'aiopms_bulk_management',
+            bulk_action: 'preview_pages',
+            nonce: $('#aiopms_bulk_nonce').val(),
+            deletion_type: $('#aiopms-deletion-type').val(),
+            start_date: $('#aiopms-start-date').val(),
+            end_date: $('#aiopms-end-date').val(),
+            page_status: $('#aiopms-page-status').val()
+        };
+        
+        // Show loading state
+        const $previewBtn = $('#aiopms-preview-pages');
+        const originalText = $previewBtn.text();
+        $previewBtn.text('Loading...').prop('disabled', true);
+        
+        $.post(ajaxurl, formData, function(response) {
+            if (response.success) {
+                displayPreviewResults(response.data);
+            } else {
+                showError('Failed to preview pages: ' + response.data);
+            }
+        }).fail(function() {
+            showError('AJAX request failed');
+        }).always(function() {
+            $previewBtn.text(originalText).prop('disabled', false);
+        });
+    }
+    
+    function displayPreviewResults(data) {
+        const $previewResults = $('#aiopms-preview-results');
+        const $pagesList = $('#aiopms-pages-list');
+        const $deletionSummary = $('#aiopms-deletion-summary');
+        
+        // Clear previous results
+        $pagesList.empty();
+        
+        if (data.pages.length === 0) {
+            $pagesList.html('<p>No pages found matching the selected criteria.</p>');
+        } else {
+            // Display pages
+            data.pages.forEach(function(page) {
+                const pageItem = `
+                    <div class="aiopms-page-item">
+                        <div class="aiopms-page-info">
+                            <div class="aiopms-page-title">${page.title}</div>
+                            <div class="aiopms-page-meta">
+                                Status: ${page.status} | Date: ${page.date} | ID: ${page.id}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                $pagesList.append(pageItem);
+            });
+            
+            // Display summary
+            $deletionSummary.html(`
+                <p><strong>Total pages to delete:</strong> ${data.count}</p>
+                <p><strong>Deletion type:</strong> ${data.deletion_type}</p>
+                <button type="button" id="aiopms-proceed-deletion" class="dg10-btn dg10-btn-error">
+                    Proceed with Deletion
+                </button>
+            `);
+            
+            // Handle proceed button
+            $('#aiopms-proceed-deletion').on('click', function() {
+                showDeletionModal(data);
+            });
+        }
+        
+        $previewResults.show();
+    }
+    
+    function showDeletionModal(data) {
+        const $modal = $('#aiopms-deletion-modal');
+        const $confirmationCount = $('#aiopms-confirmation-count');
+        const $confirmationType = $('#aiopms-confirmation-type');
+        
+        $confirmationCount.text(data.count);
+        $confirmationType.text(data.deletion_type);
+        
+        // Store page IDs for deletion
+        $modal.data('page-ids', data.pages.map(page => page.id));
+        
+        $modal.show();
+    }
+    
+    function closeDeletionModal() {
+        $('#aiopms-deletion-modal').hide();
+        $('#aiopms-confirm-text').val('');
+        $('#aiopms-confirm-deletion').prop('disabled', true);
+    }
+    
+    function executeBulkDeletion() {
+        const pageIds = $('#aiopms-deletion-modal').data('page-ids');
+        const createBackup = $('#aiopms-create-backup').is(':checked');
+        
+        const formData = {
+            action: 'aiopms_bulk_management',
+            bulk_action: 'delete_pages',
+            nonce: $('#aiopms_bulk_nonce').val(),
+            page_ids: pageIds,
+            create_backup: createBackup
+        };
+        
+        // Show progress
+        showDeletionProgress();
+        
+        $.post(ajaxurl, formData, function(response) {
+            if (response.success) {
+                showDeletionResults(response.data);
+            } else {
+                showError('Deletion failed: ' + response.data);
+            }
+        }).fail(function() {
+            showError('AJAX request failed');
+        });
+    }
+    
+    function showDeletionProgress() {
+        closeDeletionModal();
+        $('#aiopms-preview-results').hide();
+        $('#aiopms-deletion-progress').show();
+        
+        // Animate progress bar
+        let progress = 0;
+        const interval = setInterval(function() {
+            progress += Math.random() * 10;
+            if (progress > 90) progress = 90;
+            $('#aiopms-progress-fill').css('width', progress + '%');
+        }, 200);
+        
+        // Store interval for cleanup
+        $('#aiopms-deletion-progress').data('interval', interval);
+    }
+    
+    function showDeletionResults(data) {
+        // Clear progress interval
+        const interval = $('#aiopms-deletion-progress').data('interval');
+        if (interval) clearInterval(interval);
+        
+        $('#aiopms-deletion-progress').hide();
+        $('#aiopms-deletion-results').show();
+        
+        const $resultsContent = $('#aiopms-results-content');
+        let resultsHtml = `
+            <div class="aiopms-results-summary">
+                <h4>Deletion Summary</h4>
+                <p><strong>Successfully deleted:</strong> ${data.success} pages</p>
+                <p><strong>Failed to delete:</strong> ${data.failed} pages</p>
+        `;
+        
+        if (data.backup_created) {
+            resultsHtml += `<p><strong>Backup created:</strong> ${data.backup_file}</p>`;
+        }
+        
+        if (data.errors && data.errors.length > 0) {
+            resultsHtml += `
+                <h5>Errors:</h5>
+                <ul>
+                    ${data.errors.map(error => `<li>${error}</li>`).join('')}
+                </ul>
+            `;
+        }
+        
+        resultsHtml += '</div>';
+        
+        if (data.deleted_pages && data.deleted_pages.length > 0) {
+            resultsHtml += `
+                <div class="aiopms-deleted-pages">
+                    <h5>Deleted Pages:</h5>
+                    <ul>
+                        ${data.deleted_pages.map(page => `<li>${page.title} (ID: ${page.id})</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+        
+        $resultsContent.html(resultsHtml);
+        
+        // Store results for export
+        $('#aiopms-deletion-results').data('results', data);
+    }
+    
+    function clearFilters() {
+        $('#aiopms-bulk-filter-form')[0].reset();
+        $('#aiopms-preview-results').hide();
+        $('#aiopms-deletion-results').hide();
+        $('#aiopms-deletion-progress').hide();
+    }
+    
+    function resetBulkManagement() {
+        clearFilters();
+        $('#aiopms-deletion-modal').hide();
+    }
+    
+    function exportDeletionResults() {
+        const results = $('#aiopms-deletion-results').data('results');
+        if (!results) return;
+        
+        const exportData = {
+            timestamp: new Date().toISOString(),
+            summary: {
+                success: results.success,
+                failed: results.failed,
+                backup_created: results.backup_created || false
+            },
+            deleted_pages: results.deleted_pages || [],
+            errors: results.errors || []
+        };
+        
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `aiopms_deletion_results_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+    
+    function showError(message) {
+        // Create error notification
+        const errorHtml = `
+            <div class="notice notice-error is-dismissible">
+                <p><strong>Error:</strong> ${message}</p>
+                <button type="button" class="notice-dismiss">
+                    <span class="screen-reader-text">Dismiss this notice.</span>
+                </button>
+            </div>
+        `;
+        
+        $('.aiopms-bulk-management-container').prepend(errorHtml);
+        
+        // Auto-dismiss after 5 seconds
+        setTimeout(function() {
+            $('.notice-error').fadeOut();
+        }, 5000);
+    }
 });
