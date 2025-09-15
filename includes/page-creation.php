@@ -3,14 +3,26 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-// Create pages from manual input
-function aiopms_create_pages_manually($titles_str) {
-    if (!current_user_can('publish_pages')) {
-        wp_die(esc_html__('You do not have sufficient permissions to create pages.', 'aiopms'));
-    }
+/**
+ * Create pages from manual input.
+ * 
+ * @param string $titles_str Newline-separated list of page titles.
+ * @return array|WP_Error Array of created page IDs or error object.
+ * @since 3.0
+ */
+function aiopms_create_pages_manually( $titles_str ) {
+	try {
+		if ( ! current_user_can( 'publish_pages' ) ) {
+			return new WP_Error( 'insufficient_permissions', __( 'You do not have sufficient permissions to create pages.', 'aiopms' ) );
+		}
 
-    $titles = explode("\n", sanitize_textarea_field($titles_str));
-    $titles = array_map('trim', $titles);
+		// Validate input.
+		if ( empty( $titles_str ) ) {
+			return new WP_Error( 'empty_input', __( 'No page titles provided.', 'aiopms' ) );
+		}
+
+		$titles = explode( "\n", sanitize_textarea_field( $titles_str ) );
+		$titles = array_map( 'trim', $titles );
 
     $parent_id_stack = [];
     $created_pages = 0;
@@ -98,11 +110,21 @@ function aiopms_create_pages_manually($titles_str) {
         }
     }
 
-    if ($created_pages > 0) {
-        echo '<div class="notice notice-success is-dismissible"><p>' . sprintf(esc_html__('%d pages created successfully!', 'aiopms'), absint($created_pages)) . '</p></div>';
-    } else {
-        echo '<div class="notice notice-warning is-dismissible"><p>' . esc_html__('No pages were created. Please check your input.', 'aiopms') . '</p></div>';
-    }
+		if ( $created_pages > 0 ) {
+			echo '<div class="notice notice-success is-dismissible"><p>' . sprintf( esc_html__( '%d pages created successfully!', 'aiopms' ), absint( $created_pages ) ) . '</p></div>';
+			return array( 'success' => true, 'created_count' => $created_pages );
+		} else {
+			echo '<div class="notice notice-warning is-dismissible"><p>' . esc_html__( 'No pages were created. Please check your input.', 'aiopms' ) . '</p></div>';
+			return new WP_Error( 'no_pages_created', __( 'No pages were created. Please check your input.', 'aiopms' ) );
+		}
+
+	} catch ( Exception $e ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( 'AIOPMS Page Creation Error: ' . $e->getMessage() );
+		}
+		echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__( 'An error occurred while creating pages. Please try again.', 'aiopms' ) . '</p></div>';
+		return new WP_Error( 'page_creation_exception', __( 'An error occurred while creating pages.', 'aiopms' ) );
+	}
 }
 
 // Generate SEO-optimized slug

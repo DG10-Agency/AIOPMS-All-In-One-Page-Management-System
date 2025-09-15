@@ -110,7 +110,7 @@ if (!function_exists('aiopms_monitor_memory_usage')) {
 }
 
 // Hierarchy tab content
-function abpcwa_hierarchy_tab() {
+function aiopms_hierarchy_tab() {
     // Debug: Log that hierarchy tab is being loaded
     error_log('AIOPMS: Loading hierarchy tab');
     ?>

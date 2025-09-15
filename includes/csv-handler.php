@@ -95,6 +95,24 @@ function aiopms_create_pages_from_csv($file) {
                 ) . '</p></div>';
             return;
         }
+        
+        // 7. Additional security: Check file content for CSV validity
+        $file_handle = fopen($file['tmp_name'], 'r');
+        if ($file_handle === false) {
+            echo '<div class="notice notice-error is-dismissible"><p>' . 
+                esc_html__('Unable to read the uploaded file. Please try again.', 'aiopms') . '</p></div>';
+            return;
+        }
+        
+        // Read first few lines to validate CSV format
+        $first_line = fgetcsv($file_handle);
+        if ($first_line === false || empty($first_line)) {
+            fclose($file_handle);
+            echo '<div class="notice notice-error is-dismissible"><p>' . 
+                esc_html__('The uploaded file does not contain valid CSV data. Please check the file format.', 'aiopms') . '</p></div>';
+            return;
+        }
+        fclose($file_handle);
 
     } catch (Exception $e) {
         echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('An error occurred during file validation. Please try again.', 'aiopms') . '</p></div>';
@@ -151,6 +169,13 @@ function aiopms_create_pages_from_csv($file) {
     $header = array_map('trim', $header); // Trim whitespace from headers
     $created_pages = 0;
     $page_map = []; // To map titles to page IDs for parent lookup
+    $pages_to_create = []; // For batch processing
+
+    // Check memory before processing
+    if (!aiopms_check_memory_limit(75)) {
+        echo '<div class="notice notice-error is-dismissible"><p>' . __('Insufficient memory available for CSV processing. Please try with a smaller file.', 'aiopms') . '</p></div>';
+        return;
+    }
 
     foreach ($csv_data as $row_index => $row) {
         if (count($header) !== count($row)) {
@@ -181,9 +206,8 @@ function aiopms_create_pages_from_csv($file) {
             $parent_id = $page_map[$post_parent_title];
         }
 
-        
-        // Create page
-        $new_page = array(
+        // Prepare page data for batch processing
+        $pages_to_create[] = array(
             'post_title'   => $post_title,
             'post_name'    => $post_name,
             'post_content' => '',
@@ -191,22 +215,54 @@ function aiopms_create_pages_from_csv($file) {
             'post_type'    => 'page',
             'post_parent'  => $parent_id,
             'page_template' => $page_template,
-            'post_excerpt'  => $meta_description
+            'post_excerpt'  => $meta_description,
+            'featured_image_url' => $featured_image_url,
+            'post_title_original' => $post_title
         );
-        $page_id = wp_insert_post($new_page);
+    }
 
-        if ($page_id && !is_wp_error($page_id)) {
-            $created_pages++;
-            $page_map[$post_title] = $page_id; // Map title to ID for future parent lookups
-
-            // Set featured image with SEO metadata
-            if (!empty($featured_image_url)) {
-                $image_title = "Featured Image for " . sanitize_text_field($post_title);
-                $keywords = aiopms_extract_primary_keywords($post_title);
-                $image_alt = "Visual representation of " . $keywords . " concept";
-                $image_description = "Featured image for " . sanitize_text_field($post_title) . " page";
+    // Process pages using batch processing if available
+    if (class_exists('AIOPMS_DB_Optimizer') && count($pages_to_create) > 10) {
+        $db_optimizer = AIOPMS_DB_Optimizer::get_instance();
+        $batch_result = $db_optimizer->batch_insert_posts($pages_to_create, AIOPMS_BATCH_SIZE);
+        
+        $created_pages = $batch_result['inserted'];
+        $errors = $batch_result['errors'];
+        
+        // Process featured images for created pages
+        if ($created_pages > 0) {
+            foreach ($pages_to_create as $page_data) {
+                if (!empty($page_data['featured_image_url'])) {
+                    $page_id = get_page_by_path($page_data['post_name'], OBJECT, 'page');
+                    if ($page_id) {
+                        $image_title = "Featured Image for " . sanitize_text_field($page_data['post_title_original']);
+                        $keywords = aiopms_extract_primary_keywords($page_data['post_title_original']);
+                        $image_alt = "Visual representation of " . $keywords . " concept";
+                        $image_description = "Featured image for " . sanitize_text_field($page_data['post_title_original']) . " page";
+                        
+                        aiopms_set_featured_image($page_id->ID, $page_data['featured_image_url'], $image_title, $image_alt, $image_description);
+                    }
+                }
+            }
+        }
+    } else {
+        // Process pages individually
+        foreach ($pages_to_create as $page_data) {
+            $page_id = wp_insert_post($page_data);
+            
+            if ($page_id && !is_wp_error($page_id)) {
+                $created_pages++;
+                $page_map[$page_data['post_title']] = $page_id;
                 
-                aiopms_set_featured_image($page_id, $featured_image_url, $image_title, $image_alt, $image_description);
+                // Set featured image with SEO metadata
+                if (!empty($page_data['featured_image_url'])) {
+                    $image_title = "Featured Image for " . sanitize_text_field($page_data['post_title_original']);
+                    $keywords = aiopms_extract_primary_keywords($page_data['post_title_original']);
+                    $image_alt = "Visual representation of " . $keywords . " concept";
+                    $image_description = "Featured image for " . sanitize_text_field($page_data['post_title_original']) . " page";
+                    
+                    aiopms_set_featured_image($page_id, $page_data['featured_image_url'], $image_title, $image_alt, $image_description);
+                }
             }
         }
     }

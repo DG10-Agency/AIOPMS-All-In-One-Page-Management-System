@@ -1,173 +1,197 @@
 <?php
-if (!defined('ABSPATH')) {
-    exit; // Exit if accessed directly
+/**
+ * Admin menu functionality for AIOPMS plugin.
+ *
+ * @package AIOPMS
+ * @since 3.0
+ */
+
+// Prevent direct access to this file.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
-// Add admin menu
+/**
+ * Add admin menu for AIOPMS plugin.
+ * 
+ * @since 3.0
+ */
 function aiopms_add_admin_menu() {
-    add_menu_page(
-        __('AIOPMS - Page Management', 'aiopms'),
-        __('AIOPMS', 'aiopms'),
-        'manage_options',
-        'aiopms-page-management',
-        'aiopms_admin_page',
-        AIOPMS_PLUGIN_URL . 'assets/images/logo.svg',
-        25
-    );
+	add_menu_page(
+		__( 'AIOPMS - Page Management', 'aiopms' ),
+		__( 'AIOPMS', 'aiopms' ),
+		'manage_options',
+		'aiopms-page-management',
+		'aiopms_admin_page',
+		AIOPMS_PLUGIN_URL . 'assets/images/logo.svg',
+		25
+	);
 }
-add_action('admin_menu', 'aiopms_add_admin_menu');
+add_action( 'admin_menu', 'aiopms_add_admin_menu' );
 
-// Admin page content
+/**
+ * Display admin page content.
+ * 
+ * @since 3.0
+ */
 function aiopms_admin_page() {
-    $active_tab = isset($_GET['tab']) ? sanitize_key($_GET['tab']) : 'manual';
-    
-    // Define menu items with their details
-    $menu_items = array(
-        'manual' => array(
-            'title' => __('Manual Page Creation', 'aiopms'),
-            'icon' => '📝',
-            'description' => __('Create pages manually with custom hierarchy and attributes', 'aiopms')
-        ),
-        'csv' => array(
-            'title' => __('CSV Upload', 'aiopms'),
-            'icon' => '📊',
-            'description' => __('Bulk import pages from CSV files', 'aiopms')
-        ),
-        'ai' => array(
-            'title' => __('AI Generation', 'aiopms'),
-            'icon' => '🚀',
-            'description' => __('Generate pages with AI assistance', 'aiopms')
-        ),
-        'schema' => array(
-            'title' => __('Schema Generator', 'aiopms'),
-            'icon' => '🏷️',
-            'description' => __('Create structured data markup', 'aiopms')
-        ),
-        'menu' => array(
-            'title' => __('Menu Generator', 'aiopms'),
-            'icon' => '🍔',
-            'description' => __('Automatically generate WordPress menus', 'aiopms')
-        ),
-        'hierarchy' => array(
-            'title' => __('Page Hierarchy', 'aiopms'),
-            'icon' => '🌳',
-            'description' => __('Visualize and manage page structure', 'aiopms')
-        ),
-        'export' => array(
-            'title' => __('Hierarchy Export', 'aiopms'),
-            'icon' => '📤',
-            'description' => __('Export page hierarchy data', 'aiopms')
-        ),
-        'keyword-analysis' => array(
-            'title' => __('Keyword Analysis', 'aiopms'),
-            'icon' => '🔍',
-            'description' => __('Analyze keyword density and SEO', 'aiopms')
-        ),
-        'settings' => array(
-            'title' => __('Settings', 'aiopms'),
-            'icon' => '⚙️',
-            'description' => __('Configure plugin options', 'aiopms')
-        )
-    );
-    ?>
-    <div class="wrap dg10-brand">
-        <!-- Skip Link for Accessibility - Positioned at page level -->
-        <a href="#page-title" class="skip-link"><?php _e('Skip to main content', 'aiopms'); ?></a>
-        
-        <div class="dg10-main-layout">
-            <!-- Admin Sidebar -->
-            <aside class="dg10-admin-sidebar" role="complementary" aria-label="<?php esc_attr_e('AIOPMS Navigation Menu', 'aiopms'); ?>">
-                <div class="dg10-sidebar-header">
-                    <div class="dg10-sidebar-title">
-                        <img src="<?php echo AIOPMS_PLUGIN_URL; ?>assets/images/logo.svg" alt="<?php esc_attr_e('AIOPMS Plugin Logo', 'aiopms'); ?>" style="width: 24px; height: 24px;" role="img">
-                        <span class="dg10-plugin-name"><?php _e('AIOPMS', 'aiopms'); ?></span>
-                    </div>
-                    <p class="dg10-sidebar-subtitle" role="text"><?php _e('All In One Page Management System', 'aiopms'); ?></p>
-                </div>
-                
-                <nav class="dg10-sidebar-nav" role="navigation" aria-label="<?php esc_attr_e('Main Navigation', 'aiopms'); ?>">
-                    <ul role="list">
-                        <?php foreach ($menu_items as $tab_key => $item): ?>
-                            <li role="listitem">
-                                <a href="?page=aiopms-page-management&tab=<?php echo esc_attr($tab_key); ?>" 
-                                   class="dg10-sidebar-nav-item <?php echo $active_tab == $tab_key ? 'active' : ''; ?>"
-                                   role="menuitem"
-                                   aria-label="<?php echo esc_attr($item['title'] . ' - ' . $item['description']); ?>"
-                                   aria-current="<?php echo $active_tab == $tab_key ? 'page' : 'false'; ?>"
-                                   title="<?php echo esc_attr($item['description']); ?>">
-                                    <span class="nav-icon" aria-hidden="true" role="img" aria-label="<?php echo esc_attr($item['title'] . ' icon'); ?>"><?php echo $item['icon']; ?></span>
-                                    <span class="nav-text"><?php echo esc_html($item['title']); ?></span>
-                                </a>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
-                </nav>
-            </aside>
-            
-            <!-- Main Content Area -->
-            <main class="dg10-main-content" role="main" aria-label="<?php esc_attr_e('Main Content Area', 'aiopms'); ?>">
-                <article class="dg10-card" role="article" aria-labelledby="page-title">
-                    <header class="dg10-card-header" role="banner">
-                        <div class="dg10-hero-content">
-                            <div class="dg10-hero-text">
-                                <h1 id="page-title" role="heading" aria-level="1"><?php echo esc_html($menu_items[$active_tab]['title']); ?></h1>
-                                <p class="dg10-hero-description" role="text" aria-describedby="page-title">
-                                    <?php echo esc_html($menu_items[$active_tab]['description']); ?>
-                                </p>
-                            </div>
-                        </div>
-                    </header>
-                    <div class="dg10-card-body" role="main" aria-label="<?php esc_attr_e('Content Section', 'aiopms'); ?>">
-        <?php
-        if ($active_tab == 'manual') {
-            aiopms_manual_creation_tab();
-        } elseif ($active_tab == 'csv') {
-            aiopms_csv_upload_tab();
-        } elseif ($active_tab == 'ai') {
-            aiopms_ai_generation_tab();
-        } elseif ($active_tab == 'schema') {
-            aiopms_schema_generator_tab();
-        } elseif ($active_tab == 'menu') {
-            aiopms_menu_generator_tab();
-        } elseif ($active_tab == 'hierarchy') {
-            abpcwa_hierarchy_tab();
-        } elseif ($active_tab == 'export') {
-            aiopms_hierarchy_export_tab();
-        } elseif ($active_tab == 'keyword-analysis') {
-            aiopms_keyword_analysis_tab();
-        } elseif ($active_tab == 'settings') {
-            aiopms_settings_tab();
-        }
-        ?>
-                    </div>
-                    <footer class="dg10-card-footer" role="contentinfo" aria-label="<?php esc_attr_e('About DG10 Agency', 'aiopms'); ?>">
-                        <section class="dg10-promotion-section" role="region" aria-labelledby="about-us-heading">
-                            <header class="dg10-promotion-header">
-                                <img src="<?php echo AIOPMS_PLUGIN_URL; ?>assets/images/dg10-brand-logo.svg" alt="<?php esc_attr_e('DG10 Agency Logo', 'aiopms'); ?>" class="dg10-promotion-logo" role="img">
-                                <h3 id="about-us-heading" role="heading" aria-level="3"><?php _e('About us', 'aiopms'); ?></h3>
-                            </header>
-                            <div class="dg10-promotion-content">
-                                <p role="text"><?php _e('DG10 Agency specializes in creating powerful WordPress and Elementor solutions. We help businesses build custom websites, optimize performance, and implement complex integrations that drive results.', 'aiopms'); ?></p>
-                                <div class="dg10-promotion-buttons" role="group" aria-label="<?php esc_attr_e('Action Buttons', 'aiopms'); ?>">
-                                    <a href="https://www.dg10.agency" target="_blank" class="dg10-btn dg10-btn-primary" role="button" aria-label="<?php esc_attr_e('Visit DG10 Agency Website - Opens in new tab', 'aiopms'); ?>">
-                                        <span class="btn-text"><?php _e('Visit Website', 'aiopms'); ?></span>
-                                        <span class="dg10-btn-icon" aria-hidden="true" role="img" aria-label="<?php esc_attr_e('External link icon'); ?>">→</span>
-                                    </a>
-                                    <a href="https://calendly.com/dg10-agency/30min" target="_blank" class="dg10-btn dg10-btn-outline" role="button" aria-label="<?php esc_attr_e('Book a Free Consultation - Opens in new tab', 'aiopms'); ?>">
-                                        <span class="dg10-btn-icon" aria-hidden="true" role="img" aria-label="<?php esc_attr_e('Calendar icon'); ?>">📅</span>
-                                        <span class="btn-text"><?php _e('Book a Free Consultation', 'aiopms'); ?></span>
-                                    </a>
-                                </div>
-                                <p class="dg10-promotion-footer" role="text">
-                                    <?php printf(__('This is an open-source project - please %s.', 'aiopms'), '<a href="' . esc_url(AIOPMS_GITHUB_URL) . '" target="_blank" role="link" aria-label="' . esc_attr__('Star the repository on GitHub - Opens in new tab', 'aiopms') . '">' . __('star the repo on GitHub', 'aiopms') . '</a>'); ?>
-                                </p>
-                            </div>
-                        </section>
-                    </footer>
-                </article>
-            </main>
-        </div>
-    </div>
+	$active_tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'manual';
+
+	// Define menu items with their details.
+	$menu_items = array(
+		'manual'          => array(
+			'title'       => __( 'Manual Page Creation', 'aiopms' ),
+			'icon'        => '📝',
+			'description' => __( 'Create pages manually with custom hierarchy and attributes', 'aiopms' ),
+		),
+		'csv'             => array(
+			'title'       => __( 'CSV Upload', 'aiopms' ),
+			'icon'        => '📊',
+			'description' => __( 'Bulk import pages from CSV files', 'aiopms' ),
+		),
+		'ai'              => array(
+			'title'       => __( 'AI Generation', 'aiopms' ),
+			'icon'        => '🚀',
+			'description' => __( 'Generate pages with AI assistance', 'aiopms' ),
+		),
+		'schema'          => array(
+			'title'       => __( 'Schema Generator', 'aiopms' ),
+			'icon'        => '🏷️',
+			'description' => __( 'Create structured data markup', 'aiopms' ),
+		),
+		'menu'            => array(
+			'title'       => __( 'Menu Generator', 'aiopms' ),
+			'icon'        => '🍔',
+			'description' => __( 'Automatically generate WordPress menus', 'aiopms' ),
+		),
+		'hierarchy'       => array(
+			'title'       => __( 'Page Hierarchy', 'aiopms' ),
+			'icon'        => '🌳',
+			'description' => __( 'Visualize and manage page structure', 'aiopms' ),
+		),
+		'export'          => array(
+			'title'       => __( 'Hierarchy Export', 'aiopms' ),
+			'icon'        => '📤',
+			'description' => __( 'Export page hierarchy data', 'aiopms' ),
+		),
+		'keyword-analysis' => array(
+			'title'       => __( 'Keyword Analysis', 'aiopms' ),
+			'icon'        => '🔍',
+			'description' => __( 'Analyze keyword density and SEO', 'aiopms' ),
+		),
+		'settings'        => array(
+			'title'       => __( 'Settings', 'aiopms' ),
+			'icon'        => '⚙️',
+			'description' => __( 'Configure plugin options', 'aiopms' ),
+		),
+	);
+	?>
+	<div class="wrap dg10-brand">
+		<!-- Skip Links for Accessibility - Positioned at page level -->
+		<a href="#main-content" class="skip-link"><?php esc_html_e( 'Skip to main content', 'aiopms' ); ?></a>
+		<a href="#navigation" class="skip-link skip-to-nav"><?php esc_html_e( 'Skip to navigation', 'aiopms' ); ?></a>
+		
+		<div class="dg10-main-layout">
+			<!-- Admin Sidebar -->
+			<aside id="navigation" class="dg10-admin-sidebar" role="complementary" aria-label="<?php esc_attr_e( 'AIOPMS Navigation Menu', 'aiopms' ); ?>">
+				<div class="dg10-sidebar-header">
+					<div class="dg10-sidebar-title">
+						<img src="<?php echo esc_url( AIOPMS_PLUGIN_URL ); ?>assets/images/logo.svg" alt="<?php esc_attr_e( 'AIOPMS Plugin Logo', 'aiopms' ); ?>" style="width: 24px; height: 24px;" role="img">
+						<span class="dg10-plugin-name"><?php esc_html_e( 'AIOPMS', 'aiopms' ); ?></span>
+					</div>
+					<p class="dg10-sidebar-subtitle" role="text"><?php esc_html_e( 'All In One Page Management System', 'aiopms' ); ?></p>
+				</div>
+				
+				<nav class="dg10-sidebar-nav" role="navigation" aria-label="<?php esc_attr_e( 'Main Navigation', 'aiopms' ); ?>">
+					<ul role="list">
+						<?php foreach ( $menu_items as $tab_key => $item ) : ?>
+							<li role="listitem">
+								<a href="?page=aiopms-page-management&tab=<?php echo esc_attr( $tab_key ); ?>" 
+								   class="dg10-sidebar-nav-item <?php echo $active_tab === $tab_key ? 'active' : ''; ?>"
+								   role="menuitem"
+								   aria-label="<?php echo esc_attr( $item['title'] . ' - ' . $item['description'] ); ?>"
+								   aria-current="<?php echo $active_tab === $tab_key ? 'page' : 'false'; ?>"
+								   title="<?php echo esc_attr( $item['description'] ); ?>">
+									<span class="nav-icon" aria-hidden="true" role="img" aria-label="<?php echo esc_attr( $item['title'] . ' icon' ); ?>"><?php echo esc_html( $item['icon'] ); ?></span>
+									<span class="nav-text"><?php echo esc_html( $item['title'] ); ?></span>
+								</a>
+							</li>
+						<?php endforeach; ?>
+					</ul>
+				</nav>
+			</aside>
+			
+			<!-- Main Content Area -->
+			<main id="main-content" class="dg10-main-content" role="main" aria-label="<?php esc_attr_e( 'Main Content Area', 'aiopms' ); ?>" tabindex="-1">
+				<article class="dg10-card" role="article" aria-labelledby="page-title">
+					<header class="dg10-card-header" role="banner">
+						<div class="dg10-hero-content">
+							<div class="dg10-hero-text">
+								<h1 id="page-title" role="heading" aria-level="1"><?php echo esc_html( $menu_items[ $active_tab ]['title'] ); ?></h1>
+								<p class="dg10-hero-description" role="text" aria-describedby="page-title">
+									<?php echo esc_html( $menu_items[ $active_tab ]['description'] ); ?>
+								</p>
+							</div>
+						</div>
+					</header>
+					<div class="dg10-card-body" role="main" aria-label="<?php esc_attr_e( 'Content Section', 'aiopms' ); ?>">
+						<?php
+						if ( 'manual' === $active_tab ) {
+							aiopms_manual_creation_tab();
+						} elseif ( 'csv' === $active_tab ) {
+							aiopms_csv_upload_tab();
+						} elseif ( 'ai' === $active_tab ) {
+							aiopms_ai_generation_tab();
+						} elseif ( 'schema' === $active_tab ) {
+							aiopms_schema_generator_tab();
+						} elseif ( 'menu' === $active_tab ) {
+							aiopms_menu_generator_tab();
+						} elseif ( 'hierarchy' === $active_tab ) {
+							aiopms_hierarchy_tab();
+						} elseif ( 'export' === $active_tab ) {
+							aiopms_hierarchy_export_tab();
+						} elseif ( 'keyword-analysis' === $active_tab ) {
+							aiopms_keyword_analysis_tab();
+						} elseif ( 'settings' === $active_tab ) {
+							aiopms_settings_tab();
+						}
+						?>
+					</div>
+					<footer class="dg10-card-footer" role="contentinfo" aria-label="<?php esc_attr_e( 'About DG10 Agency', 'aiopms' ); ?>">
+						<section class="dg10-promotion-section" role="region" aria-labelledby="about-us-heading">
+							<header class="dg10-promotion-header">
+								<img src="<?php echo esc_url( AIOPMS_PLUGIN_URL ); ?>assets/images/dg10-brand-logo.svg" alt="<?php esc_attr_e( 'DG10 Agency Logo', 'aiopms' ); ?>" class="dg10-promotion-logo" role="img">
+								<h3 id="about-us-heading" role="heading" aria-level="3"><?php esc_html_e( 'About us', 'aiopms' ); ?></h3>
+							</header>
+							<div class="dg10-promotion-content">
+								<p role="text"><?php esc_html_e( 'DG10 Agency specializes in creating powerful WordPress and Elementor solutions. We help businesses build custom websites, optimize performance, and implement complex integrations that drive results.', 'aiopms' ); ?></p>
+								<div class="dg10-promotion-buttons" role="group" aria-label="<?php esc_attr_e( 'Action Buttons', 'aiopms' ); ?>">
+									<a href="https://www.dg10.agency" target="_blank" class="dg10-btn dg10-btn-primary" role="button" aria-label="<?php esc_attr_e( 'Visit DG10 Agency Website - Opens in new tab', 'aiopms' ); ?>" rel="noopener noreferrer">
+										<span class="btn-text"><?php esc_html_e( 'Visit Website', 'aiopms' ); ?></span>
+										<span class="dg10-btn-icon" aria-hidden="true" role="img" aria-label="<?php esc_attr_e( 'External link icon' ); ?>">→</span>
+									</a>
+									<a href="https://calendly.com/dg10-agency/30min" target="_blank" class="dg10-btn dg10-btn-outline" role="button" aria-label="<?php esc_attr_e( 'Book a Free Consultation - Opens in new tab', 'aiopms' ); ?>" rel="noopener noreferrer">
+										<span class="dg10-btn-icon" aria-hidden="true" role="img" aria-label="<?php esc_attr_e( 'Calendar icon' ); ?>">📅</span>
+										<span class="btn-text"><?php esc_html_e( 'Book a Free Consultation', 'aiopms' ); ?></span>
+									</a>
+								</div>
+								<p class="dg10-promotion-footer" role="text">
+									<?php
+									printf(
+										/* translators: %1$s: Link to plugin page, %2$s: Link to GitHub repository */
+										esc_html__( 'Visit our %1$s or %2$s to support this open-source project.', 'aiopms' ),
+										'<a href="https://dg10.agency/free-wordpress-page-management-plugin/" target="_blank" role="link" aria-label="' . esc_attr__( 'Visit AIOPMS Plugin Page - Opens in new tab', 'aiopms' ) . '" rel="noopener noreferrer">' . esc_html__( 'plugin page', 'aiopms' ) . '</a>',
+										'<a href="' . esc_url( AIOPMS_GITHUB_URL ) . '" target="_blank" role="link" aria-label="' . esc_attr__( 'Star the repository on GitHub - Opens in new tab', 'aiopms' ) . '" rel="noopener noreferrer">' . esc_html__( 'star the repo on GitHub', 'aiopms' ) . '</a>'
+									);
+									?>
+								</p>
+							</div>
+						</section>
+					</footer>
+				</article>
+			</main>
+		</div>
+	</div>
     
     <!-- Sidebar JavaScript -->
     <script>
@@ -284,113 +308,149 @@ function aiopms_admin_page() {
     <?php
 }
 
-// Manual creation tab content
+/**
+ * Display manual creation tab content.
+ * 
+ * @since 3.0
+ */
 function aiopms_manual_creation_tab() {
-    ?>
-    <section class="dg10-card" role="region" aria-labelledby="manual-creation-heading">
-        <div class="dg10-card-body">
-            <form method="post" action="" role="form" aria-label="<?php esc_attr_e('Manual Page Creation Form', 'aiopms'); ?>">
-                <?php wp_nonce_field('aiopms_manual_create_pages'); ?>
-                <fieldset class="dg10-form-group">
-                    <legend class="sr-only"><?php _e('Page Creation Settings', 'aiopms'); ?></legend>
-                    <div class="dg10-form-field">
-                        <label for="aiopms_titles" class="dg10-form-label" id="titles-label"><?php _e('Page Titles', 'aiopms'); ?></label>
-                        <textarea name="aiopms_titles" 
-                                  id="aiopms_titles" 
-                                  rows="10" 
-                                  class="dg10-form-textarea" 
-                                  placeholder="<?php esc_attr_e('Enter one page title per line. Use hyphens for nesting...', 'aiopms'); ?>"
-                                  aria-labelledby="titles-label"
-                                  aria-describedby="syntax-guide"
-                                  aria-required="true"
-                                  role="textbox"></textarea>
-                        <div id="syntax-guide" class="dg10-form-help" role="region" aria-label="<?php esc_attr_e('Syntax Guide', 'aiopms'); ?>">
-                            <strong><?php _e('Syntax Guide:', 'aiopms'); ?></strong><br>
-                            • <?php _e('Use', 'aiopms'); ?> <code>-</code> <?php _e('for child pages (one hyphen per level)', 'aiopms'); ?><br>
-                            • <?php _e('Use', 'aiopms'); ?> <code>:+</code> <?php _e('for meta description', 'aiopms'); ?><br>
-                            • <?php _e('Use', 'aiopms'); ?> <code>:*</code> <?php _e('for featured image URL', 'aiopms'); ?><br>
-                            • <?php _e('Use', 'aiopms'); ?> <code>::template=template-name.php</code> <?php _e('for page template', 'aiopms'); ?><br>
-                            • <?php _e('Use', 'aiopms'); ?> <code>::status=draft</code> <?php _e('for post status', 'aiopms'); ?><br>
-                            • <strong><?php _e('SEO slugs are automatically generated', 'aiopms'); ?></strong> (<?php _e('max 72 chars', 'aiopms'); ?>)
-                        </div>
-                    </div>
-                </fieldset>
-                <div class="dg10-form-actions">
-                    <button type="submit" 
-                            name="submit" 
-                            class="dg10-btn dg10-btn-primary"
-                            role="button"
-                            aria-label="<?php esc_attr_e('Create Pages from Titles', 'aiopms'); ?>">
-                        <span class="btn-icon" aria-hidden="true" role="img" aria-label="<?php esc_attr_e('Rocket icon'); ?>">🚀</span>
-                        <span class="btn-text"><?php _e('Create Pages', 'aiopms'); ?></span>
-                </button>
-            </form>
-        </div>
-    </section>
-    <?php
-    if (isset($_POST['submit']) && check_admin_referer('aiopms_manual_create_pages')) {
-        aiopms_create_pages_manually($_POST['aiopms_titles']);
-    }
+	?>
+	<section class="dg10-card" role="region" aria-labelledby="manual-creation-heading">
+		<div class="dg10-card-body">
+			<form method="post" action="" role="form" aria-label="<?php esc_attr_e( 'Manual Page Creation Form', 'aiopms' ); ?>">
+				<?php wp_nonce_field( 'aiopms_manual_create_pages' ); ?>
+				<fieldset class="dg10-form-group">
+					<legend class="sr-only"><?php esc_html_e( 'Page Creation Settings', 'aiopms' ); ?></legend>
+					<div class="dg10-form-field">
+						<label for="aiopms_titles" class="dg10-form-label" id="titles-label"><?php esc_html_e( 'Page Titles', 'aiopms' ); ?></label>
+						<textarea name="aiopms_titles" 
+								  id="aiopms_titles" 
+								  rows="10" 
+								  class="dg10-form-textarea" 
+								  placeholder="<?php esc_attr_e( 'Enter one page title per line. Use hyphens for nesting...', 'aiopms' ); ?>"
+								  aria-labelledby="titles-label"
+								  aria-describedby="syntax-guide"
+								  aria-required="true"
+								  role="textbox"></textarea>
+						<div id="syntax-guide" class="dg10-form-help" role="region" aria-label="<?php esc_attr_e( 'Syntax Guide', 'aiopms' ); ?>">
+							<strong><?php esc_html_e( 'Syntax Guide:', 'aiopms' ); ?></strong><br>
+							• <?php esc_html_e( 'Use', 'aiopms' ); ?> <code>-</code> <?php esc_html_e( 'for child pages (one hyphen per level)', 'aiopms' ); ?><br>
+							• <?php esc_html_e( 'Use', 'aiopms' ); ?> <code>:+</code> <?php esc_html_e( 'for meta description', 'aiopms' ); ?><br>
+							• <?php esc_html_e( 'Use', 'aiopms' ); ?> <code>:*</code> <?php esc_html_e( 'for featured image URL', 'aiopms' ); ?><br>
+							• <?php esc_html_e( 'Use', 'aiopms' ); ?> <code>::template=template-name.php</code> <?php esc_html_e( 'for page template', 'aiopms' ); ?><br>
+							• <?php esc_html_e( 'Use', 'aiopms' ); ?> <code>::status=draft</code> <?php esc_html_e( 'for post status', 'aiopms' ); ?><br>
+							• <strong><?php esc_html_e( 'SEO slugs are automatically generated', 'aiopms' ); ?></strong> (<?php esc_html_e( 'max 72 chars', 'aiopms' ); ?>)
+						</div>
+					</div>
+				</fieldset>
+				<div class="dg10-form-actions">
+					<button type="submit" 
+							name="submit" 
+							class="dg10-btn dg10-btn-primary"
+							role="button"
+							aria-label="<?php esc_attr_e( 'Create Pages from Titles', 'aiopms' ); ?>">
+						<span class="btn-icon" aria-hidden="true" role="img" aria-label="<?php esc_attr_e( 'Rocket icon' ); ?>">🚀</span>
+						<span class="btn-text"><?php esc_html_e( 'Create Pages', 'aiopms' ); ?></span>
+					</button>
+				</div>
+			</form>
+		</div>
+	</section>
+	<?php
+	if ( isset( $_POST['submit'] ) && check_admin_referer( 'aiopms_manual_create_pages' ) ) {
+		$titles = isset( $_POST['aiopms_titles'] ) ? sanitize_textarea_field( wp_unslash( $_POST['aiopms_titles'] ) ) : '';
+		if ( ! empty( $titles ) ) {
+			aiopms_create_pages_manually( $titles );
+		}
+	}
 }
 
-// CSV upload tab content
+/**
+ * Display CSV upload tab content.
+ * 
+ * @since 3.0
+ */
 function aiopms_csv_upload_tab() {
-    ?>
-    <section class="dg10-card" role="region" aria-labelledby="csv-upload-heading">
-        <div class="dg10-card-body">
-            <form method="post" action="" enctype="multipart/form-data" role="form" aria-label="<?php esc_attr_e('CSV File Upload Form', 'aiopms'); ?>">
-                <?php wp_nonce_field('aiopms_csv_upload'); ?>
-                <fieldset class="dg10-form-group">
-                    <legend class="sr-only"><?php _e('CSV Upload Settings', 'aiopms'); ?></legend>
-                    <div class="dg10-form-field">
-                        <label for="aiopms_csv_file" class="dg10-form-label" id="csv-file-label"><?php _e('CSV File', 'aiopms'); ?></label>
-                        <input type="file" 
-                               name="aiopms_csv_file" 
-                               id="aiopms_csv_file" 
-                               accept=".csv"
-                               aria-labelledby="csv-file-label"
-                               aria-describedby="csv-instructions"
-                               aria-required="true"
-                               role="button">
-                        <div id="csv-instructions" class="dg10-form-help" role="region" aria-label="<?php esc_attr_e('CSV File Instructions', 'aiopms'); ?>">
-                            <p><?php printf(__('Upload a CSV file with the following columns: %s, %s (optional), %s, %s, %s, %s, %s.', 'aiopms'), 
-                                '<code>post_title</code>', 
-                                '<code>slug</code>', 
-                                '<code>post_parent</code>', 
-                                '<code>meta_description</code>', 
-                                '<code>featured_image</code>', 
-                                '<code>page_template</code>', 
-                                '<code>post_status</code>'); ?></p>
-                            <ul>
-                                <li><?php printf(__('The %s column should contain the title of the parent page.', 'aiopms'), '<code>post_parent</code>'); ?></li>
-                                <li><?php printf(__('%s is optional - if empty, SEO-optimized slugs are automatically generated.', 'aiopms'), '<code>slug</code>'); ?></li>
-                                <li><strong><?php echo esc_html(aiopms_get_max_file_size_display()); ?></strong></li>
-                                <li><?php _e('Maximum rows: 10,000', 'aiopms'); ?></li>
-                            </ul>
-                        </div>
-                    </div>
-                </fieldset>
-                <div class="dg10-form-actions">
-                    <button type="submit" 
-                            name="submit" 
-                            class="dg10-btn dg10-btn-primary"
-                            role="button"
-                            aria-label="<?php esc_attr_e('Upload CSV File and Create Pages', 'aiopms'); ?>">
-                        <span class="btn-icon" aria-hidden="true" role="img" aria-label="<?php esc_attr_e('Upload icon'); ?>">📤</span>
-                        <span class="btn-text"><?php _e('Upload and Create Pages', 'aiopms'); ?></span>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </section>
-    <?php
-    if (isset($_POST['submit']) && check_admin_referer('aiopms_csv_upload')) {
-        if (isset($_FILES['aiopms_csv_file']) && !empty($_FILES['aiopms_csv_file']['tmp_name'])) {
-            aiopms_create_pages_from_csv($_FILES['aiopms_csv_file']);
-        } else {
-            echo '<div class="notice notice-error"><p>' . __('Please select a CSV file to upload.', 'aiopms') . '</p></div>';
-        }
-    }
+	?>
+	<section class="dg10-card" role="region" aria-labelledby="csv-upload-heading">
+		<div class="dg10-card-body">
+			<form method="post" action="" enctype="multipart/form-data" role="form" aria-label="<?php esc_attr_e( 'CSV File Upload Form', 'aiopms' ); ?>">
+				<?php wp_nonce_field( 'aiopms_csv_upload' ); ?>
+				<fieldset class="dg10-form-group">
+					<legend class="sr-only"><?php esc_html_e( 'CSV Upload Settings', 'aiopms' ); ?></legend>
+					<div class="dg10-form-field">
+						<label for="aiopms_csv_file" class="dg10-form-label" id="csv-file-label">
+							<?php esc_html_e( 'CSV File', 'aiopms' ); ?>
+							<span class="required-indicator" aria-label="<?php esc_attr_e( 'required', 'aiopms' ); ?>">*</span>
+						</label>
+						<div class="dg10-file-upload-wrapper">
+							<input type="file" 
+								   name="aiopms_csv_file" 
+								   id="aiopms_csv_file" 
+								   accept=".csv"
+								   class="dg10-form-control dg10-file-input"
+								   aria-labelledby="csv-file-label"
+								   aria-describedby="csv-instructions csv-file-status"
+								   aria-required="true"
+								   aria-invalid="false">
+							<div id="csv-file-status" class="dg10-file-status" role="status" aria-live="polite"></div>
+						</div>
+						<div id="csv-instructions" class="dg10-form-help" role="region" aria-label="<?php esc_attr_e( 'CSV File Instructions', 'aiopms' ); ?>">
+							<p><?php
+							printf(
+								/* translators: %s: CSV column names */
+								esc_html__( 'Upload a CSV file with the following columns: %s, %s (optional), %s, %s, %s, %s, %s.', 'aiopms' ),
+								'<code>post_title</code>',
+								'<code>slug</code>',
+								'<code>post_parent</code>',
+								'<code>meta_description</code>',
+								'<code>featured_image</code>',
+								'<code>page_template</code>',
+								'<code>post_status</code>'
+							);
+							?></p>
+							<ul>
+								<li><?php
+								printf(
+									/* translators: %s: Column name */
+									esc_html__( 'The %s column should contain the title of the parent page.', 'aiopms' ),
+									'<code>post_parent</code>'
+								);
+								?></li>
+								<li><?php
+								printf(
+									/* translators: %s: Column name */
+									esc_html__( '%s is optional - if empty, SEO-optimized slugs are automatically generated.', 'aiopms' ),
+									'<code>slug</code>'
+								);
+								?></li>
+								<li><strong><?php echo esc_html( aiopms_get_max_file_size_display() ); ?></strong></li>
+								<li><?php esc_html_e( 'Maximum rows: 10,000', 'aiopms' ); ?></li>
+							</ul>
+						</div>
+					</div>
+				</fieldset>
+				<div class="dg10-form-actions">
+					<button type="submit" 
+							name="submit" 
+							class="dg10-btn dg10-btn-primary"
+							role="button"
+							aria-label="<?php esc_attr_e( 'Upload CSV File and Create Pages', 'aiopms' ); ?>">
+						<span class="btn-icon" aria-hidden="true" role="img" aria-label="<?php esc_attr_e( 'Upload icon' ); ?>">📤</span>
+						<span class="btn-text"><?php esc_html_e( 'Upload and Create Pages', 'aiopms' ); ?></span>
+					</button>
+				</div>
+			</form>
+		</div>
+	</section>
+	<?php
+	if ( isset( $_POST['submit'] ) && check_admin_referer( 'aiopms_csv_upload' ) ) {
+		if ( isset( $_FILES['aiopms_csv_file'] ) && ! empty( $_FILES['aiopms_csv_file']['tmp_name'] ) ) {
+			aiopms_create_pages_from_csv( $_FILES['aiopms_csv_file'] );
+		} else {
+			echo '<div class="notice notice-error"><p>' . esc_html__( 'Please select a CSV file to upload.', 'aiopms' ) . '</p></div>';
+		}
+	}
 }
 
 // Menu generator tab content

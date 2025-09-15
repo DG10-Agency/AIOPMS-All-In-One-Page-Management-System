@@ -235,9 +235,18 @@ function aiopms_detect_schema_type($post_id) {
         return AIOPMS_SCHEMA_WEBPAGE;
     }
 
+    // Check cache first
+    $cache_key = 'schema_type_' . $post_id;
+    $cached_type = aiopms_cache_get($cache_key, 'schema');
+    if ($cached_type !== false) {
+        return $cached_type;
+    }
+
     // Try AI analysis first
     $ai_schema_type = aiopms_ai_analyze_content_for_schema($post_id);
     if ($ai_schema_type) {
+        // Cache the result
+        aiopms_cache_set($cache_key, $ai_schema_type, 'schema', AIOPMS_CACHE_EXPIRY * 24);
         return $ai_schema_type;
     }
 
@@ -297,7 +306,12 @@ function aiopms_detect_schema_type($post_id) {
     }
 
     // Default to webpage
-    return AIOPMS_SCHEMA_WEBPAGE;
+    $default_type = AIOPMS_SCHEMA_WEBPAGE;
+    
+    // Cache the result
+    aiopms_cache_set($cache_key, $default_type, 'schema', AIOPMS_CACHE_EXPIRY * 24);
+    
+    return $default_type;
 }
 
 // Check if content contains FAQ patterns
@@ -508,53 +522,87 @@ function aiopms_is_event_page($content, $title) {
 }
 
 // Generate schema markup for a page
-if (!function_exists('aiopms_generate_schema_markup')) {
-    function aiopms_generate_schema_markup($post_id) {
-    $schema_type = aiopms_detect_schema_type($post_id);
-    $schema_data = [];
+if ( ! function_exists( 'aiopms_generate_schema_markup' ) ) {
+	/**
+	 * Generate schema markup for a post.
+	 * 
+	 * @param int $post_id The post ID to generate schema for.
+	 * @return array|WP_Error Schema data or error object.
+	 * @since 3.0
+	 */
+	function aiopms_generate_schema_markup( $post_id ) {
+		try {
+			// Validate post ID.
+			if ( ! is_numeric( $post_id ) || $post_id <= 0 ) {
+				return new WP_Error( 'invalid_post_id', __( 'Invalid post ID provided.', 'aiopms' ) );
+			}
 
-    switch ($schema_type) {
-        case AIOPMS_SCHEMA_FAQ:
-            $schema_data = aiopms_generate_faq_schema($post_id);
-            break;
-        case AIOPMS_SCHEMA_BLOG:
-            $schema_data = aiopms_generate_blog_schema($post_id);
-            break;
-        case AIOPMS_SCHEMA_ARTICLE:
-            $schema_data = aiopms_generate_article_schema($post_id);
-            break;
-        case AIOPMS_SCHEMA_SERVICE:
-            $schema_data = aiopms_generate_service_schema($post_id);
-            break;
-        case AIOPMS_SCHEMA_PRODUCT:
-            $schema_data = aiopms_generate_product_schema($post_id);
-            break;
-        case AIOPMS_SCHEMA_ORGANIZATION:
-            $schema_data = aiopms_generate_organization_schema($post_id);
-            break;
-        case AIOPMS_SCHEMA_LOCAL_BUSINESS:
-            $schema_data = aiopms_generate_local_business_schema($post_id);
-            break;
-        case AIOPMS_SCHEMA_HOWTO:
-            $schema_data = aiopms_generate_howto_schema($post_id);
-            break;
-        case AIOPMS_SCHEMA_REVIEW:
-            $schema_data = aiopms_generate_review_schema($post_id);
-            break;
-        case AIOPMS_SCHEMA_EVENT:
-            $schema_data = aiopms_generate_event_schema($post_id);
-            break;
-        default:
-            $schema_data = aiopms_generate_webpage_schema($post_id);
-            break;
-    }
+			// Check if post exists.
+			$post = get_post( $post_id );
+			if ( ! $post ) {
+				return new WP_Error( 'post_not_found', __( 'Post not found.', 'aiopms' ) );
+			}
 
-    // Store schema data as post meta
-    update_post_meta($post_id, '_aiopms_schema_type', $schema_type);
-    update_post_meta($post_id, '_aiopms_schema_data', $schema_data);
-    
-    return $schema_data;
-    }
+			$schema_type = aiopms_detect_schema_type( $post_id );
+			$schema_data = array();
+
+			switch ( $schema_type ) {
+				case AIOPMS_SCHEMA_FAQ:
+					$schema_data = aiopms_generate_faq_schema( $post_id );
+					break;
+				case AIOPMS_SCHEMA_BLOG:
+					$schema_data = aiopms_generate_blog_schema( $post_id );
+					break;
+				case AIOPMS_SCHEMA_ARTICLE:
+					$schema_data = aiopms_generate_article_schema( $post_id );
+					break;
+				case AIOPMS_SCHEMA_SERVICE:
+					$schema_data = aiopms_generate_service_schema( $post_id );
+					break;
+				case AIOPMS_SCHEMA_PRODUCT:
+					$schema_data = aiopms_generate_product_schema( $post_id );
+					break;
+				case AIOPMS_SCHEMA_ORGANIZATION:
+					$schema_data = aiopms_generate_organization_schema( $post_id );
+					break;
+				case AIOPMS_SCHEMA_LOCAL_BUSINESS:
+					$schema_data = aiopms_generate_local_business_schema( $post_id );
+					break;
+				case AIOPMS_SCHEMA_HOWTO:
+					$schema_data = aiopms_generate_howto_schema( $post_id );
+					break;
+				case AIOPMS_SCHEMA_REVIEW:
+					$schema_data = aiopms_generate_review_schema( $post_id );
+					break;
+				case AIOPMS_SCHEMA_EVENT:
+					$schema_data = aiopms_generate_event_schema( $post_id );
+					break;
+				default:
+					$schema_data = aiopms_generate_webpage_schema( $post_id );
+					break;
+			}
+
+			// Validate schema data.
+			if ( ! is_array( $schema_data ) || empty( $schema_data ) ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					error_log( 'AIOPMS: Failed to generate schema data for post ID: ' . $post_id );
+				}
+				return new WP_Error( 'schema_generation_failed', __( 'Failed to generate schema data.', 'aiopms' ) );
+			}
+
+			// Store schema data as post meta.
+			update_post_meta( $post_id, '_aiopms_schema_type', $schema_type );
+			update_post_meta( $post_id, '_aiopms_schema_data', $schema_data );
+
+			return $schema_data;
+
+		} catch ( Exception $e ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'AIOPMS Schema Generation Error: ' . $e->getMessage() );
+			}
+			return new WP_Error( 'schema_generation_exception', __( 'An error occurred while generating schema markup.', 'aiopms' ) );
+		}
+	}
 }
 
 // Generate FAQ schema

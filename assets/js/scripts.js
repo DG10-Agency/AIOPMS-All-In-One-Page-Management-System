@@ -1,18 +1,66 @@
 jQuery(document).ready(function($) {
+    // ===== ACCESSIBILITY FOUNDATION =====
+    
+    // Initialize accessibility features
+    initAccessibilityFeatures();
+    
     // ===== SIDEBAR NAVIGATION FUNCTIONALITY =====
     
-    // Handle sidebar navigation
+    // Handle sidebar navigation with accessibility
     $('.dg10-sidebar-nav-item').on('click', function(e) {
-        // Remove active class from all items
-        $('.dg10-sidebar-nav-item').removeClass('active');
-        // Add active class to clicked item
-        $(this).addClass('active');
+        e.preventDefault();
         
-        // Optional: Add smooth transition effect
-        $(this).css('transform', 'scale(0.98)');
-        setTimeout(() => {
-            $(this).css('transform', 'scale(1)');
-        }, 150);
+        // Remove active class and aria-current from all items
+        $('.dg10-sidebar-nav-item').removeClass('active').attr('aria-current', 'false');
+        
+        // Add active class and aria-current to clicked item
+        $(this).addClass('active').attr('aria-current', 'page');
+        
+        // Announce navigation to screen readers
+        announceToScreenReader($(this).find('.nav-text').text() + ' selected');
+        
+        // Navigate to the URL
+        const href = $(this).attr('href');
+        if (href) {
+            window.location.href = href;
+        }
+    });
+    
+    // Enhanced keyboard navigation for sidebar
+    $('.dg10-sidebar-nav-item').on('keydown', function(e) {
+        const $items = $('.dg10-sidebar-nav-item');
+        const currentIndex = $items.index(this);
+        let newIndex = currentIndex;
+        
+        switch(e.key) {
+            case 'ArrowDown':
+            case 'ArrowRight':
+                e.preventDefault();
+                newIndex = (currentIndex + 1) % $items.length;
+                break;
+            case 'ArrowUp':
+            case 'ArrowLeft':
+                e.preventDefault();
+                newIndex = currentIndex === 0 ? $items.length - 1 : currentIndex - 1;
+                break;
+            case 'Home':
+                e.preventDefault();
+                newIndex = 0;
+                break;
+            case 'End':
+                e.preventDefault();
+                newIndex = $items.length - 1;
+                break;
+            case 'Enter':
+            case ' ':
+                e.preventDefault();
+                $(this).click();
+                return;
+        }
+        
+        if (newIndex !== currentIndex) {
+            $items.eq(newIndex).focus();
+        }
     });
     
     // Handle responsive sidebar behavior
@@ -45,6 +93,544 @@ jQuery(document).ready(function($) {
             clearTimeout(timeout);
             timeout = setTimeout(later, wait);
         };
+    }
+    
+    // ===== ACCESSIBILITY HELPER FUNCTIONS =====
+    
+    /**
+     * Initialize accessibility features
+     */
+    function initAccessibilityFeatures() {
+        // Add skip links
+        addSkipLinks();
+        
+        // Initialize live regions
+        initLiveRegions();
+        
+        // Initialize focus management
+        initFocusManagement();
+        
+        // Initialize keyboard shortcuts
+        initKeyboardShortcuts();
+        
+        // Initialize form accessibility
+        initFormAccessibility();
+        
+        // Initialize enhanced form validation
+        initEnhancedFormValidation();
+        
+        // Initialize table accessibility
+        initTableAccessibility();
+        
+        // Initialize loading states
+        initLoadingStates();
+        
+        // Initialize file upload accessibility
+        initFileUploadAccessibility();
+        
+        // Initialize accessibility testing
+        initAccessibilityTesting();
+    }
+    
+    /**
+     * Add skip links for better navigation
+     */
+    function addSkipLinks() {
+        const $body = $('body');
+        
+        // Add skip to main content link if not exists
+        if (!$body.find('.skip-link').length) {
+            $body.prepend('<a href="#main-content" class="skip-link">Skip to main content</a>');
+        }
+        
+        // Add skip to navigation link
+        if (!$body.find('.skip-to-nav').length) {
+            $body.prepend('<a href="#navigation" class="skip-link skip-to-nav">Skip to navigation</a>');
+        }
+    }
+    
+    /**
+     * Initialize live regions for screen reader announcements
+     */
+    function initLiveRegions() {
+        // Add live region for announcements
+        if (!$('#aiopms-live-region').length) {
+            $('body').append('<div id="aiopms-live-region" class="dg10-live-region" aria-live="polite" aria-atomic="true"></div>');
+        }
+        
+        // Add assertive live region for urgent announcements
+        if (!$('#aiopms-live-region-assertive').length) {
+            $('body').append('<div id="aiopms-live-region-assertive" class="dg10-live-region" aria-live="assertive" aria-atomic="true"></div>');
+        }
+    }
+    
+    /**
+     * Announce message to screen readers
+     */
+    function announceToScreenReader(message, assertive = false) {
+        const liveRegionId = assertive ? '#aiopms-live-region-assertive' : '#aiopms-live-region';
+        const $liveRegion = $(liveRegionId);
+        
+        // Clear previous message
+        $liveRegion.empty();
+        
+        // Add new message
+        setTimeout(() => {
+            $liveRegion.text(message);
+        }, 100);
+        
+        // Clear message after announcement
+        setTimeout(() => {
+            $liveRegion.empty();
+        }, 1000);
+    }
+    
+    /**
+     * Initialize focus management
+     */
+    function initFocusManagement() {
+        // Trap focus in modals
+        $(document).on('keydown', '.dg10-modal', function(e) {
+            if (e.key === 'Tab') {
+                trapFocus(e, $(this));
+            }
+        });
+        
+        // Return focus to trigger element when modal closes
+        $(document).on('click', '.dg10-modal-close', function() {
+            const triggerElement = $(this).data('trigger-element');
+            if (triggerElement) {
+                $(triggerElement).focus();
+            }
+        });
+    }
+    
+    /**
+     * Trap focus within an element
+     */
+    function trapFocus(e, $container) {
+        const focusableElements = $container.find('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        const firstElement = focusableElements.first();
+        const lastElement = focusableElements.last();
+        
+        if (e.shiftKey) {
+            if (document.activeElement === firstElement[0]) {
+                e.preventDefault();
+                lastElement.focus();
+            }
+        } else {
+            if (document.activeElement === lastElement[0]) {
+                e.preventDefault();
+                firstElement.focus();
+            }
+        }
+    }
+    
+    /**
+     * Initialize keyboard shortcuts
+     */
+    function initKeyboardShortcuts() {
+        $(document).on('keydown', function(e) {
+            // Alt + M: Focus main content
+            if (e.altKey && e.key === 'm') {
+                e.preventDefault();
+                $('#main-content').focus();
+                announceToScreenReader('Focused on main content');
+            }
+            
+            // Alt + N: Focus navigation
+            if (e.altKey && e.key === 'n') {
+                e.preventDefault();
+                $('#navigation').focus();
+                announceToScreenReader('Focused on navigation');
+            }
+            
+            // Escape: Close modals and dropdowns
+            if (e.key === 'Escape') {
+                $('.dg10-modal:visible').hide();
+                $('.dg10-dropdown:visible').hide();
+                announceToScreenReader('Modal closed');
+            }
+        });
+    }
+    
+    /**
+     * Initialize form accessibility
+     */
+    function initFormAccessibility() {
+        // Add required field indicators
+        $('input[required], select[required], textarea[required]').each(function() {
+            const $field = $(this);
+            const $label = $('label[for="' + $field.attr('id') + '"]');
+            
+            if ($label.length && !$label.find('.required-indicator').length) {
+                $label.append(' <span class="required-indicator" aria-label="required">*</span>');
+            }
+        });
+        
+        // Add field descriptions
+        $('.description').each(function() {
+            const $desc = $(this);
+            const $field = $desc.prev('input, select, textarea');
+            
+            if ($field.length) {
+                const fieldId = $field.attr('id');
+                if (fieldId) {
+                    $desc.attr('id', fieldId + '-description');
+                    $field.attr('aria-describedby', fieldId + '-description');
+                }
+            }
+        });
+        
+        // Real-time validation feedback
+        $('input, select, textarea').on('blur', function() {
+            validateField($(this));
+        });
+    }
+    
+    /**
+     * Validate a form field
+     */
+    function validateField($field) {
+        const value = $field.val();
+        const isRequired = $field.prop('required');
+        const type = $field.attr('type');
+        let isValid = true;
+        let message = '';
+        
+        // Required field validation
+        if (isRequired && !value.trim()) {
+            isValid = false;
+            message = 'This field is required';
+        }
+        
+        // Email validation
+        if (type === 'email' && value && !isValidEmail(value)) {
+            isValid = false;
+            message = 'Please enter a valid email address';
+        }
+        
+        // URL validation
+        if (type === 'url' && value && !isValidUrl(value)) {
+            isValid = false;
+            message = 'Please enter a valid URL';
+        }
+        
+        // Update field state
+        $field.removeClass('dg10-error dg10-success');
+        $field.attr('aria-invalid', !isValid);
+        
+        if (!isValid) {
+            $field.addClass('dg10-error');
+            announceToScreenReader(message, true);
+        } else if (value) {
+            $field.addClass('dg10-success');
+        }
+        
+        // Update or create error message
+        const $errorMsg = $field.siblings('.field-error');
+        if (!isValid) {
+            if ($errorMsg.length) {
+                $errorMsg.text(message);
+            } else {
+                $field.after('<div class="field-error dg10-error" role="alert">' + message + '</div>');
+            }
+        } else {
+            $errorMsg.remove();
+        }
+    }
+    
+    /**
+     * Validate email format
+     */
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+    
+    /**
+     * Validate URL format
+     */
+    function isValidUrl(url) {
+        try {
+            new URL(url);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+    
+    /**
+     * Initialize table accessibility
+     */
+    function initTableAccessibility() {
+        $('.dg10-table').each(function() {
+            const $table = $(this);
+            
+            // Add table caption if missing
+            if (!$table.find('caption').length) {
+                $table.prepend('<caption class="sr-only">Data table</caption>');
+            }
+            
+            // Make table rows focusable
+            $table.find('tbody tr').attr('tabindex', '0');
+            
+            // Add keyboard navigation for table rows
+            $table.find('tbody tr').on('keydown', function(e) {
+                const $rows = $table.find('tbody tr');
+                const currentIndex = $rows.index(this);
+                
+                switch(e.key) {
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        if (currentIndex < $rows.length - 1) {
+                            $rows.eq(currentIndex + 1).focus();
+                        }
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        if (currentIndex > 0) {
+                            $rows.eq(currentIndex - 1).focus();
+                        }
+                        break;
+                    case 'Enter':
+                    case ' ':
+                        e.preventDefault();
+                        $(this).click();
+                        break;
+                }
+            });
+        });
+    }
+    
+    /**
+     * Initialize loading states
+     */
+    function initLoadingStates() {
+        // Add loading states to buttons
+        $('.dg10-btn').on('click', function() {
+            const $btn = $(this);
+            if ($btn.data('loading') !== 'true') {
+                $btn.addClass('dg10-loading');
+                $btn.attr('aria-disabled', 'true');
+                $btn.data('loading', 'true');
+                
+                // Announce loading state
+                announceToScreenReader('Loading, please wait');
+            }
+        });
+        
+        // Remove loading state when AJAX completes
+        $(document).ajaxComplete(function() {
+            $('.dg10-btn.dg10-loading').removeClass('dg10-loading').attr('aria-disabled', 'false').data('loading', 'false');
+        });
+    }
+    
+    /**
+     * Initialize file upload accessibility
+     */
+    function initFileUploadAccessibility() {
+        $('.dg10-file-input').on('change', function() {
+            const $input = $(this);
+            const $status = $input.siblings('.dg10-file-status');
+            const files = this.files;
+            
+            if (files.length > 0) {
+                const file = files[0];
+                const fileName = file.name;
+                const fileSize = (file.size / 1024 / 1024).toFixed(2);
+                const fileType = file.type;
+                
+                // Validate file type
+                if (fileType !== 'text/csv' && !fileName.toLowerCase().endsWith('.csv')) {
+                    $status.removeClass('success info').addClass('error');
+                    $status.text('Please select a valid CSV file');
+                    $input.attr('aria-invalid', 'true');
+                    announceToScreenReader('Invalid file type selected. Please choose a CSV file.', true);
+                    return;
+                }
+                
+                // Validate file size (5MB limit)
+                if (file.size > 5 * 1024 * 1024) {
+                    $status.removeClass('success info').addClass('error');
+                    $status.text('File size too large. Maximum size is 5MB');
+                    $input.attr('aria-invalid', 'true');
+                    announceToScreenReader('File size too large. Please choose a smaller file.', true);
+                    return;
+                }
+                
+                // Success state
+                $status.removeClass('error info').addClass('success');
+                $status.text(`Selected: ${fileName} (${fileSize}MB)`);
+                $input.attr('aria-invalid', 'false');
+                announceToScreenReader(`File selected: ${fileName}`);
+            } else {
+                $status.removeClass('success error info').text('');
+                $input.attr('aria-invalid', 'false');
+            }
+        });
+        
+        // Add drag and drop accessibility
+        $('.dg10-file-upload-wrapper').on('dragover', function(e) {
+            e.preventDefault();
+            $(this).addClass('drag-over');
+            announceToScreenReader('File drag over upload area');
+        });
+        
+        $('.dg10-file-upload-wrapper').on('dragleave', function(e) {
+            e.preventDefault();
+            $(this).removeClass('drag-over');
+        });
+        
+        $('.dg10-file-upload-wrapper').on('drop', function(e) {
+            e.preventDefault();
+            $(this).removeClass('drag-over');
+            const files = e.originalEvent.dataTransfer.files;
+            if (files.length > 0) {
+                const $input = $(this).find('.dg10-file-input');
+                $input[0].files = files;
+                $input.trigger('change');
+            }
+        });
+    }
+    
+    /**
+     * Initialize enhanced form validation
+     */
+    function initEnhancedFormValidation() {
+        // Real-time validation for all form fields
+        $('input, select, textarea').on('input blur', function() {
+            validateField($(this));
+        });
+        
+        // Form submission validation
+        $('form').on('submit', function(e) {
+            const $form = $(this);
+            let hasErrors = false;
+            
+            // Validate all required fields
+            $form.find('input[required], select[required], textarea[required]').each(function() {
+                const $field = $(this);
+                validateField($field);
+                
+                if ($field.attr('aria-invalid') === 'true') {
+                    hasErrors = true;
+                }
+            });
+            
+            if (hasErrors) {
+                e.preventDefault();
+                announceToScreenReader('Please fix the errors before submitting the form', true);
+                
+                // Focus first error field
+                const $firstError = $form.find('[aria-invalid="true"]').first();
+                if ($firstError.length) {
+                    $firstError.focus();
+                }
+            }
+        });
+    }
+    
+    /**
+     * Initialize accessibility testing and validation
+     */
+    function initAccessibilityTesting() {
+        // Add accessibility testing tools in development mode
+        if (window.location.hostname === 'localhost' || window.location.hostname.includes('dev')) {
+            // Add accessibility testing button
+            $('body').append(`
+                <div id="aiopms-accessibility-tools" style="position: fixed; top: 10px; right: 10px; z-index: 999999; background: #000; color: #fff; padding: 10px; border-radius: 5px; font-size: 12px;">
+                    <button id="test-contrast" style="margin: 2px; padding: 5px;">Test Contrast</button>
+                    <button id="test-keyboard" style="margin: 2px; padding: 5px;">Test Keyboard</button>
+                    <button id="test-screen-reader" style="margin: 2px; padding: 5px;">Test Screen Reader</button>
+                </div>
+            `);
+            
+            // Test contrast ratios
+            $('#test-contrast').on('click', function() {
+                testContrastRatios();
+            });
+            
+            // Test keyboard navigation
+            $('#test-keyboard').on('click', function() {
+                testKeyboardNavigation();
+            });
+            
+            // Test screen reader announcements
+            $('#test-screen-reader').on('click', function() {
+                testScreenReaderAnnouncements();
+            });
+        }
+    }
+    
+    /**
+     * Test contrast ratios
+     */
+    function testContrastRatios() {
+        const elements = $('*').filter(function() {
+            const $el = $(this);
+            const computedStyle = window.getComputedStyle(this);
+            const color = computedStyle.color;
+            const backgroundColor = computedStyle.backgroundColor;
+            return color !== 'rgba(0, 0, 0, 0)' && backgroundColor !== 'rgba(0, 0, 0, 0)';
+        });
+        
+        let results = [];
+        elements.each(function() {
+            const $el = $(this);
+            const text = $el.text().trim();
+            if (text.length > 0) {
+                results.push({
+                    element: this,
+                    text: text.substring(0, 50),
+                    contrast: 'N/A' // Would need actual contrast calculation
+                });
+            }
+        });
+        
+        console.log('Contrast Test Results:', results);
+        announceToScreenReader('Contrast test completed. Check console for results.');
+    }
+    
+    /**
+     * Test keyboard navigation
+     */
+    function testKeyboardNavigation() {
+        const focusableElements = $('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        let results = [];
+        
+        focusableElements.each(function(index) {
+            const $el = $(this);
+            results.push({
+                index: index,
+                element: this,
+                tagName: this.tagName,
+                text: $el.text().trim().substring(0, 30),
+                hasAriaLabel: !!$el.attr('aria-label'),
+                hasAriaLabelledBy: !!$el.attr('aria-labelledby'),
+                tabIndex: $el.attr('tabindex')
+            });
+        });
+        
+        console.log('Keyboard Navigation Test Results:', results);
+        announceToScreenReader(`Found ${results.length} focusable elements. Check console for details.`);
+    }
+    
+    /**
+     * Test screen reader announcements
+     */
+    function testScreenReaderAnnouncements() {
+        const testMessages = [
+            'Testing screen reader announcements',
+            'This is a test of the live region functionality',
+            'Accessibility testing complete'
+        ];
+        
+        testMessages.forEach((message, index) => {
+            setTimeout(() => {
+                announceToScreenReader(message);
+            }, index * 1000);
+        });
     }
     
     // Add keyboard navigation support

@@ -10,7 +10,7 @@ function aiopms_ai_generation_tab() {
         if (isset($_POST['aiopms_selected_pages']) && is_array($_POST['aiopms_selected_pages'])) {
             $selected_pages = array_map('sanitize_text_field', wp_unslash($_POST['aiopms_selected_pages']));
             $generate_images = isset($_POST['aiopms_generate_images']) && $_POST['aiopms_generate_images'] == '1';
-            abpcwa_create_suggested_pages($selected_pages, $generate_images);
+            aiopms_create_suggested_pages($selected_pages, $generate_images);
         }
         return; // Stop further processing
     }
@@ -79,7 +79,7 @@ function aiopms_ai_generation_tab() {
         // Process CSV file if uploaded
         $csv_keywords = '';
         if (isset($_FILES['aiopms_keywords_csv']) && !empty($_FILES['aiopms_keywords_csv']['tmp_name']) && $_FILES['aiopms_keywords_csv']['error'] == UPLOAD_ERR_OK) {
-            $csv_keywords = abpcwa_process_keywords_csv($_FILES['aiopms_keywords_csv']);
+            $csv_keywords = aiopms_process_keywords_csv($_FILES['aiopms_keywords_csv']);
         }
         
         // Combine manual keywords and CSV keywords
@@ -96,13 +96,13 @@ function aiopms_ai_generation_tab() {
             // Use advanced mode functionality directly
             aiopms_generate_advanced_content_with_ai($business_type, $business_details, $all_keywords, $target_audience);
         } else {
-            abpcwa_generate_pages_with_ai($business_type, $business_details, $all_keywords, $target_audience);
+            aiopms_generate_pages_with_ai($business_type, $business_details, $all_keywords, $target_audience);
         }
     }
 }
 
 // Generate pages with AI
-function abpcwa_generate_pages_with_ai($business_type, $business_details, $seo_keywords = '', $target_audience = '') {
+function aiopms_generate_pages_with_ai($business_type, $business_details, $seo_keywords = '', $target_audience = '') {
     try {
         // Input validation
         if (empty($business_type) || empty($business_details)) {
@@ -153,13 +153,13 @@ function abpcwa_generate_pages_with_ai($business_type, $business_details, $seo_k
         
         switch ($provider) {
             case 'openai':
-                $suggested_pages = abpcwa_get_openai_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key);
+                $suggested_pages = aiopms_get_openai_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key);
                 break;
             case 'gemini':
-                $suggested_pages = abpcwa_get_gemini_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key);
+                $suggested_pages = aiopms_get_gemini_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key);
                 break;
             case 'deepseek':
-                $suggested_pages = abpcwa_get_deepseek_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key);
+                $suggested_pages = aiopms_get_deepseek_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key);
                 break;
             default:
                 echo '<div class="notice notice-error"><p>' . __('Invalid AI provider selected.', 'aiopms') . '</p></div>';
@@ -259,11 +259,18 @@ function abpcwa_generate_pages_with_ai($business_type, $business_details, $seo_k
 }
 
 // Get page suggestions from OpenAI API
-function abpcwa_get_openai_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key) {
+function aiopms_get_openai_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key) {
     try {
         // Input validation
         if (empty($api_key) || empty($business_type) || empty($business_details)) {
             throw new Exception(__('Missing required parameters for OpenAI API call.', 'aiopms'));
+        }
+
+        // Check cache first
+        $cache_key = 'openai_suggestions_' . md5($business_type . $business_details . $seo_keywords . $target_audience);
+        $cached_result = aiopms_cache_get($cache_key, 'ai_suggestions');
+        if ($cached_result !== false) {
+            return $cached_result;
         }
 
         $url = 'https://api.openai.com/v1/chat/completions';
@@ -427,6 +434,9 @@ Focus on creating a complete website architecture that will rank well and conver
             throw new Exception(__('No valid page suggestions received from OpenAI API.', 'aiopms'));
         }
 
+        // Cache the results for 24 hours
+        aiopms_cache_set($cache_key, $pages, 'ai_suggestions', AIOPMS_CACHE_EXPIRY * 24);
+
         return $pages;
 
     } catch (Exception $e) {
@@ -436,7 +446,7 @@ Focus on creating a complete website architecture that will rank well and conver
 }
 
 // Get page suggestions from Gemini API
-function abpcwa_get_gemini_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key) {
+function aiopms_get_gemini_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key) {
     try {
         // Input validation
         if (empty($api_key) || empty($business_type) || empty($business_details)) {
@@ -607,7 +617,7 @@ Focus on creating a complete website architecture that will rank well and conver
 }
 
 // Get page suggestions from DeepSeek API
-function abpcwa_get_deepseek_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key) {
+function aiopms_get_deepseek_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key) {
     try {
         // Input validation
         if (empty($api_key) || empty($business_type) || empty($business_details)) {
@@ -784,7 +794,7 @@ Focus on creating a complete website architecture that will rank well and conver
 }
 
 // Create suggested pages
-function abpcwa_create_suggested_pages($pages, $generate_images = false) {
+function aiopms_create_suggested_pages($pages, $generate_images = false) {
     try {
         // Input validation
         if (empty($pages) || !is_array($pages)) {
@@ -792,11 +802,19 @@ function abpcwa_create_suggested_pages($pages, $generate_images = false) {
             return;
         }
 
+        // Check memory before starting
+        if (!aiopms_check_memory_limit(75)) {
+            echo '<div class="notice notice-error"><p>' . __('Insufficient memory available for page creation. Please try with fewer pages.', 'aiopms') . '</p></div>';
+            return;
+        }
+
         $created_count = 0;
         $failed_count = 0;
         $parent_id_stack = [];
         $errors = [];
+        $pages_to_create = [];
 
+        // Prepare pages for batch processing
         foreach ($pages as $page_line) {
             if (empty($page_line)) continue;
 
@@ -839,7 +857,7 @@ function abpcwa_create_suggested_pages($pages, $generate_images = false) {
                 // Generate SEO-optimized slug
                 $post_name = aiopms_generate_seo_slug($page_title);
                 
-                $new_page = array(
+                $pages_to_create[] = array(
                     'post_title'   => $page_title,
                     'post_name'    => $post_name,
                     'post_content' => '',
@@ -847,19 +865,38 @@ function abpcwa_create_suggested_pages($pages, $generate_images = false) {
                     'post_type'    => 'page',
                     'post_parent'  => $parent_id,
                     'post_excerpt' => $excerpt,
+                    'page_line'    => $page_line,
+                    'depth'        => $depth
                 );
-                
-                $page_id = wp_insert_post($new_page);
 
+            } catch (Exception $e) {
+                $failed_count++;
+                $errors[] = sprintf(__('Error processing page "%s": %s', 'aiopms'), $page_line, $e->getMessage());
+            }
+        }
+
+        // Use batch processing if available
+        if (class_exists('AIOPMS_DB_Optimizer') && count($pages_to_create) > 10) {
+            $db_optimizer = AIOPMS_DB_Optimizer::get_instance();
+            $batch_result = $db_optimizer->batch_insert_posts($pages_to_create, AIOPMS_BATCH_SIZE);
+            
+            $created_count = $batch_result['inserted'];
+            $errors = array_merge($errors, $batch_result['errors']);
+            $failed_count = count($pages_to_create) - $created_count;
+        } else {
+            // Process pages individually
+            foreach ($pages_to_create as $page_data) {
+                $page_id = wp_insert_post($page_data);
+                
                 if ($page_id && !is_wp_error($page_id)) {
                     $created_count++;
                     
                     // Generate and set featured image if enabled
                     if ($generate_images) {
                         try {
-                            abpcwa_generate_and_set_featured_image($page_id, $page_title);
+                            aiopms_generate_and_set_featured_image($page_id, $page_data['post_title']);
                         } catch (Exception $e) {
-                            $errors[] = sprintf(__('Failed to generate image for "%s": %s', 'aiopms'), $page_title, $e->getMessage());
+                            $errors[] = sprintf(__('Failed to generate image for "%s": %s', 'aiopms'), $page_data['post_title'], $e->getMessage());
                         }
                     }
                     
@@ -869,21 +906,14 @@ function abpcwa_create_suggested_pages($pages, $generate_images = false) {
                         try {
                             aiopms_generate_schema_markup($page_id);
                         } catch (Exception $e) {
-                            $errors[] = sprintf(__('Failed to generate schema for "%s": %s', 'aiopms'), $page_title, $e->getMessage());
+                            $errors[] = sprintf(__('Failed to generate schema for "%s": %s', 'aiopms'), $page_data['post_title'], $e->getMessage());
                         }
                     }
-                    
-                    $parent_id_stack[$depth] = $page_id;
-                    $parent_id_stack = array_slice($parent_id_stack, 0, $depth + 1);
                 } else {
                     $failed_count++;
                     $error_message = is_wp_error($page_id) ? $page_id->get_error_message() : __('Unknown error', 'aiopms');
-                    $errors[] = sprintf(__('Failed to create page "%s": %s', 'aiopms'), $page_title, $error_message);
+                    $errors[] = sprintf(__('Failed to create page "%s": %s', 'aiopms'), $page_data['post_title'], $error_message);
                 }
-
-            } catch (Exception $e) {
-                $failed_count++;
-                $errors[] = sprintf(__('Error processing page "%s": %s', 'aiopms'), $page_line, $e->getMessage());
             }
         }
 
@@ -920,7 +950,7 @@ function abpcwa_create_suggested_pages($pages, $generate_images = false) {
 }
 
 // Generate and set featured image using AI
-function abpcwa_generate_and_set_featured_image($post_id, $page_title) {
+function aiopms_generate_and_set_featured_image($post_id, $page_title) {
     try {
         // Input validation
         if (empty($post_id) || empty($page_title)) {
@@ -996,10 +1026,10 @@ Avoid photorealistic images - focus on abstract, brand-aligned graphics that enh
         $image_url = '';
         switch ($provider) {
             case 'openai':
-                $image_url = abpcwa_generate_openai_image($prompt, $api_key);
+                $image_url = aiopms_generate_openai_image($prompt, $api_key);
                 break;
             case 'gemini':
-                $image_url = abpcwa_generate_gemini_image($prompt, $api_key);
+                $image_url = aiopms_generate_gemini_image($prompt, $api_key);
                 break;
             default:
                 throw new Exception(__('Unsupported provider for image generation.', 'aiopms'));
@@ -1039,7 +1069,7 @@ Avoid photorealistic images - focus on abstract, brand-aligned graphics that enh
 }
 
 // Generate image using OpenAI DALL-E
-function abpcwa_generate_openai_image($prompt, $api_key) {
+function aiopms_generate_openai_image($prompt, $api_key) {
     try {
         // Input validation
         if (empty($prompt) || empty($api_key)) {
@@ -1112,7 +1142,7 @@ function abpcwa_generate_openai_image($prompt, $api_key) {
 }
 
 // Generate image using Google Gemini
-function abpcwa_generate_gemini_image($prompt, $api_key) {
+function aiopms_generate_gemini_image($prompt, $api_key) {
     // Note: As of current implementation, Gemini doesn't have a direct image generation API like DALL-E
     // This function is a placeholder for future implementation when Gemini releases image generation
     // For now, we'll return empty string to indicate no image generation
@@ -1120,7 +1150,7 @@ function abpcwa_generate_gemini_image($prompt, $api_key) {
 }
 
 // Process keywords from CSV file
-function abpcwa_process_keywords_csv($file) {
+function aiopms_process_keywords_csv($file) {
     try {
         // Input validation
         if (!isset($file) || !is_array($file)) {
@@ -1270,6 +1300,16 @@ if (!function_exists('aiopms_validate_api_key')) {
     function aiopms_validate_api_key($api_key, $provider) {
         try {
             if (empty($api_key)) {
+                return false;
+            }
+            
+            // Additional security: Check for common patterns that might indicate invalid keys
+            if (strlen($api_key) < 20 || strlen($api_key) > 200) {
+                return false;
+            }
+            
+            // Check for suspicious patterns
+            if (preg_match('/^(test|demo|example|fake|dummy)/i', $api_key)) {
                 return false;
             }
 
@@ -2119,7 +2159,7 @@ function aiopms_create_advanced_content($pages, $custom_post_types, $generate_im
             
             // Generate and set featured image if enabled
             if ($generate_images) {
-                abpcwa_generate_and_set_featured_image($page_id, $page_title);
+                aiopms_generate_and_set_featured_image($page_id, $page_title);
             }
             
             // Generate schema markup for the new page
