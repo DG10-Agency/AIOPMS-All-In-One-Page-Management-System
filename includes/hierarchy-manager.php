@@ -133,8 +133,8 @@ function aiopms_hierarchy_tab() {
             <div id="abpcwa-hierarchy-grid" class="abpcwa-hierarchy-view active-view">
                 <div class="abpcwa-loading">Loading page hierarchy...</div>
             </div>
-            <div id="abpcwa-hierarchy-tree" class="abpcwa-hierarchy-view"></div>
-            <div id="abpcwa-hierarchy-orgchart" class="abpcwa-hierarchy-view"></div>
+            <div id="abpcwa-hierarchy-tree" class="abpcwa-hierarchy-view" style="display: none;"></div>
+            <div id="abpcwa-hierarchy-orgchart" class="abpcwa-hierarchy-view" style="display: none;"></div>
         </div>
 
         <div class="abpcwa-hierarchy-note">

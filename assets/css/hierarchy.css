@@ -6,9 +6,13 @@
 .abpcwa-hierarchy-header {
     margin-bottom: 20px;
     padding: 15px;
-    background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+    background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%) !important;
     border: 1px solid #8B5CF6;
     border-radius: 4px;
+    color: #FFFFFF !important;
+}
+
+.abpcwa-hierarchy-header * {
     color: #FFFFFF !important;
 }
 
@@ -28,6 +32,34 @@
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
+/* Override dg10-brand styles with higher specificity */
+.dg10-brand .abpcwa-hierarchy-header {
+    background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%) !important;
+    color: #FFFFFF !important;
+    border: 1px solid #8B5CF6 !important;
+    border-radius: 4px !important;
+}
+
+.dg10-brand .abpcwa-hierarchy-header * {
+    color: #FFFFFF !important;
+}
+
+.dg10-brand .abpcwa-hierarchy-header h2 {
+    color: #FFFFFF !important;
+    margin: 0 0 10px 0;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.dg10-brand .abpcwa-hierarchy-header .description {
+    color: rgba(255, 255, 255, 0.9) !important;
+    margin: 10px 0;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
 .abpcwa-view-controls {
     margin-top: 15px;
     margin-bottom: 15px;
@@ -37,17 +69,32 @@
 }
 
 .abpcwa-view-controls .button.button-primary {
-    background-color: #1D4ED8; /* Darker blue for better contrast */
-    border-color: #1D4ED8;
-    color: #fff;
+    background-color: #1D4ED8 !important; /* Darker blue for better contrast */
+    border-color: #1D4ED8 !important;
+    color: #fff !important;
     font-weight: 600; /* Increased weight for better contrast */
 }
 
 .abpcwa-view-controls .button:not(.button-primary) {
-    background-color: #f6f7f7;
-    border-color: #9CA3AF; /* Darker border for better visibility */
-    color: #374151; /* Darker color for better contrast */
+    background-color: #f6f7f7 !important;
+    border-color: #9CA3AF !important; /* Darker border for better visibility */
+    color: #374151 !important; /* Darker color for better contrast */
     font-weight: 500; /* Increased weight for better readability */
+}
+
+/* Override dg10-brand button styles with higher specificity */
+.dg10-brand .abpcwa-view-controls .button.button-primary {
+    background-color: #1D4ED8 !important;
+    border-color: #1D4ED8 !important;
+    color: #fff !important;
+    font-weight: 600;
+}
+
+.dg10-brand .abpcwa-view-controls .button:not(.button-primary) {
+    background-color: #f6f7f7 !important;
+    border-color: #9CA3AF !important;
+    color: #374151 !important;
+    font-weight: 500;
 }
 
 .abpcwa-hierarchy-controls {
@@ -77,7 +124,7 @@
 }
 
 .abpcwa-hierarchy-view {
-    display: none; /* Hide all views by default */
+    display: none !important; /* Hide all views by default with !important to override any other styles */
     min-height: 400px;
     padding: 15px;
     background: #fff;
@@ -90,7 +137,7 @@
 }
 
 .abpcwa-hierarchy-view.active-view {
-    display: block; /* Show only the active view */
+    display: block !important; /* Show only the active view with !important */
 }
 
 /* D3.js Visualization Styles */

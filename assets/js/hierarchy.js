@@ -35,7 +35,13 @@ jQuery(document).ready(function($) {
                 <p style="margin: 0; font-size: 14px; opacity: 0.8;">Fetching and organizing your pages...</p>
             </div>
         `;
+        
+        // Only show loading in the default view (grid)
         $('#abpcwa-hierarchy-grid').html(loadingHtml);
+        
+        // Ensure only the default view is visible initially
+        $('.abpcwa-hierarchy-view').removeClass('active-view');
+        $('#abpcwa-hierarchy-grid').addClass('active-view');
 
         // Fetch hierarchy data from REST API
         console.log('AIOPMS: Fetching hierarchy data from:', aiopmsHierarchy.rest_url + 'hierarchy');
@@ -108,9 +114,9 @@ jQuery(document).ready(function($) {
         $('.abpcwa-view-controls .button').removeClass('button-primary');
         $('.abpcwa-view-controls .button[data-view="' + view + '"]').addClass('button-primary');
 
-        // Show the correct view container
-        $('.abpcwa-hierarchy-view').removeClass('active-view');
-        $('#abpcwa-hierarchy-' + view).addClass('active-view');
+        // Hide all views first, then show only the selected one
+        $('.abpcwa-hierarchy-view').removeClass('active-view').hide();
+        $('#abpcwa-hierarchy-' + view).addClass('active-view').show();
 
         // Call the appropriate render function
         switch (view) {
