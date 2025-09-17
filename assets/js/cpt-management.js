@@ -31,6 +31,10 @@
             $('#apply-bulk-action').on('click', this.handleBulkAction);
             $(document).on('change', '.cpt-checkbox', this.updateBulkSelection);
             $('#select-all-cpts').on('change', this.handleSelectAll);
+            
+            // Keyboard navigation for bulk actions
+            $('#bulk-action-select').on('keydown', this.handleBulkActionKeydown);
+            $('#apply-bulk-action').on('keydown', this.handleBulkActionKeydown);
 
             // CPT card actions
             $(document).on('click', '.aiopms-action-btn', this.handleCPTAction);
@@ -55,6 +59,10 @@
             $(document).on('change', '.aiopms-cpt-checkbox', this.updateBulkSelection);
             $('#bulk-action-selector').on('change', this.toggleBulkActionButton);
             $('#apply-bulk-action-btn').on('click', this.handleBulkAction);
+            
+            // Keyboard navigation for bulk operations
+            $('#bulk-action-selector').on('keydown', this.handleBulkOperationKeydown);
+            $('#apply-bulk-action-btn').on('keydown', this.handleBulkOperationKeydown);
             
             // Import/Export
             $('input[name="export_type"]').on('change', this.toggleExportSelection);
@@ -168,7 +176,49 @@
         toggleBulkActionButton: function() {
             const hasAction = $('#bulk-action-select').val() !== '';
             const hasSelection = $('.cpt-checkbox:checked').length > 0;
-            $('#apply-bulk-action').prop('disabled', !hasAction || !hasSelection);
+            const isEnabled = hasAction && hasSelection;
+            
+            $('#apply-bulk-action').prop('disabled', !isEnabled);
+            
+            // Add visual feedback
+            if (isEnabled) {
+                $('#apply-bulk-action').addClass('aiopms-button-ready');
+                this.updateBulkActionTooltip('Ready to apply action');
+            } else {
+                $('#apply-bulk-action').removeClass('aiopms-button-ready');
+                if (!hasAction) {
+                    this.updateBulkActionTooltip('Please select an action');
+                } else if (!hasSelection) {
+                    this.updateBulkActionTooltip('Please select at least one CPT');
+                }
+            }
+        },
+
+        updateBulkActionTooltip: function(message) {
+            const button = $('#apply-bulk-action');
+            const statusElement = $('#bulk-action-status');
+            
+            button.attr('title', message);
+            statusElement.text(message);
+            
+            // Add temporary visual indicator
+            if (message.includes('Ready')) {
+                button.addClass('aiopms-button-pulse');
+                setTimeout(() => button.removeClass('aiopms-button-pulse'), 2000);
+            }
+        },
+
+        handleBulkActionKeydown: function(e) {
+            // Enter key activates the apply button if enabled
+            if (e.key === 'Enter' && !$('#apply-bulk-action').prop('disabled')) {
+                e.preventDefault();
+                $('#apply-bulk-action').click();
+            }
+            // Escape key clears selection
+            else if (e.key === 'Escape') {
+                $('#bulk-action-select').val('').trigger('change');
+                $('.cpt-checkbox').prop('checked', false).trigger('change');
+            }
         },
 
         handleBulkAction: function(e) {
@@ -1002,8 +1052,49 @@
         toggleBulkActionButton: function() {
             const hasSelection = $('.aiopms-cpt-checkbox:checked').length > 0;
             const hasAction = $('#bulk-action-selector').val() !== '';
+            const isEnabled = hasSelection && hasAction;
             
-            $('#apply-bulk-action-btn').prop('disabled', !hasSelection || !hasAction);
+            $('#apply-bulk-action-btn').prop('disabled', !isEnabled);
+            
+            // Add visual feedback
+            if (isEnabled) {
+                $('#apply-bulk-action-btn').addClass('aiopms-button-ready');
+                this.updateBulkActionTooltip('Ready to apply action');
+            } else {
+                $('#apply-bulk-action-btn').removeClass('aiopms-button-ready');
+                if (!hasAction) {
+                    this.updateBulkActionTooltip('Please select an action');
+                } else if (!hasSelection) {
+                    this.updateBulkActionTooltip('Please select at least one CPT');
+                }
+            }
+        },
+
+        updateBulkActionTooltip: function(message) {
+            const button = $('#apply-bulk-action-btn');
+            const statusElement = $('#bulk-operation-status');
+            
+            button.attr('title', message);
+            statusElement.text(message);
+            
+            // Add temporary visual indicator
+            if (message.includes('Ready')) {
+                button.addClass('aiopms-button-pulse');
+                setTimeout(() => button.removeClass('aiopms-button-pulse'), 2000);
+            }
+        },
+
+        handleBulkOperationKeydown: function(e) {
+            // Enter key activates the apply button if enabled
+            if (e.key === 'Enter' && !$('#apply-bulk-action-btn').prop('disabled')) {
+                e.preventDefault();
+                $('#apply-bulk-action-btn').click();
+            }
+            // Escape key clears selection
+            else if (e.key === 'Escape') {
+                $('#bulk-action-selector').val('').trigger('change');
+                $('.aiopms-cpt-checkbox').prop('checked', false).trigger('change');
+            }
         },
 
         handleBulkAction: function(e) {

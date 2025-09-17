@@ -66,6 +66,7 @@
 #adminmenu #toplevel_page_aiopms-page-management .wp-submenu {
     background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border-radius: 0 0 8px 8px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(180, 124, 253, 0.1);
@@ -105,12 +106,25 @@
     }
     
     #adminmenu #toplevel_page_aiopms-page-management .wp-submenu li a {
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(255, 255, 255, 0.8) !important;
     }
     
     #adminmenu #toplevel_page_aiopms-page-management .wp-submenu li a:hover {
-        color: var(--dg10-primary, #B47CFD);
+        color: var(--dg10-primary, #B47CFD) !important;
         background: linear-gradient(135deg, rgba(180, 124, 253, 0.2) 0%, rgba(255, 127, 194, 0.2) 100%);
+    }
+    
+    /* Firefox-specific dark mode fixes */
+    .dg10-sidebar-nav-item:hover {
+        color: #60A5FA !important; /* Lighter blue for dark mode */
+    }
+    
+    .dg10-sidebar-nav-item.active {
+        color: #60A5FA !important; /* Lighter blue for dark mode */
+    }
+    
+    .dg10-sidebar-nav-item .nav-icon {
+        color: #60A5FA !important; /* Lighter blue for dark mode */
     }
 }
 
@@ -167,34 +181,36 @@
 
 /* Sidebar navigation */
 .dg10-sidebar-nav {
-    padding: 16px 0;
+    padding: 8px 0;
 }
 
+/* Sidebar navigation items - single source of truth */
 .dg10-sidebar-nav-item {
-    display: block;
-    padding: 12px 20px;
-    color: #374151; /* Darker color for better contrast */
-    text-decoration: none;
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
     font-size: 14px;
-    font-weight: 600; /* Increased weight for better contrast */
+    font-weight: 600;
     transition: all 0.2s ease;
     border-left: 3px solid transparent;
     position: relative;
+    line-height: 1.2;
+    gap: 8px;
 }
 
 .dg10-sidebar-nav-item:hover {
-    background: #f6f7f7;
-    color: #1D4ED8; /* Darker blue for better contrast */
-    border-left-color: #1D4ED8;
-    text-decoration: none;
-    font-weight: 700; /* Increased weight on hover for better visibility */
+    background: #f6f7f7 !important;
+    color: #1D4ED8 !important; /* Darker blue for better contrast - forced for Firefox */
+    border-left-color: #1D4ED8 !important;
+    text-decoration: none !important;
+    font-weight: 700 !important; /* Increased weight on hover for better visibility */
 }
 
 .dg10-sidebar-nav-item.active {
     background: linear-gradient(135deg, rgba(29, 78, 216, 0.15) 0%, rgba(29, 78, 216, 0.08) 100%); /* Enhanced background for better visibility */
-    color: #1D4ED8; /* Darker blue for better contrast */
-    border-left-color: #1D4ED8;
-    font-weight: 700; /* Increased weight for active state */
+    color: #1D4ED8 !important; /* Darker blue for better contrast - forced for Firefox */
+    border-left-color: #1D4ED8 !important;
+    font-weight: 700 !important; /* Increased weight for active state */
 }
 
 .dg10-sidebar-nav-item.active::before {
@@ -218,7 +234,7 @@
     margin-right: 12px;
     font-size: 16px;
     font-weight: 600; /* Increased weight for better visibility */
-    color: inherit; /* Inherit color for better contrast */
+    color: #1D4ED8 !important; /* Explicit color for Firefox compatibility */
 }
 
 /* Main content area */
@@ -284,7 +300,7 @@
         white-space: nowrap;
         border-left: none;
         border-bottom: 3px solid transparent;
-        padding: 12px 16px;
+        padding: 4px 8px;
         border-radius: 6px;
         min-width: fit-content;
     }
@@ -293,6 +309,7 @@
     .dg10-sidebar-nav-item.active {
         border-left: none;
         border-bottom-color: #1D4ED8; /* Darker blue for better contrast */
+        color: #1D4ED8 !important; /* Force color for mobile Firefox */
     }
     
     .dg10-sidebar-nav-item.active::before {
@@ -320,9 +337,9 @@
     }
     
     .dg10-sidebar-nav-item {
-        padding: 10px 12px;
+        padding: 3px 8px;
         font-size: 13px;
-        font-weight: 600; /* Ensure proper weight on small screens */
+        font-weight: 600;
     }
     
     .dg10-sidebar-nav-item .nav-icon {
@@ -411,4 +428,53 @@
 
 .dg10-brand .dg10-nav-tab.active {
     color: var(--dg10-primary) !important;
+}
+
+/* ==========================================================================
+   FIREFOX-SPECIFIC CROSS-BROWSER COMPATIBILITY FIXES
+   ========================================================================== */
+
+/* Firefox-specific fixes for menu hover states */
+@-moz-document url-prefix() {
+    .dg10-sidebar-nav-item {
+        color: #374151 !important; /* Force dark text for Firefox */
+    }
+    
+    .dg10-sidebar-nav-item:hover {
+        color: #1D4ED8 !important; /* Force blue text on hover for Firefox */
+        background: #f6f7f7 !important;
+    }
+    
+    .dg10-sidebar-nav-item.active {
+        color: #1D4ED8 !important; /* Force blue text for active state in Firefox */
+    }
+    
+    .dg10-sidebar-nav-item .nav-icon {
+        color: #1D4ED8 !important; /* Force icon color for Firefox */
+    }
+    
+    /* Ensure proper backdrop-filter support */
+    .dg10-loading-overlay {
+        background: rgba(255, 255, 255, 0.95);
+    }
+    
+    /* Fix for Firefox gradient rendering */
+    .dg10-sidebar-nav-item.active {
+        background: #e0e7ff !important; /* Fallback solid color for Firefox */
+    }
+}
+
+/* Additional vendor prefixes for better cross-browser support */
+.dg10-sidebar-nav-item {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* Ensure proper text rendering in Firefox */
+.dg10-sidebar-nav-item,
+.dg10-sidebar-nav-item * {
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }

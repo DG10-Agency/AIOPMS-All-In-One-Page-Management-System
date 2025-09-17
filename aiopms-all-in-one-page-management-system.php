@@ -641,12 +641,6 @@ function aiopms_add_action_links( $links ) {
 	$settings_link = '<a href="' . admin_url( 'admin.php?page=aiopms-page-management&tab=settings' ) . '">' . esc_html__( 'Settings', 'aiopms' ) . '</a>';
 	array_unshift( $links, $settings_link );
 	
-	$plugin_page_link = '<a href="https://dg10.agency/free-wordpress-page-management-plugin/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Visit Plugin Site', 'aiopms' ) . '</a>';
-	$links[] = $plugin_page_link;
-	
-	$docs_link = '<a href="' . AIOPMS_GITHUB_URL . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Documentation', 'aiopms' ) . '</a>';
-	$links[] = $docs_link;
-	
 	return $links;
 }
 
@@ -661,10 +655,12 @@ function aiopms_add_action_links( $links ) {
 function aiopms_add_plugin_row_meta( $links, $file ) {
 	if ( plugin_basename( __FILE__ ) === $file ) {
 		$row_meta = array(
-			'plugin_page' => '<a href="https://dg10.agency/free-wordpress-page-management-plugin/" target="_blank" rel="noopener noreferrer" aria-label="' . esc_attr__( 'Visit AIOPMS Plugin Page', 'aiopms' ) . '">' . esc_html__( 'Visit Plugin Site', 'aiopms' ) . '</a>',
-			'docs'        => '<a href="' . AIOPMS_GITHUB_URL . '" target="_blank" rel="noopener noreferrer" aria-label="' . esc_attr__( 'View AIOPMS Documentation', 'aiopms' ) . '">' . esc_html__( 'Documentation', 'aiopms' ) . '</a>',
-			'support'     => '<a href="https://dg10.agency/contact/" target="_blank" rel="noopener noreferrer" aria-label="' . esc_attr__( 'Get AIOPMS Support', 'aiopms' ) . '">' . esc_html__( 'Support', 'aiopms' ) . '</a>',
-			'rate'        => '<a href="https://dg10.agency/free-wordpress-page-management-plugin/" target="_blank" rel="noopener noreferrer" aria-label="' . esc_attr__( 'Rate AIOPMS Plugin', 'aiopms' ) . '">' . esc_html__( 'Rate Plugin', 'aiopms' ) . '</a>',
+			'plugin_page'      => '<a href="https://dg10.agency/free-wordpress-page-management-plugin/" target="_blank" rel="noopener noreferrer" aria-label="' . esc_attr__( 'Visit AIOPMS Plugin Page', 'aiopms' ) . '">' . esc_html__( 'Visit Plugin Site', 'aiopms' ) . '</a>',
+			'docs'             => '<a href="' . AIOPMS_GITHUB_URL . '" target="_blank" rel="noopener noreferrer" aria-label="' . esc_attr__( 'View AIOPMS Documentation', 'aiopms' ) . '">' . esc_html__( 'Documentation', 'aiopms' ) . '</a>',
+			'support'          => '<a href="https://dg10.agency/free-wordpress-page-management-plugin/#support" target="_blank" rel="noopener noreferrer" aria-label="' . esc_attr__( 'Get AIOPMS Support', 'aiopms' ) . '">' . esc_html__( 'Support', 'aiopms' ) . '</a>',
+			'feature_request'  => '<a href="https://dg10.agency/free-wordpress-page-management-plugin/#feature-request" target="_blank" rel="noopener noreferrer" aria-label="' . esc_attr__( 'Request AIOPMS Feature', 'aiopms' ) . '">' . esc_html__( 'Feature Request', 'aiopms' ) . '</a>',
+			'donate'           => '<a href="https://dg10.agency/free-wordpress-page-management-plugin/#donate" target="_blank" rel="noopener noreferrer" aria-label="' . esc_attr__( 'Donate to AIOPMS', 'aiopms' ) . '">' . esc_html__( 'Donate', 'aiopms' ) . '</a>',
+			'rate'             => '<a href="https://dg10.agency/free-wordpress-page-management-plugin/" target="_blank" rel="noopener noreferrer" aria-label="' . esc_attr__( 'Rate AIOPMS Plugin', 'aiopms' ) . '">' . esc_html__( 'Rate Plugin', 'aiopms' ) . '</a>',
 		);
 		
 		$links = array_merge( $links, $row_meta );
@@ -962,7 +958,18 @@ require_once AIOPMS_PLUGIN_PATH . 'includes/page-creation.php';
 require_once AIOPMS_PLUGIN_PATH . 'includes/csv-handler.php';
 require_once AIOPMS_PLUGIN_PATH . 'includes/settings-page.php';
 require_once AIOPMS_PLUGIN_PATH . 'includes/ai-generator.php';
-require_once AIOPMS_PLUGIN_PATH . 'includes/custom-post-type-manager.php';
+
+// CPT Manager Refactor
+require_once AIOPMS_PLUGIN_PATH . 'includes/cpt/class-aiopms-cpt-manager.php';
+require_once AIOPMS_PLUGIN_PATH . 'includes/cpt/class-aiopms-cpt-admin-ui.php';
+require_once AIOPMS_PLUGIN_PATH . 'includes/cpt/class-aiopms-cpt-ajax.php';
+require_once AIOPMS_PLUGIN_PATH . 'includes/cpt/class-aiopms-cpt-rest.php';
+require_once AIOPMS_PLUGIN_PATH . 'includes/cpt/class-aiopms-cpt-hooks.php';
+
+// Initialize the CPT Manager
+$aiopms_cpt_hooks = new AIOPMS_CPT_Hooks();
+add_action('plugins_loaded', array($aiopms_cpt_hooks, 'init'));
+
 require_once AIOPMS_PLUGIN_PATH . 'includes/hierarchy-manager.php';
 require_once AIOPMS_PLUGIN_PATH . 'includes/menu-generator.php';
 require_once AIOPMS_PLUGIN_PATH . 'includes/schema-generator.php';
