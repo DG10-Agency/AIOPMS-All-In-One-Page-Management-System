@@ -89,6 +89,11 @@ function aiopms_admin_page() {
 			'icon'        => '⚙️',
 			'description' => __( 'Configure plugin options', 'aiopms' ),
 		),
+		'about'           => array(
+			'title'       => __( 'About', 'aiopms' ),
+			'icon'        => '🏢',
+			'description' => __( 'Learn about DG10 Agency and get support', 'aiopms' ),
+		),
 	);
 	?>
 	<div class="wrap dg10-brand">
@@ -161,6 +166,8 @@ function aiopms_admin_page() {
 							aiopms_keyword_analysis_tab();
 						} elseif ( 'settings' === $active_tab ) {
 							aiopms_settings_tab();
+						} elseif ( 'about' === $active_tab ) {
+							aiopms_about_tab();
 						}
 						?>
 					</div>
@@ -2823,3 +2830,425 @@ function aiopms_bulk_management_tab() {
     </style>
     <?php
 }
+
+/**
+ * Display About tab content with tabbed interface and email forms.
+ * 
+ * @since 3.0
+ */
+function aiopms_about_tab() {
+	$active_subtab = isset( $_GET['subtab'] ) ? sanitize_key( $_GET['subtab'] ) : 'support';
+	?>
+	<div class="aiopms-about-container">
+		<!-- Tab Navigation -->
+		<div class="aiopms-about-tabs">
+			<nav class="aiopms-tab-nav" role="tablist">
+				<a href="<?php echo esc_url( add_query_arg( 'subtab', 'support' ) ); ?>" 
+				   class="aiopms-tab-link <?php echo $active_subtab === 'support' ? 'active' : ''; ?>" 
+				   role="tab" 
+				   aria-selected="<?php echo $active_subtab === 'support' ? 'true' : 'false'; ?>">
+					<span class="aiopms-tab-icon">💬</span>
+					<?php esc_html_e( 'Get Support', 'aiopms' ); ?>
+				</a>
+				<a href="<?php echo esc_url( add_query_arg( 'subtab', 'feature' ) ); ?>" 
+				   class="aiopms-tab-link <?php echo $active_subtab === 'feature' ? 'active' : ''; ?>" 
+				   role="tab" 
+				   aria-selected="<?php echo $active_subtab === 'feature' ? 'true' : 'false'; ?>">
+					<span class="aiopms-tab-icon">💡</span>
+					<?php esc_html_e( 'Feature Request', 'aiopms' ); ?>
+				</a>
+				<a href="<?php echo esc_url( add_query_arg( 'subtab', 'community' ) ); ?>" 
+				   class="aiopms-tab-link <?php echo $active_subtab === 'community' ? 'active' : ''; ?>" 
+				   role="tab" 
+				   aria-selected="<?php echo $active_subtab === 'community' ? 'true' : 'false'; ?>">
+					<span class="aiopms-tab-icon">🌐</span>
+					<?php esc_html_e( 'Engage with Community', 'aiopms' ); ?>
+				</a>
+			</nav>
+		</div>
+
+		<!-- Tab Content -->
+		<div class="aiopms-tab-content">
+			<?php if ( $active_subtab === 'support' ): ?>
+				<!-- Support Tab -->
+				<div class="dg10-card">
+					<div class="dg10-card-content">
+						<p class="aiopms-tab-description"><?php esc_html_e( 'Need help with AIOPMS? Contact our support team.', 'aiopms' ); ?></p>
+						<form class="aiopms-support-form" method="post" action="">
+							<?php wp_nonce_field( 'aiopms_support_form', 'aiopms_support_nonce' ); ?>
+							<input type="hidden" name="action" value="aiopms_send_support_email">
+							
+							<div class="aiopms-form-group">
+								<label for="support_name"><?php esc_html_e( 'Your Name', 'aiopms' ); ?> *</label>
+								<input type="text" id="support_name" name="name" required>
+							</div>
+							<div class="aiopms-form-group">
+								<label for="support_email"><?php esc_html_e( 'Email Address', 'aiopms' ); ?> *</label>
+								<input type="email" id="support_email" name="email" required>
+							</div>
+							<div class="aiopms-form-group">
+								<label for="support_message"><?php esc_html_e( 'Message', 'aiopms' ); ?> *</label>
+								<textarea id="support_message" name="message" rows="4" required placeholder="<?php esc_attr_e( 'Describe your issue or question...', 'aiopms' ); ?>"></textarea>
+							</div>
+							<button type="submit" class="dg10-btn dg10-btn-primary">
+								<?php esc_html_e( 'Send Support Request', 'aiopms' ); ?>
+							</button>
+						</form>
+					</div>
+				</div>
+
+			<?php elseif ( $active_subtab === 'feature' ): ?>
+				<!-- Feature Request Tab -->
+				<div class="dg10-card">
+					<div class="dg10-card-content">
+						<p class="aiopms-tab-description"><?php esc_html_e( 'Have an idea for improving AIOPMS? Let us know!', 'aiopms' ); ?></p>
+						<form class="aiopms-feature-form" method="post" action="">
+							<?php wp_nonce_field( 'aiopms_feature_form', 'aiopms_feature_nonce' ); ?>
+							<input type="hidden" name="action" value="aiopms_send_feature_email">
+							
+							<div class="aiopms-form-group">
+								<label for="feature_name"><?php esc_html_e( 'Your Name', 'aiopms' ); ?> *</label>
+								<input type="text" id="feature_name" name="name" required>
+							</div>
+							<div class="aiopms-form-group">
+								<label for="feature_email"><?php esc_html_e( 'Email Address', 'aiopms' ); ?> *</label>
+								<input type="email" id="feature_email" name="email" required>
+							</div>
+							<div class="aiopms-form-group">
+								<label for="feature_message"><?php esc_html_e( 'Feature Description', 'aiopms' ); ?> *</label>
+								<textarea id="feature_message" name="message" rows="4" required placeholder="<?php esc_attr_e( 'Describe the feature you would like to see...', 'aiopms' ); ?>"></textarea>
+							</div>
+							<button type="submit" class="dg10-btn dg10-btn-primary">
+								<?php esc_html_e( 'Submit Feature Request', 'aiopms' ); ?>
+							</button>
+						</form>
+					</div>
+				</div>
+
+			<?php elseif ( $active_subtab === 'community' ): ?>
+				<!-- Community Tab -->
+				<div class="dg10-card">
+					<div class="dg10-card-content">
+						<p class="aiopms-tab-description"><?php esc_html_e( 'Join our community and connect with other users.', 'aiopms' ); ?></p>
+						<div class="aiopms-community-links">
+							<a href="https://www.reddit.com/r/AIOPMS/" target="_blank" rel="noopener noreferrer" class="dg10-btn dg10-btn-outline">
+								<span class="dg10-btn-icon">🔴</span>
+								<?php esc_html_e( 'Reddit Community', 'aiopms' ); ?>
+							</a>
+							<a href="<?php echo esc_url( AIOPMS_GITHUB_URL ); ?>" target="_blank" rel="noopener noreferrer" class="dg10-btn dg10-btn-outline">
+								<span class="dg10-btn-icon">⭐</span>
+								<?php esc_html_e( 'GitHub Repository', 'aiopms' ); ?>
+							</a>
+						</div>
+						<div class="aiopms-community-info">
+							<h4><?php esc_html_e( 'Why Join Our Community?', 'aiopms' ); ?></h4>
+							<ul class="aiopms-community-benefits">
+								<li><?php esc_html_e( 'Get help from other users', 'aiopms' ); ?></li>
+								<li><?php esc_html_e( 'Share your success stories', 'aiopms' ); ?></li>
+								<li><?php esc_html_e( 'Get early access to new features', 'aiopms' ); ?></li>
+								<li><?php esc_html_e( 'Contribute to the project', 'aiopms' ); ?></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			<?php endif; ?>
+		</div>
+	</div>
+
+	<style>
+	.aiopms-about-container {
+		max-width: 100%;
+		margin: 0;
+		padding: 0;
+	}
+
+	/* Tab Navigation */
+	.aiopms-about-tabs {
+		margin-bottom: var(--dg10-spacing-lg);
+	}
+
+	.aiopms-tab-nav {
+		display: flex;
+		border-bottom: 2px solid var(--dg10-light-gray);
+		gap: 0;
+	}
+
+	.aiopms-tab-link {
+		display: flex;
+		align-items: center;
+		gap: var(--dg10-spacing-sm);
+		padding: var(--dg10-spacing-md) var(--dg10-spacing-lg);
+		text-decoration: none;
+		color: var(--dg10-medium-gray);
+		font-weight: 500;
+		border-bottom: 3px solid transparent;
+		transition: all var(--dg10-transition-normal);
+		background: transparent;
+	}
+
+	.aiopms-tab-link:hover {
+		color: var(--dg10-primary);
+		background: rgba(124, 58, 237, 0.05);
+	}
+
+	.aiopms-tab-link.active {
+		color: var(--dg10-primary);
+		border-bottom-color: var(--dg10-primary);
+		background: rgba(124, 58, 237, 0.05);
+		font-weight: 600;
+	}
+
+	.aiopms-tab-icon {
+		font-size: var(--dg10-font-size-lg);
+	}
+
+	/* Tab Content */
+	.aiopms-tab-content {
+		margin-bottom: var(--dg10-spacing-xl);
+	}
+
+	.aiopms-tab-content .dg10-card-content {
+		padding: var(--dg10-spacing-xl) !important;
+	}
+
+	.aiopms-tab-description {
+		color: var(--dg10-medium-gray) !important;
+		font-size: var(--dg10-font-size-md) !important;
+		margin: 0 0 var(--dg10-spacing-lg) 0 !important;
+		text-shadow: none !important;
+		line-height: 1.6;
+	}
+
+	/* Fix Card Title Visibility - NO TEXT SHADOWS */
+	.dg10-card-title {
+		color: var(--dg10-dark-gray) !important;
+		font-weight: 600 !important;
+		font-size: var(--dg10-font-size-lg) !important;
+		margin: 0 0 var(--dg10-spacing-sm) 0 !important;
+		text-shadow: none !important;
+	}
+
+	.dg10-card-description {
+		color: var(--dg10-medium-gray) !important;
+		font-size: var(--dg10-font-size-sm) !important;
+		margin: 0 0 var(--dg10-spacing-md) 0 !important;
+		text-shadow: none !important;
+	}
+
+	/* Form Styles */
+	.aiopms-support-form,
+	.aiopms-feature-form {
+		display: flex;
+		flex-direction: column;
+		gap: var(--dg10-spacing-md);
+	}
+
+	.aiopms-form-group {
+		display: flex;
+		flex-direction: column;
+		gap: var(--dg10-spacing-xs);
+	}
+
+	.aiopms-form-group label {
+		font-weight: 600;
+		color: var(--dg10-dark-gray);
+		font-size: var(--dg10-font-size-sm);
+	}
+
+	.aiopms-form-group input,
+	.aiopms-form-group textarea {
+		padding: var(--dg10-spacing-sm);
+		border: 1px solid var(--dg10-light-gray);
+		border-radius: var(--dg10-radius-sm);
+		font-size: var(--dg10-font-size-sm);
+		transition: border-color var(--dg10-transition-normal);
+	}
+
+	.aiopms-form-group input:focus,
+	.aiopms-form-group textarea:focus {
+		outline: none;
+		border-color: var(--dg10-primary);
+		box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1);
+	}
+
+	.aiopms-form-group textarea {
+		resize: vertical;
+		min-height: 100px;
+	}
+
+	/* Community Links */
+	.aiopms-community-links {
+		display: flex;
+		flex-direction: row;
+		gap: var(--dg10-spacing-md);
+		margin-bottom: var(--dg10-spacing-lg);
+		flex-wrap: wrap;
+	}
+
+	.aiopms-community-info h4 {
+		font-size: var(--dg10-font-size-md);
+		font-weight: 600;
+		color: var(--dg10-dark-gray);
+		margin: 0 0 var(--dg10-spacing-sm) 0;
+		text-shadow: none;
+	}
+
+	.aiopms-community-benefits {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+
+	.aiopms-community-benefits li {
+		padding: var(--dg10-spacing-xs) 0;
+		position: relative;
+		padding-left: var(--dg10-spacing-lg);
+		color: var(--dg10-medium-gray);
+	}
+
+	.aiopms-community-benefits li:before {
+		content: "✓";
+		position: absolute;
+		left: 0;
+		color: var(--dg10-primary);
+		font-weight: bold;
+	}
+
+	/* Responsive Design */
+	@media (max-width: 768px) {
+		.aiopms-tab-nav {
+			flex-direction: column;
+		}
+		
+		.aiopms-tab-link {
+			border-bottom: 1px solid var(--dg10-light-gray);
+			border-right: none;
+		}
+		
+		.aiopms-tab-link.active {
+			border-bottom-color: var(--dg10-light-gray);
+			border-left: 3px solid var(--dg10-primary);
+		}
+		
+		.aiopms-community-links {
+			gap: var(--dg10-spacing-xs);
+		}
+	}
+	</style>
+	<?php
+}
+
+/**
+ * Handle support form submission and send email to support@dg10.agency
+ * 
+ * @since 3.0
+ */
+function aiopms_handle_support_form() {
+	if ( ! isset( $_POST['aiopms_support_nonce'] ) || ! wp_verify_nonce( $_POST['aiopms_support_nonce'], 'aiopms_support_form' ) ) {
+		return;
+	}
+
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_die( __( 'You do not have permission to submit this form.', 'aiopms' ) );
+	}
+
+	$name = sanitize_text_field( $_POST['name'] );
+	$email = sanitize_email( $_POST['email'] );
+	$message = sanitize_textarea_field( $_POST['message'] );
+
+	if ( empty( $name ) || empty( $email ) || empty( $message ) ) {
+		add_action( 'admin_notices', function() {
+			echo '<div class="notice notice-error"><p>' . esc_html__( 'Please fill in all required fields.', 'aiopms' ) . '</p></div>';
+		});
+		return;
+	}
+
+	$subject = 'AIOPMS Support Request from ' . $name;
+	$body = "Name: {$name}\n";
+	$body .= "Email: {$email}\n";
+	$body .= "Message:\n{$message}\n\n";
+	$body .= "Sent from: " . get_site_url() . "\n";
+	$body .= "WordPress Version: " . get_bloginfo( 'version' ) . "\n";
+	$body .= "Plugin Version: " . AIOPMS_VERSION;
+
+	$headers = array(
+		'From: ' . $name . ' <' . $email . '>',
+		'Reply-To: ' . $email,
+		'Content-Type: text/plain; charset=UTF-8'
+	);
+
+	$sent = wp_mail( 'support@dg10.agency', $subject, $body, $headers );
+
+	if ( $sent ) {
+		add_action( 'admin_notices', function() {
+			echo '<div class="notice notice-success"><p>' . esc_html__( 'Support request sent successfully! We will get back to you soon.', 'aiopms' ) . '</p></div>';
+		});
+	} else {
+		add_action( 'admin_notices', function() {
+			echo '<div class="notice notice-error"><p>' . esc_html__( 'Failed to send support request. Please try again.', 'aiopms' ) . '</p></div>';
+		});
+	}
+}
+
+/**
+ * Handle feature request form submission and send email to admin@dg10.agency
+ * 
+ * @since 3.0
+ */
+function aiopms_handle_feature_form() {
+	if ( ! isset( $_POST['aiopms_feature_nonce'] ) || ! wp_verify_nonce( $_POST['aiopms_feature_nonce'], 'aiopms_feature_form' ) ) {
+		return;
+	}
+
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_die( __( 'You do not have permission to submit this form.', 'aiopms' ) );
+	}
+
+	$name = sanitize_text_field( $_POST['name'] );
+	$email = sanitize_email( $_POST['email'] );
+	$message = sanitize_textarea_field( $_POST['message'] );
+
+	if ( empty( $name ) || empty( $email ) || empty( $message ) ) {
+		add_action( 'admin_notices', function() {
+			echo '<div class="notice notice-error"><p>' . esc_html__( 'Please fill in all required fields.', 'aiopms' ) . '</p></div>';
+		});
+		return;
+	}
+
+	$subject = 'AIOPMS Feature Request from ' . $name;
+	$body = "Name: {$name}\n";
+	$body .= "Email: {$email}\n";
+	$body .= "Feature Request:\n{$message}\n\n";
+	$body .= "Sent from: " . get_site_url() . "\n";
+	$body .= "WordPress Version: " . get_bloginfo( 'version' ) . "\n";
+	$body .= "Plugin Version: " . AIOPMS_VERSION;
+
+	$headers = array(
+		'From: ' . $name . ' <' . $email . '>',
+		'Reply-To: ' . $email,
+		'Content-Type: text/plain; charset=UTF-8'
+	);
+
+	$sent = wp_mail( 'admin@dg10.agency', $subject, $body, $headers );
+
+	if ( $sent ) {
+		add_action( 'admin_notices', function() {
+			echo '<div class="notice notice-success"><p>' . esc_html__( 'Feature request sent successfully! Thank you for your suggestion.', 'aiopms' ) . '</p></div>';
+		});
+	} else {
+		add_action( 'admin_notices', function() {
+			echo '<div class="notice notice-error"><p>' . esc_html__( 'Failed to send feature request. Please try again.', 'aiopms' ) . '</p></div>';
+		});
+	}
+}
+
+// Hook the form handlers
+add_action( 'admin_init', function() {
+	if ( isset( $_POST['action'] ) ) {
+		if ( $_POST['action'] === 'aiopms_send_support_email' ) {
+			aiopms_handle_support_form();
+		} elseif ( $_POST['action'] === 'aiopms_send_feature_email' ) {
+			aiopms_handle_feature_form();
+		}
+	}
+});

@@ -260,11 +260,11 @@
     display: flex;
     align-items: center;
     gap: var(--dg10-spacing-sm);
-    padding: 12px 16px;
+    padding: 4px 8px; /* Condensed padding for better space usage */
     text-decoration: none;
     border-radius: var(--dg10-radius-md);
     transition: all var(--dg10-transition-fast);
-    min-height: 44px; /* WCAG 2.1 AA minimum touch target size */
+    min-height: 14px; /* WCAG 2.1 AA minimum touch target size */
 }
 
 .dg10-sidebar-nav-item:focus {

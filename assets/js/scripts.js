@@ -4,6 +4,8 @@ jQuery(document).ready(function($) {
     // Initialize accessibility features
     initAccessibilityFeatures();
     
+    // Menu condensation is now handled in dg10-brand.css
+    
     // ===== SIDEBAR NAVIGATION FUNCTIONALITY =====
     
     // Handle sidebar navigation with accessibility

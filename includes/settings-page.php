@@ -34,19 +34,151 @@ function aiopms_register_settings() {
 add_action( 'admin_init', 'aiopms_register_settings' );
 
 /**
- * Display settings tab content.
+ * Display settings tab content with horizontal layout.
  * 
  * @since 3.0
  */
 function aiopms_settings_tab() {
 	?>
-	<form method="post" action="options.php">
-		<?php
-		settings_fields( 'aiopms_settings_group' );
-		do_settings_sections( 'aiopms-page-management' );
-		submit_button();
-		?>
-	</form>
+	<div class="aiopms-settings-container">
+		<form method="post" action="options.php">
+			<?php
+			settings_fields( 'aiopms_settings_group' );
+			?>
+			
+			<div class="aiopms-settings-grid">
+				<!-- AI Settings Column -->
+				<div class="aiopms-settings-column">
+					<div class="dg10-card">
+						<header class="dg10-card-header">
+							<h3 class="dg10-card-title">
+								<span class="dg10-icon">🤖</span>
+								<?php esc_html_e( 'AI Settings', 'aiopms' ); ?>
+							</h3>
+							<p class="dg10-card-description">
+								<?php esc_html_e( 'Configure your AI provider and API keys for content generation.', 'aiopms' ); ?>
+							</p>
+						</header>
+						<div class="dg10-card-content">
+							<?php aiopms_render_ai_settings_fields(); ?>
+						</div>
+					</div>
+				</div>
+				
+				<!-- Schema Settings Column -->
+				<div class="aiopms-settings-column">
+					<div class="dg10-card">
+						<header class="dg10-card-header">
+							<h3 class="dg10-card-title">
+								<span class="dg10-icon">🏷️</span>
+								<?php esc_html_e( 'Schema Settings', 'aiopms' ); ?>
+							</h3>
+							<p class="dg10-card-description">
+								<?php esc_html_e( 'Configure structured data markup generation.', 'aiopms' ); ?>
+							</p>
+						</header>
+						<div class="dg10-card-content">
+							<?php aiopms_render_schema_settings_fields(); ?>
+						</div>
+					</div>
+				</div>
+				
+				<!-- Prompt Settings Column -->
+				<div class="aiopms-settings-column">
+					<div class="dg10-card">
+						<header class="dg10-card-header">
+							<h3 class="dg10-card-title">
+								<span class="dg10-icon">✏️</span>
+								<?php esc_html_e( 'Prompt Settings', 'aiopms' ); ?>
+							</h3>
+							<p class="dg10-card-description">
+								<?php esc_html_e( 'Customize AI prompts for better content generation.', 'aiopms' ); ?>
+							</p>
+						</header>
+						<div class="dg10-card-content">
+							<?php aiopms_render_prompt_settings_fields(); ?>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div class="aiopms-settings-actions">
+				<?php submit_button( __( 'Save All Settings', 'aiopms' ), 'primary', 'submit', false, array( 'class' => 'dg10-btn dg10-btn-primary dg10-btn-lg' ) ); ?>
+			</div>
+		</form>
+	</div>
+	<?php
+}
+
+/**
+ * Render AI settings fields.
+ * 
+ * @since 3.0
+ */
+function aiopms_render_ai_settings_fields() {
+	?>
+	<table class="form-table">
+		<tr>
+			<th scope="row"><?php esc_html_e( 'AI Provider', 'aiopms' ); ?></th>
+			<td><?php aiopms_ai_provider_callback(); ?></td>
+		</tr>
+		<tr>
+			<th scope="row"><?php esc_html_e( 'OpenAI API Key', 'aiopms' ); ?></th>
+			<td><?php aiopms_openai_api_key_callback(); ?></td>
+		</tr>
+		<tr>
+			<th scope="row"><?php esc_html_e( 'Gemini API Key', 'aiopms' ); ?></th>
+			<td><?php aiopms_gemini_api_key_callback(); ?></td>
+		</tr>
+		<tr>
+			<th scope="row"><?php esc_html_e( 'DeepSeek API Key', 'aiopms' ); ?></th>
+			<td><?php aiopms_deepseek_api_key_callback(); ?></td>
+		</tr>
+		<tr>
+			<th scope="row"><?php esc_html_e( 'Brand Color', 'aiopms' ); ?></th>
+			<td><?php aiopms_brand_color_callback(); ?></td>
+		</tr>
+		<tr>
+			<th scope="row"><?php esc_html_e( 'Sitemap URL', 'aiopms' ); ?></th>
+			<td><?php aiopms_sitemap_url_callback(); ?></td>
+		</tr>
+	</table>
+	<?php
+}
+
+/**
+ * Render Schema settings fields.
+ * 
+ * @since 3.0
+ */
+function aiopms_render_schema_settings_fields() {
+	?>
+	<table class="form-table">
+		<tr>
+			<th scope="row"><?php esc_html_e( 'Auto Schema Generation', 'aiopms' ); ?></th>
+			<td><?php aiopms_auto_schema_generation_callback(); ?></td>
+		</tr>
+	</table>
+	<?php
+}
+
+/**
+ * Render Prompt settings fields.
+ * 
+ * @since 3.0
+ */
+function aiopms_render_prompt_settings_fields() {
+	?>
+	<table class="form-table">
+		<tr>
+			<th scope="row"><?php esc_html_e( 'Custom AI Prompt', 'aiopms' ); ?></th>
+			<td><?php aiopms_custom_prompt_callback(); ?></td>
+		</tr>
+		<tr>
+			<th scope="row"><?php esc_html_e( 'Prompt Management', 'aiopms' ); ?></th>
+			<td><?php aiopms_prompt_management_callback(); ?></td>
+		</tr>
+	</table>
 	<?php
 }
 
