@@ -19,7 +19,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 function aiopms_register_settings() {
 	register_setting( 'aiopms_settings_group', 'aiopms_ai_provider', 'sanitize_key' );
 	register_setting( 'aiopms_settings_group', 'aiopms_openai_api_key', 'sanitize_text_field' );
-	register_setting( 'aiopms_settings_group', 'aiopms_gemini_api_key', 'sanitize_text_field' );
+    // Gemini API key (temporarily disabled in UI)
+    register_setting( 'aiopms_settings_group', 'aiopms_gemini_api_key', 'sanitize_text_field' );
 	register_setting( 'aiopms_settings_group', 'aiopms_deepseek_api_key', 'sanitize_text_field' );
 	register_setting( 'aiopms_settings_group', 'aiopms_brand_color', 'sanitize_hex_color' );
 	register_setting( 'aiopms_settings_group', 'aiopms_sitemap_url', 'esc_url_raw' );
@@ -32,6 +33,14 @@ function aiopms_register_settings() {
 	register_setting( 'aiopms_settings_group', 'aiopms_prompt_templates', 'aiopms_sanitize_json' );
 }
 add_action( 'admin_init', 'aiopms_register_settings' );
+
+// Temporarily coerce provider away from Gemini globally without removing code paths
+add_filter( 'option_aiopms_ai_provider', function( $value ) {
+    if ( $value === 'gemini' ) {
+        return 'openai';
+    }
+    return $value;
+}, 10, 1 );
 
 /**
  * Display settings tab content with horizontal layout.
@@ -126,10 +135,12 @@ function aiopms_render_ai_settings_fields() {
 			<th scope="row"><?php esc_html_e( 'OpenAI API Key', 'aiopms' ); ?></th>
 			<td><?php aiopms_openai_api_key_callback(); ?></td>
 		</tr>
-		<tr>
-			<th scope="row"><?php esc_html_e( 'Gemini API Key', 'aiopms' ); ?></th>
-			<td><?php aiopms_gemini_api_key_callback(); ?></td>
-		</tr>
+        <?php /* Gemini API Key (temporarily disabled)
+        <tr>
+            <th scope="row"><?php esc_html_e( 'Gemini API Key', 'aiopms' ); ?></th>
+            <td><?php aiopms_gemini_api_key_callback(); ?></td>
+        </tr>
+        */ ?>
 		<tr>
 			<th scope="row"><?php esc_html_e( 'DeepSeek API Key', 'aiopms' ); ?></th>
 			<td><?php aiopms_deepseek_api_key_callback(); ?></td>
@@ -212,11 +223,11 @@ function aiopms_settings_init() {
 	);
 
 	add_settings_field(
-		'aiopms_gemini_api_key',
-		__( 'Gemini API Key', 'aiopms' ),
-		'aiopms_gemini_api_key_callback',
-		'aiopms-page-management',
-		'aiopms_settings_section'
+        // 'aiopms_gemini_api_key', // Gemini temporarily disabled in UI
+        // __( 'Gemini API Key', 'aiopms' ),
+        // 'aiopms_gemini_api_key_callback',
+        // 'aiopms-page-management',
+        // 'aiopms_settings_section'
 	);
 
 	add_settings_field(
@@ -304,7 +315,9 @@ function aiopms_ai_provider_callback() {
 	?>
 	<select name="aiopms_ai_provider" class="aiopms-ai-provider-select">
 		<option value="openai" <?php selected( $provider, 'openai' ); ?>><?php esc_html_e( '🤖 OpenAI (GPT-4)', 'aiopms' ); ?></option>
-		<option value="gemini" <?php selected( $provider, 'gemini' ); ?>><?php esc_html_e( '🧠 Google Gemini', 'aiopms' ); ?></option>
+        <?php /* Gemini temporarily disabled
+        <option value="gemini" <?php selected( $provider, 'gemini' ); ?>><?php esc_html_e( '🧠 Google Gemini', 'aiopms' ); ?></option>
+        */ ?>
 		<option value="deepseek" <?php selected( $provider, 'deepseek' ); ?>><?php esc_html_e( '⚡ DeepSeek', 'aiopms' ); ?></option>
 	</select>
 	<p class="description"><?php esc_html_e( 'Choose your preferred AI provider. Each has different strengths and pricing models.', 'aiopms' ); ?></p>
