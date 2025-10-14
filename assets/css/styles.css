@@ -82,58 +82,141 @@
     margin: 0;
 }
 
-.aiopms-settings-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: var(--dg10-spacing-lg);
-    margin-bottom: var(--dg10-spacing-xl);
+/* Settings Tabs Navigation */
+.aiopms-settings-tabs {
+    margin-bottom: var(--dg10-spacing-lg);
 }
 
-.aiopms-settings-column {
-    min-height: 400px;
-}
-
-.aiopms-settings-column .dg10-card {
-    height: 100%;
+.aiopms-tab-nav {
     display: flex;
-    flex-direction: column;
+    border-bottom: 2px solid #e1e5e9;
+    gap: 0;
+    background: #fff;
+    border-radius: 8px 8px 0 0;
+    overflow-x: auto;
 }
 
-.aiopms-settings-column .dg10-card-content {
-    flex: 1;
-    padding: var(--dg10-spacing-lg);
+.aiopms-tab-btn {
+    padding: 16px 24px;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    border-bottom: 3px solid transparent;
+    position: relative;
 }
 
-.aiopms-settings-column .form-table {
+.aiopms-tab-btn:hover {
+    color: #1d4ed8;
+    background: #f8fafc;
+}
+
+.aiopms-tab-btn.active {
+    color: #1d4ed8;
+    background: #f8fafc;
+    border-bottom-color: #1d4ed8;
+}
+
+.aiopms-tab-btn:focus {
+    outline: 2px solid #1d4ed8;
+    outline-offset: -2px;
+}
+
+/* Settings Content */
+.aiopms-settings-content {
+    min-height: 500px;
+}
+
+.aiopms-tab-content {
+    display: none;
+}
+
+.aiopms-tab-content.active {
+    display: block;
+    animation: aiopms-fadeIn 0.3s ease-in;
+}
+
+@keyframes aiopms-fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Card Styling Fixes */
+.aiopms-settings-content .dg10-card {
+    border: 1px solid #e1e5e9;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.aiopms-settings-content .dg10-card-header {
+    background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+    color: #ffffff;
+    padding: 24px;
+    border-bottom: none;
+}
+
+.aiopms-settings-content .dg10-card-header .dg10-card-title {
+    color: #ffffff;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    font-size: 18px;
+}
+
+.aiopms-settings-content .dg10-card-header .dg10-card-description {
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.aiopms-settings-content .dg10-card-content {
+    padding: 24px;
+    background: #ffffff;
+}
+
+.aiopms-settings-content .form-table {
     margin: 0;
 }
 
-.aiopms-settings-column .form-table th {
-    width: 40%;
-    padding: var(--dg10-spacing-sm) 0;
-    font-size: var(--dg10-font-size-sm);
+.aiopms-settings-content .form-table th {
+    width: 30%;
+    padding: 12px 0;
+    font-size: 14px;
     font-weight: 600;
+    color: #374151;
+    vertical-align: top;
 }
 
-.aiopms-settings-column .form-table td {
-    padding: var(--dg10-spacing-sm) 0;
-    font-size: var(--dg10-font-size-sm);
+.aiopms-settings-content .form-table td {
+    padding: 12px 0;
+    font-size: 14px;
+    color: #6b7280;
 }
 
-.aiopms-settings-column .form-table input[type="text"],
-.aiopms-settings-column .form-table input[type="password"],
-.aiopms-settings-column .form-table input[type="url"],
-.aiopms-settings-column .form-table input[type="color"],
-.aiopms-settings-column .form-table select,
-.aiopms-settings-column .form-table textarea {
+.aiopms-settings-content .form-table input[type="text"],
+.aiopms-settings-content .form-table input[type="password"],
+.aiopms-settings-content .form-table input[type="url"],
+.aiopms-settings-content .form-table input[type="color"],
+.aiopms-settings-content .form-table select,
+.aiopms-settings-content .form-table textarea {
     width: 100%;
     max-width: 100%;
-    font-size: var(--dg10-font-size-sm);
+    font-size: 14px;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: #ffffff;
 }
 
-.aiopms-settings-column .form-table .description {
-    font-size: var(--dg10-font-size-xs);
-    margin-top: var(--dg10-spacing-xs);
+.aiopms-settings-content .form-table .description {
+    font-size: 13px;
+    margin-top: 6px;
+    color: #9ca3af;
 }
 
 .aiopms-settings-actions {
@@ -150,23 +233,37 @@
 }
 
 /* Responsive adjustments */
-@media (max-width: 1200px) {
-    .aiopms-settings-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
 @media (max-width: 768px) {
-    .aiopms-settings-column .form-table th,
-    .aiopms-settings-column .form-table td {
-        display: block;
-        width: 100%;
-        padding: var(--dg10-spacing-xs) 0;
+    .aiopms-tab-nav {
+        flex-direction: column;
+        border-radius: 8px 8px 0 0;
     }
     
-    .aiopms-settings-column .form-table th {
+    .aiopms-tab-btn {
+        border-bottom: 1px solid #e1e5e9;
+        border-radius: 0;
+        text-align: left;
+    }
+    
+    .aiopms-tab-btn:last-child {
+        border-bottom: none;
+    }
+    
+    .aiopms-settings-content .form-table th,
+    .aiopms-settings-content .form-table td {
+        display: block;
+        width: 100%;
+        padding: 8px 0;
+    }
+    
+    .aiopms-settings-content .form-table th {
         font-weight: 600;
-        margin-bottom: var(--dg10-spacing-xs);
+        margin-bottom: 4px;
+        color: #374151;
+    }
+    
+    .aiopms-settings-content .dg10-card-content {
+        padding: 16px;
     }
 }
 

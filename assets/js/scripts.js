@@ -4,6 +4,64 @@ jQuery(document).ready(function($) {
     // Initialize accessibility features
     initAccessibilityFeatures();
     
+    // ===== SETTINGS PAGE TABS =====
+    
+    // Handle settings page tabs
+    $('.aiopms-tab-btn').on('click', function(e) {
+        e.preventDefault();
+        
+        const tabId = $(this).data('tab');
+        const $this = $(this);
+        
+        // Remove active class from all tabs and content
+        $('.aiopms-tab-btn').removeClass('active').attr('aria-selected', 'false');
+        $('.aiopms-tab-content').removeClass('active');
+        
+        // Add active class to clicked tab and corresponding content
+        $this.addClass('active').attr('aria-selected', 'true');
+        $('#tab-' + tabId).addClass('active');
+        
+        // Update URL without page reload
+        const url = new URL(window.location);
+        url.searchParams.set('settings_tab', tabId);
+        window.history.replaceState({}, '', url);
+        
+        // Announce tab change to screen readers
+        announceToScreenReader($this.text() + ' tab selected');
+    });
+    
+    // Handle keyboard navigation for settings tabs
+    $('.aiopms-tab-btn').on('keydown', function(e) {
+        const $tabs = $('.aiopms-tab-btn');
+        const currentIndex = $tabs.index(this);
+        let newIndex = currentIndex;
+        
+        switch(e.key) {
+            case 'ArrowRight':
+            case 'ArrowDown':
+                e.preventDefault();
+                newIndex = (currentIndex + 1) % $tabs.length;
+                break;
+            case 'ArrowLeft':
+            case 'ArrowUp':
+                e.preventDefault();
+                newIndex = currentIndex === 0 ? $tabs.length - 1 : currentIndex - 1;
+                break;
+            case 'Home':
+                e.preventDefault();
+                newIndex = 0;
+                break;
+            case 'End':
+                e.preventDefault();
+                newIndex = $tabs.length - 1;
+                break;
+        }
+        
+        if (newIndex !== currentIndex) {
+            $tabs.eq(newIndex).focus().trigger('click');
+        }
+    });
+    
     // Menu condensation is now handled in dg10-brand.css
     
     // ===== SIDEBAR NAVIGATION FUNCTIONALITY =====

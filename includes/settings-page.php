@@ -43,11 +43,28 @@ add_filter( 'option_aiopms_ai_provider', function( $value ) {
 }, 10, 1 );
 
 /**
- * Display settings tab content with horizontal layout.
+ * Display settings tab content with tabbed layout.
  * 
  * @since 3.0
  */
 function aiopms_settings_tab() {
+	$active_tab = isset($_GET['settings_tab']) ? sanitize_key($_GET['settings_tab']) : 'ai';
+	
+	// Define tabs
+	$tabs = array(
+		'ai' => array(
+			'title' => '🤖 AI Settings',
+			'description' => 'Configure your AI provider and API keys for content generation.'
+		),
+		'schema' => array(
+			'title' => '🏷️ Schema Settings',
+			'description' => 'Configure structured data markup generation.'
+		),
+		'prompt' => array(
+			'title' => '✏️ Prompt Settings',
+			'description' => 'Customize AI prompts for better content generation.'
+		)
+	);
 	?>
 	<div class="aiopms-settings-container">
 		<form method="post" action="options.php">
@@ -55,9 +72,26 @@ function aiopms_settings_tab() {
 			settings_fields( 'aiopms_settings_group' );
 			?>
 			
-			<div class="aiopms-settings-grid">
-				<!-- AI Settings Column -->
-				<div class="aiopms-settings-column">
+			<!-- Settings Tabs Navigation -->
+			<div class="aiopms-settings-tabs">
+				<nav class="aiopms-tab-nav" role="tablist">
+					<?php foreach ( $tabs as $tab_key => $tab_data ) : ?>
+						<button type="button" 
+								class="aiopms-tab-btn <?php echo $active_tab === $tab_key ? 'active' : ''; ?>"
+								data-tab="<?php echo esc_attr( $tab_key ); ?>"
+								role="tab"
+								aria-selected="<?php echo $active_tab === $tab_key ? 'true' : 'false'; ?>"
+								aria-controls="tab-<?php echo esc_attr( $tab_key ); ?>">
+							<?php echo esc_html( $tab_data['title'] ); ?>
+						</button>
+					<?php endforeach; ?>
+				</nav>
+			</div>
+			
+			<!-- Tab Content -->
+			<div class="aiopms-settings-content">
+				<!-- AI Settings Tab -->
+				<div id="tab-ai" class="aiopms-tab-content <?php echo $active_tab === 'ai' ? 'active' : ''; ?>" role="tabpanel" aria-labelledby="tab-ai">
 					<div class="dg10-card">
 						<header class="dg10-card-header">
 							<h3 class="dg10-card-title">
@@ -74,8 +108,8 @@ function aiopms_settings_tab() {
 					</div>
 				</div>
 				
-				<!-- Schema Settings Column -->
-				<div class="aiopms-settings-column">
+				<!-- Schema Settings Tab -->
+				<div id="tab-schema" class="aiopms-tab-content <?php echo $active_tab === 'schema' ? 'active' : ''; ?>" role="tabpanel" aria-labelledby="tab-schema">
 					<div class="dg10-card">
 						<header class="dg10-card-header">
 							<h3 class="dg10-card-title">
@@ -92,8 +126,8 @@ function aiopms_settings_tab() {
 					</div>
 				</div>
 				
-				<!-- Prompt Settings Column -->
-				<div class="aiopms-settings-column">
+				<!-- Prompt Settings Tab -->
+				<div id="tab-prompt" class="aiopms-tab-content <?php echo $active_tab === 'prompt' ? 'active' : ''; ?>" role="tabpanel" aria-labelledby="tab-prompt">
 					<div class="dg10-card">
 						<header class="dg10-card-header">
 							<h3 class="dg10-card-title">
@@ -222,13 +256,14 @@ function aiopms_settings_init() {
 		'aiopms_settings_section'
 	);
 
-	add_settings_field(
-        // 'aiopms_gemini_api_key', // Gemini temporarily disabled in UI
-        // __( 'Gemini API Key', 'aiopms' ),
-        // 'aiopms_gemini_api_key_callback',
-        // 'aiopms-page-management',
-        // 'aiopms_settings_section'
-	);
+	// Gemini API key field registration (temporarily disabled in UI)
+	// add_settings_field(
+	//     'aiopms_gemini_api_key',
+	//     __( 'Gemini API Key', 'aiopms' ),
+	//     'aiopms_gemini_api_key_callback',
+	//     'aiopms-page-management',
+	//     'aiopms_settings_section'
+	// );
 
 	add_settings_field(
 		'aiopms_deepseek_api_key',
