@@ -1,0 +1,397 @@
+/* Legacy styles - now enhanced by DG10 Brand System */
+
+/* Override default WordPress admin styles for brand consistency */
+.dg10-brand .nav-tab-wrapper {
+    margin-bottom: 0; /* Handled by dg10-nav-tabs */
+}
+
+.dg10-brand .form-table {
+    background: transparent;
+    border: none;
+    margin: 0;
+}
+
+.dg10-brand .form-table th {
+    width: auto;
+    padding: var(--dg10-spacing-md) 0;
+    font-weight: 700; /* Increased weight for better contrast */
+    color: #1F2937; /* Darker color for better contrast on light backgrounds */
+    border: none;
+}
+
+.dg10-brand .form-table td {
+    padding: var(--dg10-spacing-md) 0;
+    border: none;
+    color: #374151; /* Darker color for better contrast on light backgrounds */
+    font-weight: 500; /* Increased weight for better readability */
+}
+
+.dg10-brand .form-table .large-text {
+    width: 100%;
+    max-width: 100%;
+}
+
+.dg10-brand .form-table .description {
+    font-style: normal;
+    color: #374151; /* Darker color for better contrast */
+    font-size: var(--dg10-font-size-sm);
+    line-height: 1.6; /* Improved line height */
+    margin-top: var(--dg10-spacing-sm);
+    font-weight: 500; /* Increased weight for better readability */
+}
+
+.dg10-brand .form-table code {
+    background: var(--dg10-light-gray);
+    color: var(--dg10-primary);
+    padding: 4px 10px; /* Increased padding for better visibility */
+    border-radius: var(--dg10-radius-sm);
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: var(--dg10-font-size-xs);
+    font-weight: 700; /* Increased weight for better contrast */
+    border: 1px solid #9CA3AF; /* Darker border for better definition */
+}
+
+/* Enhanced submit button styling */
+.dg10-brand .submit .button-primary {
+    background: var(--dg10-gradient-primary);
+    border-color: var(--dg10-primary);
+    color: var(--dg10-white);
+    font-weight: 600; /* Increased weight for better contrast */
+    padding: var(--dg10-spacing-sm) var(--dg10-spacing-lg);
+    border-radius: var(--dg10-radius-md);
+    transition: all var(--dg10-transition-normal);
+    box-shadow: var(--dg10-shadow-sm);
+    border-width: 2px; /* Increased border width for better visibility */
+}
+
+.dg10-brand .submit .button-primary:hover {
+    background: var(--dg10-primary);
+    border-color: var(--dg10-accent);
+    transform: translateY(-1px);
+    box-shadow: var(--dg10-shadow-md);
+}
+
+.dg10-brand .submit .button-primary:active {
+    transform: translateY(0);
+    box-shadow: var(--dg10-shadow-sm);
+}
+
+/* Enhanced notice styling */
+.dg10-brand .notice {
+    border-left-width: 4px;
+    border-radius: var(--dg10-radius-md);
+    box-shadow: var(--dg10-shadow-sm);
+    margin: var(--dg10-spacing-lg) 0;
+    font-weight: 500; /* Increased weight for better readability */
+    color: #374151; /* Darker color for better contrast */
+}
+
+.dg10-brand .notice.notice-success {
+    border-left-color: var(--dg10-success);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(5, 150, 105, 0.05) 100%);
+}
+
+.dg10-brand .notice.notice-error {
+    border-left-color: var(--dg10-error);
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(220, 38, 38, 0.05) 100%);
+}
+
+.dg10-brand .notice.notice-warning {
+    border-left-color: var(--dg10-warning);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(217, 119, 6, 0.05) 100%);
+}
+
+.dg10-brand .notice.notice-info {
+    border-left-color: var(--dg10-info);
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(37, 99, 235, 0.05) 100%);
+}
+
+/* Enhanced table styling - only for main content tables, not selection panes */
+.dg10-brand .wp-list-table:not(.aiopms-schema-dashboard .wp-list-table) {
+    border-radius: var(--dg10-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--dg10-shadow-sm);
+}
+
+.dg10-brand .wp-list-table:not(.aiopms-schema-dashboard .wp-list-table) th {
+    background: var(--dg10-gradient-dark) !important; /* Force dark gradient background */
+    color: #FFFFFF !important; /* Force white text for dark backgrounds */
+    font-weight: 700; /* Increased weight for better contrast */
+    border: none;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); /* Add shadow for better contrast on dark backgrounds */
+}
+
+.dg10-brand .wp-list-table:not(.aiopms-schema-dashboard .wp-list-table) td {
+    border-color: #D1D5DB; /* Darker border for better visibility */
+    color: #374151; /* Darker color for better contrast on light backgrounds */
+    font-weight: 500; /* Increased weight for better readability */
+}
+
+.dg10-brand .wp-list-table:not(.aiopms-schema-dashboard .wp-list-table) tr:hover {
+    background: rgba(180, 124, 253, 0.05);
+}
+
+/* Schema generator table should maintain default WordPress styling */
+.dg10-brand .aiopms-schema-dashboard .wp-list-table {
+    border-radius: 0;
+    box-shadow: none;
+    overflow: visible;
+}
+
+.dg10-brand .aiopms-schema-dashboard .wp-list-table th {
+    background: #f1f1f1;
+    color: #23282d;
+    font-weight: 600;
+    border: 1px solid #c3c4c7;
+}
+
+.dg10-brand .aiopms-schema-dashboard .wp-list-table td {
+    border-color: #c3c4c7;
+}
+
+.dg10-brand .aiopms-schema-dashboard .wp-list-table tr:hover {
+    background: #f6f7f7;
+}
+
+/* Enhanced spinner styling */
+.dg10-brand .spinner {
+    background: var(--dg10-gradient-primary);
+    border-radius: 50%;
+    animation: dg10-spin 1s linear infinite;
+}
+
+/* Enhanced file input styling */
+.dg10-brand input[type="file"] {
+    padding: var(--dg10-spacing-sm);
+    border: 2px dashed var(--dg10-primary);
+    border-radius: var(--dg10-radius-md);
+    background: rgba(180, 124, 253, 0.05);
+    transition: all var(--dg10-transition-fast);
+    color: #374151; /* Darker color for better contrast */
+    font-weight: 500; /* Increased weight for better readability */
+}
+
+.dg10-brand input[type="file"]:hover {
+    border-color: var(--dg10-accent);
+    background: rgba(255, 127, 194, 0.05);
+}
+
+.dg10-brand input[type="file"]:focus {
+    outline: none;
+    border-color: var(--dg10-primary);
+    box-shadow: 0 0 0 3px rgba(180, 124, 253, 0.1);
+}
+
+/* ===== AI GENERATOR ADVANCED MODE STYLES ===== */
+
+/* Advanced Mode Active State */
+.advanced-mode-active {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-left: 4px solid #2271b1;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 10px 0;
+    transition: all 0.3s ease;
+}
+
+.advanced-mode-active th,
+.advanced-mode-active td {
+    color: #1e40af;
+    font-weight: 600;
+}
+
+.advanced-mode-active input[type="checkbox"] {
+    transform: scale(1.2);
+    accent-color: #2271b1;
+}
+
+/* AI Progress Indicator */
+.aiopms-ai-progress {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 2px solid #2271b1;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: center;
+    animation: aiopms-pulse 2s infinite;
+}
+
+.aiopms-progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 15px 0;
+}
+
+.aiopms-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #2271b1, #3b82f6, #2271b1);
+    background-size: 200% 100%;
+    animation: aiopms-progress-slide 2s infinite;
+    border-radius: 4px;
+}
+
+.aiopms-ai-progress p {
+    margin: 0;
+    color: #1e40af;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+/* Animations */
+@keyframes aiopms-pulse {
+    0%, 100% { 
+        box-shadow: 0 0 0 0 rgba(34, 113, 177, 0.4);
+    }
+    50% { 
+        box-shadow: 0 0 0 10px rgba(34, 113, 177, 0);
+    }
+}
+
+@keyframes aiopms-progress-slide {
+    0% { 
+        background-position: 200% 0;
+    }
+    100% { 
+        background-position: -200% 0;
+    }
+}
+
+/* Advanced Mode Suggestions Styling */
+.aiopms-advanced-suggestions {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.aiopms-business-analysis {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 2px solid #f59e0b;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.aiopms-business-analysis h3 {
+    color: #92400e;
+    margin-top: 0;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.analysis-content p {
+    margin: 10px 0;
+    color: #78350f;
+    font-weight: 500;
+}
+
+.aiopms-cpts-section {
+    margin-top: 25px;
+}
+
+.cpt-suggestion {
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 15px 0;
+    transition: all 0.3s ease;
+}
+
+.cpt-suggestion:hover {
+    border-color: #2271b1;
+    box-shadow: 0 4px 12px rgba(34, 113, 177, 0.15);
+    transform: translateY(-2px);
+}
+
+.cpt-header label {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1f2937;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cpt-header input[type="checkbox"] {
+    transform: scale(1.3);
+    accent-color: #2271b1;
+}
+
+.cpt-details {
+    margin-top: 15px;
+    padding-left: 30px;
+}
+
+.cpt-details p {
+    margin: 8px 0;
+    color: #374151;
+    line-height: 1.6;
+}
+
+.custom-fields,
+.sample-entries {
+    margin-top: 15px;
+    padding: 15px;
+    background: #f9fafb;
+    border-radius: 8px;
+    border-left: 4px solid #2271b1;
+}
+
+.custom-fields h4,
+.sample-entries h4 {
+    margin-top: 0;
+    color: #1f2937;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.custom-fields ul,
+.sample-entries ul {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.custom-fields li,
+.sample-entries li {
+    margin: 8px 0;
+    color: #4b5563;
+    line-height: 1.5;
+}
+
+.required {
+    color: #dc2626;
+    font-weight: 600;
+    font-size: 12px;
+    background: #fef2f2;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 5px;
+}
+
+/* Responsive Design for Advanced Mode */
+@media (max-width: 768px) {
+    .advanced-mode-active {
+        padding: 10px;
+        margin: 5px 0;
+    }
+    
+    .aiopms-ai-progress {
+        padding: 15px;
+        margin: 15px 0;
+    }
+    
+    .cpt-suggestion {
+        padding: 15px;
+        margin: 10px 0;
+    }
+    
+    .cpt-details {
+        padding-left: 20px;
+    }
+}

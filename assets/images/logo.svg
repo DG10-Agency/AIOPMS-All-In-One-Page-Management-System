@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+<style type="text/css">
+    .st0{fill:#374151;fill-opacity:0.8;}
+    .st1{fill:#4B5563;fill-opacity:0.9;}
+    .st2{fill:#6B7280;fill-opacity:0.8;}
+    .st3{fill:#B47CFD;}
+    .st4{fill:#FF7FC2;}
+</style>
+<g>
+    <!-- Simplified and centered paths -->
+    <path class="st0" d="M4,4h6l4,4v10H4V4z"/>
+    <path class="st1" d="M2,2h6l4,4v10H2V2z"/>
+    <path class="st2" d="M0,0h6l4,4v12H0V0z"/>
+    <path class="st3" d="M14,0l-2,5l-5,2l5,2l2,5l2-5l5-2l-5-2L14,0z"/>
+    <path class="st4" d="M14,2l-1,3l-2,1l2,1l1,3l1-3l2-1l-2-1L14,2z"/>
+</g>
+</svg>

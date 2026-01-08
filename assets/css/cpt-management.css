@@ -1,0 +1,1498 @@
+/**
+ * AIOPMS Custom Post Type Management Styles
+ * Enhanced UI with accessibility, loading states, and modern design
+ * 
+ * @package AIOPMS
+ * @version 3.0
+ * @author DG10 Agency
+ */
+
+/* ==========================================================================
+   Loading States and Overlays
+   ========================================================================== */
+
+.aiopms-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.aiopms-loading-spinner {
+    text-align: center;
+}
+
+.aiopms-loading-spinner .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #2271b1;
+    border-radius: 50%;
+    animation: aiopms-spin 1s linear infinite;
+    margin: 0 auto 15px;
+}
+
+@keyframes aiopms-spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.aiopms-loading-spinner p {
+    margin: 0;
+    color: #50575e;
+    font-weight: 500;
+}
+
+/* ==========================================================================
+   Messages and Notifications
+   ========================================================================== */
+
+.aiopms-messages {
+    margin-bottom: 20px;
+}
+
+.aiopms-message {
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    border-left: 4px solid;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: aiopms-slideInDown 0.3s ease-out;
+}
+
+.aiopms-message.success {
+    background: #f0f6fc;
+    border-left-color: #00a32a;
+    color: #00a32a;
+}
+
+.aiopms-message.error {
+    background: #fcf0f1;
+    border-left-color: #d63638;
+    color: #d63638;
+}
+
+.aiopms-message.warning {
+    background: #fcf9e8;
+    border-left-color: #dba617;
+    color: #646970;
+}
+
+.aiopms-message.info {
+    background: #f0f6fc;
+    border-left-color: #2271b1;
+    color: #2271b1;
+}
+
+.aiopms-message-icon {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.aiopms-message-close {
+    margin-left: auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: inherit;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.aiopms-message-close:hover {
+    opacity: 1;
+}
+
+@keyframes aiopms-slideInDown {
+    from {
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ==========================================================================
+   CPT List and Grid Layout
+   ========================================================================== */
+
+.aiopms-cpt-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.aiopms-search-filter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.aiopms-search-input {
+    min-width: 250px;
+    padding: 8px 12px;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.aiopms-search-input:focus {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+    outline: none;
+}
+
+.aiopms-bulk-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#bulk-action-select {
+    min-width: 150px;
+}
+
+#apply-bulk-action:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Empty State */
+.aiopms-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    border: 2px dashed #dcdcde;
+}
+
+.aiopms-empty-state-icon {
+    font-size: 48px;
+    color: #c3c4c7;
+    margin-bottom: 20px;
+}
+
+.aiopms-empty-state h3 {
+    margin: 0 0 10px 0;
+    color: #1d2327;
+    font-size: 20px;
+}
+
+.aiopms-empty-state p {
+    color: #646970;
+    margin-bottom: 25px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.aiopms-empty-state-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+/* CPT Grid */
+.aiopms-cpt-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+/* ==========================================================================
+   CPT Cards
+   ========================================================================== */
+
+.aiopms-cpt-card {
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+    overflow: hidden;
+    position: relative;
+}
+
+.aiopms-cpt-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: #2271b1;
+}
+
+.aiopms-cpt-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: #f6f7f7;
+    border-bottom: 1px solid #dcdcde;
+}
+
+.aiopms-cpt-checkbox input[type="checkbox"] {
+    margin: 0;
+}
+
+.aiopms-status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.aiopms-status-indicator.active {
+    background: #00a32a;
+    box-shadow: 0 0 0 2px rgba(0, 163, 42, 0.2);
+}
+
+.aiopms-status-indicator.inactive {
+    background: #dcdcde;
+}
+
+.aiopms-cpt-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.aiopms-action-btn {
+    background: none;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+    border-radius: 4px;
+    color: #50575e;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.aiopms-action-btn:hover {
+    background: #f0f0f1;
+    color: #2271b1;
+}
+
+.aiopms-action-btn.aiopms-danger:hover {
+    background: #fcf0f1;
+    color: #d63638;
+}
+
+.aiopms-cpt-card-body {
+    padding: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.aiopms-cpt-icon {
+    font-size: 32px;
+    color: #2271b1;
+    flex-shrink: 0;
+}
+
+.aiopms-cpt-info {
+    flex: 1;
+}
+
+.aiopms-cpt-title {
+    margin: 0 0 5px 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.aiopms-cpt-title a {
+    color: #1d2327;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.aiopms-cpt-title a:hover {
+    color: #2271b1;
+}
+
+.aiopms-cpt-slug {
+    font-size: 12px;
+    background: #f6f7f7;
+    padding: 2px 6px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-bottom: 8px;
+}
+
+.aiopms-cpt-description {
+    color: #646970;
+    font-size: 14px;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.aiopms-cpt-card-footer {
+    padding: 15px 20px;
+    background: #f6f7f7;
+    border-top: 1px solid #dcdcde;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.aiopms-cpt-stats {
+    display: flex;
+    gap: 20px;
+}
+
+.aiopms-stat {
+    text-align: center;
+}
+
+.aiopms-stat-number {
+    display: block;
+    font-size: 18px;
+    font-weight: 600;
+    color: #2271b1;
+    line-height: 1;
+}
+
+.aiopms-stat-label {
+    font-size: 11px;
+    color: #646970;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+}
+
+.aiopms-cpt-quick-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.aiopms-cpt-meta {
+    width: 100%;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.aiopms-cpt-meta small {
+    color: #787c82;
+    font-size: 11px;
+}
+
+/* ==========================================================================
+   Form Styling
+   ========================================================================== */
+
+.aiopms-form-group {
+    margin-bottom: 25px;
+}
+
+.aiopms-form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.aiopms-form-input,
+.aiopms-form-textarea,
+.aiopms-form-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.aiopms-form-input:focus,
+.aiopms-form-textarea:focus,
+.aiopms-form-select:focus {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+    outline: none;
+}
+
+.aiopms-form-help {
+    margin-top: 5px;
+    color: #646970;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.aiopms-form-error {
+    margin-top: 5px;
+    color: #d63638;
+    font-size: 13px;
+}
+
+/* Required field indicator */
+.required {
+    color: #d63638;
+    font-weight: bold;
+}
+
+/* Field validation */
+.aiopms-field-validation {
+    margin-top: 5px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.aiopms-field-validation.error {
+    background: #fcf0f1;
+    color: #d63638;
+    border: 1px solid #d63638;
+}
+
+.aiopms-field-validation.success {
+    background: #f0f6fc;
+    color: #00a32a;
+    border: 1px solid #00a32a;
+}
+
+/* ==========================================================================
+   Custom Field Builder
+   ========================================================================== */
+
+.aiopms-field-builder {
+    border: 1px solid #dcdcde;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.aiopms-field-builder-header {
+    background: #f6f7f7;
+    padding: 15px 20px;
+    border-bottom: 1px solid #dcdcde;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.aiopms-field-builder-title {
+    font-weight: 600;
+    margin: 0;
+    color: #1d2327;
+}
+
+.aiopms-field-builder-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.aiopms-field-row {
+    padding: 20px;
+    border-bottom: 1px solid #f0f0f1;
+    background: #fff;
+}
+
+.aiopms-field-row:last-child {
+    border-bottom: none;
+}
+
+.aiopms-field-row-collapsed {
+    padding: 10px 20px;
+    background: #f9f9f9;
+}
+
+.aiopms-field-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr 120px 1fr auto auto;
+    gap: 15px;
+    align-items: end;
+}
+
+.aiopms-add-field-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: #f6f7f7;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    color: #2271b1;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.aiopms-add-field-btn:hover {
+    background: #2271b1;
+    color: #fff;
+    border-color: #2271b1;
+}
+
+/* ==========================================================================
+   Buttons and Interactive Elements
+   ========================================================================== */
+
+.aiopms-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border: 1px solid;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    line-height: 1;
+}
+
+.aiopms-btn-primary {
+    background: #2271b1;
+    border-color: #2271b1;
+    color: #fff;
+}
+
+.aiopms-btn-primary:hover {
+    background: #135e96;
+    border-color: #135e96;
+    color: #fff;
+}
+
+.aiopms-btn-secondary {
+    background: #f6f7f7;
+    border-color: #dcdcde;
+    color: #2271b1;
+}
+
+.aiopms-btn-secondary:hover {
+    background: #2271b1;
+    border-color: #2271b1;
+    color: #fff;
+}
+
+.aiopms-btn-outline {
+    background: transparent;
+    border-color: #2271b1;
+    color: #2271b1;
+}
+
+.aiopms-btn-outline:hover {
+    background: #2271b1;
+    color: #fff;
+}
+
+.aiopms-btn-danger {
+    background: #d63638;
+    border-color: #d63638;
+    color: #fff;
+}
+
+.aiopms-btn-danger:hover {
+    background: #b32d2e;
+    border-color: #b32d2e;
+}
+
+.aiopms-btn-small {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+.aiopms-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.aiopms-btn-icon {
+    font-size: 16px;
+    line-height: 1;
+}
+
+/* ==========================================================================
+   Tabs and Navigation
+   ========================================================================== */
+
+.aiopms-tabs {
+    display: flex;
+    border-bottom: 1px solid #dcdcde;
+    margin-bottom: 25px;
+    overflow-x: auto;
+}
+
+.aiopms-tab {
+    padding: 12px 20px;
+    border: none;
+    background: none;
+    color: #646970;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: all 0.2s;
+    border-bottom: 2px solid transparent;
+}
+
+.aiopms-tab:hover {
+    color: #2271b1;
+}
+
+.aiopms-tab.active {
+    color: #2271b1;
+    border-bottom-color: #2271b1;
+}
+
+.aiopms-tab-content {
+    display: none;
+}
+
+.aiopms-tab-content.active {
+    display: block;
+    animation: aiopms-fadeIn 0.3s ease-in;
+}
+
+@keyframes aiopms-fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* ==========================================================================
+   Modal and Popup Styling
+   ========================================================================== */
+
+.aiopms-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.aiopms-modal {
+    background: #fff;
+    border-radius: 8px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: aiopms-modalSlideIn 0.3s ease-out;
+}
+
+@keyframes aiopms-modalSlideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.aiopms-modal-header {
+    padding: 20px 25px;
+    border-bottom: 1px solid #dcdcde;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.aiopms-modal-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.aiopms-modal-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #646970;
+    padding: 5px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.aiopms-modal-close:hover {
+    background: #f0f0f1;
+    color: #d63638;
+}
+
+.aiopms-modal-body {
+    padding: 25px;
+}
+
+.aiopms-modal-footer {
+    padding: 20px 25px;
+    border-top: 1px solid #dcdcde;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+
+@media screen and (max-width: 1200px) {
+    .aiopms-cpt-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+}
+
+@media screen and (max-width: 960px) {
+    .dg10-main-layout {
+        flex-direction: column;
+    }
+
+    .dg10-admin-sidebar {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .dg10-sidebar-nav ul {
+        display: flex;
+        overflow-x: auto;
+        gap: 0;
+    }
+
+    .dg10-sidebar-nav-item {
+        white-space: nowrap;
+        padding: 10px 15px;
+    }
+
+    .aiopms-cpt-list-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .aiopms-search-filter {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .aiopms-search-input {
+        min-width: auto;
+    }
+
+    .aiopms-field-controls {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .aiopms-cpt-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .aiopms-cpt-card-header,
+    .aiopms-cpt-card-body,
+    .aiopms-cpt-card-footer {
+        padding: 15px;
+    }
+
+    .aiopms-cpt-card-footer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .aiopms-cpt-stats {
+        justify-content: space-around;
+    }
+
+    .aiopms-empty-state {
+        padding: 40px 15px;
+    }
+
+    .aiopms-empty-state-actions {
+        flex-direction: column;
+    }
+
+    .aiopms-modal {
+        margin: 10px;
+        max-height: calc(100vh - 20px);
+    }
+
+    .aiopms-tabs {
+        margin-left: -10px;
+        margin-right: -10px;
+        padding: 0 10px;
+    }
+}
+
+/* ==========================================================================
+   Accessibility Enhancements
+   ========================================================================== */
+
+/* Focus indicators */
+.aiopms-btn:focus,
+.aiopms-action-btn:focus,
+.aiopms-form-input:focus,
+.aiopms-form-textarea:focus,
+.aiopms-form-select:focus,
+.aiopms-tab:focus {
+    outline: 2px solid #2271b1;
+    outline-offset: 2px;
+}
+
+/* Screen reader text */
+.screen-reader-text {
+    position: absolute !important;
+    clip: rect(1px, 1px, 1px, 1px);
+    -webkit-clip-path: inset(50%);
+    clip-path: inset(50%);
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    word-wrap: normal !important;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .aiopms-cpt-card {
+        border-width: 2px;
+    }
+
+    .aiopms-btn {
+        border-width: 2px;
+    }
+
+    .aiopms-status-indicator {
+        border: 2px solid;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Dark mode support (future enhancement) */
+@media (prefers-color-scheme: dark) {
+    /* Dark mode styles would go here */
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+
+    .aiopms-loading-overlay,
+    .aiopms-cpt-actions,
+    .aiopms-bulk-actions,
+    .aiopms-search-filter,
+    .aiopms-action-btn,
+    .dg10-card-footer {
+        display: none !important;
+    }
+
+    .aiopms-cpt-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+
+    .aiopms-cpt-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ==========================================================================
+   Bulk Operations Styles
+   ========================================================================== */
+
+.aiopms-bulk-operations {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.aiopms-bulk-selection {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.aiopms-bulk-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.aiopms-bulk-controls label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #495057;
+}
+
+.aiopms-selection-count {
+    background: #e3f2fd;
+    color: #1976d2;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.aiopms-bulk-actions-panel {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.aiopms-bulk-selector {
+    min-width: 200px;
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background: #fff;
+}
+
+.aiopms-bulk-cpt-list {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.aiopms-bulk-cpt-list table {
+    margin: 0;
+    border: none;
+}
+
+.aiopms-bulk-cpt-list th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.aiopms-bulk-cpt-list td {
+    vertical-align: middle;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.aiopms-status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.aiopms-status-badge.active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.aiopms-status-badge.inactive {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.aiopms-bulk-results {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.aiopms-bulk-results h4 {
+    margin-top: 0;
+    color: #495057;
+}
+
+/* ==========================================================================
+   Import/Export Styles
+   ========================================================================== */
+
+.aiopms-import-export-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin: 20px 0;
+}
+
+.aiopms-export-section,
+.aiopms-import-section {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.aiopms-section-header h4 {
+    margin-top: 0;
+    color: #495057;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.aiopms-section-header p {
+    color: #6c757d;
+    margin-bottom: 20px;
+}
+
+.aiopms-export-options,
+.aiopms-import-settings {
+    margin: 20px 0;
+}
+
+.aiopms-export-options h5,
+.aiopms-import-settings h5 {
+    color: #495057;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.aiopms-export-option,
+.aiopms-import-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 15px;
+    margin: 10px 0;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.aiopms-export-option:hover,
+.aiopms-import-option:hover {
+    background: #e9ecef;
+    border-color: #ced4da;
+}
+
+.aiopms-export-option input,
+.aiopms-import-option input {
+    margin-top: 2px;
+}
+
+.option-label {
+    flex: 1;
+}
+
+.option-label strong {
+    display: block;
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.option-label small {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.aiopms-cpt-selection {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 15px 0;
+}
+
+.aiopms-cpt-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    margin: 8px 0;
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.aiopms-cpt-option:hover {
+    background: #f8f9fa;
+}
+
+.cpt-info {
+    flex: 1;
+}
+
+.cpt-info strong {
+    display: block;
+    color: #495057;
+    font-weight: 600;
+}
+
+.cpt-info code {
+    color: #6c757d;
+    font-size: 12px;
+    background: #f1f3f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.aiopms-file-upload {
+    margin: 20px 0;
+}
+
+.aiopms-upload-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    border: 2px dashed #ced4da;
+    border-radius: 8px;
+    background: #f8f9fa;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.aiopms-upload-label:hover {
+    border-color: #2271b1;
+    background: #f0f9ff;
+}
+
+.aiopms-upload-label .dashicons {
+    font-size: 48px;
+    color: #6c757d;
+    margin-bottom: 10px;
+}
+
+.upload-text {
+    color: #495057;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.aiopms-upload-label input[type="file"] {
+    display: none;
+}
+
+.aiopms-export-actions,
+.aiopms-import-actions {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+}
+
+.aiopms-import-export-history {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 25px;
+    margin-top: 30px;
+}
+
+.aiopms-history-items {
+    margin-top: 15px;
+}
+
+.aiopms-history-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    margin: 10px 0;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+}
+
+.aiopms-history-item.export {
+    border-left: 4px solid #28a745;
+}
+
+.aiopms-history-item.import {
+    border-left: 4px solid #007cba;
+}
+
+.aiopms-history-item .dashicons {
+    font-size: 24px;
+    color: #6c757d;
+}
+
+.history-details {
+    flex: 1;
+}
+
+.history-details strong {
+    color: #495057;
+    font-weight: 600;
+}
+
+.history-details small {
+    color: #6c757d;
+    font-size: 12px;
+}
+
+/* ==========================================================================
+   Templates Styles
+   ========================================================================== */
+
+.aiopms-templates-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+    gap: 24px !important;
+    margin: 24px 0 !important;
+    padding: 8px 0;
+    width: 100%;
+}
+
+.aiopms-template-card {
+    background: var(--dg10-glass-bg, rgba(255, 255, 255, 0.95));
+    border: 1px solid var(--dg10-glass-border, rgba(139, 92, 246, 0.15));
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.aiopms-template-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(180, 124, 253, 0.2);
+    border-color: #B47CFD;
+}
+
+.aiopms-template-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--dg10-glass-border, rgba(139, 92, 246, 0.1));
+}
+
+.aiopms-template-icon {
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #B47CFD, #FF7FC2);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(180, 124, 253, 0.35);
+}
+
+.aiopms-template-icon .dashicons {
+    font-size: 28px;
+    color: #fff;
+    width: 28px;
+    height: 28px;
+}
+
+.aiopms-template-info h4 {
+    margin: 0 0 10px 0;
+    color: #1e1e2e;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.aiopms-template-description {
+    color: #64748b;
+    margin: 0;
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+.aiopms-template-details {
+    margin-bottom: 24px;
+    flex-grow: 1;
+}
+
+.aiopms-template-stats {
+    display: flex;
+    gap: 32px;
+    margin-bottom: 20px;
+    padding: 16px;
+    background: linear-gradient(135deg, rgba(180, 124, 253, 0.08), rgba(255, 127, 194, 0.05));
+    border-radius: 12px;
+}
+
+.aiopms-template-stats .aiopms-stat {
+    text-align: center;
+}
+
+.aiopms-template-stats .aiopms-stat-number {
+    display: block;
+    font-size: 28px;
+    font-weight: 800;
+    color: #B47CFD;
+    line-height: 1.2;
+}
+
+.aiopms-template-stats .aiopms-stat-label {
+    font-size: 11px;
+    color: #64748b;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+
+.aiopms-template-features h5,
+.aiopms-template-fields h5 {
+    color: #1e1e2e;
+    font-size: 12px;
+    font-weight: 700;
+    margin: 18px 0 10px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.aiopms-template-features ul {
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.aiopms-template-features li {
+    color: #475569;
+    font-size: 13px;
+    padding-left: 20px;
+    position: relative;
+}
+
+.aiopms-template-features li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #10b981;
+    font-weight: bold;
+}
+
+.aiopms-fields-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.aiopms-field-tag {
+    background: linear-gradient(135deg, rgba(180, 124, 253, 0.12), rgba(255, 127, 194, 0.08));
+    color: #7c3aed;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid rgba(180, 124, 253, 0.2);
+}
+
+.aiopms-field-tag.aiopms-more-fields {
+    background: #f1f5f9;
+    color: #64748b;
+    border-color: transparent;
+}
+
+.aiopms-template-actions {
+    display: flex;
+    gap: 12px;
+    padding-top: 24px;
+    border-top: 1px solid var(--dg10-glass-border, rgba(139, 92, 246, 0.1));
+    margin-top: auto;
+}
+
+.aiopms-template-actions .button {
+    flex: 1;
+    text-align: center;
+}
+
+.aiopms-modal-large {
+    max-width: 800px;
+    width: 90%;
+}
+
+/* ==========================================================================
+   Responsive Design for New Features
+   ========================================================================== */
+
+@media (max-width: 768px) {
+    .aiopms-import-export-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .aiopms-templates-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .aiopms-bulk-controls {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .aiopms-bulk-actions-panel {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .aiopms-bulk-selector {
+        min-width: auto;
+    }
+
+    .aiopms-template-actions {
+        flex-direction: column;
+    }
+
+    .aiopms-template-stats {
+        justify-content: space-around;
+    }
+}

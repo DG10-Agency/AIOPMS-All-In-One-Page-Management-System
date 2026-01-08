@@ -1,0 +1,215 @@
+/* 
+ * DG10 Premium Design System - Hierarchy Visualizer Styles 
+ * Modernized hierarchy visualization with glassmorphism and enhanced UX.
+ */
+
+/* View Containers */
+#abpcwa-hierarchy-view-container {
+    position: relative;
+    min-height: 500px;
+}
+
+.abpcwa-hierarchy-view {
+    display: none;
+    border-radius: var(--dg10-glass-radius);
+    transition: all 0.3s ease;
+}
+
+.abpcwa-hierarchy-view.active-view {
+    display: block;
+}
+
+/* --- Grid View Layout --- */
+.dg10-hierarchy-grid-wrapper {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 10px;
+}
+
+.dg10-grid-item-container {
+    position: relative;
+    padding-left: 0;
+}
+
+.dg10-grid-item-container[data-level="1"] {
+    padding-left: 40px;
+}
+
+.dg10-grid-item-container[data-level="2"] {
+    padding-left: 80px;
+}
+
+.dg10-grid-item-container[data-level="3"] {
+    padding-left: 120px;
+}
+
+.dg10-grid-item-container[data-level="4"] {
+    padding-left: 160px;
+}
+
+/* Grid Card Styling */
+.dg10-grid-card {
+    background: var(--dg10-glass-bg);
+    backdrop-filter: var(--dg10-glass-blur);
+    border: 1px solid var(--dg10-glass-border);
+    border-radius: var(--dg10-glass-radius);
+    padding: 24px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.dg10-grid-card:hover {
+    border-color: var(--dg10-brand-purple);
+    box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.1);
+    transform: translateY(-2px);
+}
+
+.dg10-grid-card.is-homepage {
+    border-left: 4px solid var(--dg10-brand-secondary);
+    background: linear-gradient(to right, rgba(236, 72, 153, 0.05), var(--dg10-glass-bg));
+}
+
+/* Card Components */
+.dg10-grid-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.dg10-grid-icon {
+    font-size: 1.25rem;
+    color: var(--dg10-brand-purple);
+}
+
+.dg10-grid-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--dg10-text-main);
+    flex-grow: 1;
+}
+
+.dg10-grid-badge {
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.dg10-grid-badge.status-publish {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.dg10-grid-badge.status-draft {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.dg10-grid-badge.status-private {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.dg10-grid-desc {
+    font-size: 0.9rem;
+    color: var(--dg10-text-dim);
+    margin: 0 0 16px 0;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.dg10-grid-meta {
+    display: flex;
+    gap: 20px;
+    font-size: 0.8rem;
+    color: var(--dg10-text-dim);
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--dg10-glass-border);
+}
+
+.dg10-grid-actions {
+    display: flex;
+    gap: 12px;
+}
+
+/* Children Container */
+.dg10-grid-children {
+    margin-top: 15px;
+    border-left: 2px dashed var(--dg10-glass-border);
+    padding-left: 10px;
+}
+
+.toggle-children.is-active {
+    background-color: var(--dg10-brand-purple);
+    color: white;
+}
+
+/* --- Org Chart (D3.js) Styles --- */
+#abpcwa-hierarchy-orgchart {
+    background: var(--dg10-glass-bg);
+    border: 1px solid var(--dg10-glass-border);
+    border-radius: var(--dg10-glass-radius);
+    overflow: hidden;
+}
+
+.dg10-org-node text {
+    font-family: inherit;
+    font-weight: 500;
+}
+
+.dg10-org-node circle {
+    stroke: white;
+    stroke-width: 2px;
+}
+
+/* --- Tree View (jsTree) Adjustments --- */
+#abpcwa-hierarchy-tree {
+    padding: 30px;
+}
+
+.jstree-default .jstree-anchor {
+    font-family: inherit !important;
+    color: var(--dg10-text-main) !important;
+}
+
+.jstree-default .jstree-search {
+    color: var(--dg10-brand-purple) !important;
+    font-weight: 600 !important;
+}
+
+/* --- Loading States --- */
+.aiopms-loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 100px 0;
+}
+
+.aiopms-loading-state p {
+    margin-top: 20px;
+    color: var(--dg10-text-dim);
+    font-weight: 500;
+}
+
+/* Responsive fixes */
+@media (max-width: 768px) {
+    .dg10-grid-item-container {
+        padding-left: 20px !important;
+    }
+
+    .dg10-grid-meta {
+        flex-direction: column;
+        gap: 8px;
+    }
+}

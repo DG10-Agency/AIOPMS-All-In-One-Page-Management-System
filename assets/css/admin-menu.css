@@ -1,0 +1,414 @@
+/* Enhanced DG10 Brand Admin Menu Styling */
+
+/* Center the plugin icon in the WordPress admin menu */
+#adminmenu #toplevel_page_aiopms-page-management .wp-menu-image {
+    width: 36px !important;
+    height: 34px !important;
+    position: relative !important;
+    display: grid !important;
+    place-items: center !important; /* perfectly center both axes */
+    transition: all 0.3s ease;
+}
+
+/* Ensure the SVG/img itself is centered and sized like core icons */
+#adminmenu #toplevel_page_aiopms-page-management .wp-menu-image img,
+#adminmenu #toplevel_page_aiopms-page-management .wp-menu-image svg {
+    width: 20px !important;
+    height: 20px !important;
+    display: block !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    object-fit: contain !important;
+    /* reset any absolute positioning that might push it left */
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    transform: none !important;
+    opacity: 0.9;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 0 0 transparent);
+}
+
+/* Enhanced hover and active states with brand colors */
+#adminmenu #toplevel_page_aiopms-page-management:hover .wp-menu-image img,
+#adminmenu #toplevel_page_aiopms-page-management.current .wp-menu-image img {
+    opacity: 1 !important;
+    filter: drop-shadow(0 0 8px rgba(180, 124, 253, 0.6));
+    transform: scale(1.1);
+}
+
+#adminmenu #toplevel_page_aiopms-page-management:hover .wp-menu-image,
+#adminmenu #toplevel_page_aiopms-page-management.current .wp-menu-image {
+    background: linear-gradient(135deg, rgba(180, 124, 253, 0.1) 0%, rgba(255, 127, 194, 0.1) 100%);
+    border-radius: 6px;
+}
+
+/* Enhanced menu item styling */
+#adminmenu #toplevel_page_aiopms-page-management:hover,
+#adminmenu #toplevel_page_aiopms-page-management.current {
+    background: linear-gradient(135deg, rgba(180, 124, 253, 0.05) 0%, rgba(255, 127, 194, 0.05) 100%);
+    border-left: 3px solid var(--dg10-primary, #B47CFD);
+}
+
+#adminmenu #toplevel_page_aiopms-page-management:hover .wp-menu-name,
+#adminmenu #toplevel_page_aiopms-page-management.current .wp-menu-name {
+    color: var(--dg10-primary, #B47CFD) !important;
+    font-weight: 600;
+}
+
+/* Remove the default dashicon pseudo-element so only our SVG shows */
+#adminmenu #toplevel_page_aiopms-page-management .wp-menu-image:before {
+    content: none !important;
+    display: none !important;
+}
+
+/* Enhanced submenu styling */
+#adminmenu #toplevel_page_aiopms-page-management .wp-submenu {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(180, 124, 253, 0.1);
+}
+
+#adminmenu #toplevel_page_aiopms-page-management .wp-submenu li a {
+    transition: all 0.2s ease;
+    border-radius: 4px;
+    margin: 2px 4px;
+}
+
+#adminmenu #toplevel_page_aiopms-page-management .wp-submenu li a:hover {
+    background: linear-gradient(135deg, rgba(180, 124, 253, 0.1) 0%, rgba(255, 127, 194, 0.1) 100%);
+    color: var(--dg10-primary, #B47CFD);
+    transform: translateX(4px);
+}
+
+/* Mobile responsive adjustments */
+@media screen and (max-width: 782px) {
+    #adminmenu #toplevel_page_aiopms-page-management .wp-menu-image img,
+    #adminmenu #toplevel_page_aiopms-page-management .wp-menu-image svg {
+        width: 18px !important;
+        height: 18px !important;
+    }
+    
+    #adminmenu #toplevel_page_aiopms-page-management:hover .wp-menu-image img,
+    #adminmenu #toplevel_page_aiopms-page-management.current .wp-menu-image img {
+        transform: scale(1.05);
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    #adminmenu #toplevel_page_aiopms-page-management .wp-submenu {
+        background: rgba(15, 5, 32, 0.98);
+        border-color: rgba(180, 124, 253, 0.2);
+    }
+    
+    #adminmenu #toplevel_page_aiopms-page-management .wp-submenu li a {
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    #adminmenu #toplevel_page_aiopms-page-management .wp-submenu li a:hover {
+        color: var(--dg10-primary, #B47CFD);
+        background: linear-gradient(135deg, rgba(180, 124, 253, 0.2) 0%, rgba(255, 127, 194, 0.2) 100%);
+    }
+}
+
+/* ===== VERTICAL SIDEBAR LAYOUT ===== */
+
+/* Main layout container */
+.dg10-main-layout {
+    display: flex;
+    gap: 0;
+    min-height: calc(100vh - 160px);
+    background: #f8f9fa; /* Light background */
+}
+
+/* Sidebar container */
+.dg10-admin-sidebar {
+    width: 280px;
+    background: #fff; /* Light sidebar background */
+    border-right: 1px solid #e1e5e9;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 32px;
+    height: fit-content;
+    max-height: calc(100vh - 160px);
+    overflow-y: auto;
+    z-index: 10;
+}
+
+/* Sidebar header */
+.dg10-sidebar-header {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid #3c434a;
+    background: linear-gradient(135deg, #2c3338 0%, #1d2327 100%); /* Dark background for sidebar header */
+}
+
+.dg10-sidebar-title {
+    font-size: 18px;
+    font-weight: 700; /* Increased weight for better contrast */
+    color: #FFFFFF !important; /* White text for dark background */
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), 0 1px 2px rgba(0, 0, 0, 0.6) !important; /* Strong shadows for better definition */
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dg10-sidebar-subtitle {
+    font-size: 13px;
+    color: #F3F4F6 !important; /* Light gray text for dark background */
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7), 0 1px 2px rgba(0, 0, 0, 0.5) !important; /* Strong shadows for better definition */
+    margin: 0;
+    line-height: 1.5; /* Improved line height */
+    font-weight: 500; /* Increased weight for better readability */
+}
+
+/* Sidebar navigation */
+.dg10-sidebar-nav {
+    padding: 16px 0;
+}
+
+.dg10-sidebar-nav-item {
+    display: block;
+    padding: 12px 20px;
+    color: #374151; /* Darker color for better contrast */
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600; /* Increased weight for better contrast */
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+    position: relative;
+}
+
+.dg10-sidebar-nav-item:hover {
+    background: #f6f7f7;
+    color: #1D4ED8; /* Darker blue for better contrast */
+    border-left-color: #1D4ED8;
+    text-decoration: none;
+    font-weight: 700; /* Increased weight on hover for better visibility */
+}
+
+.dg10-sidebar-nav-item.active {
+    background: linear-gradient(135deg, rgba(29, 78, 216, 0.15) 0%, rgba(29, 78, 216, 0.08) 100%); /* Enhanced background for better visibility */
+    color: #1D4ED8; /* Darker blue for better contrast */
+    border-left-color: #1D4ED8;
+    font-weight: 700; /* Increased weight for active state */
+}
+
+.dg10-sidebar-nav-item.active::before {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 6px solid #1D4ED8; /* Darker blue for better contrast */
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+}
+
+/* Sidebar nav item icons */
+.dg10-sidebar-nav-item .nav-icon {
+    display: inline-block;
+    width: 20px;
+    text-align: center;
+    margin-right: 12px;
+    font-size: 16px;
+    font-weight: 600; /* Increased weight for better visibility */
+    color: inherit; /* Inherit color for better contrast */
+}
+
+/* Main content area */
+.dg10-main-content {
+    flex: 1;
+    background: #fff; /* Light content background */
+    border-radius: 8px 0 0 8px;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+/* Remove old horizontal tabs */
+.dg10-nav-tabs {
+    display: none !important;
+}
+
+/* Content area adjustments */
+.dg10-card {
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+.dg10-card-header {
+    border-bottom: 1px solid #e1e5e9;
+    background: #fff; /* Light header background */
+    padding: 24px 32px 20px;
+}
+
+.dg10-card-body {
+    padding: 32px;
+}
+
+/* Responsive design */
+@media screen and (max-width: 1200px) {
+    .dg10-admin-sidebar {
+        width: 260px;
+    }
+}
+
+@media screen and (max-width: 960px) {
+    .dg10-main-layout {
+        flex-direction: column;
+    }
+    
+    .dg10-admin-sidebar {
+        width: 100%;
+        position: static;
+        max-height: none;
+        border-right: none;
+        border-bottom: 1px solid #e1e5e9;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .dg10-sidebar-nav {
+        display: flex;
+        overflow-x: auto;
+        padding: 16px 20px;
+        gap: 8px;
+    }
+    
+    .dg10-sidebar-nav-item {
+        white-space: nowrap;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+        padding: 12px 16px;
+        border-radius: 6px;
+        min-width: fit-content;
+    }
+    
+    .dg10-sidebar-nav-item:hover,
+    .dg10-sidebar-nav-item.active {
+        border-left: none;
+        border-bottom-color: #1D4ED8; /* Darker blue for better contrast */
+    }
+    
+    .dg10-sidebar-nav-item.active::before {
+        display: none;
+    }
+    
+    .dg10-main-content {
+        border-radius: 0;
+        box-shadow: none;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .dg10-sidebar-header {
+        padding: 20px 16px 16px;
+    }
+    
+    .dg10-sidebar-title {
+        font-size: 16px;
+        font-weight: 700; /* Ensure proper weight on small screens */
+    }
+    
+    .dg10-sidebar-nav {
+        padding: 12px 16px;
+    }
+    
+    .dg10-sidebar-nav-item {
+        padding: 10px 12px;
+        font-size: 13px;
+        font-weight: 600; /* Ensure proper weight on small screens */
+    }
+    
+    .dg10-sidebar-nav-item .nav-icon {
+        width: 16px;
+        margin-right: 8px;
+        font-size: 14px;
+        font-weight: 600; /* Ensure proper weight on small screens */
+    }
+    
+    .dg10-card-header {
+        padding: 20px 24px 16px;
+    }
+    
+    .dg10-card-body {
+        padding: 24px;
+    }
+}
+
+
+/* Force light theme by default - override any dark theme */
+.dg10-brand {
+    background: #f8f9fa !important;
+    color: #374151 !important; /* Ensure proper text color */
+}
+
+.dg10-brand .dg10-main-layout {
+    background: #f8f9fa !important;
+}
+
+.dg10-brand .dg10-admin-sidebar {
+    background: #fff !important;
+    border-color: #D1D5DB !important; /* Ensure proper border color */
+}
+
+.dg10-brand .dg10-main-content {
+    background: #fff !important;
+}
+
+.dg10-brand .dg10-card-header {
+    background: #fff !important;
+    color: #1F2937 !important; /* Ensure proper text color */
+}
+
+/* Additional light mode overrides for better contrast */
+.dg10-brand * {
+    color: inherit; /* Inherit proper colors */
+}
+
+.dg10-brand .dg10-nav-tab {
+    color: #374151 !important; /* Force proper tab color */
+}
+
+.dg10-brand .dg10-nav-tab:hover {
+    color: var(--dg10-primary) !important;
+}
+
+/* Force dark text for all content areas */
+.dg10-brand .dg10-main-content,
+.dg10-brand .dg10-main-content *,
+.dg10-brand .dg10-card-body,
+.dg10-brand .dg10-card-body *,
+.dg10-brand .dg10-main-content p,
+.dg10-brand .dg10-main-content span,
+.dg10-brand .dg10-main-content div,
+.dg10-brand .dg10-main-content label,
+.dg10-brand .dg10-main-content .description,
+.dg10-brand .dg10-main-content .form-field,
+.dg10-brand .dg10-main-content .field-description {
+    color: #1F2937 !important; /* Force dark text for white backgrounds */
+}
+
+/* WordPress admin specific overrides */
+.dg10-brand .wrap,
+.dg10-brand .wrap *,
+.dg10-brand .form-table,
+.dg10-brand .form-table *,
+.dg10-brand .form-table th,
+.dg10-brand .form-table td,
+.dg10-brand .form-table label,
+.dg10-brand .form-table .description,
+.dg10-brand .notice,
+.dg10-brand .notice *,
+.dg10-brand .notice p {
+    color: #1F2937 !important;
+}
+
+.dg10-brand .dg10-nav-tab.active {
+    color: var(--dg10-primary) !important;
+}
