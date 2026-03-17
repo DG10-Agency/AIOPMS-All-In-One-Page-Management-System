@@ -1,91 +1,90 @@
 === AIOPMS - All In One Page Management System ===
 Contributors: dg10agency
-Tags: pages, bulk pages, page management, ai content, schema markup, menu generator, hierarchy, seo
+Tags: pages, schema markup, bulk creation, ai content, seo generator, menu generator, openai, gemini, hierarchy
 Requires at least: 5.6
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 1.0
+Stable tag: 3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-A comprehensive page management system for WordPress with bulk creation, AI generation, hierarchy management, schema markup, and menu generation.
+AIOPMS is the ultimate page management and SEO infrastructure plugin, combining DG10 Agency design with powerful AI-driven content and schema generation.
 
 == Description ==
 
-**AIOPMS** is the ultimate WordPress page management plugin that streamlines your content workflow. Whether you're building a small business website or managing a large enterprise site, AIOPMS provides powerful tools to create, organize, and optimize your pages.
+**AIOPMS (All In One Page Management System)** is a comprehensive solution designed to eliminate the manual labor of building WordPress websites. Built for agencies and power-users, it integrates leading AI providers (OpenAI, Google Gemini, DeepSeek) into a professional interface that manages everything from content hierarchy to structured data (Schema.org).
 
-= Key Features =
+With AIOPMS, you don't just "write pages"—you architect entire business ecosystems. The plugin understands your business goals and suggests the ideal Custom Post Types, categories, and page structures required for your industry.
 
-* **Manual Page Creation** - Create multiple pages at once with a simple text input. Use hyphens for hierarchy and special syntax for meta descriptions and templates.
-* **CSV Upload** - Import pages from CSV files with support for parent pages, meta descriptions, featured images, and page templates.
-* **AI-Powered Generation** - Generate page suggestions and full content using OpenAI, Google Gemini, or DeepSeek APIs.
-* **Schema Markup Generator** - Automatically generate and manage Schema.org structured data for better SEO. Supports FAQ, HowTo, Review, Event, Service, Product, and more.
-* **Menu Generator** - Automatically create WordPress navigation menus based on your page structure.
-* **Hierarchy Visualizer** - View your page hierarchy as interactive mindmaps or org charts. Export to CSV, JSON, or Markdown.
-* **Keyword Analyzer** - Analyze keyword density and get SEO recommendations for your pages.
-* **Custom Post Type Manager** - Create and manage custom post types with a visual interface.
+= 🚀 Main Features in Detail =
 
-= Auto-Detection =
-
-AIOPMS automatically detects your business information from WordPress settings, WooCommerce, Yoast SEO, RankMath, and your existing pages. Zero configuration required for most sites!
-
-= AI Providers Supported =
-
-* OpenAI (GPT-3.5, GPT-4)
-* Google Gemini
-* DeepSeek
+*   **🤖 AI-Powered Content Architecture** - Go beyond text. AIOPMS builds your site structure. It generates intelligent page hierarchies based on your business model.
+*   **🏗️ Advanced CPT & Taxonomy Engine** - Create business-specific Custom Post Types (e.g., Doctors, Products, etc.) and link them to AI-suggested taxonomies. Business-critical fields (Price, Duration, Location) are automatically implemented.
+*   **📊 Pro Schema Management Suite** - A dedicated dashboard to monitor your SEO coverage. Generate, edit, and bulk-manage JSON-LD schema (FAQ, Product, LocalBusiness, etc.) with a live code editor and export your entire schema set to CSV.
+*   **📂 Intelligent CSV Bulk Import** - Deploy hundreds of SEO-optimized pages in seconds. Supports robust validation, parent-child relationships, and metadata mapping.
+*   **🍔 Smart Menu Generator** - Instantly build navigation, service, and footer menus based on your site's hierarchy. Automatically organizes your content for best UX.
+*   **🎨 Premium DG10 Agency Design** - A glassmorphic, modern admin interface built for usability. High contrast, mobile-responsive, and visually stunning.
+*   **⚡ High Performance Infrastructure** - Built with efficiency in mind. Sequential batch processing for bulk actions and optimized SQL counts to keep your dashboard lightning fast.
+*   **♿ Full Accessibility** - 100% WCAG 2.1 AA compliant. Proper ARIA labels, focus management, and keyboard-first navigation are standard.
 
 == Installation ==
 
-1. Upload the plugin files to `/wp-content/plugins/aiopms-all-in-one-page-management-system/` or install through the WordPress plugins screen.
-2. Activate the plugin through the 'Plugins' screen in WordPress.
-3. Navigate to **AIOPMS** in your admin sidebar.
-4. (Optional) Go to Settings tab to configure your AI provider and API keys.
+1. Upload the plugin folder to the `/wp-content/plugins/` directory.
+2. Activate the plugin through the 'Plugins' menu in WordPress.
+3. Access the **AIOPMS** dashboard in your admin sidebar.
+4. Go to **Settings** to add your OpenAI, Gemini, or DeepSeek API key to unlock the AI features.
 
 == Frequently Asked Questions ==
 
-= Do I need an AI API key to use this plugin? =
+= Does it support bulk schema generation? =
+Yes! In the Schema Generator dashboard, you can filter your pages and apply "Generate" or "Remove" actions to all filtered results at once. It processes items in batches to prevent server timeouts.
 
-No! The AI features are optional. You can use all other features (manual creation, CSV upload, schema generation, menu generation, etc.) without any API key.
+= Can I export my schema data for auditing? =
+Absolutely. There is a built-in CSV export button that captures all structured data stored for your Posts, Pages, and Taxonomies into a single portable file.
 
-= Which AI providers are supported? =
+= Which AI provider do you recommend? =
+For most content and structural generation, we strictly recommend **OpenAI**. For high-speed large-scale suggestions, Google Gemini is an excellent alternative.
 
-OpenAI (GPT-3.5/GPT-4), Google Gemini, and DeepSeek are all supported. You only need one API key.
+= Is the schema markup invisible to users? =
+Yes. All schema is generated as JSON-LD and inserted into the `<head>` of your website. It is designed for search engines like Google and Bing and will not affect your frontend layout.
 
-= Is the schema markup generated valid? =
-
-Yes! The schema is generated according to Schema.org specifications and outputs valid JSON-LD that Google can read.
-
-= Can I create nested pages? =
-
-Absolutely! Use hyphens in the manual creation tab to create nested page hierarchies. One hyphen = child, two hyphens = grandchild, etc.
-
-= Does it work with WooCommerce? =
-
-Yes, AIOPMS detects WooCommerce store settings for schema generation and can manage WooCommerce pages.
+= Is my API Key secure? =
+Yes, your API keys are stored securely in your WordPress database and are only used for direct server-to-server communication with the AI provider.
 
 == Screenshots ==
 
-1. Manual Page Creation - Create pages with hierarchy using simple text syntax with meta descriptions and templates
-2. CSV Upload - Bulk import pages from CSV files with validation and parent page support
-3. AI Page Generator - Generate complete website architecture with AI (OpenAI, Gemini, DeepSeek)
-4. Schema Generator - AI-powered schema markup generation for better SEO
-5. Menu Generator - Auto-generate WordPress menus from your existing pages
-6. Page Hierarchy - Interactive tree view visualization of your page structure
-7. Keyword Analysis - Analyze keyword density and get SEO recommendations
-8. Custom Post Types - Create and manage custom post types with visual interface
-9. Settings - Configure AI providers, API keys, and business information
+1. **Branded Dashboard** - The central hub for all business management.
+2. **AI Logic Engine** - Creating structured site maps from simple descriptions.
+3. **Advanced Schema UI** - The full dashboard for structured data management.
+4. **JSON Modal Editor** - Live code editing with validation tools.
+5. **Import/Export System** - Managing large datasets with CSV tools.
 
 == Changelog ==
 
+= 3.0 =
+* NEW: Complete UI/UX Overhaul with DG10 Agency Branding (Glassmorphism).
+* NEW: Schema Generator Dashboard with Live Preview/Edit/Export functionality.
+* NEW: Batch processing for Bulk Schema actions.
+* NEW: Intelligent CPT & Taxonomy auto-linking logic.
+* NEW: Integrated Google Gemini and DeepSeek AI providers.
+* IMPROVED: SQL optimization for page counts and dashboard speed.
+* IMPROVED: Full accessibility audit (WCAG 2.1 AA Compliance).
+* FIXED: Resolved CSS syntax errors and unclosed brackets in admin styles.
+* FIXED: Corrected registration order for dependent Taxonomies.
+
+= 2.0 =
+* Initial AI integration for page suggestions.
+* Added early-stage CSV import validation.
+* First version of the Menu Generator tool.
+
 = 1.0 =
-* Initial release
+* Core manual creation engine and page hierarchy support.
 
 == Upgrade Notice ==
 
 = 3.0 =
-Major update with AI-powered schema extraction and auto-detection features. Backup your site before upgrading.
+Major Design and Feature upgrade. This version introduces the new Schema dashboard and the DG10 branding system. Please perform a full backup before updating.
 
 == Privacy Policy ==
 
-This plugin does not collect any personal data. If you use AI features, your page content is sent to the selected AI provider (OpenAI, Google, or DeepSeek) for processing according to their privacy policies.
+AIOPMS does not store or collect personal user data. If AI features are used, your business context and content are sent to the selected AI provider (OpenAI, Google, or DeepSeek) according to their respective privacy terms. No data is shared with third parties beyond the specific provider selected by the administrator.

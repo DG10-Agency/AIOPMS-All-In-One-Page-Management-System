@@ -4,621 +4,165 @@
 [![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)](https://php.net/)
 [![License](https://img.shields.io/badge/License-GPL%20v2%2B-green.svg)](https://www.gnu.org/licenses/gpl-2.0.html)
 
+AIOPMS is a high-performance, AI-driven infrastructure for WordPress. Built for the modern DG10 Agency ecosystem, it combines advanced content generation with a professional-grade SEO and Schema management suite.
+
+---
+
 ## 📖 Table of Contents
-- [Overview](#-overview)
-- [Key Features](#-key-features)
-- [Installation](#-installation)
-- [Quick Start](#-quick-start)
-- [Feature Guide](#-feature-guide)
-- [AI Integration](#-ai-integration)
-- [Customization](#-customization)
-- [Troubleshooting](#-troubleshooting)
-- [Requirements](#-requirements)
-- [Changelog](#-changelog)
-- [Contributing](#-contributing)
-- [License](#-license)
-- [Support](#-support)
+- [🎯 Overview](#-overview)
+- [🚀 Core Pillars](#-core-pillars)
+- [🛠️ Detailed Feature Guide](#-detailed-feature-guide)
+  - [Bulk Page Engine](#bulk-page-engine)
+  - [AI Agency Mode](#ai-agency-mode)
+  - [Schema Generator PRO](#schema-generator-pro)
+  - [CPT & Taxonomy Manager](#cpt--taxonomy-manager)
+  - [Menu Architecture](#menu-architecture)
+- [🎨 Branding & UX Standards](#-branding--ux-standards)
+- [⚙️ Configuration & API Settings](#-configuration--api-settings)
+- [🔒 Security & Technical Specs](#-security--technical-specs)
+- [📈 Performance Benchmark](#-performance-benchmark)
+- [🆕 Development History (The 3.0 Overhaul)](#-development-history-the-30-overhaul)
+- [📋 Installation & Quick Start](#-installation--quick-start)
+- [📄 License & Credits](#-license--credits)
+
+---
 
 ## 🎯 Overview
 
-**AIOPMS - All In One Page Management System** is a comprehensive WordPress plugin that revolutionizes website content creation and management. Built with modern AI technology and professional design, it provides everything you need to create, organize, and optimize your WordPress website content.
+**AIOPMS** is not just a page creator; it is a full-site architectural tool. It solves the bottleneck of manual site building by allowing users to deploy complex, inter-linked content ecosystems using simple syntax, CSV imports, or high-intelligence AI agents (OpenAI, Gemini, DeepSeek).
 
-### Why AIOPMS?
+### Why use AIOPMS?
+- **AI-Native**: Unlike other plugins that simply "add AI text," AIOPMS uses AI to build the *structure* of your business (Post Types, Fields, and Categories).
+- **Agency-Ready**: Built following the DG10 Agency design system—high contrast, glassmorphic elements, and premium feel.
+- **SEO-First**: Every page is born with optimized meta-data and a tailored Schema structure.
 
-- **🤖 AI-Powered**: Leverage cutting-edge AI to generate intelligent content suggestions
-- **🎨 Professional Design**: Beautiful, modern interface with DG10 branding
-- **📊 Complete Solution**: From page creation to SEO optimization in one plugin
-- **⚡ Efficient**: Bulk operations and smart automation
-- **🔧 Developer-Friendly**: Extensive hooks, filters, and customization options
+---
 
-## 🚀 Key Features
+## 🚀 Core Pillars
 
-### 📝 **Page Creation & Management**
-- **Manual Page Creation**: Create pages with custom hierarchy using intuitive syntax
-- **CSV Bulk Import**: Import hundreds of pages with complete metadata
-- **AI-Generated Suggestions**: Let AI suggest relevant pages for your business
-- **Advanced Mode**: Generate custom post types and dynamic content ecosystems
-- **Hierarchical Structure**: Visual page hierarchy with parent-child relationships
-- **Enhanced File Validation**: Robust CSV upload validation with security checks
-- **Memory Monitoring**: Built-in memory usage tracking for large dataset processing
+### 1. The Bulk Creation Engine
+AIOPMS provides three distinct ways to build your site:
+- **Manual Input**: A powerful hyphen-based syntax for rapid drafting.
+- **CSV Data Sync**: Import thousands of records with parent-child logic and custom meta.
+- **AI Business Generator**: Natural language prompts turn business descriptions into full site maps.
 
-### 🤖 **AI Integration**
-- **Multiple AI Providers**: OpenAI (GPT-4 + DALL-E), Google Gemini, DeepSeek
-- **One-Click Agency**: Generate entire business structures (Pages, CPTs, Taxonomies) in one go
-- **Smart Content Analysis**: AI understands your business context and target audience
-- **SEO-Optimized Output**: Automatic meta descriptions, keyword integration, and content structure
-- **Image Generation**: AI-powered featured images with brand consistency
-- **Advanced Business Analysis**: Comprehensive business ecosystem generation
-- **Rate Limiting**: Built-in API rate limiting (10 requests/minute/provider) to prevent abuse
+### 2. The Structured Data Dashboard
+A central hub for Schema.org management. 
+- **Auto-Detect**: Scans your site to determine if a page is a "Service," "Product," "FAQ," etc.
+- **Mass Generate**: Build schema for thousands of pages in batched background processes.
+- **Pro Editor**: A code-editor modal with JSON validation.
 
-### 🏷️ **Advanced Taxonomy Manager**
-- **Dynamic Creation**: Build specialized taxonomies for specific CPTs
-- **AI-Powered Linking**: Intelligent association of taxonomies to post types generated by AI
-- **Visual Management**: Full CRUD interface for taxonomies
-- **Hierarchical/Flat**: Support for both Category-like and Tag-like structures
+### 3. Dynamic CPT Ecosystems
+The plugin registers and manages Custom Post Types and Taxonomies that are intelligently linked. If you generate a "Restaurant" site, the plugin builds the "Menu Items" CPT and links it to "Cuisines" taxonomies automatically.
 
-### 🏗️ **Custom Post Types**
-- **Dynamic CPT Creation**: AI-generated custom post types for your business
-- **Practical Fields**: AI suggests business-critical custom fields (e.g., Price, Duration, Rating)
-- **Manual CPT Builder**: Create custom post types with visual custom field builder
-- **CPT Management**: Full lifecycle management of custom post types
-- **Integration**: Seamless integration with menus, hierarchy, and schema
+---
 
-### 🔍 **Schema & SEO Management**
-- **Automatic Schema Generation**: 11+ schema types with intelligent detection
-- **Schema Management Dashboard**: Visual interface for managing structured data
-- **Bulk Schema Operations**: Generate or remove schema for multiple pages
-- **SEO Statistics**: Track schema coverage and page optimization
-- **Context-Aware Selection**: Schema type based on content analysis
+## 🛠️ Detailed Feature Guide
 
-### 🍔 **Menu Generation**
-- **Automatic Menu Creation**: Generate WordPress menus from your page structure
-- **Multiple Menu Types**: Main navigation, services, company, universal bottom menus
-- **Smart Organization**: Intelligent categorization of pages into menu sections
-
-### 🌳 **Page Hierarchy & Visualization**
-- **Visual Hierarchy Display**: Interactive tree view, org chart, and grid views
-- **Hierarchy Export**: Export to CSV, Markdown, or JSON formats
-- **Search & Filter**: Find pages quickly in large hierarchies
-- **Read-Only Visualization**: Perfect for understanding site structure
-
-### ⚙️ **Settings & Configuration**
-- **Multi-Provider Support**: Easy switching between AI providers
-- **Brand Customization**: Set brand colors for AI-generated images
-- **Auto Schema**: Configure automatic schema generation
-- **Performance Settings**: Optimize for your server environment
-
-### 🔒 **Security & Performance**
-- **Comprehensive Security**: CSRF protection, input validation, and capability checks
-- **File Upload Security**: Validates file types, sizes, and prevents malicious uploads
-- **Memory Management**: Automatic memory monitoring and optimization for large datasets
-- **Rate Limiting**: Prevents API abuse with intelligent request throttling
-- **Error Handling**: Robust error logging and graceful failure handling
-
-### ♿ **Accessibility & Standards**
-- **WCAG 2.1 AA Compliant**: Full accessibility compliance with proper contrast ratios
-- **Keyboard Navigation**: Complete keyboard accessibility support
-- **Screen Reader Support**: Proper ARIA attributes and semantic HTML
-- **High Contrast Mode**: Support for users with visual impairments
-- **Reduced Motion**: Respects user motion preferences
-
-## 🆕 Recent Enhancements
-
-### 🚀 **Version 3.1 - Refinement & Intelligence (Latest)**
-
-#### 🧠 **Smarter AI Generation**
-- ✅ **Intelligent Taxonomy Linking**: AI now automatically creates and links custom taxonomies to their respective Custom Post Types.
-- ✅ **Practical Custom Fields**: Generation logic now prioritizes business-critical fields (e.g., 'Price', 'Duration', 'Location') over generic text fields.
-- ✅ **Optimized Creation Flow**: Revised backend logic ensures dependencies (Taxonomies) are registered before their dependents (CPTs).
-
-#### 🎨 **UI/UX Refinements**
-- ✅ **Modern "Flat" Aesthetic**: Removed legacy text-shadow artifacts for a cleaner, higher-contrast interface.
-- ✅ **Visual Stability**: Fixed distortion issues on buttons and headers in the CPT Manager.
-- ✅ **CSS Standardization**: Unified button and form styling across all admin pages.
-
-#### 🔧 **Technical Fixes**
-- ✅ **Taxonomy Sanitization**: Fixed an issue where custom taxonomies were stripped during CPT registration.
-- ✅ **Syntax Corrections**: Resolved CSS syntax errors in admin-ui.css.
-
-### 🚀 **Version 3.0 - Major Core Upgrade**
-
-#### **Task 1: Enhanced File Validation**
-- ✅ **Robust CSV Upload Security**: Comprehensive file validation with type checking, size limits, and MIME validation
-- ✅ **Upload Error Handling**: Detailed error messages for various upload scenarios
-- ✅ **Security Measures**: Path traversal protection and malicious file detection
-
-#### **Task 2: Advanced Error Handling**
-- ✅ **Comprehensive Error Logging**: Detailed error tracking with context information
-- ✅ **User-Friendly Messages**: Clear, actionable error messages for users
-- ✅ **Graceful Degradation**: Safe fallbacks when operations fail
-
-#### **Task 3: Enhanced Security Measures**
-- ✅ **CSRF Protection**: Nonce verification for all form submissions
-- ✅ **Input Sanitization**: Comprehensive data sanitization and validation
-- ✅ **Capability Checks**: Proper user permission verification
-- ✅ **Secure HTTP Requests**: Safe API communication with proper timeouts
-
-#### **Task 4: Accessibility Compliance**
-- ✅ **WCAG 2.1 AA Standards**: Full accessibility compliance with 4.5:1+ contrast ratios
-- ✅ **Keyboard Navigation**: Complete keyboard accessibility support
-- ✅ **Screen Reader Support**: Proper ARIA attributes and semantic HTML
-- ✅ **High Contrast Mode**: Support for users with visual impairments
-
-#### **Task 5: Performance Optimization**
-- ✅ **Memory Monitoring**: Built-in memory usage tracking and warnings
-- ✅ **Query Optimization**: Efficient database queries and caching
-- ✅ **Asset Optimization**: Conditional loading and minification
-- ✅ **Rate Limiting**: API request throttling to prevent abuse
-
-#### **Task 6: Internationalization**
-- ✅ **Translation Ready**: Complete i18n implementation with 259+ translatable strings
-- ✅ **POT File**: Translation template for global localization
-- ✅ **Text Domain**: Proper WordPress text domain implementation
-
-#### **Task 7: WordPress Standards Compliance**
-- ✅ **Coding Standards**: Full WordPress Coding Standards compliance
-- ✅ **Hook Integration**: Proper use of WordPress hooks and filters
-- ✅ **Core Compatibility**: No WordPress core behavior modifications
-
-#### **Task 8: Comprehensive Testing**
-- ✅ **Functionality Testing**: All 163 functions tested and verified
-- ✅ **Security Testing**: Comprehensive security vulnerability assessment
-- ✅ **Performance Testing**: Memory and speed optimization verification
-
-#### **Task 9: API Rate Limiting**
-- ✅ **Provider-Specific Limiting**: 10 requests per minute per AI provider
-- ✅ **User-Specific Tracking**: Rate limits tracked per user ID
-- ✅ **WordPress Transients**: Efficient storage with automatic cleanup
-- ✅ **Abuse Prevention**: Protects against API overuse and cost escalation
-
-#### **Task 10: Memory Monitoring**
-- ✅ **Real-Time Tracking**: Monitor memory usage during operations
-- ✅ **High Usage Warnings**: Alerts when memory usage exceeds thresholds
-- ✅ **Large Dataset Support**: Optimized for processing thousands of pages
-- ✅ **Performance Insights**: Detailed memory usage reporting
-
-#### **Task 11: Developer Documentation**
-- ✅ **Comprehensive Docs**: Complete developer documentation (DEVELOPER.md)
-- ✅ **API Documentation**: All hooks, filters, and endpoints documented
-- ✅ **Security Guidelines**: Best practices and security measures
-- ✅ **Contribution Guide**: Clear guidelines for developers
-
-### 🎯 **Quality Assurance**
-- ✅ **Zero Linting Errors**: Clean, standards-compliant code
-- ✅ **WordPress.org Ready**: Meets all submission requirements
-- ✅ **Backward Compatible**: Maintains compatibility with existing installations
-- ✅ **Production Ready**: Thoroughly tested and optimized for live environments
-
-### 📊 **Technical Specifications**
-- **163 Functions/Classes**: Comprehensive functionality across all modules
-- **35 WordPress Hooks**: Proper integration with WordPress ecosystem
-- **259 Internationalization Functions**: Complete translation support
-- **253 Security Sanitizations**: Comprehensive data protection
-- **112 Error Handling Blocks**: Robust error management
-- **8 Documentation Files**: Complete technical and user documentation
-- **WCAG 2.1 AA Compliant**: Full accessibility standards compliance
-- **WordPress Coding Standards**: 100% compliance with WordPress standards
-
-## 🛠️ Installation
-
-### System Requirements
-- **WordPress**: 5.6 or higher
-- **PHP**: 7.4 or higher (8.0+ recommended)
-- **MySQL**: 5.6 or higher
-- **cURL Extension**: Required for AI API calls
-- **Memory Limit**: 128MB+ recommended
-
-### Installation Steps
-
-#### Method 1: WordPress Admin Upload
-1. Download the plugin zip file
-2. Go to **Plugins → Add New → Upload Plugin**
-3. Select the zip file and click **Install Now**
-4. Click **Activate Plugin**
-
-#### Method 2: Manual Installation
-1. Extract the plugin files
-2. Upload the folder to `/wp-content/plugins/`
-3. Activate through **Plugins → Installed Plugins**
-
-#### Method 3: WordPress CLI
-```bash
-wp plugin install /path/to/aiopms.zip --activate
-```
-
-## 🚀 Quick Start
-
-### 1. Configure AI Provider
-1. Go to **AIOPMS → Settings**
-2. Select your AI provider (OpenAI, Gemini, or DeepSeek)
-3. Enter your API key
-4. Save settings
-
-### 2. Create Your First Pages
-1. Go to **AIOPMS → AI Generation**
-2. Enter your business information:
-   - Business Type (e.g., "E-commerce Store")
-   - Business Details (describe your business)
-   - SEO Keywords (comma-separated)
-   - Target Audience
-3. Click **Generate Page Suggestions**
-4. Select desired pages and click **Create Selected Pages**
-
-### 3. Generate Menus
-1. Go to **AIOPMS → Menu Generator**
-2. Choose menu type (Main Navigation, Services, etc.)
-3. Click **Generate Menu**
-
-### 4. Add Schema Markup
-1. Go to **AIOPMS → Schema Generator**
-2. Review your pages and schema coverage
-3. Use bulk actions to generate schema for multiple pages
-
-## 📋 Feature Guide
-
-### Manual Page Creation
-
-Create pages with custom hierarchy using simple syntax:
-
+### Bulk Page Engine
+The engine handles complex relationships and metadata formatting via the manual tab:
 ```plaintext
-# Basic hierarchy
-Home Page
-- About Us
--- Our Team
--- Company History
-- Services
--- Web Design
--- SEO Services
-- Contact
-
-# Advanced syntax with metadata
-Home Page:+Welcome to our website:*image.jpg::template=homepage::status=publish
-About Us:+Learn about our company and mission
-- Our Team:+Meet our talented team members
+# Syntax: Page Name :+ Meta Description :* Featured Image URL ::template=slug ::status=publish
+Service Area :+ We cover all regions :* https://img.com/hero.jpg ::status=publish
+- Northern Region :+ Local services for the north
+-- Local Branch A
 ```
-
-**Syntax Options:**
-- `:+` - Meta description
-- `:*` - Featured image URL
-- `::template=name` - Page template
-- `::status=draft` - Publication status
-
-### CSV Import
-
-Import pages with complete metadata using CSV files:
-
-| Column | Required | Description | Example |
-|--------|----------|-------------|---------|
-| `post_title` | Yes | Page title | "About Us" |
-| `post_parent` | No | Parent page title | "Services" |
-| `meta_description` | No | SEO description | "Learn about our company" |
-| `featured_image` | No | Image URL | "https://example.com/image.jpg" |
-| `page_template` | No | Template name | "full-width" |
-| `post_status` | No | Status | "draft" or "publish" |
-| `slug` | No | Custom URL slug | "about-our-company" |
-
-### AI Generation
-
-#### Standard Mode
-- Generates standard pages based on business context
-- Creates hierarchical page structure
-- Includes SEO-optimized meta descriptions
-- Option to generate featured images
-
-#### Advanced Mode
-- Analyzes business model comprehensively
-- Suggests custom post types
-- Creates dynamic content ecosystems
-- Generates full taxonomy structures
-- Generates sample content for CPTs
-
-### 📊 Advanced Functionality
-
-#### CSV Import/Export System
-- **Comprehensive Data Mapping**: Support for all page attributes:
-  - `post_title` (required): Page title
-  - `post_parent`: Parent page title for hierarchy
-  - `meta_description`: SEO meta description
-  - `featured_image`: URL for featured image
-  - `page_template`: WordPress page template
-  - `post_status`: Publication status (draft/publish)
-  - `slug`: Custom URL slug
-- **Flexible Format Support**: CSV with custom column order
-- **Error Handling**: Graceful handling of import errors
-- **Batch Processing**: Efficient handling of large imports
-
-#### Custom Page Templates
-- **Template Support**: Full WordPress page template compatibility
-- **Template Specification**: Multiple ways to specify templates:
-  - CSV import column
-  - Manual creation syntax: `::template=template-name`
-  - Programmatic assignment
-- **Theme Compatibility**: Works with any WordPress theme
-
-#### Status Management
-- **Publication Control**: Draft or published status
-- **Status Specification**: Multiple specification methods:
-  - CSV import column
-  - Manual creation syntax: `::status=draft`
-  - Default settings configuration
-- **Batch Status Management**: Apply status to multiple pages
-
-## ⚙️ Configuration
-
-### AI Provider Settings
-
-#### OpenAI Configuration
-```php
-// Required API Settings
-update_option('abpcwa_ai_provider', 'openai');
-update_option('abpcwa_openai_api_key', 'sk-your-api-key-here');
-
-// Optional Model Settings
-update_option('abpcwa_openai_model', 'gpt-3.5-turbo'); // Default
-update_option('abpcwa_openai_temperature', 0.5); // Creativity level
-```
-
-#### Google Gemini Configuration
-```php
-update_option('abpcwa_ai_provider', 'gemini');
-update_option('abpcwa_gemini_api_key', 'your-gemini-api-key');
-```
-
-#### DeepSeek Configuration
-```php
-update_option('abpcwa_ai_provider', 'deepseek');
-update_option('abpcwa_deepseek_api_key', 'your-deepseek-api-key');
-```
-
-### General Settings
-
-#### Brand Color Configuration
-```php
-// Set brand color for AI-generated images
-update_option('abpcwa_brand_color', '#4A90E2'); // Default blue
-```
-
-#### Publication Settings
-```php
-// Default post status
-update_option('abpcwa_default_status', 'draft'); // or 'publish'
-
-// Auto schema generation
-update_option('abpcwa_auto_schema_generation', true);
-```
-
-#### Image Generation Settings
-```php
-// Image generation enable/disable
-update_option('abpcwa_enable_image_generation', true);
-
-// Image quality settings
-update_option('abpcwa_image_quality', 'standard'); // or 'hd'
-update_option('abpcwa_image_size', '1024x1024');
-```
-
-### Advanced Configuration
-
-#### Content Generation Parameters
-```php
-// Content length control
-update_option('abpcwa_max_tokens', 400);
-update_option('abpcwa_temperature', 0.5);
-
-// SEO optimization level
-update_option('abpcwa_seo_intensity', 'high'); // low, medium, high
-```
-
-#### Performance Settings
-```php
-// API timeout settings
-update_option('abpcwa_api_timeout', 30); // seconds
-
-// Batch processing limits
-update_option('abpcwa_batch_size', 10); // pages per batch
-```
-
-## 🔧 API Integration
-
-### WordPress Hooks and Filters
-
-#### Content Generation Filters
-```php
-// Modify AI-generated content
-add_filter('abpcwa_ai_generated_content', function($content, $context) {
-    // Add custom modifications
-    $content = str_replace('AI', 'Artificial Intelligence', $content);
-    return $content;
-}, 10, 2);
-
-// Modify page suggestions
-add_filter('abpcwa_page_suggestions', function($suggestions, $business_context) {
-    // Add custom page suggestions
-    $suggestions[] = 'Custom Page:+Custom page description';
-    return $suggestions;
-}, 10, 2);
-```
-
-#### Page Creation Hooks
-```php
-// Before page creation
-add_action('abpcwa_before_page_creation', function($page_data) {
-    // Log or modify page data before creation
-    error_log('Creating page: ' . $page_data['post_title']);
-});
-
-// After page creation
-add_action('abpcwa_after_page_creation', function($page_id, $page_data) {
-    // Additional actions after page creation
-    update_post_meta($page_id, 'custom_field', 'value');
-}, 10, 2);
-
-// On creation error
-add_action('abpcwa_page_creation_error', function($error, $page_data) {
-    // Handle creation errors
-    error_log('Page creation failed: ' . $error);
-}, 10, 2);
-```
-
-#### Image Generation Hooks
-```php
-// Modify image generation prompt
-add_filter('abpcwa_image_prompt', function($prompt, $page_title) {
-    // Customize the AI image generation prompt
-    return $prompt . " Include modern design elements and professional styling.";
-}, 10, 2);
-
-// Handle image generation results
-add_action('abpcwa_after_image_generation', function($post_id, $image_url, $success) {
-    if ($success) {
-        // Additional actions for successful image generation
-        update_post_meta($post_id, 'ai_generated_image', true);
-    }
-}, 10, 3);
-```
-
-## 📈 SEO Features
-
-### Automatic Schema Generation
-
-#### Intelligent Schema Detection
-The plugin automatically detects the most appropriate schema type based on:
-- **Page Content Analysis**: AI analyzes page titles and content
-- **Business Context**: Considers your business type and industry
-- **Keyword Analysis**: Identifies primary topics and themes
-- **Page Hierarchy**: Understands parent-child relationships
-
-#### Supported Schema Types
-- **Article**: For blog posts, news articles, and content pages
-- **FAQPage**: For question and answer pages
-- **Product**: For e-commerce product pages
-- **LocalBusiness**: For business location and service pages
-- **Organization**: For company information pages
-- **WebPage**: Generic fallback for other page types
-
-### Technical SEO Features
-
-#### URL Structure Optimization
-- **Hierarchical URLs**: Proper parent-child URL structure
-- **Slug Optimization**: SEO-friendly URL slugs
-- **Duplicate Prevention**: Automatic handling of duplicate slugs
-- **Redirect Management**: Proper redirect handling
-
-#### Meta Data Management
-- **Title Tag Optimization**: SEO-optimized title tags
-- **Meta Description Length**: Proper 155-160 character length
-- **Keyword Placement**: Natural keyword integration
-- **Uniqueness**: Unique meta data for each page
-
-## 🔍 Troubleshooting
-
-### Common Issues and Solutions
-
-#### API Connection Issues
-**Problem**: "API Error" or "Could not connect to AI service"
-**Solution**:
-1. Check your API key is valid and active
-2. Verify internet connection is working
-3. Check if the AI service is experiencing downtime
-4. Ensure your WordPress can make external HTTP requests
-
-#### Image Generation Failures
-**Problem**: "Image generation failed" or no images created
-**Solution**:
-1. Ensure you're using OpenAI (DALL-E support required)
-2. Check your OpenAI API key has DALL-E access
-3. Verify sufficient API credits are available
-4. Check server can handle image downloads
-
-## 🔒 Security
-
-### Security Features
-
-#### Input Validation
-- **Data Sanitization**: All inputs are properly sanitized
-- **CSRF Protection**: Nonce verification for all forms
-- **XSS Prevention**: Output escaping for all displayed data
-- **SQL Injection Protection**: Prepared statements for database queries
-
-#### API Security
-- **Secure Connections**: HTTPS required for all API calls
-- **Key Protection**: API keys stored securely in database
-- **Request Validation**: All API requests are validated
-- **Rate Limiting**: Protection against API abuse
-
-## 📝 Changelog
-
-### Version 3.1.0 (Current) - Refinement & Intelligence
-- **🧠 Intelligent Taxonomy**: AI now correctly suggests and links taxonomies to CPTs
-- **📋 Smart Custom Fields**: Business-critical field generation (Price, Duration, etc.)
-- **🎨 Visual Polish**: Removed legacy text-shadows for a modern, flat UI
-- **⚖️ Logic Fixes**: Corrected registration order for CPT/Taxonomy dependencies
-- **🔧 CSS Fixes**: Resolved syntax errors and inconsistencies in admin styles
-
-### Version 3.0.0 - Launch Ready
-- **🔒 Enhanced Security**: Comprehensive CSRF protection and input validation
-- **♿ Accessibility**: WCAG 2.1 AA compliance
-- **⚡ Performance**: Memory monitoring and rate limiting
-- **🌍 Internationalization**: Complete i18n support
-
-## 🤝 Contributing
-
-### How to Contribute
-
-#### Code Contributions
-1. **Fork Repository**: Create your own fork of the project
-2. **Create Branch**: Use descriptive branch names
-3. **Make Changes**: Implement your feature or fix
-4. **Test Thoroughly**: Ensure all functionality works
-5. **Submit PR**: Create pull request with detailed description
-
-## 📄 License
-
-This plugin is licensed under the **GNU General Public License v2 or later**.
-
-## 🎉 Getting Started
-
-### Quick Start Checklist
-
-1. **✅ Install Plugin**: Upload and activate
-2. **✅ Configure API**: Set up AI provider API keys
-3. **✅ Generate Pages**: Use AI suggestions or manual creation
-4. **✅ Create Menus**: Generate WordPress menus
-5. **✅ Add Schema**: Optimize with structured data
-6. **✅ Analyze Keywords**: Check SEO optimization
-7. **✅ Run One-Click Agency**: Generate full business clusters
-
-### Success Tips
-
-- **Start Small**: Begin with a few pages to test the system
-- **Review Content**: Always review AI-generated content
-- **Backup First**: Backup your site before major operations
-- **Stay Updated**: Keep the plugin updated for best results
+- **Hyphens (`-`, `--`)**: Define depth in the page hierarchy.
+- **Metadata Tags**: Add SEO descriptions and status triggers on the fly.
+
+### AI Agency Mode
+Advanced Mode utilizes the full power of your selected AI Provider:
+1. **Business Analysis**: The AI maps out your entire industry ecosystem.
+2. **CPT Generation**: It creates specialized post types (e.g., 'Team Members', 'Portfolio').
+3. **Taxonomy Linking**: It registers categories specifically for those CPTs.
+4. **Custom Fields**: It implements business-specific fields like `Price`, `Rating`, or `Duration`.
+
+### Schema Generator PRO
+The most advanced part of the current 3.0 release:
+- **Dashboard Filters**: Filter your site by Post Type or Status to identify gaps in SEO coverage.
+- **One-Click Preview**: Opens a high-performance modal with your JSON-LD.
+- **Live Editor**: Edit the JSON directly in the admin.
+- **Validation**: Integrated "Validate JSON" tool to ensure Google compatibility.
+- **Bulk CSV Export**: Captures all entity schemas into a single portable file for audit.
 
 ---
 
-**Transform your WordPress website with AI-powered content creation!** 🚀
+## 🎨 Branding & UX Standards
 
-AIOPMS represents the future of content management - combining artificial intelligence with WordPress expertise to help you build better websites faster. Whether you're creating a small business site or a large content portal, AIOPMS gives you the tools to succeed in the competitive online landscape.
-
-*Happy creating!* 🎨
-
----
-
-### 🔗 Links
-
-- **GitHub Repository**: [View Source Code](https://github.com/your-repo/aiopms)
-- **WordPress Plugin Directory**: [Download Plugin](https://wordpress.org/plugins/aiopms/)
-- **Documentation**: [Full Documentation](https://docs.aiopms.com)
-- **Support**: [Get Help](https://support.aiopms.com)
-
-### 🏆 Credits
-
-- **Developed by**: DG10 Agency
-- **AI Integration**: OpenAI, Google Gemini, DeepSeek
-- **Design System**: DG10 Brand Guidelines
-- **WordPress**: Built for the WordPress community
+The interface follows the **DG10 Agency Branding** guidelines:
+- **Visual Palette**: Deep purples, neutral greys, and vibrant accents.
+- **Glassmorphism**: Panels use semi-transparent backdrops and subtle borders.
+- **Consistency**: Buttons, forms, and badges share a unified CSS variable system.
+- **Accessibility**: 
+  - 4.5:1 Contrast ratios for all text.
+  - Viewport-locked modals to prevent "double scrolling."
+  - Sticky headers and footers for long data tables.
 
 ---
 
-*This plugin is an open-source project. Please consider starring the repository on GitHub and contributing to its development.* ⭐
+## ⚙️ Configuration & API Settings
+
+| Provider | Recommended Usage | Key Features |
+|----------|-------------------|--------------|
+| **OpenAI** | Best Results | Supports DALL-E 3, GPT-4o, and best structured JSON. |
+| **Google Gemini** | High Speed | Exceptional response latency and massive context. |
+| **DeepSeek** | Cost Efficient | High performance with simplified pricing. |
+
+### API Controls
+- **Rate Limiting**: Users are capped at 10 requests per minute per provider to ensure API health.
+- **Cache Busting**: CSS and JS assets are versioned using `filemtime()` for immediate updates.
+- **Business Identity**: Set your brand colors for AI image generation in the Global Settings.
+
+---
+
+## 🔒 Security & Technical Specs
+
+- **CSRF Protection**: Nonces are checked on *every* AJAX and POST request.
+- **Input Sanitization**: 250+ individual sanitization points using `sanitize_text_field`, `intval`, and `wp_kses`.
+- **Capability Guard**: Minimal `manage_options` check required for all administrative actions.
+- **Robust SQL**: Queries use `prepare()` or structured `WP_Query` to prevent injections.
+
+---
+
+## 📈 Performance Benchmark
+
+- **Memory Monitoring**: The plugin tracks PHP memory usage during imports and warns users before a crash.
+- **Sequential Looping**: Bulk actions process in batches (200 records) to stay within server timeout limits.
+- **Asset Loading**: CSS/JS is only enqueued on AIOPMS-specific admin pages to keep the rest of your site fast.
+
+---
+
+## 🆕 Development History (The 3.0 Overhaul)
+
+### Version 3.0 - The Precision Update
+- **[UI]** Replaced legacy styles with modern DG10 glassmorphic design system.
+- **[Schema]** Built the comprehensive Schema Dashboard with Preview/Edit/Export modes.
+- **[AI]** Implemented intelligent Taxonomy-to-CPT linking logic.
+- **[Security]** Completed full audit of nonces and permission guards.
+- **[Accessibility]** Achieved WCAG 2.1 AA compliance across all dashboards.
+
+### Version 2.0 - The Intelligent Update
+- **[AI]** Integrated Initial AI Suggestion engine.
+- **[Import]** Developed the CSV bulk-upload skeleton and validation layer.
+- **[Menus]** Created the automated hierarchy-to-menu generator.
+
+---
+
+## 📋 Installation & Quick Start
+
+1. **Install**: Upload the ZIP and activate.
+2. **Provider**: Go to `AIOPMS -> Settings` and add your OpenAI/Gemini/DeepSeek key.
+3. **Build**: Use `AI Generation -> Advanced Mode` to map your business.
+4. **SEO**: Go to `Schema Generator` to finalize your structured data.
+5. **Launch**: Export your finalized schema at any time via the dashboard.
+
+---
+
+## 📄 License & Credits
+
+- **License**: GPL v2 or later.
+- **Lead Developer**: DG10 Agency Team.
+- **AI Tools**: Powered by OpenAI, Google, and DeepSeek.
+
+---
+*Transforming WordPress content architecture with Artificial Intelligence.* 🚀
