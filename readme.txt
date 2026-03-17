@@ -4,7 +4,7 @@ Tags: pages, bulk pages, page management, ai content, schema markup, menu genera
 Requires at least: 5.6
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 3.0
+Stable tag: 1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -78,28 +78,8 @@ Yes, AIOPMS detects WooCommerce store settings for schema generation and can man
 
 == Changelog ==
 
-= 3.0 =
-* NEW: AI-powered schema data extraction
-* NEW: Auto-detect business information from WordPress
-* NEW: Re-Scan Website button in settings
-* NEW: Support for DeepSeek AI provider
-* IMPROVED: Schema generators use AI + regex fallback
-* IMPROVED: Organization and LocalBusiness schema include contact info
-* IMPROVED: DG10 Premium Design System styling
-* FIXED: Various code cleanup and security improvements
-
-= 2.0 =
-* Added AI content generation
-* Added schema markup generator
-* Added hierarchy visualizer
-* Added keyword analyzer
-* Redesigned admin interface
-
 = 1.0 =
 * Initial release
-* Manual page creation
-* CSV page import
-* Basic menu generation
 
 == Upgrade Notice ==
 

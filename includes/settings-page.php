@@ -478,7 +478,7 @@ function aiopms_ai_provider_callback() {
         <option value="gemini" <?php selected($provider, 'gemini'); ?>>🧠 Google Gemini</option>
         <option value="deepseek" <?php selected($provider, 'deepseek'); ?>>⚡ DeepSeek</option>
     </select>
-    <p class="description"><?php esc_html_e('Choose your preferred AI provider. Each has different strengths and pricing models.', 'aiopms'); ?></p>
+    <p class="description"><?php esc_html_e('Choose your preferred AI provider. Each has different strengths and pricing models. We Strictly recommend using OpenAI for best results.', 'aiopms'); ?></p>
     <?php
 }
 
