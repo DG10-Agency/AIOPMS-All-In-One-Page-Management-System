@@ -1,7 +1,7 @@
 # WordPress Plugin .gitignore
 
-# Development and documentation files
-*.md
+# Documentation files
+# NOTE: Do NOT ignore all *.md in a public repo.
 !README.md
 !LICENSE
 *.zip
@@ -40,7 +40,6 @@ temp/
 # Dependency directories
 node_modules/
 vendor/
-composer.lock
 
 # WordPress specific
 wp-config.php
@@ -57,14 +56,33 @@ wp-content/wp-cache-config.php
 
 # Environment files
 .env
+.env.*
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
+# Common secret/key files (keep out of public repos)
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_rsa.pub
+
 # Cache files
 .cache/
 *.cache
+
+# Test/QA artifacts
+coverage/
+.phpunit.result.cache
+phpunit.xml
+phpunit.xml.dist
+
+# Cursor/Editor history
+.cursor/
+.history/
 
 # Package files
 *.tar.gz
