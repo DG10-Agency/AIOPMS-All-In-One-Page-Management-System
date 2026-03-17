@@ -259,10 +259,12 @@ function aiopms_ai_extract_schema_data($post_id, $schema_type) {
         return false; // No AI extraction for this type
     }
 
-    $prompt = "You are a schema.org expert. Analyze the following webpage content and extract specific data for a '$schema_type' schema.
+    $post_type = $post->post_type;
+    $prompt = "You are a schema.org expert. Analyze the following content and extract specific data for a '$schema_type' schema.
 
 Business Context: $business_knowledge
 
+Post Type: $post_type
 Page Title: $title
 Page Content: $content
 
@@ -379,24 +381,39 @@ function aiopms_ai_analyze_content_for_schema($post_id) {
         'organization', 'local_business', 'howto', 'review', 'event', 'webpage'
     ];
 
+    $post_type = $post->post_type;
     switch ($provider) {
         case 'openai':
-            return aiopms_ai_analyze_content_openai($title, $content, $excerpt, $api_key, $valid_schema_types);
+            return aiopms_ai_analyze_content_openai($title, $content, $excerpt, $post_type, $api_key, $valid_schema_types);
         case 'gemini':
-            return aiopms_ai_analyze_content_gemini($title, $content, $excerpt, $api_key, $valid_schema_types);
+            return aiopms_ai_analyze_content_gemini($title, $content, $excerpt, $post_type, $api_key, $valid_schema_types);
         case 'deepseek':
-            return aiopms_ai_analyze_content_deepseek($title, $content, $excerpt, $api_key, $valid_schema_types);
+            return aiopms_ai_analyze_content_deepseek($title, $content, $excerpt, $post_type, $api_key, $valid_schema_types);
         default:
             return false;
     }
 }
 
 // OpenAI content analysis for schema
-function aiopms_ai_analyze_content_openai($title, $content, $excerpt, $api_key, $valid_schema_types) {
+function aiopms_ai_analyze_content_openai($title, $content, $excerpt, $post_type, $api_key, $valid_schema_types) {
     $url = 'https://api.openai.com/v1/chat/completions';
     
+    $post_type_hint = '';
+    $pt_lower = strtolower((string)$post_type);
+    if ($pt_lower === 'post') {
+        $post_type_hint = "Hint: This is a blog post. Prefer blog or article when appropriate.";
+    } elseif (strpos($pt_lower, 'product') !== false) {
+        $post_type_hint = "Hint: This looks like a product post type. Prefer product when appropriate.";
+    } elseif (strpos($pt_lower, 'service') !== false) {
+        $post_type_hint = "Hint: This looks like a service post type. Prefer service when appropriate.";
+    } elseif (strpos($pt_lower, 'event') !== false) {
+        $post_type_hint = "Hint: This looks like an event post type. Prefer event when appropriate.";
+    }
+
     $prompt = "Analyze the following webpage content and determine the most appropriate Schema.org type for SEO optimization.
 
+Post Type: {$post_type}
+{$post_type_hint}
 Title: {$title}
 Content: {$content}
 Excerpt: {$excerpt}
@@ -450,11 +467,25 @@ Return only the schema type name, nothing else.";
 }
 
 // Gemini content analysis for schema
-function aiopms_ai_analyze_content_gemini($title, $content, $excerpt, $api_key, $valid_schema_types) {
+function aiopms_ai_analyze_content_gemini($title, $content, $excerpt, $post_type, $api_key, $valid_schema_types) {
     $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' . $api_key;
     
+    $post_type_hint = '';
+    $pt_lower = strtolower((string)$post_type);
+    if ($pt_lower === 'post') {
+        $post_type_hint = "Hint: This is a blog post. Prefer blog or article when appropriate.";
+    } elseif (strpos($pt_lower, 'product') !== false) {
+        $post_type_hint = "Hint: This looks like a product post type. Prefer product when appropriate.";
+    } elseif (strpos($pt_lower, 'service') !== false) {
+        $post_type_hint = "Hint: This looks like a service post type. Prefer service when appropriate.";
+    } elseif (strpos($pt_lower, 'event') !== false) {
+        $post_type_hint = "Hint: This looks like an event post type. Prefer event when appropriate.";
+    }
+
     $prompt = "Analyze the following webpage content and determine the most appropriate Schema.org type for SEO optimization.
 
+Post Type: {$post_type}
+{$post_type_hint}
 Title: {$title}
 Content: {$content}
 Excerpt: {$excerpt}
@@ -506,11 +537,25 @@ Return only the schema type name, nothing else.";
 }
 
 // DeepSeek content analysis for schema
-function aiopms_ai_analyze_content_deepseek($title, $content, $excerpt, $api_key, $valid_schema_types) {
+function aiopms_ai_analyze_content_deepseek($title, $content, $excerpt, $post_type, $api_key, $valid_schema_types) {
     $url = 'https://api.deepseek.com/v1/chat/completions';
     
+    $post_type_hint = '';
+    $pt_lower = strtolower((string)$post_type);
+    if ($pt_lower === 'post') {
+        $post_type_hint = "Hint: This is a blog post. Prefer blog or article when appropriate.";
+    } elseif (strpos($pt_lower, 'product') !== false) {
+        $post_type_hint = "Hint: This looks like a product post type. Prefer product when appropriate.";
+    } elseif (strpos($pt_lower, 'service') !== false) {
+        $post_type_hint = "Hint: This looks like a service post type. Prefer service when appropriate.";
+    } elseif (strpos($pt_lower, 'event') !== false) {
+        $post_type_hint = "Hint: This looks like an event post type. Prefer event when appropriate.";
+    }
+
     $prompt = "Analyze the following webpage content and determine the most appropriate Schema.org type for SEO optimization.
 
+Post Type: {$post_type}
+{$post_type_hint}
 Title: {$title}
 Content: {$content}
 Excerpt: {$excerpt}
@@ -569,6 +614,20 @@ function aiopms_detect_schema_type($post_id, $use_ai = true) {
     if (!$post) {
         return AIOPMS_SCHEMA_WEBPAGE;
     }
+
+    // If AI is disabled, use strong post-type defaults first.
+    if (!$use_ai) {
+        if ($post->post_type === 'post') return AIOPMS_SCHEMA_BLOG;
+    }
+
+    // Generic CPT inference (works for any public CPT naming)
+    $pt = strtolower((string)$post->post_type);
+    if (strpos($pt, 'product') !== false) return AIOPMS_SCHEMA_PRODUCT;
+    if (strpos($pt, 'service') !== false) return AIOPMS_SCHEMA_SERVICE;
+    if (strpos($pt, 'event') !== false) return AIOPMS_SCHEMA_EVENT;
+    if (strpos($pt, 'review') !== false) return AIOPMS_SCHEMA_REVIEW;
+    if (strpos($pt, 'faq') !== false) return AIOPMS_SCHEMA_FAQ;
+    if (strpos($pt, 'article') !== false) return AIOPMS_SCHEMA_ARTICLE;
 
     // Check if handling a dynamic CPT
     if (function_exists('aiopms_is_dynamic_cpt') && aiopms_is_dynamic_cpt($post->post_type)) {
@@ -994,6 +1053,113 @@ if (!function_exists('aiopms_generate_schema_markup')) {
         return $schema_data;
     }
 }
+
+/**
+ * Output schema markup in wp_head (posts + taxonomy archives).
+ *
+ * - Singular: outputs post meta `_aiopms_schema_data` if present.
+ * - Term archives: outputs term meta `_aiopms_schema_data` if present; if missing and auto-enabled, generates a baseline CollectionPage graph.
+ */
+function aiopms_output_schema_markup() {
+    // Term archives (category/tag/custom tax)
+    if (is_category() || is_tag() || is_tax()) {
+        $term = get_queried_object();
+        if ($term && isset($term->term_id, $term->taxonomy)) {
+            $schema_data = get_term_meta($term->term_id, '_aiopms_schema_data', true);
+
+            if (empty($schema_data) && get_option('aiopms_auto_schema_generation', true)) {
+                $schema_data = aiopms_generate_term_schema_markup($term->term_id, $term->taxonomy, true);
+            }
+
+            if (!empty($schema_data)) {
+                echo "\n" . '<!-- AIOPMS Schema -->' . "\n";
+                echo '<script type="application/ld+json">' . "\n";
+                echo wp_json_encode($schema_data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+                echo "\n" . '</script>' . "\n";
+                echo '<!-- /AIOPMS Schema -->' . "\n";
+            }
+        }
+        return;
+    }
+
+    // Singular (posts, pages, CPT)
+    if (!is_singular()) {
+        return;
+    }
+
+    $schema_data = get_post_meta(get_the_ID(), '_aiopms_schema_data', true);
+    if (!empty($schema_data)) {
+        echo "\n" . '<!-- AIOPMS Schema -->' . "\n";
+        echo '<script type="application/ld+json">' . "\n";
+
+        if (is_array($schema_data) || is_object($schema_data)) {
+            echo wp_json_encode($schema_data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        } else {
+            echo $schema_data;
+        }
+
+        echo "\n" . '</script>' . "\n";
+        echo '<!-- /AIOPMS Schema -->' . "\n";
+    }
+}
+add_action('wp_head', 'aiopms_output_schema_markup');
+
+/**
+ * Generate a baseline schema graph for a taxonomy term archive.
+ * Stores it in term meta `_aiopms_schema_data`.
+ */
+function aiopms_generate_term_schema_markup($term_id, $taxonomy, $use_ai = true) {
+    $term = get_term($term_id, $taxonomy);
+    if (!$term || is_wp_error($term)) {
+        return false;
+    }
+
+    $site_url = home_url();
+    $term_link = get_term_link($term);
+    if (is_wp_error($term_link)) {
+        $term_link = $site_url;
+    }
+
+    $graph = [];
+    $graph[] = aiopms_get_organization_schema();
+    $graph[] = aiopms_generate_website_schema();
+
+    $graph[] = [
+        '@type' => 'CollectionPage',
+        '@id' => esc_url_raw($term_link) . '#term',
+        'url' => esc_url_raw($term_link),
+        'name' => sanitize_text_field($term->name),
+        'description' => sanitize_text_field(wp_strip_all_tags(term_description($term))),
+        'isPartOf' => ['@id' => $site_url . '/#website'],
+        'publisher' => ['@id' => $site_url . '/#organization'],
+        'inLanguage' => get_bloginfo('language'),
+    ];
+
+    $schema_data = [
+        '@context' => 'https://schema.org',
+        '@graph' => $graph,
+    ];
+
+    update_term_meta($term_id, '_aiopms_schema_data', $schema_data);
+    update_term_meta($term_id, '_aiopms_schema_origin', 'generated');
+
+    return $schema_data;
+}
+
+function aiopms_generate_term_schema_on_edit($term_id, $tt_id = 0, $taxonomy = '') {
+    if (!current_user_can('manage_categories')) {
+        return;
+    }
+    if (!get_option('aiopms_auto_schema_generation', true)) {
+        return;
+    }
+    if (empty($taxonomy)) {
+        return;
+    }
+    aiopms_generate_term_schema_markup($term_id, $taxonomy, true);
+}
+add_action('edited_term', 'aiopms_generate_term_schema_on_edit', 10, 3);
+add_action('created_term', 'aiopms_generate_term_schema_on_edit', 10, 3);
 
 // Generate WebSite Schema
 function aiopms_generate_website_schema() {
@@ -1900,35 +2066,6 @@ function aiopms_extract_event_organizer($content) {
     return null;
 }
 
-/**
- * Output schema markup in wp_head.
- * 
- * @since 3.0
- */
-function aiopms_output_schema_markup() {
-    if (!is_singular()) {
-        return;
-    }
-    
-    // Get schema data from post meta
-    $schema_data = get_post_meta(get_the_ID(), '_aiopms_schema_data', true);
-    
-    if (!empty($schema_data)) {
-        echo "\n" . '<!-- AIOPMS Schema -->' . "\n";
-        echo '<script type="application/ld+json">' . "\n";
-        
-        if (is_array($schema_data) || is_object($schema_data)) {
-             echo wp_json_encode($schema_data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-        } else {
-             echo $schema_data;
-        }
-        
-        echo "\n" . '</script>' . "\n";
-        echo '<!-- /AIOPMS Schema -->' . "\n";
-    }
-}
-add_action('wp_head', 'aiopms_output_schema_markup');
-
 // Generate schema when page is saved
 function aiopms_generate_schema_on_save($post_id) {
     // Check if this is an autosave
@@ -1987,13 +2124,17 @@ add_filter('manage_edit-page_sortable_columns', 'aiopms_make_schema_column_sorta
 
 // Register admin hooks for Dynamic CPTs
 function aiopms_register_cpt_schema_admin_hooks() {
-    $dynamic_cpts = get_option('aiopms_dynamic_cpts', []);
-    foreach ($dynamic_cpts as $post_type => $data) {
+    // Register schema column/actions for ALL public post types (posts, pages, CPTs)
+    $post_types = get_post_types(['public' => true], 'names');
+    unset($post_types['attachment'], $post_types['revision'], $post_types['nav_menu_item']);
+
+    foreach ($post_types as $post_type) {
         add_filter("manage_{$post_type}_posts_columns", 'aiopms_add_schema_column');
         add_action("manage_{$post_type}_posts_custom_column", 'aiopms_display_schema_column', 10, 2);
         add_filter("manage_edit-{$post_type}_sortable_columns", 'aiopms_make_schema_column_sortable');
     }
-    // Also add row actions for all post types (not just pages)
+
+    // Row actions for all post types
     add_filter('post_row_actions', 'aiopms_add_schema_quick_actions', 10, 2);
 }
 add_action('admin_init', 'aiopms_register_cpt_schema_admin_hooks');
@@ -2108,14 +2249,105 @@ function aiopms_schema_generator_tab() {
 
 // Enhanced schema management dashboard
 function aiopms_schema_management_dashboard() {
+    // Get all public post types (pages, posts, CPTs) for schema management
+    $post_types = get_post_types(['public' => true], 'names');
+    unset($post_types['attachment'], $post_types['revision'], $post_types['nav_menu_item']);
+    $allowed_post_types = array_values($post_types);
+
+    // Server-side filters + pagination (also used by bulk actions)
+    $filter_post_type = isset($_GET['aiopms_post_type']) ? sanitize_key($_GET['aiopms_post_type']) : '';
+    $filter_status = isset($_GET['aiopms_status']) ? sanitize_key($_GET['aiopms_status']) : '';
+    $filter_search = isset($_GET['aiopms_search']) ? sanitize_text_field(wp_unslash($_GET['aiopms_search'])) : '';
+    if ($filter_post_type && !in_array($filter_post_type, $allowed_post_types, true)) {
+        $filter_post_type = '';
+    }
+
+    $paged = isset($_GET['paged']) ? max(1, absint($_GET['paged'])) : 1;
+    $per_page = 50;
+
+    $query_args = [
+        'post_type' => $filter_post_type ? [$filter_post_type] : $allowed_post_types,
+        'post_status' => $filter_status ? [$filter_status] : 'any',
+        'posts_per_page' => $per_page,
+        'paged' => $paged,
+        'orderby' => 'title',
+        'order' => 'ASC',
+        's' => $filter_search ? $filter_search : '',
+    ];
+
+    $get_filtered_ids = function () use ($query_args) {
+        $ids = [];
+        $page = 1;
+        $batch = 200;
+
+        if (function_exists('set_time_limit')) {
+            @set_time_limit(0);
+        }
+        @ignore_user_abort(true);
+
+        while (true) {
+            $q = new WP_Query(array_merge($query_args, [
+                'posts_per_page' => $batch,
+                'paged' => $page,
+                'fields' => 'ids',
+                'no_found_rows' => true,
+                'orderby' => 'ID',
+                'order' => 'DESC',
+            ]));
+
+            if (empty($q->posts)) {
+                break;
+            }
+
+            foreach ($q->posts as $pid) {
+                $ids[] = (int)$pid;
+            }
+
+            if (count($q->posts) < $batch) {
+                break;
+            }
+            $page++;
+        }
+
+        return $ids;
+    };
+
     // Handle bulk actions
     if (isset($_POST['bulk_schema_action']) && check_admin_referer('aiopms_bulk_schema_action')) {
         $action = sanitize_text_field($_POST['bulk_schema_action']);
-        $selected_pages = isset($_POST['selected_pages']) ? array_map('intval', $_POST['selected_pages']) : [];
-        
-        if (!empty($selected_pages)) {
+        $apply_scope = isset($_POST['bulk_apply_scope']) ? sanitize_key($_POST['bulk_apply_scope']) : 'selected';
+        $selected_pages = isset($_POST['selected_pages']) ? array_map('intval', (array)$_POST['selected_pages']) : [];
+
+        // Rehydrate filters from POST so bulk acts on the same filtered set
+        if (isset($_POST['aiopms_post_type'])) {
+            $filter_post_type = sanitize_key($_POST['aiopms_post_type']);
+            if ($filter_post_type && !in_array($filter_post_type, $allowed_post_types, true)) {
+                $filter_post_type = '';
+            }
+            $query_args['post_type'] = $filter_post_type ? [$filter_post_type] : $allowed_post_types;
+        }
+        if (isset($_POST['aiopms_status'])) {
+            $filter_status = sanitize_key($_POST['aiopms_status']);
+            $query_args['post_status'] = $filter_status ? [$filter_status] : 'any';
+        }
+        if (isset($_POST['aiopms_search'])) {
+            $filter_search = sanitize_text_field(wp_unslash($_POST['aiopms_search']));
+            $query_args['s'] = $filter_search ? $filter_search : '';
+        }
+
+        $target_ids = [];
+        if ($apply_scope === 'filtered') {
+            $target_ids = $get_filtered_ids();
+        } else {
+            $target_ids = $selected_pages;
+        }
+
+        if (!empty($target_ids)) {
             $processed = 0;
-            foreach ($selected_pages as $page_id) {
+            foreach ($target_ids as $page_id) {
+                if (!current_user_can('edit_post', $page_id)) {
+                    continue;
+                }
                 if ($action === 'generate') {
                     aiopms_generate_schema_markup($page_id);
                     $processed++;
@@ -2133,30 +2365,43 @@ function aiopms_schema_management_dashboard() {
         }
     }
 
-    // Get all pages with schema information
-    $pages = get_posts([
-        'post_type' => 'page',
-        'numberposts' => -1,
-        'post_status' => 'any',
-        'orderby' => 'title',
-        'order' => 'ASC'
-    ]);
+    $posts_q = new WP_Query($query_args);
+    $pages = $posts_q->posts;
 
+    // Lightweight stats using found_posts + direct SQL for schema counts.
+    // Avoids the previous O(n) approach that loaded every post's meta.
+    global $wpdb;
     $schema_stats = [
-        'total' => 0,
+        'total' => (int) $posts_q->found_posts,
         'with_schema' => 0,
         'types' => []
     ];
 
-    foreach ($pages as $page) {
-        $schema_stats['total']++;
-        $schema_type = get_post_meta($page->ID, '_aiopms_schema_type', true);
-        if (!empty($schema_type)) {
-            $schema_stats['with_schema']++;
-            if (!isset($schema_stats['types'][$schema_type])) {
-                $schema_stats['types'][$schema_type] = 0;
-            }
-            $schema_stats['types'][$schema_type]++;
+    // Count posts that have _aiopms_schema_type meta (any value)
+    // Build the post_type IN clause for the same filter set
+    $stat_post_types = $filter_post_type ? [$filter_post_type] : $allowed_post_types;
+    $pt_placeholders = implode(',', array_fill(0, count($stat_post_types), '%s'));
+    $stat_statuses = $filter_status ? [$filter_status] : ['publish', 'draft', 'pending', 'private', 'future'];
+    $st_placeholders = implode(',', array_fill(0, count($stat_statuses), '%s'));
+
+    // Query schema type distribution
+    $prepare_args = array_merge($stat_post_types, $stat_statuses);
+    $type_rows = $wpdb->get_results($wpdb->prepare(
+        "SELECT pm.meta_value AS schema_type, COUNT(*) AS cnt
+         FROM {$wpdb->postmeta} pm
+         INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+         WHERE pm.meta_key = '_aiopms_schema_type'
+           AND pm.meta_value != ''
+           AND p.post_type IN ($pt_placeholders)
+           AND p.post_status IN ($st_placeholders)
+         GROUP BY pm.meta_value",
+        ...$prepare_args
+    ));
+
+    if ($type_rows) {
+        foreach ($type_rows as $row) {
+            $schema_stats['types'][sanitize_text_field($row->schema_type)] = (int) $row->cnt;
+            $schema_stats['with_schema'] += (int) $row->cnt;
         }
     }
     ?>
@@ -2175,22 +2420,22 @@ function aiopms_schema_management_dashboard() {
                 </a>
             </p>
         </div>
-        
+
         <!-- Schema Statistics -->
         <div class="aiopms-schema-stats">
             <h2>Schema Statistics</h2>
             <div class="aiopms-stats-grid">
                 <div class="aiopms-stat-card">
                     <h3><?php echo esc_html($schema_stats['total']); ?></h3>
-                    <p>Total Pages</p>
+                    <p>Total Items</p>
                 </div>
                 <div class="aiopms-stat-card">
                     <h3><?php echo esc_html($schema_stats['with_schema']); ?></h3>
-                    <p>Pages with Schema</p>
+                    <p>Items with Schema</p>
                 </div>
                 <div class="aiopms-stat-card">
                     <h3><?php echo esc_html($schema_stats['total'] - $schema_stats['with_schema']); ?></h3>
-                    <p>Pages without Schema</p>
+                    <p>Items without Schema</p>
                 </div>
                 <div class="aiopms-stat-card">
                     <h3><?php echo esc_html($schema_stats['total'] > 0 ? round(($schema_stats['with_schema'] / $schema_stats['total']) * 100, 1) : 0); ?>%</h3>
@@ -2211,24 +2456,93 @@ function aiopms_schema_management_dashboard() {
                 <?php endforeach; ?>
             </div>
             <?php endif; ?>
-        </div>
+               <!-- EXPORT BUTTON MOVED HERE -->
+        <p>
+            <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=aiopms-page-management&action=export_schema_csv'), 'export_schema_csv'); ?>" 
+               class="button button-secondary">Export All Schema to CSV</a>
+        </p>
 
-        <!-- Bulk Actions -->
-        <div class="aiopms-bulk-actions">
-            <h2>Bulk Actions</h2>
-            <form method="post" action="">
-                <?php wp_nonce_field('aiopms_bulk_schema_action'); ?>
-                <div class="aiopms-bulk-controls">
-                    <select name="bulk_schema_action" required>
-                        <option value="">Select Action...</option>
-                        <option value="generate">Generate Schema for Selected Pages</option>
-                        <option value="remove">Remove Schema from Selected Pages</option>
-                    </select>
-                    <button type="submit" class="button button-primary">Apply to Selected</button>
-                </div>
-                
-                <!-- Pages Table -->
-                <table class="wp-list-table widefat fixed striped">
+        <!-- Main Branded Workspace -->
+        <div class="dg10-brand">
+            <!-- Filters + Bulk Actions -->
+            <div class="aiopms-schema-section" style="margin-bottom: 24px;">
+                <form method="get" action="" style="margin-bottom: 20px;">
+                    <input type="hidden" name="page" value="<?php echo esc_attr(sanitize_text_field($_GET['page'] ?? 'aiopms-page-management')); ?>">
+                    <input type="hidden" name="tab" value="schema">
+
+                    <!-- Vertical Stack Filter Form -->
+                    <div style="display: flex; flex-direction: column; gap: 15px; width: 300px; max-width: 100%;">
+                        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 13px;">
+                            Post Type
+                            <select name="aiopms_post_type" id="aiopms-filter-post-type" style="width: 100%; max-width: 100%;">
+                                <option value="">All</option>
+                                <?php foreach ($allowed_post_types as $pt): ?>
+                                    <?php $obj = get_post_type_object($pt); ?>
+                                    <option value="<?php echo esc_attr($pt); ?>" <?php selected($filter_post_type, $pt); ?>>
+                                        <?php echo esc_html($obj ? $obj->labels->singular_name : $pt); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </label>
+
+                        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 13px;">
+                            Status
+                            <select name="aiopms_status" id="aiopms-filter-status" style="width: 100%; max-width: 100%;">
+                                <option value="" <?php selected($filter_status, ''); ?>>All</option>
+                                <option value="publish" <?php selected($filter_status, 'publish'); ?>>Publish</option>
+                                <option value="draft" <?php selected($filter_status, 'draft'); ?>>Draft</option>
+                                <option value="pending" <?php selected($filter_status, 'pending'); ?>>Pending</option>
+                                <option value="private" <?php selected($filter_status, 'private'); ?>>Private</option>
+                            </select>
+                        </label>
+
+                        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 13px;">
+                            Search
+                            <input type="search" name="aiopms_search" id="aiopms-filter-search" value="<?php echo esc_attr($filter_search); ?>" placeholder="Search title..." style="width: 100%; max-width: 100%;" />
+                        </label>
+
+                        <div style="display: flex; gap: 10px; margin-top: 5px;">
+                            <button type="submit" class="button" style="flex: 1;">Filter Results</button>
+                            <?php if ($filter_post_type || $filter_status || $filter_search): ?>
+                                <a class="button button-link" href="<?php echo esc_url(admin_url('admin.php?page=aiopms-page-management&tab=schema')); ?>">Reset</a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </form>
+
+                <hr style="margin-top: 24px; margin-bottom: 24px; border: 0; border-top: 1px solid #e2e8f0;"/>
+
+                <form method="post" action="">
+                    <?php wp_nonce_field('aiopms_bulk_schema_action'); ?>
+                    <!-- Preserve filter context on submit -->
+                    <input type="hidden" name="aiopms_post_type" value="<?php echo esc_attr($filter_post_type); ?>">
+                    <input type="hidden" name="aiopms_status" value="<?php echo esc_attr($filter_status); ?>">
+                    <input type="hidden" name="aiopms_search" value="<?php echo esc_attr($filter_search); ?>">
+                    
+                    <!-- Vertical Stack Bulk Actions -->
+                    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
+                        <h3 style="margin:0; font-size: 14px; font-weight: 600;">Bulk Apply Schema</h3>
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <select name="bulk_schema_action" required style="min-width: 160px;">
+                                <option value="">Select Action...</option>
+                                <option value="generate">Generate Schema</option>
+                                <option value="remove">Remove Schema</option>
+                            </select>
+                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                                <input type="radio" name="bulk_apply_scope" value="selected" checked>
+                                Selected (this page)
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                                <input type="radio" name="bulk_apply_scope" value="filtered">
+                                All filtered results
+                            </label>
+                            <button type="submit" class="button button-primary" style="background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%); border: none;">Apply</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Pages Table -->
+                    <div class="aiopms-schema-table-wrap">
+                    <table class="wp-list-table widefat fixed striped">
                     <thead>
                         <tr>
                             <td class="manage-column column-cb check-column">
@@ -2246,7 +2560,7 @@ function aiopms_schema_management_dashboard() {
                         $schema_type = get_post_meta($page->ID, '_aiopms_schema_type', true);
                         $schema_data = get_post_meta($page->ID, '_aiopms_schema_data', true);
                         ?>
-                        <tr>
+                        <tr data-post-type="<?php echo esc_attr($page->post_type); ?>" data-post-status="<?php echo esc_attr($page->post_status); ?>">
                             <th class="check-column">
                                 <input type="checkbox" name="selected_pages[]" value="<?php echo $page->ID; ?>">
                             </th>
@@ -2298,28 +2612,154 @@ function aiopms_schema_management_dashboard() {
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                </div>
             </form>
+
+            <?php
+            // Pagination
+            $total_pages = (int)$posts_q->max_num_pages;
+            if ($total_pages > 1) {
+                $base_url = remove_query_arg('paged');
+                echo '<div class="tablenav"><div class="tablenav-pages" style="margin: 16px 0;">';
+                echo paginate_links([
+                    'base' => esc_url_raw(add_query_arg('paged', '%#%', $base_url)),
+                    'format' => '',
+                    'prev_text' => '&laquo;',
+                    'next_text' => '&raquo;',
+                    'total' => $total_pages,
+                    'current' => $paged,
+                ]);
+                echo '</div></div>';
+            }
+            ?>
         </div>
 
+        <!-- Taxonomy / Term Archives (lightweight; avoids heavy count queries) -->
+        <div class="aiopms-schema-section" style="margin-top: 24px;">
+            <h2>Taxonomy Archives</h2>
+            <p class="description" style="margin-top:0;">
+                Manage schema for category/tag/custom taxonomy archives. (Showing up to 20 terms per filter to keep the dashboard fast.)
+            </p>
+
+            <?php
+            $public_tax = get_taxonomies(['public' => true], 'objects');
+            $tax_filter = isset($_GET['aiopms_taxonomy']) ? sanitize_key($_GET['aiopms_taxonomy']) : '';
+            $tax_search = isset($_GET['aiopms_term_search']) ? sanitize_text_field(wp_unslash($_GET['aiopms_term_search'])) : '';
+            if ($tax_filter && !isset($public_tax[$tax_filter])) {
+                $tax_filter = '';
+            }
+
+            $terms = get_terms([
+                'taxonomy' => $tax_filter ? [$tax_filter] : array_keys($public_tax),
+                'hide_empty' => false,
+                'number' => 20,
+                'search' => $tax_search ?: '',
+            ]);
+            ?>
+
+            <form method="get" action="" style="margin-bottom: 12px;">
+                <input type="hidden" name="page" value="<?php echo esc_attr(sanitize_text_field($_GET['page'] ?? 'aiopms-page-management')); ?>">
+                <input type="hidden" name="tab" value="schema">
+
+                <div class="aiopms-bulk-controls" style="margin-bottom: 12px;">
+                    <label>
+                        <span style="display:inline-block; min-width:90px;">Taxonomy</span>
+                        <select name="aiopms_taxonomy">
+                            <option value="">All</option>
+                            <?php foreach ($public_tax as $tax_name => $tax_obj): ?>
+                                <option value="<?php echo esc_attr($tax_name); ?>" <?php selected($tax_filter, $tax_name); ?>>
+                                    <?php echo esc_html($tax_obj->labels->singular_name); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </label>
+                    <label style="flex: 1;">
+                        <span style="display:inline-block; min-width:90px;">Search</span>
+                        <input type="search" name="aiopms_term_search" class="regular-text" value="<?php echo esc_attr($tax_search); ?>" placeholder="Search terms..." />
+                    </label>
+                    <button type="submit" class="button">Filter</button>
+                    <?php if ($tax_filter || $tax_search): ?>
+                        <a class="button button-link" href="<?php echo esc_url(admin_url('admin.php?page=aiopms-page-management&tab=schema')); ?>">Reset</a>
+                    <?php endif; ?>
+                </div>
+            </form>
+
+            <div class="aiopms-schema-table-wrap">
+            <table class="wp-list-table widefat fixed striped">
+                <thead>
+                <tr>
+                    <th class="manage-column">Term</th>
+                    <th class="manage-column">Taxonomy</th>
+                    <th class="manage-column">Schema</th>
+                    <th class="manage-column">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php if (is_wp_error($terms) || empty($terms)): ?>
+                    <tr><td colspan="4">No terms found.</td></tr>
+                <?php else: ?>
+                    <?php foreach ($terms as $term): ?>
+                        <?php
+                        $t_schema = get_term_meta($term->term_id, '_aiopms_schema_data', true);
+                        $t_source = get_term_meta($term->term_id, '_aiopms_schema_origin', true);
+                        $has_schema = !empty($t_schema);
+                        ?>
+                        <tr>
+                            <td><strong><?php echo esc_html($term->name); ?></strong></td>
+                            <td><?php echo esc_html($term->taxonomy); ?></td>
+                            <td>
+                                <?php if ($has_schema): ?>
+                                    <span class="aiopms-schema-badge aiopms-schema-webpage">Yes</span>
+                                    <span class="description" style="margin-left:8px;"><?php echo esc_html($t_source ?: 'unknown'); ?></span>
+                                <?php else: ?>
+                                    <span class="aiopms-schema-badge aiopms-schema-none">No Schema</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <div class="aiopms-schema-actions">
+                                    <?php if (!$has_schema): ?>
+                                        <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=aiopms-page-management&tab=schema&action=generate_term_schema&taxonomy=' . $term->taxonomy . '&term_id=' . $term->term_id), 'aiopms_generate_term_schema_' . $term->term_id)); ?>" class="button button-small">Generate</a>
+                                    <?php else: ?>
+                                        <button type="button" class="button button-small aiopms-preview-schema-term" data-term-id="<?php echo esc_attr($term->term_id); ?>" data-taxonomy="<?php echo esc_attr($term->taxonomy); ?>">Preview</button>
+                                        <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=aiopms-page-management&tab=schema&action=regenerate_term_schema&taxonomy=' . $term->taxonomy . '&term_id=' . $term->term_id), 'aiopms_regenerate_term_schema_' . $term->term_id)); ?>" class="button button-small">Regenerate</a>
+                                        <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=aiopms-page-management&tab=schema&action=remove_term_schema&taxonomy=' . $term->taxonomy . '&term_id=' . $term->term_id), 'aiopms_remove_term_schema_' . $term->term_id)); ?>" class="button button-small button-link-delete" onclick="return confirm('Remove schema for this term?')">Remove</a>
+                                    <?php endif; ?>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+                </tbody>
+            </table>
+            </div>
+        </div>
         <!-- Schema Modal -->
         <div id="aiopms-schema-modal" class="aiopms-modal-overlay" style="display:none;">
             <div class="aiopms-modal aiopms-modal-large">
                 <div class="aiopms-modal-header">
-                    <h2>Schema Preview &amp; Editor</h2>
+                    <h2>Schema Preview</h2>
                     <span class="aiopms-modal-close">&times;</span>
                 </div>
                 <div class="aiopms-modal-body">
-                    <p class="description" style="margin-top:0;">
-                        Edit the JSON-LD below and click <strong>Save</strong>. Saved schema is stored on this page and will be used on the frontend.
+                    <p class="description" style="margin-top:0;" id="aiopms-schema-preview-hint">
+                        Preview the JSON-LD below. If you need to adjust it, click <strong>Edit Schema</strong>.
                     </p>
-                    <textarea id="aiopms-schema-editor" class="large-text code" rows="18" spellcheck="false"></textarea>
-                    <pre style="margin-top:12px;"><code id="aiopms-schema-code" aria-hidden="true" style="display:none;"></code></pre>
+                    <pre style="margin-top:12px;"><code id="aiopms-schema-preview-code"></code></pre>
+
+                    <div id="aiopms-schema-editor-wrap" style="display:none; margin-top: 12px;">
+                        <p class="description" style="margin-top:0;">
+                            You are now editing the schema. Click <strong>Save</strong> to store it for this post and use it on the frontend.
+                        </p>
+                        <textarea id="aiopms-schema-editor" class="large-text code" rows="18" spellcheck="false"></textarea>
+                    </div>
                     <input type="hidden" id="aiopms-schema-page-id" value="">
+                    <input type="hidden" id="aiopms-schema-entity-type" value="post">
                 </div>
                 <div class="aiopms-modal-footer">
                     <span id="aiopms-schema-save-status" style="margin-right:auto;"></span>
-                    <button type="button" class="button" id="aiopms-schema-validate">Validate JSON</button>
-                    <button type="button" class="button button-primary" id="aiopms-schema-save">Save Schema</button>
+                    <button type="button" class="button" id="aiopms-schema-edit-toggle">Edit Schema</button>
+                    <button type="button" class="button" id="aiopms-schema-validate" style="display:none;">Validate JSON</button>
+                    <button type="button" class="button button-primary" id="aiopms-schema-save" style="display:none;">Save Schema</button>
                 </div>
             </div>
         </div>
@@ -2356,23 +2796,82 @@ function aiopms_schema_management_dashboard() {
 function aiopms_ajax_get_schema_preview() {
     check_ajax_referer('aiopms_schema_preview', 'nonce');
 
-    if (!current_user_can('edit_pages')) {
-        wp_send_json_error(['message' => esc_html__('Unauthorized', 'aiopms')], 403);
-    }
-
     $page_id = isset($_POST['page_id']) ? absint($_POST['page_id']) : 0;
     if (!$page_id) {
         wp_send_json_error(['message' => esc_html__('Invalid page ID', 'aiopms')]);
     }
 
-    $schema_data = get_post_meta($page_id, '_aiopms_schema_data', true);
-    if (empty($schema_data)) {
-        wp_send_json_error('No schema data found');
+    if (!current_user_can('edit_post', $page_id)) {
+        wp_send_json_error(['message' => esc_html__('Unauthorized', 'aiopms')], 403);
     }
 
-    wp_send_json_success($schema_data);
+    $schema_data = get_post_meta($page_id, '_aiopms_schema_data', true);
+    if (empty($schema_data)) {
+        wp_send_json_error(['message' => esc_html__('No schema data found for this item. Generate schema first, then preview again.', 'aiopms')]);
+    }
+
+    $schema_json = is_string($schema_data)
+        ? trim($schema_data)
+        : wp_json_encode($schema_data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+
+    if ($schema_json === '' || $schema_json === false) {
+        wp_send_json_error(['message' => esc_html__('Schema data exists but could not be encoded as JSON.', 'aiopms')]);
+    }
+
+    wp_send_json_success([
+        'post_id' => $page_id,
+        'schema_json' => $schema_json,
+        'schema_type' => get_post_meta($page_id, '_aiopms_schema_type', true),
+        'schema_source' => function_exists('aiopms_get_schema_source') ? aiopms_get_schema_source($page_id) : '',
+        'locked' => !empty(get_post_meta($page_id, '_aiopms_schema_locked', true)),
+    ]);
 }
 add_action('wp_ajax_aiopms_get_schema_preview', 'aiopms_ajax_get_schema_preview');
+
+// AJAX handler for term schema preview
+function aiopms_ajax_get_term_schema_preview() {
+    check_ajax_referer('aiopms_schema_preview', 'nonce');
+
+    if (!current_user_can('manage_categories')) {
+        wp_send_json_error(['message' => esc_html__('Unauthorized', 'aiopms')], 403);
+    }
+
+    $term_id = isset($_POST['term_id']) ? absint($_POST['term_id']) : 0;
+    $taxonomy = isset($_POST['taxonomy']) ? sanitize_key($_POST['taxonomy']) : '';
+    if (!$term_id || !$taxonomy) {
+        wp_send_json_error(['message' => esc_html__('Invalid term.', 'aiopms')]);
+    }
+
+    $term = get_term($term_id, $taxonomy);
+    if (!$term || is_wp_error($term)) {
+        wp_send_json_error(['message' => esc_html__('Term not found.', 'aiopms')]);
+    }
+
+    $schema_data = get_term_meta($term_id, '_aiopms_schema_data', true);
+    if (empty($schema_data)) {
+        wp_send_json_error(['message' => esc_html__('No schema data found for this term. Generate schema first, then preview again.', 'aiopms')]);
+    }
+
+    $schema_json = is_string($schema_data)
+        ? trim($schema_data)
+        : wp_json_encode($schema_data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+
+    if ($schema_json === '' || $schema_json === false) {
+        wp_send_json_error(['message' => esc_html__('Schema data exists but could not be encoded as JSON.', 'aiopms')]);
+    }
+
+    $origin = get_term_meta($term_id, '_aiopms_schema_origin', true);
+    $locked = !empty(get_term_meta($term_id, '_aiopms_schema_locked', true));
+
+    wp_send_json_success([
+        'term_id' => $term_id,
+        'taxonomy' => $taxonomy,
+        'schema_json' => $schema_json,
+        'schema_source' => ($origin === 'generated' || $origin === 'override') ? $origin : 'unknown',
+        'locked' => $locked,
+    ]);
+}
+add_action('wp_ajax_aiopms_get_term_schema_preview', 'aiopms_ajax_get_term_schema_preview');
 
 // AJAX handler to save edited schema JSON-LD to post meta
 function aiopms_ajax_save_schema_override() {
@@ -2415,6 +2914,113 @@ function aiopms_ajax_save_schema_override() {
 }
 add_action('wp_ajax_aiopms_save_schema_override', 'aiopms_ajax_save_schema_override');
 
+function aiopms_ajax_save_term_schema_override() {
+    check_ajax_referer('aiopms_schema_preview', 'nonce');
+
+    if (!current_user_can('manage_categories')) {
+        wp_send_json_error(['message' => esc_html__('Unauthorized', 'aiopms')], 403);
+    }
+
+    $term_id = isset($_POST['term_id']) ? absint($_POST['term_id']) : 0;
+    $taxonomy = isset($_POST['taxonomy']) ? sanitize_key($_POST['taxonomy']) : '';
+    if (!$term_id || !$taxonomy) {
+        wp_send_json_error(['message' => esc_html__('Invalid term.', 'aiopms')]);
+    }
+
+    $raw = isset($_POST['schema_json']) ? wp_unslash($_POST['schema_json']) : '';
+    $raw = trim($raw);
+    if ($raw === '') {
+        wp_send_json_error(['message' => esc_html__('Schema JSON is empty.', 'aiopms')]);
+    }
+
+    $decoded = json_decode($raw, true);
+    if (!is_array($decoded)) {
+        wp_send_json_error(['message' => esc_html__('Invalid JSON. Please fix and try again.', 'aiopms')]);
+    }
+
+    $encoded = wp_json_encode($decoded, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    if (!$encoded) {
+        wp_send_json_error(['message' => esc_html__('Could not encode schema JSON.', 'aiopms')]);
+    }
+
+    update_term_meta($term_id, '_aiopms_schema_data', $decoded);
+    update_term_meta($term_id, '_aiopms_schema_locked', 1);
+    update_term_meta($term_id, '_aiopms_schema_origin', 'override');
+
+    wp_send_json_success([
+        'message' => esc_html__('Schema saved.', 'aiopms'),
+        'data' => $decoded,
+    ]);
+}
+add_action('wp_ajax_aiopms_save_term_schema_override', 'aiopms_ajax_save_term_schema_override');
+
+function aiopms_remove_schema_from_term($term_id) {
+    delete_term_meta($term_id, '_aiopms_schema_data');
+    delete_term_meta($term_id, '_aiopms_schema_origin');
+    delete_term_meta($term_id, '_aiopms_schema_locked');
+    return true;
+}
+
+// Handle term schema management actions
+function aiopms_handle_term_schema_actions() {
+    if (!isset($_GET['page']) || $_GET['page'] !== 'aiopms-page-management') {
+        return;
+    }
+    if (!isset($_GET['tab']) || $_GET['tab'] !== 'schema') {
+        return;
+    }
+
+    if (!isset($_GET['action'], $_GET['term_id'], $_GET['taxonomy'], $_GET['_wpnonce'])) {
+        return;
+    }
+
+    if (!current_user_can('manage_categories')) {
+        return;
+    }
+
+    $action = sanitize_key($_GET['action']);
+    $term_id = absint($_GET['term_id']);
+    $taxonomy = sanitize_key($_GET['taxonomy']);
+
+    if (!$term_id || !$taxonomy) {
+        return;
+    }
+
+    if ($action === 'generate_term_schema' && wp_verify_nonce($_GET['_wpnonce'], 'aiopms_generate_term_schema_' . $term_id)) {
+        aiopms_generate_term_schema_markup($term_id, $taxonomy, true);
+        wp_redirect(admin_url('admin.php?page=aiopms-page-management&tab=schema&term_schema_generated=1'));
+        exit;
+    }
+
+    if ($action === 'regenerate_term_schema' && wp_verify_nonce($_GET['_wpnonce'], 'aiopms_regenerate_term_schema_' . $term_id)) {
+        // Regenerate should overwrite lock
+        delete_term_meta($term_id, '_aiopms_schema_locked');
+        aiopms_generate_term_schema_markup($term_id, $taxonomy, true);
+        wp_redirect(admin_url('admin.php?page=aiopms-page-management&tab=schema&term_schema_regenerated=1'));
+        exit;
+    }
+
+    if ($action === 'remove_term_schema' && wp_verify_nonce($_GET['_wpnonce'], 'aiopms_remove_term_schema_' . $term_id)) {
+        aiopms_remove_schema_from_term($term_id);
+        wp_redirect(admin_url('admin.php?page=aiopms-page-management&tab=schema&term_schema_removed=1'));
+        exit;
+    }
+}
+add_action('admin_init', 'aiopms_handle_term_schema_actions');
+
+function aiopms_term_schema_notices() {
+    if (isset($_GET['term_schema_generated'])) {
+        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Term schema generated successfully!', 'aiopms') . '</p></div>';
+    }
+    if (isset($_GET['term_schema_regenerated'])) {
+        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Term schema regenerated successfully!', 'aiopms') . '</p></div>';
+    }
+    if (isset($_GET['term_schema_removed'])) {
+        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Term schema removed successfully!', 'aiopms') . '</p></div>';
+    }
+}
+add_action('admin_notices', 'aiopms_term_schema_notices');
+
 // Admin-post handler: export schema CSV backup
 function aiopms_admin_export_schema_csv() {
     if (!current_user_can('manage_options')) {
@@ -2450,6 +3056,7 @@ function aiopms_admin_export_schema_csv() {
 
     // Header row
     fputcsv($out, [
+        'entity_type',
         'post_id',
         'post_type',
         'post_status',
@@ -2482,6 +3089,7 @@ function aiopms_admin_export_schema_csv() {
         $locked = get_post_meta($post_id, '_aiopms_schema_locked', true);
 
         fputcsv($out, [
+            'post',
             (int)$post_id,
             $post->post_type,
             $post->post_status,
@@ -2493,6 +3101,54 @@ function aiopms_admin_export_schema_csv() {
             !empty($locked) ? '1' : '0',
             $schema_json,
         ]);
+    }
+
+    // Also export term schemas (taxonomy archives) if present
+    $terms = get_terms([
+        'taxonomy' => get_taxonomies(['public' => true], 'names'),
+        'hide_empty' => false,
+        'number' => 0,
+        'meta_query' => [
+            [
+                'key' => '_aiopms_schema_data',
+                'compare' => 'EXISTS',
+            ]
+        ],
+    ]);
+
+    if (!is_wp_error($terms) && !empty($terms)) {
+        foreach ($terms as $term) {
+            $schema_data = get_term_meta($term->term_id, '_aiopms_schema_data', true);
+            if (empty($schema_data)) {
+                continue;
+            }
+            $schema_json = is_string($schema_data)
+                ? $schema_data
+                : wp_json_encode($schema_data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+            $origin = get_term_meta($term->term_id, '_aiopms_schema_origin', true);
+            $source = ($origin === 'generated' || $origin === 'override') ? $origin : 'unknown';
+            $locked = get_term_meta($term->term_id, '_aiopms_schema_locked', true);
+
+            $link = get_term_link($term);
+            if (is_wp_error($link)) {
+                $link = '';
+            }
+
+            fputcsv($out, [
+                'term',
+                (int)$term->term_id,
+                $term->taxonomy,
+                '',
+                $term->name,
+                $link,
+                '',
+                '',
+                $source,
+                !empty($locked) ? '1' : '0',
+                $schema_json,
+            ]);
+        }
     }
 
     fclose($out);

@@ -244,7 +244,7 @@ function aiopms_enqueue_assets() {
     wp_enqueue_style('aiopms-dg10-brand', AIOPMS_PLUGIN_URL . 'assets/css/dg10-brand.css', array(), '3.1');
     
     // Enqueue Consolidated Admin UI CSS
-    wp_enqueue_style('aiopms-admin-ui', AIOPMS_PLUGIN_URL . 'assets/css/admin-ui.css', array('aiopms-dg10-brand'), '3.1');
+    wp_enqueue_style('aiopms-admin-ui', AIOPMS_PLUGIN_URL . 'assets/css/admin-ui.css', array('aiopms-dg10-brand'), filemtime(AIOPMS_PLUGIN_PATH . 'assets/css/admin-ui.css'));
 
     // Enqueue CPT Management CSS
     wp_enqueue_style('aiopms-cpt-management', AIOPMS_PLUGIN_URL . 'assets/css/cpt-management.css', array('aiopms-admin-ui'), '3.1');
@@ -295,7 +295,7 @@ function aiopms_enqueue_assets() {
     ));
 
     // Schema Generator Scripts
-    wp_enqueue_script('aiopms-schema-generator', AIOPMS_PLUGIN_URL . 'assets/js/schema-generator.js', array('jquery'), '3.1', true);
+    wp_enqueue_script('aiopms-schema-generator', AIOPMS_PLUGIN_URL . 'assets/js/schema-generator.js', array('jquery'), filemtime(AIOPMS_PLUGIN_PATH . 'assets/js/schema-generator.js'), true);
     wp_localize_script('aiopms-schema-generator', 'aiopms_schema_data', array(
         'ajaxurl' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('aiopms_schema_preview')
