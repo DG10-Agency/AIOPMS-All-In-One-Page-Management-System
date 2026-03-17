@@ -62,7 +62,9 @@ Yes, your API keys are stored securely in your WordPress database and are only u
 == Changelog ==
 
 = 1.0 =
-* Initial release.
+* Initial release of the All In One Page Management System.
+* Full AI content and schema generation suite.
+* DG10 Agency design system implementation.
 
 == Upgrade Notice ==
 
