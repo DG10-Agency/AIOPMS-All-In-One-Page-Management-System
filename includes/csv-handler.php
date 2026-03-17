@@ -186,6 +186,11 @@ function aiopms_create_pages_from_csv($file) {
                     
                     aiopms_set_featured_image($page_id, $featured_image_url, $image_title, $image_alt, $image_description);
                 }
+
+                // Generate Schema Markup (Optimized mode - no AI analysis)
+                if (function_exists('aiopms_generate_schema_markup')) {
+                    aiopms_generate_schema_markup($page_id, false);
+                }
             }
         }
         fclose($handle);

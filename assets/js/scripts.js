@@ -165,6 +165,12 @@ jQuery(document).ready(function ($) {
     // Enhanced AI Generation Loading Animation with DG10 Brand Colors
     $('form').on('submit', function (e) {
         var $form = $(this);
+
+        // SKIP loading overlay for AJAX-based AI form - it handles its own loading state
+        if ($form.attr('id') === 'aiopms-ai-request-form') {
+            return; // Let ai-generator.js handle loading
+        }
+
         var submitButton = $form.find('input[type="submit"], button[type="submit"]');
         var buttonText = submitButton.val() || submitButton.text();
 

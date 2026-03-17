@@ -365,7 +365,7 @@
     margin: 0 0 10px 0;
     color: #FFFFFF !important;
     font-weight: 700;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    text-shadow: none !important;
 }
 
 .abpcwa-hierarchy-header .description {
@@ -1630,7 +1630,7 @@
 .dg10-hero-text h1,
 .dg10-hero-description {
     color: #ffffff !important;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    text-shadow: none !important;
 }
 
 .dg10-card {
@@ -1703,4 +1703,90 @@ div.error:not(.aiopms-notice),
 #aiopms-notices-container {
     display: none !important;
     /* Temporarily hiding container too as user requested NO notifications */
+
+    /* === AIOPMS Modal Styles === */
+    .aiopms-modal {
+        position: fixed;
+        z-index: 10000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .aiopms-modal-content {
+        background-color: #fff;
+        margin: auto;
+        padding: 0;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        width: 90%;
+        max-width: 800px;
+        border-radius: var(--radius-lg);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .aiopms-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--color-border);
+        padding: 20px;
+        background: var(--color-bg-light);
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+
+    .aiopms-modal-header h2 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--color-text-primary);
+    }
+
+    .aiopms-modal-close {
+        color: var(--color-text-secondary);
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        line-height: 1;
+        transition: color 0.2s;
+    }
+
+    .aiopms-modal-close:hover {
+        color: var(--color-error);
+    }
+
+    .aiopms-modal-body {
+        padding: 20px;
+    }
+
+    .aiopms-modal-body pre {
+        background: var(--color-bg-muted);
+        padding: 15px;
+        border-radius: var(--radius-md);
+        overflow-x: auto;
+        max-height: 500px;
+        font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+        font-size: 0.875rem;
+        border: 1px solid var(--color-border);
+        margin: 0;
+    }
 }

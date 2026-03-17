@@ -75,14 +75,19 @@ class AIOPMS_Menu_Generator {
     /**
      * Create universal bottom menu
      */
-    public function create_universal_bottom_menu() {
+    public function create_universal_bottom_menu($overwrite = false, $location = '') {
         if (!current_user_can('edit_theme_options')) {
             return false;
         }
         $menu_name = 'Universal Bottom Menu';
         $menu_exists = wp_get_nav_menu_object($menu_name);
         
-        // Delete existing menu if it exists
+        // Safety check: Prevent accidental deletion
+        if ($menu_exists && !$overwrite) {
+            return new WP_Error('menu_exists', __('Menu already exists. Enable overwrite to update.', 'aiopms'));
+        }
+
+        // Delete existing menu if it exists and overwrite is true
         if ($menu_exists) {
             wp_delete_nav_menu($menu_exists->term_id);
         }
@@ -122,29 +127,30 @@ class AIOPMS_Menu_Generator {
             $this->add_menu_item($menu_id, 'Contact', get_permalink($contact_page->ID));
         }
         
-        // Set menu location if footer menu location exists
-        $locations = get_theme_mod('nav_menu_locations');
-        $footer_location = '';
-        
-        // Check for common footer menu locations
-        $possible_locations = array('footer', 'footer-menu', 'footer_navigation', 'menu-footer');
-        foreach ($possible_locations as $location) {
-            if (isset($locations[$location])) {
-                $footer_location = $location;
-                break;
+        // Assign to menu location if specified
+        if (!empty($location)) {
+            $locations = get_theme_mod('nav_menu_locations');
+            $locations[$location] = $menu_id;
+            set_theme_mod('nav_menu_locations', $locations);
+        } else {
+             // Fallback to auto-detection only if no location specified
+            $locations = get_theme_mod('nav_menu_locations');
+            $footer_location = '';
+            
+            // Check for common footer menu locations
+            $possible_locations = array('footer', 'footer-menu', 'footer_navigation', 'menu-footer');
+            foreach ($possible_locations as $loc) {
+                if (isset($locations[$loc]) || array_key_exists($loc, get_registered_nav_menus())) {
+                    $footer_location = $loc;
+                    break;
+                }
+            }
+            
+            if (!empty($footer_location)) {
+               $locations[$footer_location] = $menu_id;
+               set_theme_mod('nav_menu_locations', $locations);
             }
         }
-        
-        // If no footer location found, create one or use primary
-        if (empty($footer_location)) {
-            // For simplicity, we'll just return the menu ID
-            // User can manually assign it to a menu location
-            return $menu_id;
-        }
-        
-        // Assign to footer location
-        $locations[$footer_location] = $menu_id;
-        set_theme_mod('nav_menu_locations', $locations);
         
         return $menu_id;
     }
@@ -166,7 +172,7 @@ class AIOPMS_Menu_Generator {
     /**
      * Generate services menu with proper hierarchy
      */
-    public function create_services_menu() {
+    public function create_services_menu($overwrite = false, $location = '') {
         if (!current_user_can('edit_theme_options')) {
             return false;
         }
@@ -244,6 +250,10 @@ class AIOPMS_Menu_Generator {
         $menu_name = 'Services Menu';
         $menu_exists = wp_get_nav_menu_object($menu_name);
         
+        if ($menu_exists && !$overwrite) {
+            return new WP_Error('menu_exists', __('Menu already exists. Enable overwrite to update.', 'aiopms'));
+        }
+
         if ($menu_exists) {
             wp_delete_nav_menu($menu_exists->term_id);
         }
@@ -303,6 +313,12 @@ class AIOPMS_Menu_Generator {
             }
         }
         
+        if (!empty($location)) {
+            $locations = get_theme_mod('nav_menu_locations');
+            $locations[$location] = $menu_id;
+            set_theme_mod('nav_menu_locations', $locations);
+        }
+
         return $menu_id;
     }
     
@@ -534,7 +550,7 @@ class AIOPMS_Menu_Generator {
     /**
      * Generate company menu with proper hierarchy
      */
-    public function create_company_menu() {
+    public function create_company_menu($overwrite = false, $location = '') {
         if (!current_user_can('edit_theme_options')) {
             return false;
         }
@@ -556,6 +572,10 @@ class AIOPMS_Menu_Generator {
         $menu_name = 'Company Menu';
         $menu_exists = wp_get_nav_menu_object($menu_name);
 
+        if ($menu_exists && !$overwrite) {
+            return new WP_Error('menu_exists', __('Menu already exists. Enable overwrite to update.', 'aiopms'));
+        }
+
         if ($menu_exists) {
             wp_delete_nav_menu($menu_exists->term_id);
         }
@@ -568,6 +588,12 @@ class AIOPMS_Menu_Generator {
         
         // Build menu structure
         $this->build_company_menu_structure($menu_id, $company_structure);
+        
+        if (!empty($location)) {
+            $locations = get_theme_mod('nav_menu_locations');
+            $locations[$location] = $menu_id;
+            set_theme_mod('nav_menu_locations', $locations);
+        }
 
         return $menu_id;
     }
@@ -743,13 +769,17 @@ class AIOPMS_Menu_Generator {
     /**
      * Generate main navigation menu (primary header menu)
      */
-    public function create_main_navigation_menu() {
+    public function create_main_navigation_menu($overwrite = false, $location = '') {
         if (!current_user_can('edit_theme_options')) {
             return false;
         }
 
         $menu_name = 'Main Navigation Menu';
         $menu_exists = wp_get_nav_menu_object($menu_name);
+
+        if ($menu_exists && !$overwrite) {
+             return new WP_Error('menu_exists', __('Menu already exists. Enable overwrite to update.', 'aiopms'));
+        }
 
         if ($menu_exists) {
             wp_delete_nav_menu($menu_exists->term_id);
@@ -773,6 +803,31 @@ class AIOPMS_Menu_Generator {
         
         // Build the menu
         $this->build_main_navigation_menu($menu_id, $nav_structure);
+        
+        // === DYNAMIC CPT INTEGRATION ===
+        // Get all public custom post types NOT built-in
+        $args = array(
+           'public'   => true,
+           '_builtin' => false
+        );
+        $output = 'objects';
+        $operator = 'and';
+        $post_types = get_post_types($args, $output, $operator);
+
+        if (!empty($post_types)) {
+            foreach ($post_types  as $post_type ) {
+                if ($post_type->has_archive) {
+                     $this->add_menu_item($menu_id, $post_type->labels->name, get_post_type_archive_link($post_type->name));
+                }
+            }
+        }
+        // ===============================
+
+        if (!empty($location)) {
+            $locations = get_theme_mod('nav_menu_locations');
+            $locations[$location] = $menu_id;
+            set_theme_mod('nav_menu_locations', $locations);
+        }
 
         return $menu_id;
     }
@@ -981,13 +1036,17 @@ class AIOPMS_Menu_Generator {
     /**
      * Generate resources/knowledge base menu with comprehensive detection and smart categorization
      */
-    public function create_resources_menu() {
+    public function create_resources_menu($overwrite = false, $location = '') {
         if (!current_user_can('edit_theme_options')) {
             return false;
         }
 
         $menu_name = 'Resources Menu';
         $menu_exists = wp_get_nav_menu_object($menu_name);
+
+        if ($menu_exists && !$overwrite) {
+            return new WP_Error('menu_exists', __('Menu already exists. Enable overwrite to update.', 'aiopms'));
+        }
 
         if ($menu_exists) {
             wp_delete_nav_menu($menu_exists->term_id);
@@ -1061,6 +1120,12 @@ class AIOPMS_Menu_Generator {
                     $this->add_menu_item($menu_id, $category->name, get_category_link($category->term_id), $categories_parent_id);
                 }
             }
+        }
+
+        if (!empty($location)) {
+            $locations = get_theme_mod('nav_menu_locations');
+            $locations[$location] = $menu_id;
+            set_theme_mod('nav_menu_locations', $locations);
         }
 
         return $menu_id;
@@ -1205,13 +1270,17 @@ class AIOPMS_Menu_Generator {
     /**
      * Generate footer quick links menu with comprehensive detection and smart prioritization
      */
-    public function create_footer_quick_links_menu() {
+    public function create_footer_quick_links_menu($overwrite = false, $location = '') {
         if (!current_user_can('edit_theme_options')) {
             return false;
         }
 
         $menu_name = 'Footer Quick Links';
         $menu_exists = wp_get_nav_menu_object($menu_name);
+
+        if ($menu_exists && !$overwrite) {
+            return new WP_Error('menu_exists', __('Menu already exists. Enable overwrite to update.', 'aiopms'));
+        }
 
         if ($menu_exists) {
             wp_delete_nav_menu($menu_exists->term_id);
@@ -1268,6 +1337,12 @@ class AIOPMS_Menu_Generator {
         // Add default sitemap if no sitemap page found
         if (empty($footer_structure['utility_pages'])) {
             $this->add_menu_item($menu_id, 'Sitemap', home_url('/sitemap/'));
+        }
+
+        if (!empty($location)) {
+            $locations = get_theme_mod('nav_menu_locations');
+            $locations[$location] = $menu_id;
+            set_theme_mod('nav_menu_locations', $locations);
         }
 
         return $menu_id;
@@ -1389,13 +1464,17 @@ class AIOPMS_Menu_Generator {
     /**
      * Generate social media menu
      */
-    public function create_social_media_menu() {
+    public function create_social_media_menu($overwrite = false, $location = '') {
         if (!current_user_can('edit_theme_options')) {
             return false;
         }
 
         $menu_name = 'Social Media Menu';
         $menu_exists = wp_get_nav_menu_object($menu_name);
+
+        if ($menu_exists && !$overwrite) {
+            return new WP_Error('menu_exists', __('Menu already exists. Enable overwrite to update.', 'aiopms'));
+        }
 
         if ($menu_exists) {
             wp_delete_nav_menu($menu_exists->term_id);
@@ -1421,19 +1500,29 @@ class AIOPMS_Menu_Generator {
             $this->add_menu_item($menu_id, $platform, $url);
         }
 
+        if (!empty($location)) {
+            $locations = get_theme_mod('nav_menu_locations');
+            $locations[$location] = $menu_id;
+            set_theme_mod('nav_menu_locations', $locations);
+        }
+
         return $menu_id;
     }
 
     /**
      * Generate support/help menu with comprehensive detection and smart categorization
      */
-    public function create_support_menu() {
+    public function create_support_menu($overwrite = false, $location = '') {
         if (!current_user_can('edit_theme_options')) {
             return false;
         }
 
         $menu_name = 'Support Menu';
         $menu_exists = wp_get_nav_menu_object($menu_name);
+
+        if ($menu_exists && !$overwrite) {
+            return new WP_Error('menu_exists', __('Menu already exists. Enable overwrite to update.', 'aiopms'));
+        }
 
         if ($menu_exists) {
             wp_delete_nav_menu($menu_exists->term_id);
@@ -1506,6 +1595,12 @@ class AIOPMS_Menu_Generator {
         
         if (!$has_contact) {
             $this->add_menu_item($menu_id, 'Contact Support', home_url('/contact/'), $support_parent_id);
+        }
+
+        if (!empty($location)) {
+            $locations = get_theme_mod('nav_menu_locations');
+            $locations[$location] = $menu_id;
+            set_theme_mod('nav_menu_locations', $locations);
         }
 
         return $menu_id;
@@ -1637,13 +1732,17 @@ class AIOPMS_Menu_Generator {
     /**
      * Generate products catalog menu with comprehensive detection and smart categorization
      */
-    public function create_products_menu() {
+    public function create_products_menu($overwrite = false, $location = '') {
         if (!current_user_can('edit_theme_options')) {
             return false;
         }
 
         $menu_name = 'Products Menu';
         $menu_exists = wp_get_nav_menu_object($menu_name);
+
+        if ($menu_exists && !$overwrite) {
+            return new WP_Error('menu_exists', __('Menu already exists. Enable overwrite to update.', 'aiopms'));
+        }
 
         if ($menu_exists) {
             wp_delete_nav_menu($menu_exists->term_id);
@@ -1701,6 +1800,12 @@ class AIOPMS_Menu_Generator {
                     }
                 }
             }
+        }
+
+        if (!empty($location)) {
+            $locations = get_theme_mod('nav_menu_locations');
+            $locations[$location] = $menu_id;
+            set_theme_mod('nav_menu_locations', $locations);
         }
 
         return $menu_id;
@@ -2046,48 +2151,49 @@ class AIOPMS_Menu_Generator {
 $aiopms_menu_generator = AIOPMS_Menu_Generator::get_instance();
 
 // Wrapper functions for admin interface
-function aiopms_generate_universal_bottom_menu() {
+// Wrapper functions for admin interface - Updated to support Overwrite and Location
+function aiopms_generate_universal_bottom_menu($overwrite = false, $location = '') {
     global $aiopms_menu_generator;
-    return $aiopms_menu_generator->create_universal_bottom_menu();
+    return $aiopms_menu_generator->create_universal_bottom_menu($overwrite, $location);
 }
 
-function aiopms_generate_services_menu() {
+function aiopms_generate_services_menu($overwrite = false, $location = '') {
     global $aiopms_menu_generator;
-    return $aiopms_menu_generator->create_services_menu();
+    return $aiopms_menu_generator->create_services_menu($overwrite, $location);
 }
 
-function aiopms_generate_company_menu() {
+function aiopms_generate_company_menu($overwrite = false, $location = '') {
     global $aiopms_menu_generator;
-    return $aiopms_menu_generator->create_company_menu();
+    return $aiopms_menu_generator->create_company_menu($overwrite, $location);
 }
 
-function aiopms_generate_main_navigation_menu() {
+function aiopms_generate_main_navigation_menu($overwrite = false, $location = '') {
     global $aiopms_menu_generator;
-    return $aiopms_menu_generator->create_main_navigation_menu();
+    return $aiopms_menu_generator->create_main_navigation_menu($overwrite, $location);
 }
 
-function aiopms_generate_resources_menu() {
+function aiopms_generate_resources_menu($overwrite = false, $location = '') {
     global $aiopms_menu_generator;
-    return $aiopms_menu_generator->create_resources_menu();
+    return $aiopms_menu_generator->create_resources_menu($overwrite, $location);
 }
 
-function aiopms_generate_footer_quick_links_menu() {
+function aiopms_generate_footer_quick_links_menu($overwrite = false, $location = '') {
     global $aiopms_menu_generator;
-    return $aiopms_menu_generator->create_footer_quick_links_menu();
+    return $aiopms_menu_generator->create_footer_quick_links_menu($overwrite, $location);
 }
 
-function aiopms_generate_social_media_menu() {
+function aiopms_generate_social_media_menu($overwrite = false, $location = '') {
     global $aiopms_menu_generator;
-    return $aiopms_menu_generator->create_social_media_menu();
+    return $aiopms_menu_generator->create_social_media_menu($overwrite, $location);
 }
 
-function aiopms_generate_support_menu() {
+function aiopms_generate_support_menu($overwrite = false, $location = '') {
     global $aiopms_menu_generator;
-    return $aiopms_menu_generator->create_support_menu();
+    return $aiopms_menu_generator->create_support_menu($overwrite, $location);
 }
 
-function aiopms_generate_products_menu() {
+function aiopms_generate_products_menu($overwrite = false, $location = '') {
     global $aiopms_menu_generator;
-    return $aiopms_menu_generator->create_products_menu();
+    return $aiopms_menu_generator->create_products_menu($overwrite, $location);
 }
 

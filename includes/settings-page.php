@@ -3,6 +3,134 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+function aiopms_extract_first_email($text) {
+    if (!is_string($text) || $text === '') {
+        return '';
+    }
+    if (preg_match('/[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}/i', $text, $m)) {
+        $email = sanitize_email($m[0]);
+        return is_email($email) ? $email : '';
+    }
+    return '';
+}
+
+function aiopms_extract_first_phone($text) {
+    if (!is_string($text) || $text === '') {
+        return '';
+    }
+    // Prefer tel: links if present
+    if (preg_match('/tel:\s*([0-9+\-\(\)\s\.]{7,})/i', $text, $m)) {
+        return trim($m[1]);
+    }
+    // General phone patterns (more flexible than US-only)
+    if (preg_match('/(?:\+?\d{1,3}[\s\-\.]?)?(?:\(?\d{2,4}\)?[\s\-\.]?)?\d{3,4}[\s\-\.]?\d{3,4}/', $text, $m)) {
+        $phone = trim($m[0]);
+        // Avoid matching years/short numbers
+        return (strlen(preg_replace('/\D+/', '', $phone)) >= 7) ? $phone : '';
+    }
+    return '';
+}
+
+function aiopms_extract_possible_address($text) {
+    if (!is_string($text) || $text === '') {
+        return '';
+    }
+    $text = preg_replace('/\s+/', ' ', trim($text));
+
+    // Common street suffixes; not country-specific but helps a lot for footers
+    $street_suffix = '(Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Drive|Dr|Lane|Ln|Court|Ct|Way|Parkway|Pkwy|Place|Pl|Terrace|Ter|Circle|Cir|Highway|Hwy)';
+
+    // Example: "123 Main St, City, State 12345" (state/zip optional)
+    $pattern = '/\b\d{1,6}\s+[^,]{3,60}\s+' . $street_suffix . '\b(?:[^,]{0,40})?(?:,\s*[^,]{2,40}){1,3}\b/i';
+    if (preg_match($pattern, $text, $m)) {
+        return trim($m[0]);
+    }
+
+    // Fallback: "Address: ..." patterns
+    if (preg_match('/\b(address|location)\b\s*[:\-]\s*([^|]{10,120})/i', $text, $m)) {
+        return trim($m[2]);
+    }
+
+    return '';
+}
+
+function aiopms_scan_widget_areas_for_contact_info(&$detected) {
+    if (!function_exists('wp_get_sidebars_widgets')) {
+        return;
+    }
+
+    $sidebars = wp_get_sidebars_widgets();
+    if (!is_array($sidebars) || empty($sidebars)) {
+        return;
+    }
+
+    $widget_text_blobs = [];
+    foreach ($sidebars as $sidebar_id => $widget_ids) {
+        if (!is_array($widget_ids) || empty($widget_ids) || $sidebar_id === 'wp_inactive_widgets') {
+            continue;
+        }
+
+        foreach ($widget_ids as $widget_id) {
+            if (!is_string($widget_id) || strpos($widget_id, '-') === false) {
+                continue;
+            }
+            [$base, $num] = array_pad(explode('-', $widget_id, 2), 2, '');
+            $num = absint($num);
+            if (!$base || !$num) {
+                continue;
+            }
+
+            $opt = get_option('widget_' . $base, []);
+            if (!is_array($opt) || empty($opt[$num])) {
+                continue;
+            }
+
+            $instance = $opt[$num];
+            if (!is_array($instance)) {
+                continue;
+            }
+
+            // Common fields in text/custom_html widgets
+            foreach (['text', 'content', 'title'] as $key) {
+                if (!empty($instance[$key]) && is_string($instance[$key])) {
+                    $widget_text_blobs[] = $instance[$key];
+                }
+            }
+        }
+    }
+
+    if (empty($widget_text_blobs)) {
+        return;
+    }
+
+    $combined = implode("\n\n", $widget_text_blobs);
+
+    // Try to capture mailto / tel raw values too
+    if (empty($detected['email'])) {
+        $mailto = '';
+        if (preg_match('/mailto:\s*([A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,})/i', $combined, $m)) {
+            $mailto = sanitize_email($m[1]);
+            if (is_email($mailto)) {
+                $detected['email'] = $mailto;
+            }
+        }
+        if (empty($detected['email'])) {
+            $detected['email'] = aiopms_extract_first_email(wp_strip_all_tags($combined));
+        }
+    }
+
+    if (empty($detected['phone'])) {
+        $detected['phone'] = aiopms_extract_first_phone($combined);
+        if (empty($detected['phone'])) {
+            $detected['phone'] = aiopms_extract_first_phone(wp_strip_all_tags($combined));
+        }
+    }
+
+    if (empty($detected['address'])) {
+        $detected['address'] = aiopms_extract_possible_address(wp_strip_all_tags($combined));
+    }
+}
+
 /**
  * Auto-detect business information from WordPress
  * Scans WP core settings, pages, WooCommerce, and SEO plugins
@@ -92,16 +220,19 @@ function aiopms_auto_detect_business_info() {
             
             // Extract phone (if not already found)
             if (empty($detected['phone'])) {
-                if (preg_match('/(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/', $content, $phone_match)) {
-                    $detected['phone'] = trim($phone_match[0]);
-                }
+                $detected['phone'] = aiopms_extract_first_phone($content);
             }
             
             // Extract address patterns (if not already found)
             if (empty($detected['address'])) {
-                // Look for common address patterns
-                if (preg_match('/\d+\s+[\w\s]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Drive|Dr|Lane|Ln)[,.\s]+[\w\s]+[,.\s]+[A-Z]{2}\s+\d{5}/i', $content, $addr_match)) {
-                    $detected['address'] = trim($addr_match[0]);
+                $detected['address'] = aiopms_extract_possible_address($content);
+            }
+
+            // Extract email (prefer actual content over admin_email)
+            if (empty($detected['email']) || $detected['email'] === get_option('admin_email', '')) {
+                $found_email = aiopms_extract_first_email($content);
+                if (!empty($found_email)) {
+                    $detected['email'] = $found_email;
                 }
             }
             
@@ -114,6 +245,9 @@ function aiopms_auto_detect_business_info() {
             }
         }
     }
+
+    // 6. Scan widget areas (common place for footer contact blocks)
+    aiopms_scan_widget_areas_for_contact_info($detected);
 
     // 6. Scan menus for social links
     $nav_menus = wp_get_nav_menus();

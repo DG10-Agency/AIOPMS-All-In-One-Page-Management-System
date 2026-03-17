@@ -14,12 +14,128 @@ function aiopms_add_admin_menu() {
         AIOPMS_PLUGIN_URL . 'assets/images/logo.svg',
         25
     );
+
+    // Add submenus to restore menu item visibility
+    add_submenu_page(
+        'aiopms-page-management',
+        __('Manual Creation', 'aiopms'),
+        __('Manual Creation', 'aiopms'),
+        'manage_options',
+        'aiopms-page-management',
+        'aiopms_admin_page'
+    );
+
+    add_submenu_page(
+        'aiopms-page-management',
+        __('CSV Upload', 'aiopms'),
+        __('CSV Upload', 'aiopms'),
+        'manage_options',
+        'aiopms-csv-upload',
+        'aiopms_admin_page'
+    );
+
+    add_submenu_page(
+        'aiopms-page-management',
+        __('AI Generation', 'aiopms'),
+        __('AI Generation', 'aiopms'),
+        'manage_options',
+        'aiopms-ai-generator',
+        'aiopms_admin_page'
+    );
+
+    add_submenu_page(
+        'aiopms-page-management',
+        __('Schema Generator', 'aiopms'),
+        __('Schema Generator', 'aiopms'),
+        'manage_options',
+        'aiopms-schema-generator',
+        'aiopms_admin_page'
+    );
+
+    add_submenu_page(
+        'aiopms-page-management',
+        __('Menu Generator', 'aiopms'),
+        __('Menu Generator', 'aiopms'),
+        'manage_options',
+        'aiopms-menu-generator',
+        'aiopms_admin_page'
+    );
+    
+    add_submenu_page(
+        'aiopms-page-management',
+        __('Page Hierarchy', 'aiopms'),
+        __('Page Hierarchy', 'aiopms'),
+        'manage_options',
+        'aiopms-hierarchy',
+        'aiopms_admin_page'
+    );
+
+    add_submenu_page(
+        'aiopms-page-management',
+        __('Keyword Analysis', 'aiopms'),
+        __('Keyword Analysis', 'aiopms'),
+        'manage_options',
+        'aiopms-keyword-analysis',
+        'aiopms_admin_page'
+    );
+
+    add_submenu_page(
+        'aiopms-page-management',
+        __('Custom Post Types', 'aiopms'),
+        __('Custom Post Types', 'aiopms'),
+        'manage_options',
+        'aiopms-cpt-management',
+        'aiopms_admin_page'
+    );
+
+    add_submenu_page(
+        'aiopms-page-management',
+        __('Settings', 'aiopms'),
+        __('Settings', 'aiopms'),
+        'manage_options',
+        'aiopms-settings',
+        'aiopms_admin_page'
+    );
 }
 add_action('admin_menu', 'aiopms_add_admin_menu');
 
 // Admin page content
 function aiopms_admin_page() {
-    $active_tab = isset($_GET['tab']) ? sanitize_key($_GET['tab']) : 'manual';
+    // Determine active tab from URL parameter or page slug
+    $active_tab = isset($_GET['tab']) ? sanitize_key($_GET['tab']) : '';
+    $current_page = isset($_GET['page']) ? sanitize_key($_GET['page']) : '';
+
+    if (empty($active_tab)) {
+        switch ($current_page) {
+            case 'aiopms-csv-upload':
+                $active_tab = 'csv';
+                break;
+            case 'aiopms-ai-generator':
+                $active_tab = 'ai';
+                break;
+            case 'aiopms-schema-generator':
+                $active_tab = 'schema';
+                break;
+            case 'aiopms-menu-generator':
+                $active_tab = 'menu';
+                break;
+            case 'aiopms-hierarchy':
+                $active_tab = 'hierarchy';
+                break;
+            case 'aiopms-keyword-analysis':
+                $active_tab = 'keyword-analysis';
+                break;
+            case 'aiopms-cpt-management':
+                $active_tab = 'cpt';
+                break;
+            case 'aiopms-settings':
+                $active_tab = 'settings';
+                break;
+            default:
+                $active_tab = 'manual';
+                break;
+        }
+    }
     
     // Define menu items with their details
     $menu_items = array(
@@ -132,9 +248,9 @@ function aiopms_admin_page() {
                     <div class="dg10-card-body" role="main" aria-label="<?php esc_attr_e('Content Section', 'aiopms'); ?>">
         <?php
         if ($active_tab == 'manual') {
-            aiopms_manual_creation_tab();
+            aiopms_render_manual_tab_content();
         } elseif ($active_tab == 'csv') {
-            aiopms_csv_upload_tab();
+            aiopms_render_csv_tab_content();
         } elseif ($active_tab == 'ai') {
             aiopms_ai_generation_tab();
         } elseif ($active_tab == 'schema') {
@@ -278,9 +394,13 @@ function aiopms_admin_page() {
 }
 
 // Manual creation tab content
-function aiopms_manual_creation_tab() {
+// Manual creation tab content calling wrapper (renamed for cache bust)
+function aiopms_render_manual_tab_content() {
     ?>
-    <div class="aiopms-tab-content">
+    <div id="aiopms-manual-tab-debug" style="margin-bottom: 20px;">
+        <!-- Debug Marker -->
+    </div>
+    <div class="aiopms-manual-container">
         <form method="post" action="" role="form" aria-label="<?php esc_attr_e('Manual Page Creation Form', 'aiopms'); ?>">
                 <?php wp_nonce_field('aiopms_manual_create_pages'); ?>
                 <fieldset class="dg10-form-group">
@@ -325,9 +445,10 @@ function aiopms_manual_creation_tab() {
 }
 
 // CSV upload tab content
-function aiopms_csv_upload_tab() {
+// CSV upload tab content calling wrapper (renamed for cache bust)
+function aiopms_render_csv_tab_content() {
     ?>
-    <div class="aiopms-tab-content">
+    <div class="aiopms-csv-container">
             <form method="post" action="" enctype="multipart/form-data" role="form" aria-label="<?php esc_attr_e('CSV File Upload Form', 'aiopms'); ?>">
                 <?php wp_nonce_field('aiopms_csv_upload'); ?>
                 <fieldset class="dg10-form-group">
@@ -372,7 +493,6 @@ function aiopms_csv_upload_tab() {
                 </div>
             </form>
         </div>
-    </section>
     <?php
     if (isset($_POST['submit']) && check_admin_referer('aiopms_csv_upload')) {
         if (isset($_FILES['aiopms_csv_file']) && !empty($_FILES['aiopms_csv_file']['tmp_name'])) {
@@ -385,92 +505,104 @@ function aiopms_csv_upload_tab() {
 
 // Menu generator tab content
 function aiopms_menu_generator_tab() {
-    // Handle menu generation requests
+    // Get registered nav menus for the dropdown
+    $locations = get_registered_nav_menus();
+    $location_options = '<option value="">' . __('Auto-detect / None', 'aiopms') . '</option>';
+    if (!empty($locations)) {
+        foreach ($locations as $slug => $name) {
+            $location_options .= '<option value="' . esc_attr($slug) . '">' . esc_html($name) . '</option>';
+        }
+    }
+
+    // Shared controls HTML to avoid repetition
+    $controls_html = '
+    <div class="menu-generator-controls" style="margin: 15px 0; text-align: left; padding: 10px; background: #f0f0f1; border-radius: 4px;">
+        <p style="margin-bottom: 10px;">
+            <label style="font-weight: 500;">
+                <input type="checkbox" name="force_overwrite" value="1"> 
+                ' . __('Force Overwrite Existing Menu', 'aiopms') . '
+            </label>
+        </p>
+        <p style="margin: 0;">
+            <label for="menu_loc" style="display: block; margin-bottom: 4px;">' . __('Assign to Location (Optional):', 'aiopms') . '</label>
+            <select name="menu_location" style="width: 100%;">
+                ' . $location_options . '
+            </select>
+        </p>
+    </div>';
+    
+    // Inline Notification Logic (Simplified for reliability)
     if (isset($_POST['generate_menu']) && isset($_POST['_wpnonce']) && wp_verify_nonce(sanitize_key($_POST['_wpnonce']), 'aiopms_generate_menu')) {
         $menu_type = isset($_POST['menu_type']) ? sanitize_key($_POST['menu_type']) : '';
+        $overwrite = isset($_POST['force_overwrite']) ? true : false;
+        $location  = isset($_POST['menu_location']) ? sanitize_key($_POST['menu_location']) : '';
 
+        $result = false;
+        
         switch ($menu_type) {
             case 'universal_bottom':
-                $result = aiopms_generate_universal_bottom_menu();
-                if ($result) {
-                    echo '<div class="notice notice-success is-dismissible"><p>' . __('Universal Bottom Menu created successfully!', 'aiopms') . '</p></div>';
-                } else {
-                    echo '<div class="notice notice-error is-dismissible"><p>' . __('Failed to create Universal Bottom Menu.', 'aiopms') . '</p></div>';
-                }
+                $result = aiopms_generate_universal_bottom_menu($overwrite, $location);
                 break;
-
             case 'services':
-                $result = aiopms_generate_services_menu();
-                if ($result) {
-                    echo '<div class="notice notice-success is-dismissible"><p>' . __('Services Menu created successfully!', 'aiopms') . '</p></div>';
-                } else {
-                    echo '<div class="notice notice-warning is-dismissible"><p>' . __('No service pages found to create Services Menu.', 'aiopms') . '</p></div>';
-                }
+                $result = aiopms_generate_services_menu($overwrite, $location);
                 break;
-
             case 'company':
-                $result = aiopms_generate_company_menu();
-                if ($result) {
-                    echo '<div class="notice notice-success is-dismissible"><p>' . __('Company Menu created successfully!', 'aiopms') . '</p></div>';
-                } else {
-                    echo '<div class="notice notice-warning is-dismissible"><p>' . __('No company pages found to create Company Menu.', 'aiopms') . '</p></div>';
-                }
+                $result = aiopms_generate_company_menu($overwrite, $location);
                 break;
-
             case 'main_navigation':
-                $result = aiopms_generate_main_navigation_menu();
-                if ($result) {
-                    echo '<div class="notice notice-success is-dismissible"><p>' . __('Main Navigation Menu created successfully!', 'aiopms') . '</p></div>';
-                } else {
-                    echo '<div class="notice notice-error is-dismissible"><p>' . __('Failed to create Main Navigation Menu.', 'aiopms') . '</p></div>';
-                }
+                $result = aiopms_generate_main_navigation_menu($overwrite, $location);
                 break;
-
             case 'resources':
-                $result = aiopms_generate_resources_menu();
-                if ($result) {
-                    echo '<div class="notice notice-success is-dismissible"><p>' . __('Resources Menu created successfully!', 'aiopms') . '</p></div>';
-                } else {
-                    echo '<div class="notice notice-error is-dismissible"><p>' . __('Failed to create Resources Menu.', 'aiopms') . '</p></div>';
-                }
+                $result = aiopms_generate_resources_menu($overwrite, $location);
                 break;
-
             case 'footer_quick_links':
-                $result = aiopms_generate_footer_quick_links_menu();
-                if ($result) {
-                    echo '<div class="notice notice-success is-dismissible"><p>' . __('Footer Quick Links Menu created successfully!', 'aiopms') . '</p></div>';
-                } else {
-                    echo '<div class="notice notice-error is-dismissible"><p>' . __('Failed to create Footer Quick Links Menu.', 'aiopms') . '</p></div>';
-                }
+                $result = aiopms_generate_footer_quick_links_menu($overwrite, $location);
                 break;
-
             case 'social_media':
-                $result = aiopms_generate_social_media_menu();
-                if ($result) {
-                    echo '<div class="notice notice-success is-dismissible"><p>' . __('Social Media Menu created successfully!', 'aiopms') . '</p></div>';
-                } else {
-                    echo '<div class="notice notice-error is-dismissible"><p>' . __('Failed to create Social Media Menu.', 'aiopms') . '</p></div>';
-                }
+                $result = aiopms_generate_social_media_menu($overwrite, $location);
                 break;
-
             case 'support':
-                $result = aiopms_generate_support_menu();
-                if ($result) {
-                    echo '<div class="notice notice-success is-dismissible"><p>' . __('Support Menu created successfully!', 'aiopms') . '</p></div>';
-                } else {
-                    echo '<div class="notice notice-error is-dismissible"><p>' . __('Failed to create Support Menu.', 'aiopms') . '</p></div>';
-                }
+                $result = aiopms_generate_support_menu($overwrite, $location);
                 break;
-
             case 'products':
-                $result = aiopms_generate_products_menu();
-                if ($result) {
-                    echo '<div class="notice notice-success is-dismissible"><p>' . __('Products Menu created successfully!', 'aiopms') . '</p></div>';
-                } else {
-                    echo '<div class="notice notice-warning is-dismissible"><p>' . __('No product pages found to create Products Menu.', 'aiopms') . '</p></div>';
-                }
+                $result = aiopms_generate_products_menu($overwrite, $location);
                 break;
         }
+
+        echo '<div id="aiopms-result-notice" class="aiopms-notice" style="background: #fff; border-left: 4px solid #46b450; padding: 20px; margin: 20px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.1);">';
+        
+        if (is_wp_error($result)) {
+             echo '<h3 style="margin: 0 0 10px; color: #d63638;">' . __('Error', 'aiopms') . '</h3>';
+             echo '<p style="font-size: 14px; margin: 0;">' . esc_html($result->get_error_message()) . '</p>';
+             echo '<script>document.getElementById("aiopms-result-notice").style.borderLeftColor = "#d63638";</script>';
+        } elseif ($result) {
+             $edit_link = admin_url('nav-menus.php?action=edit&menu=' . $result);
+             $locations_link = admin_url('nav-menus.php?action=locations');
+             
+             echo '<h3 style="margin: 0 0 10px; color: #46b450;">' . sprintf(__('%s Created Successfully!', 'aiopms'), ucwords(str_replace('_', ' ', $menu_type))) . '</h3>';
+             echo '<div style="display: flex; gap: 15px; align-items: center; margin-top: 15px;">';
+             echo '<a href="' . esc_url($edit_link) . '" class="button button-primary button-large">' . __('Edit Menu Items', 'aiopms') . '</a>';
+             if (!empty($location)) {
+                echo '<span style="color: #46b450; display: flex; align-items: center;"><span class="dashicons dashicons-yes" style="margin-right: 5px;"></span> ' . __('Assigned to location', 'aiopms') . '</span>';
+             } else {
+                echo '<a href="' . esc_url($locations_link) . '" class="button button-secondary">' . __('Manage Locations', 'aiopms') . '</a>';
+             }
+             echo '</div>';
+        } else {
+             echo '<h3 style="margin: 0 0 10px; color: #dba617;">' . __('Warning', 'aiopms') . '</h3>';
+             echo '<p>' . __('Failed to create menu. No pages found or empty selection.', 'aiopms') . '</p>';
+             echo '<script>document.getElementById("aiopms-result-notice").style.borderLeftColor = "#dba617";</script>';
+        }
+        echo '</div>';
+
+        // Auto-scroll to result
+        echo '<script>
+        jQuery(document).ready(function($) {
+            $("html, body").animate({
+                scrollTop: $("#aiopms-result-notice").offset().top - 100
+            }, 500);
+        });
+        </script>';
     }
     ?>
     <section class="dg10-card" role="region" aria-labelledby="menu-generator-heading">
@@ -497,6 +629,7 @@ function aiopms_menu_generator_tab() {
                                 <li>Contact page integration</li>
                             </ul>
                             <input type="hidden" name="menu_type" value="main_navigation">
+                            <?php echo $controls_html; ?>
                             <?php submit_button('Generate Main Navigation', 'primary', 'generate_menu'); ?>
                         </div>
                     </form>
@@ -513,6 +646,7 @@ function aiopms_menu_generator_tab() {
                                 <li>Perfect for header navigation</li>
                             </ul>
                             <input type="hidden" name="menu_type" value="services">
+                            <?php echo $controls_html; ?>
                             <?php submit_button('Generate Services Menu', 'primary', 'generate_menu'); ?>
                         </div>
                     </form>
@@ -535,6 +669,7 @@ function aiopms_menu_generator_tab() {
                                 <li>Perfect for e-commerce sites</li>
                             </ul>
                             <input type="hidden" name="menu_type" value="products">
+                            <?php echo $controls_html; ?>
                             <?php submit_button('Generate Products Menu', 'primary', 'generate_menu'); ?>
                         </div>
                     </form>
@@ -551,6 +686,7 @@ function aiopms_menu_generator_tab() {
                                 <li>FAQ and help resources</li>
                             </ul>
                             <input type="hidden" name="menu_type" value="resources">
+                            <?php echo $controls_html; ?>
                             <?php submit_button('Generate Resources Menu', 'primary', 'generate_menu'); ?>
                         </div>
                     </form>
@@ -567,6 +703,7 @@ function aiopms_menu_generator_tab() {
                                 <li>Documentation and guides</li>
                             </ul>
                             <input type="hidden" name="menu_type" value="support">
+                            <?php echo $controls_html; ?>
                             <?php submit_button('Generate Support Menu', 'primary', 'generate_menu'); ?>
                         </div>
                     </form>
@@ -590,6 +727,7 @@ function aiopms_menu_generator_tab() {
                                 <li>Contact page integration</li>
                             </ul>
                             <input type="hidden" name="menu_type" value="universal_bottom">
+                            <?php echo $controls_html; ?>
                             <?php submit_button('Generate Footer Menu', 'primary', 'generate_menu'); ?>
                         </div>
                     </form>
@@ -606,6 +744,7 @@ function aiopms_menu_generator_tab() {
                                 <li>Sitemap integration</li>
                             </ul>
                             <input type="hidden" name="menu_type" value="footer_quick_links">
+                            <?php echo $controls_html; ?>
                             <?php submit_button('Generate Quick Links', 'primary', 'generate_menu'); ?>
                         </div>
                     </form>
@@ -628,6 +767,7 @@ function aiopms_menu_generator_tab() {
                                 <li>Includes all company-related content</li>
                             </ul>
                             <input type="hidden" name="menu_type" value="company">
+                            <?php echo $controls_html; ?>
                             <?php submit_button('Generate Company Menu', 'primary', 'generate_menu'); ?>
                         </div>
                     </form>
@@ -644,6 +784,7 @@ function aiopms_menu_generator_tab() {
                                 <li>Ready for customization</li>
                             </ul>
                             <input type="hidden" name="menu_type" value="social_media">
+                            <?php echo $controls_html; ?>
                             <?php submit_button('Generate Social Menu', 'primary', 'generate_menu'); ?>
                         </div>
                     </form>
@@ -773,3 +914,7 @@ function aiopms_keyword_analysis_tab() {
     <!-- Accessibility styles moved to admin-ui.css -->
     <?php
 }
+
+/**
+ * End of admin-menu.php
+ */

@@ -90,10 +90,15 @@ function aiopms_ai_generation_tab() {
  * @since 3.0
  */
 function aiopms_handle_ai_generate_suggestions_ajax() {
-    check_ajax_referer('aiopms_ai_ajax', 'nonce');
+    // Verify nonce
+    if (!wp_verify_nonce(isset($_POST['nonce']) ? $_POST['nonce'] : '', 'aiopms_ai_ajax')) {
+        wp_send_json_error(array('message' => __('Security check failed. Please refresh the page and try again.', 'aiopms')));
+        return;
+    }
     
     if (!current_user_can('manage_options')) {
         wp_send_json_error(array('message' => __('Insufficient permissions.', 'aiopms')));
+        return;
     }
 
     $business_type = isset($_POST['aiopms_business_type']) ? sanitize_text_field(wp_unslash($_POST['aiopms_business_type'])) : '';
@@ -120,7 +125,7 @@ function aiopms_handle_ai_generate_suggestions_ajax() {
         abpcwa_generate_pages_with_ai($business_type, $business_details, $all_keywords, $target_audience);
     }
     $html = ob_get_clean();
-
+    
     if (empty($html) || strpos($html, 'notice-error') !== false) {
         wp_send_json_error(array('html' => $html, 'message' => __('AI generation failed.', 'aiopms')));
     }
@@ -134,13 +139,15 @@ function aiopms_handle_ai_generate_suggestions_ajax() {
  * @since 3.0
  */
 function aiopms_handle_ai_create_content_ajax() {
-    check_ajax_referer('aiopms_create_suggested_pages', 'nonce'); // For compatibility with existing nonce names
-    if (!isset($_POST['_wpnonce'])) {
-        check_ajax_referer('aiopms_create_advanced_content', 'nonce');
+    // Check nonce
+    if (!wp_verify_nonce(isset($_POST['nonce']) ? $_POST['nonce'] : '', 'aiopms_ai_ajax')) {
+        wp_send_json_error(array('message' => __('Security check failed. Please refresh the page and try again.', 'aiopms')));
+        return;
     }
     
     if (!current_user_can('manage_options')) {
         wp_send_json_error(array('message' => __('Insufficient permissions.', 'aiopms')));
+        return;
     }
 
     $generate_images = isset($_POST['aiopms_generate_images']) && $_POST['aiopms_generate_images'] == '1';
@@ -153,12 +160,9 @@ function aiopms_handle_ai_create_content_ajax() {
         if (isset($_POST['action_type']) && $_POST['action_type'] === 'advanced') {
             $selected_cpts = isset($_POST['aiopms_selected_cpts']) ? array_map('wp_unslash', $_POST['aiopms_selected_cpts']) : array();
             
-            // Re-map JSON strings back to arrays
-            $pages_data = array_map(function($p) { return json_decode($p, true); }, $selected_pages);
-            $cpts_data = array_map(function($c) { return json_decode($c, true); }, $selected_cpts);
-            
-            aiopms_create_advanced_content($pages_data, $cpts_data, $generate_images);
-            $message = sprintf(__('Successfully created %d pages and %d custom post types.', 'aiopms'), count($pages_data), count($cpts_data));
+            // Pass data directly - validation happens inside the function
+            aiopms_create_advanced_content($selected_pages, $selected_cpts, $generate_images);
+            $message = sprintf(__('Successfully created %d pages and %d custom post types.', 'aiopms'), count($selected_pages), count($selected_cpts));
         } else {
             abpcwa_create_suggested_pages($selected_pages, $generate_images);
             $message = sprintf(__('Successfully created %d pages.', 'aiopms'), count($selected_pages));
@@ -516,7 +520,7 @@ function abpcwa_get_gemini_suggestions($business_type, $business_details, $seo_k
             throw new Exception(__('Missing required parameters for Gemini API call.', 'aiopms'));
         }
 
-        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' . $api_key;
+        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' . $api_key;
         
         // Build enhanced SEO prompt
         $seo_context = '';
@@ -625,7 +629,7 @@ Focus on creating a complete website architecture that will rank well and conver
         $response = wp_remote_post($url, [
             'headers' => ['Content-Type' => 'application/json'],
             'body' => $body,
-            'timeout' => 30,
+            'timeout' => 120,
         ]);
 
         if (is_wp_error($response)) {
@@ -1341,28 +1345,15 @@ if (!function_exists('aiopms_extract_primary_keywords')) {
 // Validate API key format
 if (!function_exists('aiopms_validate_api_key')) {
     function aiopms_validate_api_key($api_key, $provider) {
-        try {
-            if (empty($api_key)) {
-                return false;
-            }
-
-            switch ($provider) {
-                case 'openai':
-                    // OpenAI API keys typically start with 'sk-' and are 51 characters long
-                    return preg_match('/^sk-[a-zA-Z0-9]{48}$/', $api_key);
-                case 'gemini':
-                    // Google API keys are typically 39 characters long and alphanumeric
-                    return preg_match('/^[a-zA-Z0-9]{39}$/', $api_key);
-                case 'deepseek':
-                    // DeepSeek API keys typically start with 'sk-' and are 51 characters long
-                    return preg_match('/^sk-[a-zA-Z0-9]{48}$/', $api_key);
-                default:
-                    return false;
-            }
-        } catch (Exception $e) {
-            error_log('AIOPMS API Key Validation Error: ' . $e->getMessage());
+        // Simple validation - just check if key exists and has reasonable length
+        // Strict format validation often fails with new/varied key formats
+        if (empty($api_key)) {
             return false;
         }
+        
+        // All major AI providers have keys at least 20 characters
+        // The actual validity will be verified when the API call is made
+        return strlen($api_key) >= 20;
     }
 }
 
@@ -1531,27 +1522,8 @@ if (!function_exists('aiopms_log_ai_generation')) {
         try {
             global $wpdb;
             
+            // Log to error log for debugging (this always works)
             $user_id = get_current_user_id();
-            $ip_address = $_SERVER['REMOTE_ADDR'] ?? '';
-            $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-            
-            $log_data = [
-                'user_id' => $user_id,
-                'type' => sanitize_text_field($type),
-                'provider' => sanitize_text_field($provider),
-                'success' => $success ? 1 : 0,
-                'count' => absint($count),
-                'error_message' => sanitize_text_field($error_message),
-                'ip_address' => sanitize_text_field($ip_address),
-                'user_agent' => sanitize_text_field($user_agent),
-                'created_at' => current_time('mysql')
-            ];
-            
-            // Insert into custom table
-            $table_name = $wpdb->prefix . 'aiopms_generation_logs';
-            $wpdb->insert($table_name, $log_data);
-            
-            // Also log to error log for debugging
             $log_message = sprintf(
                 'AIOPMS Generation: Type=%s, Provider=%s, Success=%s, Count=%d, User=%d',
                 $type,
@@ -1567,7 +1539,35 @@ if (!function_exists('aiopms_log_ai_generation')) {
             
             error_log($log_message);
             
+            // Try to insert into custom table - use correct column names from activation schema
+            // The table schema uses: page_id, generation_type, ai_provider, tokens_used, success, error_message
+            $table_name = $wpdb->prefix . 'aiopms_generation_logs';
+            
+            // Check if table exists before trying to insert
+            $table_exists = $wpdb->get_var($wpdb->prepare(
+                "SHOW TABLES LIKE %s",
+                $table_name
+            ));
+            
+            if ($table_exists) {
+                // Use column names from the actual table schema
+                $log_data = [
+                    'page_id' => 0, // Not tracking specific page
+                    'generation_type' => sanitize_text_field($type),
+                    'ai_provider' => sanitize_text_field($provider),
+                    'tokens_used' => absint($count),
+                    'success' => $success ? 1 : 0,
+                    'error_message' => sanitize_text_field($error_message),
+                ];
+                
+                // Suppress errors - logging failure shouldn't break the feature
+                $wpdb->suppress_errors(true);
+                $wpdb->insert($table_name, $log_data);
+                $wpdb->suppress_errors(false);
+            }
+            
         } catch (Exception $e) {
+            // Silently fail - logging errors shouldn't break the main feature
             error_log('AIOPMS Logging Error: ' . $e->getMessage());
         }
     }
@@ -1578,8 +1578,11 @@ if (!function_exists('aiopms_log_ai_generation')) {
 // Generate advanced content with AI (pages + custom post types)
 function aiopms_generate_advanced_content_with_ai($business_type, $business_details, $seo_keywords = '', $target_audience = '') {
     try {
+        error_log('AIOPMS: Entering aiopms_generate_advanced_content_with_ai');
+        
         // Input validation
         if (empty($business_type) || empty($business_details)) {
+            error_log('AIOPMS: Input validation failed - empty business_type or business_details');
             echo '<div class="notice notice-error"><p>' . __('Business type and details are required for advanced AI generation.', 'aiopms') . '</p></div>';
             return;
         }
@@ -1589,6 +1592,8 @@ function aiopms_generate_advanced_content_with_ai($business_type, $business_deta
         $business_details = sanitize_textarea_field($business_details);
         $seo_keywords = sanitize_text_field($seo_keywords);
         $target_audience = sanitize_text_field($target_audience);
+        
+        error_log('AIOPMS: Inputs sanitized - business_type: ' . substr($business_type, 0, 50));
 
         // Validate input lengths
         if (strlen($business_type) > 100) {
@@ -1603,23 +1608,32 @@ function aiopms_generate_advanced_content_with_ai($business_type, $business_deta
 
         $provider = get_option('aiopms_ai_provider', 'openai');
         $api_key = get_option('aiopms_' . $provider . '_api_key');
+        
+        error_log('AIOPMS: Provider: ' . $provider . ', API key exists: ' . (!empty($api_key) ? 'YES (length: ' . strlen($api_key) . ')' : 'NO'));
 
         if (empty($api_key)) {
+            error_log('AIOPMS: API key is empty for provider: ' . $provider);
             echo '<div class="notice notice-error"><p>' . sprintf(__('Please enter your %s API key in the Settings tab.', 'aiopms'), esc_html(ucfirst($provider))) . '</p></div>';
             return;
         }
 
         // Validate API key format
         if (!aiopms_validate_api_key($api_key, $provider)) {
+            error_log('AIOPMS: API key validation failed for provider: ' . $provider);
             echo '<div class="notice notice-error"><p>' . sprintf(__('Invalid %s API key format. Please check your API key.', 'aiopms'), esc_html(ucfirst($provider))) . '</p></div>';
             return;
         }
+        
+        error_log('AIOPMS: API key validated successfully');
 
         // Rate limiting check
         if (!aiopms_check_ai_rate_limit($provider)) {
+            error_log('AIOPMS: Rate limit exceeded for provider: ' . $provider);
             echo '<div class="notice notice-error"><p>' . __('Too many AI requests. Please wait a moment before trying again.', 'aiopms') . '</p></div>';
             return;
         }
+        
+        error_log('AIOPMS: Rate limit check passed, calling AI provider: ' . $provider);
 
         // Get advanced content suggestions from AI
         $advanced_suggestions = [];
@@ -1634,11 +1648,15 @@ function aiopms_generate_advanced_content_with_ai($business_type, $business_deta
                 $advanced_suggestions = aiopms_get_deepseek_advanced_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key);
                 break;
             default:
+                error_log('AIOPMS: Invalid AI provider: ' . $provider);
                 echo '<div class="notice notice-error"><p>' . __('Invalid AI provider selected.', 'aiopms') . '</p></div>';
                 return;
         }
+        
+        error_log('AIOPMS: AI call completed. Response type: ' . gettype($advanced_suggestions) . ', empty: ' . (empty($advanced_suggestions) ? 'YES' : 'NO'));
 
         if (empty($advanced_suggestions)) {
+            error_log('AIOPMS: AI returned empty suggestions');
             echo '<div class="notice notice-warning"><p>' . __('Could not generate advanced content suggestions. Please check your API key and try again.', 'aiopms') . '</p></div>';
             return;
         }
@@ -1673,10 +1691,10 @@ function aiopms_get_openai_advanced_suggestions($business_type, $business_detail
     $prompt = aiopms_build_advanced_ai_prompt($business_type, $business_details, $seo_keywords, $target_audience);
 
     $body = json_encode([
-        'model' => 'gpt-4',
+        'model' => 'gpt-4o-mini', // Optimized for speed (Instant generation)
         'messages' => [['role' => 'user', 'content' => $prompt]],
         'temperature' => 0.7,
-        'max_tokens' => 2000,
+        'max_tokens' => 8000,
     ]);
 
     $response = wp_remote_post($url, [
@@ -1685,10 +1703,11 @@ function aiopms_get_openai_advanced_suggestions($business_type, $business_detail
             'Authorization' => 'Bearer ' . $api_key,
         ],
         'body' => $body,
-        'timeout' => 60,
+        'timeout' => 120, // Increased timeout for advanced generation
     ]);
 
     if (is_wp_error($response)) {
+        error_log('AIOPMS OpenAI API Error: ' . $response->get_error_message());
         return [];
     }
 
@@ -1702,7 +1721,7 @@ function aiopms_get_openai_advanced_suggestions($business_type, $business_detail
 
 // Get advanced suggestions from Gemini API
 function aiopms_get_gemini_advanced_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key) {
-    $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' . $api_key;
+    $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' . $api_key;
     
     $prompt = aiopms_build_advanced_ai_prompt($business_type, $business_details, $seo_keywords, $target_audience);
 
@@ -1710,21 +1729,44 @@ function aiopms_get_gemini_advanced_suggestions($business_type, $business_detail
         'contents' => [['parts' => [['text' => $prompt]]]],
     ]);
 
+    error_log('AIOPMS: Making Gemini API request...');
+
     $response = wp_remote_post($url, [
         'headers' => ['Content-Type' => 'application/json'],
         'body' => $body,
-        'timeout' => 60,
+        'timeout' => 120,
     ]);
 
     if (is_wp_error($response)) {
+        error_log('AIOPMS Gemini API WP Error: ' . $response->get_error_message());
+        return [];
+    }
+
+    $response_code = wp_remote_retrieve_response_code($response);
+    error_log('AIOPMS: Gemini API HTTP Status: ' . $response_code);
+
+    if ($response_code !== 200) {
+        $response_message = wp_remote_retrieve_response_message($response);
+        $response_body_raw = wp_remote_retrieve_body($response);
+        error_log('AIOPMS Gemini API Error (' . $response_code . '): ' . $response_message);
+        error_log('AIOPMS Gemini API Error Body: ' . $response_body_raw);
         return [];
     }
 
     $response_body = json_decode(wp_remote_retrieve_body($response), true);
-    if (isset($response_body['candidates'][0]['content']['parts'][0]['text'])) {
-        return $response_body['candidates'][0]['content']['parts'][0]['text'];
+    
+    if (isset($response_body['error'])) {
+        error_log('AIOPMS Gemini API Error: ' . json_encode($response_body['error']));
+        return [];
     }
 
+    if (isset($response_body['candidates'][0]['content']['parts'][0]['text'])) {
+        $text = $response_body['candidates'][0]['content']['parts'][0]['text'];
+        error_log('AIOPMS: Gemini API returned text (' . strlen($text) . ' chars)');
+        return $text;
+    }
+
+    error_log('AIOPMS: Gemini API response missing expected structure: ' . json_encode(array_keys($response_body ?? [])));
     return [];
 }
 
@@ -1738,7 +1780,7 @@ function aiopms_get_deepseek_advanced_suggestions($business_type, $business_deta
         'model' => 'deepseek-chat',
         'messages' => [['role' => 'user', 'content' => $prompt]],
         'temperature' => 0.7,
-        'max_tokens' => 2000,
+        'max_tokens' => 8000,
     ]);
 
     $response = wp_remote_post($url, [
@@ -1747,10 +1789,11 @@ function aiopms_get_deepseek_advanced_suggestions($business_type, $business_deta
             'Authorization' => 'Bearer ' . $api_key,
         ],
         'body' => $body,
-        'timeout' => 60,
+        'timeout' => 120,
     ]);
 
     if (is_wp_error($response)) {
+        error_log('AIOPMS DeepSeek API Error: ' . $response->get_error_message());
         return [];
     }
 
@@ -1765,150 +1808,149 @@ function aiopms_get_deepseek_advanced_suggestions($business_type, $business_deta
 // Build the advanced AI prompt for dynamic business analysis
 function aiopms_build_advanced_ai_prompt($business_type, $business_details, $seo_keywords, $target_audience) {
     return "## ROLE & CONTEXT
-You are an expert digital strategist and WordPress developer specializing in creating comprehensive content ecosystems for businesses. Your task is to analyze a specific business and generate both standard pages AND custom post types that would be most valuable for that business model.
+You are a World-Class Digital Transformation Architect and SEO Expert (Fortune 500 level). Your goal is to architect the perfect, high-performance content ecosystem for a specific business.
+Your output must be PRACTICAL, IMPLEMENTABLE, and focused purely on GROWTH and CONVERSION.
 
-## BUSINESS CONTEXT TO ANALYZE
+## BUSINESS CONTEXT
 - **Business Type**: {$business_type}
 - **Business Details**: {$business_details}
 - **Target Audience**: {$target_audience}
 - **Primary Keywords**: {$seo_keywords}
 
-## CRITICAL REQUIREMENTS
+## STRATEGIC DIRECTIVES (WORLD CLASS STANDARD)
 
-### 1. DYNAMIC BUSINESS ANALYSIS
-- **DO NOT use predefined templates or examples**
-- **Analyze THIS specific business** and determine what content would be most valuable
-- **Think about the business model** - what type of content would help this business succeed?
-- **Consider the target audience** - what information would they be looking for?
-- **Think about conversion** - what content would help turn visitors into customers?
+### 1. HIGH-CONVERSION PAGE ARCHITECTURE
+- Identify the exact pages needed to dominate this niche (Limit to 5-7 essential pages).
+- **Landing Pages**: Suggest specific high-converting landing pages (e.g., 'Free Consultation', 'Case Studies').
+- **Legal/Trust**: Don't forget trust-building pages (e.g., 'Our Process', 'Why Choose Us').
+- **SEO Silos**: Suggest pages that act as pillar content.
 
-### 2. INTELLIGENT CONTENT SUGGESTIONS
-For each suggestion, provide:
-- **Clear reasoning** for why this content type is valuable for THIS business
-- **Specific custom fields** that would be useful for managing this content
-- **Sample content ideas** that would be relevant to this business
+### 2. PRACTICAL CUSTOM POST TYPES (CPTs)
+- Don't just suggest 'Blogs'. Suggest *business-critical* data structures.
+- **IMPORTANT**: Do NOT suggest CPTs for Taxonomies or Categories (e.g., 'Activity Types', 'Skills', 'Genres'). Instead, add these as `select` Custom Fields within the main CPT OR create proper Custom Taxonomies.
+- Examples: 'Success Stories' (not just Case Studies), 'Staff Profiles' (with specialty fields), 'Locations' (for local SEO).
+- **Custom Fields**: SUGGEST AT LEAST 3-5 PRACTICAL FIELDS that drive business value (e.g., 'Price', 'Duration', 'rating'). Avoid generic 'text' fields if specific types fit.
+- **Taxonomies**: Explicitly list related taxonomies in the `taxonomies` array for each CPT. Include 'category' or 'post_tag' ONLY if relevant.
 
-### 3. CUSTOM POST TYPE ANALYSIS
-Consider what types of content this business would need to manage regularly:
-- **Portfolio/Showcase content** (for service businesses)
-- **Product catalogs** (for e-commerce)
-- **Case studies** (for agencies/consultants)
-- **Testimonials** (for service businesses)
-- **Team members** (for professional services)
-- **Events** (for event-based businesses)
-- **Courses/Tutorials** (for educational businesses)
-- **News/Updates** (for any business with regular updates)
+### 3. PRACTICAL TAXONOMIES (Categorization)
+- Suggest appropriate taxonomies for the content.
+- Use Taxonomies for grouping content (e.g., 'Activity Types', 'Skills', 'Genres', 'Locations').
+- Do NOT create CPTs for these. Create Taxonomies.
 
-## OUTPUT FORMAT
+### 4. CONVERSION FOCUSED REASONING
+- Explain WHY this page exists. (e.g., 'To capture top-of-funnel leads via specific problem-solving').
 
-Return your analysis in this EXACT JSON format:
+## STRICT OUTPUT FORMAT (JSON ONLY)
+Return purely the JSON object. No markdown fences. No chatter.
 
 {
   \"business_analysis\": {
-    \"business_model\": \"Brief description of the business model\",
-    \"content_needs\": \"What types of content this business needs\",
-    \"target_audience_insights\": \"What the target audience is looking for\"
+    \"business_model\": \"Concise 1-sentence summary of how they make money.\",
+    \"content_needs\": \"Specific content gaps to fill.\",
+    \"target_audience_insights\": \"Key pain points of the audience.\"
   },
   \"standard_pages\": [
     {
-      \"title\": \"Page Title\",
-      \"meta_description\": \"SEO-optimized meta description (155-160 chars)\",
-      \"reasoning\": \"Why this page is essential for this business\",
+      \"title\": \"Page Title (SEO Optimized)\",
+      \"meta_description\": \"Compelling click-through description (155-160 chars).\",
+      \"reasoning\": \"Strategic value of this page.\",
       \"hierarchy_level\": 0
     }
   ],
   \"custom_post_types\": [
     {
-      \"name\": \"post_type_slug\",
-      \"label\": \"Display Name\",
-      \"description\": \"What this post type is for\",
-      \"reasoning\": \"Why this post type is valuable for this specific business\",
+      \"name\": \"slug\",
+      \"label\": \"Plural Name\",
+      \"description\": \"Internal description.\",
+      \"reasoning\": \"Why this architecture is critical for scale.\",
       \"custom_fields\": [
         {
           \"name\": \"field_slug\",
           \"label\": \"Field Label\",
-          \"type\": \"text|textarea|select|image|url|number|date\",
-          \"description\": \"What this field is for\",
-          \"required\": true|false
+          \"type\": \"text|textarea|select|image|url|number|date|boolean\",
+          \"description\": \"Usage instruction.\",
+          \"required\": true
         }
       ],
+      \"taxonomies\": [\"category\", \"post_tag\", \"custom_tax_slug\"],
       \"sample_entries\": [
         {
-          \"title\": \"Sample Entry Title\",
-          \"content\": \"Brief description of what this entry would contain\"
+          \"title\": \"High-Value Example Title\",
+          \"content\": \"2-sentence summary of a perfect example entry.\"
         }
       ]
     }
+  ],
+  \"custom_taxonomies\": [
+    {
+      \"name\": \"taxonomy_slug\",
+      \"singular_label\": \"Singular Name\",
+      \"plural_label\": \"Plural Name\",
+      \"post_types\": [\"cpt_slug_1\", \"cpt_slug_2\"],
+      \"hierarchical\": true
+    }
   ]
-}
-
-## ANALYSIS GUIDELINES
-
-### For Standard Pages:
-- Include only pages that make sense for THIS specific business
-- Consider what pages customers would expect to find
-- Think about the customer journey and what information they need
-- Include both commercial and informational pages
-
-### For Custom Post Types:
-- Think about what content this business creates regularly
-- Consider what would help showcase their expertise
-- Think about what would help with SEO and user engagement
-- Consider what would help convert visitors to customers
-
-### For Custom Fields:
-- Choose fields that would be genuinely useful for this business
-- Consider what information customers would want to see
-- Think about what would help with content management
-- Include fields that would enhance SEO
-
-## EXAMPLES OF GOOD ANALYSIS:
-
-**Digital Marketing Agency** might need:
-- Standard pages: Home, About, Services, Contact, Blog
-- Custom post type: \"Case Studies\" with fields like Client Name, Industry, Results, Project Duration, Testimonial
-
-**Pet Grooming Service** might need:
-- Standard pages: Home, Services, About, Contact, Gallery
-- Custom post type: \"Services\" with fields like Service Name, Price, Duration, Pet Types, Description
-
-**Online Course Platform** might need:
-- Standard pages: Home, Courses, About, Contact, Pricing
-- Custom post type: \"Courses\" with fields like Course Title, Price, Duration, Skill Level, Prerequisites, Instructor
-
-**Wedding Photography Business** might need:
-- Standard pages: Home, Portfolio, Services, About, Contact
-- Custom post type: \"Portfolio\" with fields like Event Type, Date, Location, Couple Names, Photo Count, Gallery
-
-## REMEMBER:
-- Analyze the SPECIFIC business provided
-- Don't use generic templates
-- Think about what would actually help this business succeed
-- Consider the target audience and their needs
-- Focus on content that would drive conversions
-
-Provide a comprehensive analysis that would create a complete content ecosystem for this specific business.";
+}";
 }
 
 // Parse the AI response into structured data
 function aiopms_parse_advanced_ai_response($ai_response) {
     $parsed = [
         'pages' => [],
-        'custom_post_types' => []
+        'custom_post_types' => [],
+        'custom_taxonomies' => []
     ];
 
+    // Handle empty or array response (should be string)
+    if (empty($ai_response)) {
+        error_log('AIOPMS: AI response is empty');
+        return $parsed;
+    }
+
+    if (is_array($ai_response)) {
+        error_log('AIOPMS: AI response is already an array (unexpected)');
+        return $parsed;
+    }
+
+    $response_text = $ai_response;
+
+    // Strip markdown code fences if present (```json ... ```)
+    $response_text = preg_replace('/```json\s*/i', '', $response_text);
+    $response_text = preg_replace('/```\s*$/m', '', $response_text);
+    $response_text = preg_replace('/^```\s*/m', '', $response_text);
+    $response_text = trim($response_text);
+
+    // Log the cleaned response for debugging
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log('AIOPMS: Cleaned AI response (first 500 chars): ' . substr($response_text, 0, 500));
+    }
+
     // Try to extract JSON from the response
-    $json_start = strpos($ai_response, '{');
-    $json_end = strrpos($ai_response, '}') + 1;
+    $json_start = strpos($response_text, '{');
+    $json_end = strrpos($response_text, '}');
     
-    if ($json_start !== false && $json_end !== false) {
-        $json_string = substr($ai_response, $json_start, $json_end - $json_start);
-        $data = json_decode($json_string, true);
+    if ($json_start === false || $json_end === false) {
+        error_log('AIOPMS: Could not find JSON brackets in AI response');
+        return $parsed;
+    }
+
+    $json_string = substr($response_text, $json_start, $json_end - $json_start + 1);
+    $data = json_decode($json_string, true);
+    
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        error_log('AIOPMS: JSON decode error: ' . json_last_error_msg());
+        error_log('AIOPMS: Failed JSON (first 1000 chars): ' . substr($json_string, 0, 1000));
+        return $parsed;
+    }
+
+    if ($data) {
+        $parsed['pages'] = isset($data['standard_pages']) ? $data['standard_pages'] : [];
+        $parsed['custom_post_types'] = isset($data['custom_post_types']) ? $data['custom_post_types'] : [];
+        $parsed['custom_taxonomies'] = isset($data['custom_taxonomies']) ? $data['custom_taxonomies'] : [];
+        $parsed['business_analysis'] = isset($data['business_analysis']) ? $data['business_analysis'] : [];
         
-        if ($data) {
-            $parsed['pages'] = isset($data['standard_pages']) ? $data['standard_pages'] : [];
-            $parsed['custom_post_types'] = isset($data['custom_post_types']) ? $data['custom_post_types'] : [];
-            $parsed['business_analysis'] = isset($data['business_analysis']) ? $data['business_analysis'] : [];
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('AIOPMS: Parsed ' . count($parsed['pages']) . ' pages and ' . count($parsed['custom_post_types']) . ' CPTs');
         }
     }
 
@@ -1943,7 +1985,7 @@ function aiopms_display_advanced_content_suggestions($suggestions) {
     }
 
     echo '<form id="aiopms-ai-creation-form" method="post" action="">';
-    wp_nonce_field('aiopms_create_advanced_content', 'nonce');
+    wp_nonce_field('aiopms_ai_ajax', 'nonce');
     echo '<input type="hidden" name="action_type" value="advanced">';
 
     // Display standard pages
@@ -2018,6 +2060,33 @@ function aiopms_display_advanced_content_suggestions($suggestions) {
         echo '</div>';
     }
 
+    // Display custom taxonomies
+    if (!empty($suggestions['custom_taxonomies'])) {
+        echo '<div class="aiopms-cpts-section" style="margin-top: 30px;">';
+        echo '<h3>🏷️ ' . esc_html__('Taxonomies & Categories', 'aiopms') . '</h3>';
+        
+        echo '<div class="aiopms-cpt-suggestions-grid">';
+        foreach ($suggestions['custom_taxonomies'] as $tax) {
+            echo '<div class="cpt-suggestion dg10-card">';
+            echo '<div class="cpt-header">';
+            echo '<label class="dg10-checkbox-label">';
+            echo '<input type="checkbox" name="aiopms_selected_taxonomies[]" value="' . esc_attr(json_encode($tax)) . '" class="aiopms-cpt-checkbox" checked>';
+            echo '<strong>' . esc_html($tax['plural_label']) . '</strong> <code class="dg10-slug">' . esc_html($tax['name']) . '</code>';
+            echo '</label>';
+            echo '</div>';
+            
+            echo '<div class="cpt-details">';
+            echo '<p class="description">Singular: ' . esc_html($tax['singular_label']) . '</p>';
+            if (!empty($tax['post_types'])) {
+                echo '<p class="reasoning"><strong>' . esc_html__('Applies to:', 'aiopms') . '</strong> ' . esc_html(implode(', ', $tax['post_types'])) . '</p>';
+            }
+            echo '</div>';
+            echo '</div>';
+        }
+        echo '</div>';
+        echo '</div>';
+    }
+
     // Add image generation checkbox
     $provider = get_option('aiopms_ai_provider', 'openai');
     $is_deepseek = $provider === 'deepseek';
@@ -2050,24 +2119,37 @@ if (isset($_POST['action']) && $_POST['action'] == 'create_advanced_content' && 
     if (isset($_POST['aiopms_selected_pages']) && is_array($_POST['aiopms_selected_pages'])) {
         $selected_pages = array_map('sanitize_text_field', wp_unslash($_POST['aiopms_selected_pages']));
         $selected_cpts = isset($_POST['aiopms_selected_cpts']) ? array_map('sanitize_text_field', wp_unslash($_POST['aiopms_selected_cpts'])) : [];
+        $selected_taxonomies = isset($_POST['aiopms_selected_taxonomies']) ? array_map('sanitize_text_field', wp_unslash($_POST['aiopms_selected_taxonomies'])) : [];
         $generate_images = isset($_POST['aiopms_generate_images']) && $_POST['aiopms_generate_images'] == '1';
-        aiopms_create_advanced_content($selected_pages, $selected_cpts, $generate_images);
+        aiopms_create_advanced_content($selected_pages, $selected_cpts, $generate_images, $selected_taxonomies);
     }
 }
 
 // Create advanced content (pages + custom post types)
-function aiopms_create_advanced_content($pages, $custom_post_types, $generate_images = false) {
+function aiopms_create_advanced_content($pages, $custom_post_types, $generate_images = false, $custom_taxonomies = []) {
     set_time_limit(0); // Prevent timeouts for complex generation logic
+    error_log('AIOPMS: Starting aiopms_create_advanced_content');
     $created_pages = 0;
     $created_cpts = 0;
     $parent_id_stack = [];
 
     // Create standard pages
-    foreach ($pages as $page_data) {
-        $page = json_decode($page_data, true);
-        if (!$page) continue;
+    error_log('AIOPMS: Processing ' . count($pages) . ' pages');
+    foreach ($pages as $index => $page_data) {
+        // Handle both JSON strings and already decoded arrays
+        if (is_string($page_data)) {
+            $page = json_decode($page_data, true);
+        } else {
+            $page = $page_data;
+        }
+        if (!$page || !is_array($page)) {
+            error_log("AIOPMS: Invalid page data at index $index");
+            continue;
+        }
 
         $page_title = $page['title'];
+        error_log("AIOPMS: Creating page: $page_title");
+        
         $meta_description = $page['meta_description'];
         $hierarchy_level = isset($page['hierarchy_level']) ? $page['hierarchy_level'] : 0;
 
@@ -2089,37 +2171,102 @@ function aiopms_create_advanced_content($pages, $custom_post_types, $generate_im
 
         if ($page_id) {
             $created_pages++;
+            error_log("AIOPMS: Page created (ID: $page_id)");
             
             // Generate and set featured image if enabled
             if ($generate_images) {
+                error_log("AIOPMS: Generating image for page $page_id");
                 abpcwa_generate_and_set_featured_image($page_id, $page_title);
             }
             
             // Generate schema markup for the new page
             $auto_generate = get_option('aiopms_auto_schema_generation', true);
             if ($auto_generate) {
-                aiopms_generate_schema_markup($page_id);
+                error_log("AIOPMS: Generating schema for page $page_id");
+                // Pass false to disable expensive AI analysis during bulk creation
+                aiopms_generate_schema_markup($page_id, false);
             }
             
             $parent_id_stack[$hierarchy_level] = $page_id;
             $parent_id_stack = array_slice($parent_id_stack, 0, $hierarchy_level + 1);
+        } else {
+            error_log("AIOPMS: Failed to insert page: $page_title");
         }
     }
 
-    // Create custom post types
-    foreach ($custom_post_types as $cpt_data) {
-        $cpt = json_decode($cpt_data, true);
-        if (!$cpt) continue;
+    // Create custom taxonomies FIRST (so CPTs can link to them)
+    if (!empty($custom_taxonomies)) {
+        error_log('AIOPMS: Processing ' . count($custom_taxonomies) . ' custom taxonomies');
+        $existing_taxonomies = get_option('aiopms_dynamic_taxonomies', array());
+        $updated_taxonomies = false;
+
+        foreach ($custom_taxonomies as $index => $tax_data) {
+             if (is_string($tax_data)) {
+                $tax = json_decode($tax_data, true);
+            } else {
+                $tax = $tax_data;
+            }
+
+            if (!$tax || !is_array($tax) || empty($tax['name'])) {
+                continue;
+            }
+
+            $slug = sanitize_key($tax['name']);
+            // Avoid reserved terms
+             if (taxonomy_exists($slug) && !isset($existing_taxonomies[$slug])) {
+                 // Try to make unique if conflict
+                 $slug = $slug . '_custom';
+                 $tax['name'] = $slug;
+             }
+
+            $existing_taxonomies[$slug] = $tax;
+            $updated_taxonomies = true;
+
+            // Register immediately
+            if (function_exists('aiopms_register_dynamic_taxonomy')) {
+                aiopms_register_dynamic_taxonomy($tax);
+            }
+        }
+
+        if ($updated_taxonomies) {
+            update_option('aiopms_dynamic_taxonomies', $existing_taxonomies);
+            // Flush rules
+            update_option('aiopms_flush_rewrite_rules', true);
+             error_log("AIOPMS: Taxonomies saved and registered.");
+        }
+    }
+
+    // Create custom post types (linked to taxonomies)
+    error_log('AIOPMS: Processing ' . count($custom_post_types) . ' custom post types');
+    foreach ($custom_post_types as $index => $cpt_data) {
+        // Handle both JSON strings and already decoded arrays
+        if (is_string($cpt_data)) {
+            $cpt = json_decode($cpt_data, true);
+        } else {
+            $cpt = $cpt_data;
+        }
+        if (!$cpt || !is_array($cpt)) {
+            error_log("AIOPMS: Invalid CPT data at index $index");
+            continue;
+        }
+        
+        error_log("AIOPMS: Registering CPT: " . ($cpt['name'] ?? 'unknown'));
 
         if (aiopms_register_dynamic_custom_post_type($cpt)) {
             $created_cpts++;
+            error_log("AIOPMS: CPT registered successfully");
             
             // Create sample entries if specified
             if (!empty($cpt['sample_entries'])) {
+                error_log("AIOPMS: Creating sample entries for CPT");
                 aiopms_create_sample_cpt_entries($cpt);
             }
+        } else {
+            error_log("AIOPMS: Failed to register CPT");
         }
     }
+
+    error_log("AIOPMS: Finished content creation. Pages: $created_pages, CPTs: $created_cpts");
 
     // Display success message
     $message_parts = [];
@@ -2188,3 +2335,39 @@ function aiopms_generate_sample_field_value($field) {
             return 'Sample ' . $field['label'];
     }
 }
+
+/**
+ * AJAX Handler for AI Suggestions
+ */
+function aiopms_ajax_generate_suggestions() {
+    // Increase execution time for AI operations
+    set_time_limit(300);
+
+    // Verify nonce
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'aiopms_ai_ajax')) {
+        wp_send_json_error(['message' => __('Security check failed.', 'aiopms')]);
+    }
+    
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error(['message' => __('Permission denied.', 'aiopms')]);
+    }
+
+    $business_type = isset($_POST['business_type']) ? sanitize_text_field($_POST['business_type']) : '';
+    $business_details = isset($_POST['business_details']) ? sanitize_textarea_field($_POST['business_details']) : '';
+    $seo_keywords = isset($_POST['seo_keywords']) ? sanitize_text_field($_POST['seo_keywords']) : '';
+    $target_audience = isset($_POST['target_audience']) ? sanitize_text_field($_POST['target_audience']) : '';
+
+    ob_start();
+    aiopms_generate_advanced_content_with_ai($business_type, $business_details, $seo_keywords, $target_audience);
+    $html = ob_get_clean();
+
+    if (empty($html) || strpos($html, 'notice-error') !== false) {
+        // If HTML contains error notice, extract it or return generic error
+        wp_send_json_error(['message' => strip_tags($html)]);
+    }
+
+    wp_send_json_success(['html' => $html]);
+}
+add_action('wp_ajax_aiopms_ai_generate_suggestions', 'aiopms_ajax_generate_suggestions');
+
+// Note: aiopms_ai_create_content handler is registered at the top of the file as aiopms_handle_ai_create_content_ajax

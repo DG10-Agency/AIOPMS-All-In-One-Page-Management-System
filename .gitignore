@@ -4,6 +4,7 @@
 *.md
 !README.md
 !LICENSE
+*.zip
 
 # Test and development files
 schema-test.php

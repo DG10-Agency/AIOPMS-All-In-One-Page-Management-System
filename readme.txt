@@ -66,12 +66,15 @@ Yes, AIOPMS detects WooCommerce store settings for schema generation and can man
 
 == Screenshots ==
 
-1. Main dashboard with navigation sidebar
-2. Manual page creation with hierarchy syntax
-3. AI-powered page generation
-4. Schema markup management dashboard
-5. Hierarchy visualizer with mindmap view
-6. Keyword analysis results
+1. Manual Page Creation - Create pages with hierarchy using simple text syntax with meta descriptions and templates
+2. CSV Upload - Bulk import pages from CSV files with validation and parent page support
+3. AI Page Generator - Generate complete website architecture with AI (OpenAI, Gemini, DeepSeek)
+4. Schema Generator - AI-powered schema markup generation for better SEO
+5. Menu Generator - Auto-generate WordPress menus from your existing pages
+6. Page Hierarchy - Interactive tree view visualization of your page structure
+7. Keyword Analysis - Analyze keyword density and get SEO recommendations
+8. Custom Post Types - Create and manage custom post types with visual interface
+9. Settings - Configure AI providers, API keys, and business information
 
 == Changelog ==
 

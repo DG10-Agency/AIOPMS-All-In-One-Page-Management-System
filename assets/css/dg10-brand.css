@@ -1249,7 +1249,7 @@
         /* Force dark gradient background */
         color: #FFFFFF !important;
         /* Force white text for dark backgrounds */
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        text-shadow: none !important;
         /* Enhanced shadow for high contrast */
     }
 
@@ -1351,7 +1351,7 @@
         background: var(--dg10-light-purple);
         color: var(--dg10-white);
         border-bottom-color: var(--dg10-primary);
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        text-shadow: none !important;
         /* Add text shadow for better contrast */
     }
 
@@ -1521,7 +1521,7 @@
         /* Force dark gradient background */
         color: #FFFFFF !important;
         /* Force white text for dark backgrounds */
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        text-shadow: none !important;
         /* Add shadow for better contrast on dark backgrounds */
     }
 
@@ -1943,7 +1943,7 @@
     text-align: center;
     color: var(--dg10-white);
     box-shadow: var(--dg10-shadow-lg);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    text-shadow: none !important;
 }
 
 .dg10-footer-branding {
@@ -1986,7 +1986,7 @@
     font-weight: 600;
     /* Increased weight for better contrast */
     transition: color var(--dg10-transition-fast);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    text-shadow: none !important;
     /* Add text shadow for better contrast */
 }
 
@@ -1995,7 +1995,7 @@
     text-decoration: underline;
     font-weight: 700;
     /* Increased weight on hover for better visibility */
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    text-shadow: none !important;
     /* Enhanced shadow on hover */
 }
 
@@ -2543,7 +2543,7 @@
 .dg10-brand .dg10-card-header h6,
 .dg10-brand .dg10-card-header p {
     color: #FFFFFF !important;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.4) !important;
+    text-shadow: none !important;
     /* Enhanced shadows for better definition */
 }
 

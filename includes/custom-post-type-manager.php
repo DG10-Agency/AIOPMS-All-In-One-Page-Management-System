@@ -158,7 +158,7 @@ function aiopms_register_dynamic_custom_post_type($cpt_data) {
         'has_archive'           => true,
         'hierarchical'          => isset($cpt_data['hierarchical']) ? (bool) $cpt_data['hierarchical'] : false,
         'supports'              => array('title', 'editor', 'excerpt', 'thumbnail', 'custom-fields', 'revisions', 'author', 'page-attributes'),
-        'taxonomies'            => array('category', 'post_tag'),
+        'taxonomies'            => isset($cpt_data['taxonomies']) && is_array($cpt_data['taxonomies']) && !empty($cpt_data['taxonomies']) ? $cpt_data['taxonomies'] : array('category', 'post_tag'),
         'menu_icon'             => sanitize_text_field($cpt_data['menu_icon'] ?? 'dashicons-admin-post'),
         'menu_position'         => (int) ($cpt_data['menu_position'] ?? 25),
         'capability_type'       => 'post',
@@ -386,6 +386,9 @@ function aiopms_render_cpt_management_content($is_tab = false) {
                             case 'import-export':
                                 aiopms_cpt_import_export_tab();
                                 break;
+                            case 'taxonomies':
+                                aiopms_cpt_taxonomies_tab();
+                                break;
                             case 'settings':
                             aiopms_cpt_settings_tab();
                                 break;
@@ -479,6 +482,96 @@ function aiopms_cpt_list_tab() {
             </div>
         <?php endif; ?>
     </div>
+    <script type="text/javascript">
+    jQuery(document).ready(function($) {
+        // Edit CPT
+        $(document).on('click', '.aiopms-action-btn[data-action="edit"]', function() {
+            var cpt = $(this).data('cpt');
+            window.location.href = '<?php echo admin_url('admin.php?page=aiopms-cpt-management&tab=cpt&cpt_subtab=create&action=edit&cpt='); ?>' + cpt;
+        });
+
+        // Duplicate CPT
+        $(document).on('click', '.aiopms-action-btn[data-action="duplicate"]', function() {
+            var cpt = $(this).data('cpt');
+            if(!confirm('<?php echo esc_js(__('Duplicate this Custom Post Type?', 'aiopms')); ?>')) return;
+            
+            var $btn = $(this);
+            var $icon = $btn.find('.dashicons');
+            var originalClass = $icon.attr('class');
+            $icon.attr('class', 'dashicons dashicons-update-alt spin');
+            
+            $.post(ajaxurl, {
+                action: 'aiopms_handle_duplicate_cpt_ajax',
+                cpt_slug: cpt,
+                nonce: '<?php echo wp_create_nonce("aiopms_cpt_ajax"); ?>'
+            }, function(response) {
+                if(response.success) {
+                    location.reload();
+                } else {
+                    alert(response.data || 'Error duplicating CPT');
+                    $icon.attr('class', originalClass);
+                }
+            });
+        });
+
+        // Delete CPT
+        $(document).on('click', '.aiopms-action-btn[data-action="delete"]', function() {
+            var cpt = $(this).data('cpt');
+            if(!confirm('<?php echo esc_js(__('Permanently delete this CPT? This cannot be undone.', 'aiopms')); ?>')) return;
+
+            var $btn = $(this);
+            var $icon = $btn.find('.dashicons');
+            var originalClass = $icon.attr('class');
+            $icon.attr('class', 'dashicons dashicons-update-alt spin');
+
+            $.post(ajaxurl, {
+                action: 'aiopms_delete_cpt_ajax',
+                post_type: cpt,
+                nonce: '<?php echo wp_create_nonce("aiopms_cpt_ajax"); ?>'
+            }, function(response) {
+                if(response.success) {
+                    location.reload();
+                } else {
+                    alert(response.data || 'Error deleting CPT');
+                    $icon.attr('class', originalClass);
+                }
+            });
+        });
+
+        // Bulk Actions
+        function updateBulkButtonState() {
+            var hasAction = $('#bulk-action-select').val() !== '';
+            var hasChecked = $('.cpt-checkbox:checked').length > 0;
+            $('#apply-bulk-action').prop('disabled', !(hasAction && hasChecked));
+        }
+
+        $('#bulk-action-select, .cpt-checkbox').on('change', updateBulkButtonState);
+
+        // Handle Apply Click
+        $('#apply-bulk-action').on('click', function() {
+            var action = $('#bulk-action-select').val();
+            var checked = $('.cpt-checkbox:checked').map(function() { return $(this).val(); }).get();
+            
+            if (!action || checked.length === 0) return;
+            
+            if (action === 'delete') {
+                if (!confirm('<?php echo esc_js(__('Permanently delete selected items?', 'aiopms')); ?>')) return;
+            }
+            
+            var $btn = $(this);
+            $btn.prop('disabled', true).text('<?php echo esc_js(__('Processing...', 'aiopms')); ?>');
+            
+            $.post(ajaxurl, {
+                action: 'aiopms_handle_bulk_cpt_operations_ajax',
+                bulk_action: action,
+                cpt_ids: checked,
+                nonce: '<?php echo wp_create_nonce("aiopms_cpt_ajax"); ?>'
+            }, function(response) {
+               location.reload();
+            });
+        });
+    });
+    </script>
     <?php
 }
 
@@ -547,7 +640,7 @@ function aiopms_cpt_create_tab() {
             <div class="aiopms-field-builder dg10-card" style="margin-top: 40px;">
                 <div class="aiopms-field-builder-header dg10-card-header" style="padding: 20px 32px;">
                     <h3 class="aiopms-field-builder-title" style="margin: 0;"><?php esc_html_e('Custom Meta Fields', 'aiopms'); ?></h3>
-                    <button type="button" class="dg10-btn dg10-btn-outline aiopms-add-field-btn">
+                    <button type="button" class="dg10-btn dg10-btn-outline aiopms-add-field-btn" style="box-shadow: none !important; background: #fff !important; color: #8B5CF6 !important;">
                         <span class="nav-icon">➕</span>
                         <?php esc_html_e('Add New Field', 'aiopms'); ?>
                     </button>
@@ -569,6 +662,57 @@ function aiopms_cpt_create_tab() {
             </div>
         </form>
     </div>
+    <script type="text/javascript">
+    jQuery(document).ready(function($) {
+        var urlParams = new URLSearchParams(window.location.search);
+        var action = urlParams.get('action');
+        var cpt = urlParams.get('cpt');
+        
+        if (action === 'edit' && cpt) {
+            $('button[type="submit"]').html('<span class="nav-icon">💾</span> <?php esc_html_e("Update Custom Post Type", "aiopms"); ?>');
+            $('#cpt_name').val(cpt).prop('readonly', true).addClass('disabled');
+            
+            // Add hidden field to signal update
+            if ($('input[name="is_update"]').length === 0) {
+                 $('<input>').attr({type: 'hidden', name: 'is_update', value: '1'}).appendTo('#aiopms-cpt-form');
+            }
+
+            $.post(ajaxurl, {
+                action: 'aiopms_get_cpt_data_ajax',
+                post_type: cpt,
+                nonce: '<?php echo wp_create_nonce("aiopms_cpt_ajax"); ?>'
+            }, function(response) {
+                if (response.success) {
+                    var data = response.data;
+                    $('#cpt_label').val(data.label);
+                    $('#cpt_description').val(data.description);
+                    if (data.menu_icon) $('#cpt_menu_icon').val(data.menu_icon).trigger('change');
+                    if (data.hierarchical) $('#cpt_hierarchical').prop('checked', true);
+
+                    // Populate Custom Fields
+                    if (data.custom_fields && data.custom_fields.length > 0) {
+                        $('#custom-fields-container').empty();
+                        
+                        data.custom_fields.forEach(function(field) {
+                            $('.aiopms-add-field-btn').trigger('click');
+                            var $row = $('.custom-field-row').last();
+                            $row.find('.field-name-input').val(field.name);
+                            $row.find('input[name$="[label]"]').val(field.label);
+                            $row.find('select[name$="[type]"]').val(field.type).trigger('change');
+                            $row.find('input[name$="[description]"]').val(field.description);
+                            if (field.required == 1 || field.required == '1' || field.required === true) {
+                                $row.find('input[name$="[required]"]').prop('checked', true);
+                            }
+                            if (field.options) $row.find('input[name$="[options]"]').val(field.options);
+                        });
+                    }
+                } else {
+                    console.error('Error loading CPT data: ' + (response.data || 'Unknown'));
+                }
+            });
+        }
+    });
+    </script>
     <?php
 }
 
@@ -851,6 +995,7 @@ function aiopms_sanitize_cpt_data($cpt_data) {
         'menu_icon' => sanitize_text_field($cpt_data['menu_icon'] ?? 'dashicons-admin-post'),
         'menu_position' => (int) ($cpt_data['menu_position'] ?? 25),
         'hierarchical' => (bool) ($cpt_data['hierarchical'] ?? false),
+        'taxonomies' => isset($cpt_data['taxonomies']) ? array_map('sanitize_key', (array) $cpt_data['taxonomies']) : array(),
         'custom_fields' => array()
     );
     
@@ -1208,10 +1353,16 @@ function aiopms_delete_custom_post_type($post_type) {
                    (int) $posts_count->future + (int) $posts_count->trash;
                    
     if ($total_posts > 0) {
-        return new WP_Error(
-            'cpt_has_posts', 
-            sprintf(__('Cannot delete post type "%s" because it has %d associated posts. Please delete the posts first.', 'aiopms'), $post_type, $total_posts)
-        );
+        // Force delete all posts of this type
+        $all_posts = get_posts(array(
+            'post_type' => $post_type,
+            'numberposts' => -1,
+            'post_status' => array('publish', 'pending', 'draft', 'auto-draft', 'future', 'private', 'inherit', 'trash')
+        ));
+        
+        foreach ($all_posts as $p) {
+            wp_delete_post($p->ID, true); // true = force delete
+        }
     }
     
     // Remove from stored CPTs

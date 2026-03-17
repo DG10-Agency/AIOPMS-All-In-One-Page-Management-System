@@ -4,17 +4,214 @@ if (!defined('ABSPATH')) {
 }
 
 // Schema types constants
-define('AIOPMS_SCHEMA_FAQ', 'faq');
-define('AIOPMS_SCHEMA_BLOG', 'blog');
-define('AIOPMS_SCHEMA_ARTICLE', 'article');
-define('AIOPMS_SCHEMA_SERVICE', 'service');
-define('AIOPMS_SCHEMA_PRODUCT', 'product');
-define('AIOPMS_SCHEMA_ORGANIZATION', 'organization');
-define('AIOPMS_SCHEMA_LOCAL_BUSINESS', 'local_business');
-define('AIOPMS_SCHEMA_WEBPAGE', 'webpage');
-define('AIOPMS_SCHEMA_HOWTO', 'howto');
-define('AIOPMS_SCHEMA_REVIEW', 'review');
-define('AIOPMS_SCHEMA_EVENT', 'event');
+if (!defined('AIOPMS_SCHEMA_FAQ')) define('AIOPMS_SCHEMA_FAQ', 'faq');
+if (!defined('AIOPMS_SCHEMA_BLOG')) define('AIOPMS_SCHEMA_BLOG', 'blog');
+if (!defined('AIOPMS_SCHEMA_ARTICLE')) define('AIOPMS_SCHEMA_ARTICLE', 'article');
+if (!defined('AIOPMS_SCHEMA_SERVICE')) define('AIOPMS_SCHEMA_SERVICE', 'service');
+if (!defined('AIOPMS_SCHEMA_PRODUCT')) define('AIOPMS_SCHEMA_PRODUCT', 'product');
+if (!defined('AIOPMS_SCHEMA_ORGANIZATION')) define('AIOPMS_SCHEMA_ORGANIZATION', 'organization');
+if (!defined('AIOPMS_SCHEMA_LOCAL_BUSINESS')) define('AIOPMS_SCHEMA_LOCAL_BUSINESS', 'local_business');
+if (!defined('AIOPMS_SCHEMA_WEBPAGE')) define('AIOPMS_SCHEMA_WEBPAGE', 'webpage');
+if (!defined('AIOPMS_SCHEMA_HOWTO')) define('AIOPMS_SCHEMA_HOWTO', 'howto');
+if (!defined('AIOPMS_SCHEMA_REVIEW')) define('AIOPMS_SCHEMA_REVIEW', 'review');
+if (!defined('AIOPMS_SCHEMA_EVENT')) define('AIOPMS_SCHEMA_EVENT', 'event');
+
+/**
+ * AI-enriched global entity profile (cached).
+ *
+ * Purpose:
+ * - Increase schema accuracy across ALL industries by inferring the best schema subtypes
+ *   (e.g. MedicalBusiness / Dentist / LegalService / Restaurant) and key entities
+ *   (e.g. a primary professional Person like Physician/Attorney/etc.).
+ * - Avoid hard-coding niche logic while still producing entity-specific schema.
+ *
+ * Notes:
+ * - We do NOT hallucinate address/phone/email; we only infer types + specialties + relationships.
+ * - Cached via transient to control AI spend.
+ *
+ * @return array|false
+ */
+if (!function_exists('aiopms_get_ai_entity_profile')) {
+function aiopms_get_ai_entity_profile() {
+    $enabled = get_option('aiopms_ai_schema_enrichment', 1);
+    if (empty($enabled)) {
+        return false;
+    }
+
+    $provider = get_option('aiopms_ai_provider', 'openai');
+    $api_key = get_option('aiopms_' . $provider . '_api_key');
+    if (empty($api_key)) {
+        return false;
+    }
+
+    $cache_key = 'aiopms_ai_entity_profile_' . md5(home_url() . '|' . get_option('aiopms_business_description', '') . '|' . get_bloginfo('name'));
+    $cached = get_transient($cache_key);
+    if ($cached !== false) {
+        return is_array($cached) ? $cached : false;
+    }
+
+    $business_name = get_option('aiopms_business_name', get_bloginfo('name'));
+    $business_description = get_option('aiopms_business_description', get_bloginfo('description'));
+    $business_address = get_option('aiopms_business_address', '');
+    $business_phone = get_option('aiopms_business_phone', '');
+    $business_email = get_option('aiopms_business_email', '');
+
+    // Light site sample to help inference across themes/setups.
+    $sample_posts = get_posts([
+        'post_type' => ['page', 'post'],
+        'post_status' => 'publish',
+        'numberposts' => 8,
+        'orderby' => 'modified',
+        'order' => 'DESC',
+    ]);
+
+    $samples = [];
+    foreach ($sample_posts as $p) {
+        $samples[] = 'TITLE: ' . $p->post_title . "\n" . 'CONTENT: ' . wp_strip_all_tags(wp_trim_words($p->post_content, 120, '...'));
+        if (strlen(implode("\n\n---\n\n", $samples)) > 6500) {
+            break;
+        }
+    }
+
+    $prompt =
+        "You are a schema.org structured data expert.\n\n"
+        . "Task: infer the most accurate entity types + relationships for THIS website (any industry).\n"
+        . "Return ONLY valid JSON. No markdown.\n\n"
+        . "Website URL: " . home_url() . "\n"
+        . "Business Name: " . $business_name . "\n"
+        . "Business Description: " . $business_description . "\n"
+        . "Known Address (may be blank): " . $business_address . "\n"
+        . "Known Phone (may be blank): " . $business_phone . "\n"
+        . "Known Email (may be blank): " . $business_email . "\n\n"
+        . "Recent Content Samples:\n" . implode("\n\n---\n\n", $samples) . "\n\n"
+        . "Return JSON with this exact shape:\n"
+        . "{\n"
+        . "  \"organization\": {\n"
+        . "    \"types\": [\"Organization\"],\n"
+        . "    \"specialties\": []\n"
+        . "  },\n"
+        . "  \"primaryPerson\": {\n"
+        . "    \"name\": null,\n"
+        . "    \"types\": [\"Person\"],\n"
+        . "    \"jobTitle\": null,\n"
+        . "    \"specialties\": []\n"
+        . "  },\n"
+        . "  \"relationship\": {\n"
+        . "    \"personToOrganization\": \"none\"\n"
+        . "  }\n"
+        . "}\n\n"
+        . "Rules:\n"
+        . "- organization.types MUST include \"Organization\".\n"
+        . "- Add more specific Organization/LocalBusiness subtypes when clearly applicable (examples: MedicalBusiness, Dentist, LegalService, Restaurant, Store).\n"
+        . "- primaryPerson.types MUST include \"Person\". Add more specific types only when clearly supported by content (examples: Physician, Dentist, Attorney).\n"
+        . "- relationship.personToOrganization must be one of: none, founder, employee, member, worksFor, owner.\n"
+        . "- specialties should be short strings.\n"
+        . "- Do NOT invent facts like address/phone/email.\n";
+
+    $result = null;
+    switch ($provider) {
+        case 'openai':
+            $result = aiopms_ai_call_openai_json($prompt, $api_key);
+            break;
+        case 'gemini':
+            $result = aiopms_ai_call_gemini_json($prompt, $api_key);
+            break;
+        case 'deepseek':
+            $result = aiopms_ai_call_deepseek_json($prompt, $api_key);
+            break;
+    }
+
+    if (!is_array($result) || empty($result['organization']['types'])) {
+        set_transient($cache_key, 0, 24 * HOUR_IN_SECONDS);
+        return false;
+    }
+
+    // Normalize / validate.
+    $org_types = array_values(array_unique(array_filter(array_map('sanitize_text_field', (array)($result['organization']['types'] ?? [])))));
+    if (!in_array('Organization', $org_types, true)) {
+        array_unshift($org_types, 'Organization');
+    }
+    $result['organization']['types'] = $org_types;
+    $result['organization']['specialties'] = array_values(array_filter(array_map('sanitize_text_field', (array)($result['organization']['specialties'] ?? []))));
+
+    $person_types = array_values(array_unique(array_filter(array_map('sanitize_text_field', (array)($result['primaryPerson']['types'] ?? ['Person'])))));
+    if (!in_array('Person', $person_types, true)) {
+        array_unshift($person_types, 'Person');
+    }
+    $result['primaryPerson']['types'] = $person_types;
+    $result['primaryPerson']['name'] = !empty($result['primaryPerson']['name']) ? sanitize_text_field($result['primaryPerson']['name']) : null;
+    $result['primaryPerson']['jobTitle'] = !empty($result['primaryPerson']['jobTitle']) ? sanitize_text_field($result['primaryPerson']['jobTitle']) : null;
+    $result['primaryPerson']['specialties'] = array_values(array_filter(array_map('sanitize_text_field', (array)($result['primaryPerson']['specialties'] ?? []))));
+
+    $allowed_rel = ['none', 'founder', 'employee', 'member', 'worksFor', 'owner'];
+    $rel = sanitize_text_field($result['relationship']['personToOrganization'] ?? 'none');
+    $result['relationship']['personToOrganization'] = in_array($rel, $allowed_rel, true) ? $rel : 'none';
+
+    set_transient($cache_key, $result, 7 * DAY_IN_SECONDS);
+    return $result;
+}
+}
+
+if (!function_exists('aiopms_schema_types_to_at_type')) {
+function aiopms_schema_types_to_at_type($types, $fallback) {
+    $types = array_values(array_unique(array_filter(array_map('sanitize_text_field', (array)$types))));
+    if (empty($types)) {
+        return $fallback;
+    }
+    return count($types) > 1 ? $types : $types[0];
+}
+}
+
+if (!function_exists('aiopms_build_primary_person_node')) {
+function aiopms_build_primary_person_node($profile) {
+    if (!is_array($profile) || empty($profile['primaryPerson']['name'])) {
+        return null;
+    }
+    $site_url = home_url();
+    $types = (array)($profile['primaryPerson']['types'] ?? ['Person']);
+    $name = sanitize_text_field($profile['primaryPerson']['name']);
+    if ($name === '') {
+        return null;
+    }
+
+    $node = [
+        '@type' => aiopms_schema_types_to_at_type($types, 'Person'),
+        '@id' => $site_url . '/#primaryPerson',
+        'name' => $name,
+    ];
+
+    if (!empty($profile['primaryPerson']['jobTitle'])) {
+        $node['jobTitle'] = sanitize_text_field($profile['primaryPerson']['jobTitle']);
+    }
+
+    $specialties = (array)($profile['primaryPerson']['specialties'] ?? []);
+    if (!empty($specialties)) {
+        $types_str = strtolower(is_array($node['@type']) ? implode(' ', $node['@type']) : $node['@type']);
+        if (strpos($types_str, 'physician') !== false || strpos($types_str, 'medical') !== false || strpos($types_str, 'dentist') !== false) {
+            $node['medicalSpecialty'] = array_values($specialties);
+        } else {
+            $node['knowsAbout'] = array_values($specialties);
+        }
+    }
+
+    return $node;
+}
+}
+
+if (!function_exists('aiopms_get_schema_source')) {
+function aiopms_get_schema_source($post_id) {
+    $origin = get_post_meta($post_id, '_aiopms_schema_origin', true);
+    if ($origin === 'generated' || $origin === 'override') {
+        return $origin;
+    }
+    // Fallback heuristic (older installs): if locked, likely user-edited via editor
+    $locked = get_post_meta($post_id, '_aiopms_schema_locked', true);
+    if (!empty($locked)) {
+        return 'override';
+    }
+    return 'unknown';
+}
+}
 
 /**
  * AI-powered schema data extraction
@@ -367,7 +564,7 @@ Return only the schema type name, nothing else.";
 }
 
 // Detect schema type for a page (enhanced with AI analysis)
-function aiopms_detect_schema_type($post_id) {
+function aiopms_detect_schema_type($post_id, $use_ai = true) {
     $post = get_post($post_id);
     if (!$post) {
         return AIOPMS_SCHEMA_WEBPAGE;
@@ -385,10 +582,12 @@ function aiopms_detect_schema_type($post_id) {
         if (strpos($cpt_slug, 'article') !== false) return AIOPMS_SCHEMA_ARTICLE;
     }
 
-    // Try AI analysis first
-    $ai_schema_type = aiopms_ai_analyze_content_for_schema($post_id);
-    if ($ai_schema_type) {
-        return $ai_schema_type;
+    // Try AI analysis first (if enabled)
+    if ($use_ai) {
+        $ai_schema_type = aiopms_ai_analyze_content_for_schema($post_id);
+        if ($ai_schema_type) {
+            return $ai_schema_type;
+        }
     }
 
     // Fallback to keyword-based detection
@@ -659,8 +858,8 @@ function aiopms_is_event_page($content, $title) {
 
 // Generate schema markup for a page
 if (!function_exists('aiopms_generate_schema_markup')) {
-    function aiopms_generate_schema_markup($post_id) {
-        $schema_type = aiopms_detect_schema_type($post_id);
+    function aiopms_generate_schema_markup($post_id, $use_ai = true) {
+        $schema_type = aiopms_detect_schema_type($post_id, $use_ai);
         $permalink = get_permalink($post_id);
         $site_url = home_url();
         
@@ -670,6 +869,15 @@ if (!function_exists('aiopms_generate_schema_markup')) {
         // 1. Organization (Global Publisher)
         $org_schema = aiopms_get_organization_schema();
         $graph[] = $org_schema;
+
+        // 1b. Primary Person (if detected). This enables explicit linking like Physician ↔ Clinic.
+        if ($use_ai) {
+            $profile = aiopms_get_ai_entity_profile();
+            $person_node = aiopms_build_primary_person_node($profile);
+            if (is_array($person_node)) {
+                $graph[] = $person_node;
+            }
+        }
 
         // 2. WebSite (Global)
         $website_schema = aiopms_generate_website_schema();
@@ -779,6 +987,9 @@ if (!function_exists('aiopms_generate_schema_markup')) {
         // Store schema data as post meta
         update_post_meta($post_id, '_aiopms_schema_type', $schema_type);
         update_post_meta($post_id, '_aiopms_schema_data', $schema_data);
+        update_post_meta($post_id, '_aiopms_schema_origin', 'generated');
+        // If this was regenerated, clear any previous lock
+        delete_post_meta($post_id, '_aiopms_schema_locked');
         
         return $schema_data;
     }
@@ -1183,6 +1394,26 @@ function aiopms_get_organization_schema() {
         $schema['sameAs'] = $social_links;
     }
 
+    // AI-enrich specificity and add key person relationship if detected
+    $profile = aiopms_get_ai_entity_profile();
+    if (is_array($profile) && !empty($profile['organization']['types'])) {
+        $schema['@type'] = aiopms_schema_types_to_at_type($profile['organization']['types'], 'Organization');
+
+        if (!empty($profile['organization']['specialties'])) {
+            $types_str = strtolower(is_array($schema['@type']) ? implode(' ', $schema['@type']) : $schema['@type']);
+            if (strpos($types_str, 'medical') !== false || strpos($types_str, 'clinic') !== false || strpos($types_str, 'physician') !== false || strpos($types_str, 'dentist') !== false) {
+                $schema['medicalSpecialty'] = array_values((array)$profile['organization']['specialties']);
+            } else {
+                $schema['knowsAbout'] = array_values((array)$profile['organization']['specialties']);
+            }
+        }
+
+        $rel = $profile['relationship']['personToOrganization'] ?? 'none';
+        if ($rel !== 'none' && !empty($profile['primaryPerson']['name'])) {
+            $schema[$rel] = ['@id' => $site_url . '/#primaryPerson'];
+        }
+    }
+
     return $schema;
 }
 
@@ -1250,6 +1481,31 @@ function aiopms_generate_local_business_schema($post_id) {
         'description' => sanitize_text_field($business_description),
         'url' => esc_url_raw(home_url())
     ];
+
+    // AI-enrich LocalBusiness subtype/specificity when applicable (generic across industries).
+    $profile = aiopms_get_ai_entity_profile();
+    if (is_array($profile) && !empty($profile['organization']['types'])) {
+        $types = (array)$profile['organization']['types'];
+        // Ensure LocalBusiness is present when we are explicitly generating a local business node.
+        if (!in_array('LocalBusiness', $types, true)) {
+            array_unshift($types, 'LocalBusiness');
+        }
+        $schema['@type'] = aiopms_schema_types_to_at_type($types, 'LocalBusiness');
+
+        if (!empty($profile['organization']['specialties'])) {
+            $types_str = strtolower(is_array($schema['@type']) ? implode(' ', $schema['@type']) : $schema['@type']);
+            if (strpos($types_str, 'medical') !== false || strpos($types_str, 'clinic') !== false || strpos($types_str, 'physician') !== false || strpos($types_str, 'dentist') !== false) {
+                $schema['medicalSpecialty'] = array_values((array)$profile['organization']['specialties']);
+            } else {
+                $schema['knowsAbout'] = array_values((array)$profile['organization']['specialties']);
+            }
+        }
+
+        // Link to primary person if present (helps “flat hierarchy” issue)
+        if (!empty($profile['primaryPerson']['name'])) {
+            $schema['employee'] = ['@id' => home_url() . '/#primaryPerson'];
+        }
+    }
 
     // Add address if available
     if (!empty($address)) {
@@ -1691,6 +1947,11 @@ function aiopms_generate_schema_on_save($post_id) {
         return;
     }
 
+    // If the schema was manually edited/saved, don't overwrite on normal saves
+    if (function_exists('aiopms_should_skip_auto_schema_generation') && aiopms_should_skip_auto_schema_generation($post_id)) {
+        return;
+    }
+
     // Generate schema markup
     aiopms_generate_schema_markup($post_id);
 }
@@ -1778,15 +2039,13 @@ function aiopms_handle_schema_generation_actions() {
         if ($action === 'generate_schema') {
             if (wp_verify_nonce($_GET['_wpnonce'], 'generate_schema_' . $post_id)) {
                 aiopms_generate_schema_markup($post_id);
-                $post_type = get_post_type($post_id);
-                wp_redirect(admin_url('edit.php?post_type=' . $post_type . '&schema_generated=1'));
+                wp_redirect(admin_url('admin.php?page=aiopms-page-management&tab=schema&schema_generated=1'));
                 exit;
             }
         } elseif ($action === 'regenerate_schema') {
             if (wp_verify_nonce($_GET['_wpnonce'], 'regenerate_schema_' . $post_id)) {
                 aiopms_generate_schema_markup($post_id);
-                $post_type = get_post_type($post_id);
-                wp_redirect(admin_url('edit.php?post_type=' . $post_type . '&schema_regenerated=1'));
+                wp_redirect(admin_url('admin.php?page=aiopms-page-management&tab=schema&schema_regenerated=1'));
                 exit;
             }
         }
@@ -1825,8 +2084,7 @@ function aiopms_handle_schema_removal_actions() {
         if ($action === 'remove_schema') {
             if (wp_verify_nonce($_GET['_wpnonce'], 'remove_schema_' . $post_id)) {
                 aiopms_remove_schema_from_page($post_id);
-                $post_type = get_post_type($post_id);
-                wp_redirect(admin_url('edit.php?post_type=' . $post_type . '&schema_removed=1'));
+                wp_redirect(admin_url('admin.php?page=aiopms-page-management&tab=schema&schema_removed=1'));
                 exit;
             }
         }
@@ -1904,6 +2162,19 @@ function aiopms_schema_management_dashboard() {
     ?>
     <div class="wrap aiopms-schema-dashboard">
         <p>Manage structured data (schema.org) markup for your pages to improve SEO and search visibility.</p>
+
+        <!-- Export -->
+        <div class="aiopms-bulk-actions" style="margin-top: 10px;">
+            <h2>Export</h2>
+            <p class="description" style="margin-top:0;">
+                Export a CSV backup of all schema stored in WordPress (generated by this plugin, edited via the schema editor, or manually added into the <code>_aiopms_schema_data</code> custom field).
+            </p>
+            <p>
+                <a class="button button-primary" href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=aiopms_export_schema_csv'), 'aiopms_export_schema_csv')); ?>">
+                    Export Schema CSV
+                </a>
+            </p>
+        </div>
         
         <!-- Schema Statistics -->
         <div class="aiopms-schema-stats">
@@ -2014,6 +2285,7 @@ function aiopms_schema_management_dashboard() {
                                         <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=aiopms-page-management&action=generate_schema&post=' . $page->ID), 'generate_schema_' . $page->ID); ?>" 
                                            class="button button-small">Generate Schema</a>
                                     <?php else: ?>
+                                        <button type="button" class="button button-small aiopms-preview-schema" data-page-id="<?php echo $page->ID; ?>">Preview</button>
                                         <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=aiopms-page-management&action=regenerate_schema&post=' . $page->ID), 'regenerate_schema_' . $page->ID); ?>" 
                                            class="button button-small">Regenerate</a>
                                         <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=aiopms-page-management&action=remove_schema&post=' . $page->ID), 'remove_schema_' . $page->ID); ?>" 
@@ -2027,6 +2299,29 @@ function aiopms_schema_management_dashboard() {
                     </tbody>
                 </table>
             </form>
+        </div>
+
+        <!-- Schema Modal -->
+        <div id="aiopms-schema-modal" class="aiopms-modal-overlay" style="display:none;">
+            <div class="aiopms-modal aiopms-modal-large">
+                <div class="aiopms-modal-header">
+                    <h2>Schema Preview &amp; Editor</h2>
+                    <span class="aiopms-modal-close">&times;</span>
+                </div>
+                <div class="aiopms-modal-body">
+                    <p class="description" style="margin-top:0;">
+                        Edit the JSON-LD below and click <strong>Save</strong>. Saved schema is stored on this page and will be used on the frontend.
+                    </p>
+                    <textarea id="aiopms-schema-editor" class="large-text code" rows="18" spellcheck="false"></textarea>
+                    <pre style="margin-top:12px;"><code id="aiopms-schema-code" aria-hidden="true" style="display:none;"></code></pre>
+                    <input type="hidden" id="aiopms-schema-page-id" value="">
+                </div>
+                <div class="aiopms-modal-footer">
+                    <span id="aiopms-schema-save-status" style="margin-right:auto;"></span>
+                    <button type="button" class="button" id="aiopms-schema-validate">Validate JSON</button>
+                    <button type="button" class="button button-primary" id="aiopms-schema-save">Save Schema</button>
+                </div>
+            </div>
         </div>
 
         <!-- Schema Information -->
@@ -2078,3 +2373,135 @@ function aiopms_ajax_get_schema_preview() {
     wp_send_json_success($schema_data);
 }
 add_action('wp_ajax_aiopms_get_schema_preview', 'aiopms_ajax_get_schema_preview');
+
+// AJAX handler to save edited schema JSON-LD to post meta
+function aiopms_ajax_save_schema_override() {
+    check_ajax_referer('aiopms_schema_preview', 'nonce');
+
+    $page_id = isset($_POST['page_id']) ? absint($_POST['page_id']) : 0;
+    if (!$page_id) {
+        wp_send_json_error(['message' => esc_html__('Invalid page ID', 'aiopms')]);
+    }
+
+    if (!current_user_can('edit_post', $page_id)) {
+        wp_send_json_error(['message' => esc_html__('Unauthorized', 'aiopms')], 403);
+    }
+
+    $raw = isset($_POST['schema_json']) ? wp_unslash($_POST['schema_json']) : '';
+    $raw = trim($raw);
+    if ($raw === '') {
+        wp_send_json_error(['message' => esc_html__('Schema JSON is empty.', 'aiopms')]);
+    }
+
+    $decoded = json_decode($raw, true);
+    if (!is_array($decoded)) {
+        wp_send_json_error(['message' => esc_html__('Invalid JSON. Please fix and try again.', 'aiopms')]);
+    }
+
+    // Basic sanity: schema should be object-like (associative array) or a list of nodes
+    $encoded = wp_json_encode($decoded, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    if (!$encoded) {
+        wp_send_json_error(['message' => esc_html__('Could not encode schema JSON.', 'aiopms')]);
+    }
+
+    update_post_meta($page_id, '_aiopms_schema_data', $decoded);
+    update_post_meta($page_id, '_aiopms_schema_locked', 1);
+    update_post_meta($page_id, '_aiopms_schema_origin', 'override');
+
+    wp_send_json_success([
+        'message' => esc_html__('Schema saved.', 'aiopms'),
+        'data' => $decoded,
+    ]);
+}
+add_action('wp_ajax_aiopms_save_schema_override', 'aiopms_ajax_save_schema_override');
+
+// Admin-post handler: export schema CSV backup
+function aiopms_admin_export_schema_csv() {
+    if (!current_user_can('manage_options')) {
+        wp_die(esc_html__('Unauthorized', 'aiopms'), 403);
+    }
+    check_admin_referer('aiopms_export_schema_csv');
+
+    // Query all posts that have schema stored in _aiopms_schema_data
+    $q = new WP_Query([
+        'post_type' => 'any',
+        'post_status' => 'any',
+        'posts_per_page' => -1,
+        'fields' => 'ids',
+        'meta_query' => [
+            [
+                'key' => '_aiopms_schema_data',
+                'compare' => 'EXISTS',
+            ],
+        ],
+    ]);
+
+    $filename = 'aiopms-schema-export-' . gmdate('Y-m-d-His') . '.csv';
+    nocache_headers();
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename=' . $filename);
+    header('Pragma: no-cache');
+    header('Expires: 0');
+
+    $out = fopen('php://output', 'w');
+    if (!$out) {
+        wp_die(esc_html__('Could not open output stream.', 'aiopms'));
+    }
+
+    // Header row
+    fputcsv($out, [
+        'post_id',
+        'post_type',
+        'post_status',
+        'post_title',
+        'permalink',
+        'last_modified_gmt',
+        'schema_type',
+        'schema_source',
+        'schema_locked',
+        'schema_json',
+    ]);
+
+    foreach ((array)$q->posts as $post_id) {
+        $post = get_post($post_id);
+        if (!$post) {
+            continue;
+        }
+
+        $schema_data = get_post_meta($post_id, '_aiopms_schema_data', true);
+        if (empty($schema_data)) {
+            continue;
+        }
+
+        // Encode as JSON for single-cell export (data-accurate; formatting can differ)
+        $schema_json = is_string($schema_data)
+            ? $schema_data
+            : wp_json_encode($schema_data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        $schema_type = get_post_meta($post_id, '_aiopms_schema_type', true);
+        $locked = get_post_meta($post_id, '_aiopms_schema_locked', true);
+
+        fputcsv($out, [
+            (int)$post_id,
+            $post->post_type,
+            $post->post_status,
+            $post->post_title,
+            get_permalink($post_id),
+            get_post_modified_time('c', true, $post_id),
+            $schema_type,
+            aiopms_get_schema_source($post_id),
+            !empty($locked) ? '1' : '0',
+            $schema_json,
+        ]);
+    }
+
+    fclose($out);
+    exit;
+}
+add_action('admin_post_aiopms_export_schema_csv', 'aiopms_admin_export_schema_csv');
+
+// Prevent auto-regeneration from overwriting a user override
+function aiopms_should_skip_auto_schema_generation($post_id) {
+    $locked = get_post_meta($post_id, '_aiopms_schema_locked', true);
+    return !empty($locked);
+}

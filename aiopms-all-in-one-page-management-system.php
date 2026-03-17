@@ -105,11 +105,8 @@ function aiopms_uninstall() {
         return;
     }
     
-    global $wpdb;
-    
-    // Remove all plugin options (including those added by various modules)
+    // Remove all plugin options
     $options_to_remove = array(
-        // Core options
         'aiopms_version',
         'aiopms_ai_provider',
         'aiopms_openai_api_key',
@@ -130,28 +127,12 @@ function aiopms_uninstall() {
         'aiopms_first_activation',
         'aiopms_plugin_activated',
         'aiopms_plugin_deactivated',
-        'aiopms_deactivation_date',
-        // CPT options
-        'aiopms_cpt_settings',
-        'aiopms_dynamic_cpts',
-        'aiopms_custom_fields',
-        'aiopms_cpt_logs',
+        'aiopms_deactivation_date'
     );
     
     foreach ($options_to_remove as $option) {
         delete_option($option);
     }
-    
-    // Also delete any options that match the aiopms_ prefix (wildcard cleanup)
-    $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE 'aiopms_%'");
-    
-    // Delete all transients created by the plugin
-    $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_aiopms_%'");
-    $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_aiopms_%'");
-    
-    // Delete plugin post meta from all posts
-    $wpdb->query("DELETE FROM {$wpdb->postmeta} WHERE meta_key LIKE '_aiopms_%'");
-    $wpdb->query("DELETE FROM {$wpdb->postmeta} WHERE meta_key LIKE 'aiopms_%'");
     
     // Remove custom database tables
     aiopms_drop_database_tables();
@@ -159,10 +140,8 @@ function aiopms_uninstall() {
     // Clear any cached data
     wp_cache_flush();
     
-    // Log uninstall (will only show if debug log is enabled)
-    if (defined('WP_DEBUG') && WP_DEBUG) {
-        error_log('AIOPMS Plugin Uninstalled - All data removed');
-    }
+    // Log uninstall
+    error_log('AIOPMS Plugin Uninstalled - All data removed');
 }
 
 /**
@@ -273,8 +252,8 @@ function aiopms_enqueue_assets() {
     // Enqueue Scripts
     $current_screen = get_current_screen();
 
-    // CPT Management Scripts (only on CPT pages)
-    if ($current_screen && strpos($current_screen->id, 'aiopms-cpt-management') !== false) {
+    // CPT Management Scripts (only on CPT tab)
+    if ($current_screen && strpos($current_screen->id, 'aiopms-page-management') !== false && isset($_GET['tab']) && $_GET['tab'] === 'cpt') {
         wp_enqueue_script('aiopms-cpt-management', AIOPMS_PLUGIN_URL . 'assets/js/cpt-management.js', array('jquery'), '3.1', true);
         
         // Localize CPT management script
@@ -293,8 +272,8 @@ function aiopms_enqueue_assets() {
         ));
     }
 
-    // AI Generator Scripts
-    if ($current_screen && strpos($current_screen->id, 'ai-generation') !== false) {
+    // AI Generator Scripts (only on AI tab)
+    if ($current_screen && strpos($current_screen->id, 'aiopms-page-management') !== false && isset($_GET['tab']) && $_GET['tab'] === 'ai') {
         wp_enqueue_script('aiopms-ai-generator', AIOPMS_PLUGIN_URL . 'assets/js/ai-generator.js', array('jquery'), '3.1', true);
         
         // Share CPT data for ajaxurl and nonce consistency if needed, 
@@ -317,6 +296,10 @@ function aiopms_enqueue_assets() {
 
     // Schema Generator Scripts
     wp_enqueue_script('aiopms-schema-generator', AIOPMS_PLUGIN_URL . 'assets/js/schema-generator.js', array('jquery'), '3.1', true);
+    wp_localize_script('aiopms-schema-generator', 'aiopms_schema_data', array(
+        'ajaxurl' => admin_url('admin-ajax.php'),
+        'nonce' => wp_create_nonce('aiopms_schema_preview')
+    ));
 
     // Localize script with plugin URL
     wp_localize_script('aiopms-scripts', 'aiopms_plugin_data', array(

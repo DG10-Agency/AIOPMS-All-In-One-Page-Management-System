@@ -27,7 +27,7 @@ if (!function_exists('aiopms_log_memory_usage')) {
             $memory['limit'],
             $additional_info ? ' - ' . $additional_info : ''
         );
-        error_log($message);
+        // error_log($message); // Reduced logging
         return $memory;
     }
 }
@@ -43,11 +43,13 @@ if (!function_exists('aiopms_check_memory_limit')) {
             $usage_percent = ($memory['current'] / $limit_bytes) * 100;
             
             if ($usage_percent >= $threshold_percent) {
-                aiopms_log_memory_usage('WARNING', sprintf(
-                    'Memory usage at %.1f%% of limit (%s). Consider optimizing or increasing memory limit.',
-                    $usage_percent,
-                    $memory['limit']
-                ));
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log(sprintf(
+                        'AIOPMS WARNING: Memory usage at %.1f%% of limit (%s).',
+                        $usage_percent,
+                        $memory['limit']
+                    ));
+                }
                 return false;
             }
         }
@@ -84,32 +86,16 @@ if (!function_exists('aiopms_monitor_memory_usage')) {
         $current_memory = aiopms_get_memory_usage();
         
         if ($start_memory === null) {
-            // Starting memory monitoring
-            aiopms_log_memory_usage($context . ' - START', $additional_info);
             return $current_memory;
         } else {
-            // Ending memory monitoring
             $memory_diff = $current_memory['current'] - $start_memory['current'];
             $memory_diff_mb = round($memory_diff / 1024 / 1024, 2);
-            
-            $additional_info .= sprintf(' (Memory used: %s MB)', $memory_diff_mb);
-            aiopms_log_memory_usage($context . ' - END', $additional_info);
-            
-            // Check if memory usage is concerning
-            if ($memory_diff_mb > 50) { // More than 50MB used
-                aiopms_log_memory_usage('HIGH_MEMORY_USAGE', sprintf(
-                    '%s used %s MB of memory. Consider optimizing for large datasets.',
-                    $context,
-                    $memory_diff_mb
-                ));
-            }
             
             return $current_memory;
         }
     }
 }
 
-// Hierarchy tab content
 // Hierarchy tab content
 function abpcwa_hierarchy_tab() {
     ?>
@@ -197,9 +183,6 @@ function aiopms_get_page_hierarchy() {
         // Check for cached hierarchy data
         $cached_data = get_transient('aiopms_page_hierarchy_cache');
         if (false !== $cached_data) {
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('AIOPMS: Using cached hierarchy data');
-            }
             return $cached_data;
         }
         // Start memory monitoring
@@ -217,19 +200,10 @@ function aiopms_get_page_hierarchy() {
         ));
 
         $hierarchy_data = array();
-        
-        // Debug: Log page count and check memory after getting pages
         $page_count = count($pages);
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('AIOPMS: Found ' . $page_count . ' pages');
-        }
-        aiopms_log_memory_usage('AFTER_GET_PAGES', "Processing {$page_count} pages");
         
         // Check memory limit before processing
         if (!aiopms_check_memory_limit(75)) {
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('AIOPMS: Memory usage warning before processing pages');
-            }
             // Add warning to hierarchy data
             $hierarchy_data[] = array(
                 'id' => 'memory_warning',
@@ -359,9 +333,6 @@ function aiopms_get_page_hierarchy() {
         );
     }
 
-    // Log memory usage after processing standard pages
-    aiopms_log_memory_usage('AFTER_STANDARD_PAGES', "Processed {$page_count} standard pages");
-
     // Add custom post types if enabled in settings
     $settings = get_option('aiopms_cpt_settings', array());
     if (isset($settings['include_in_hierarchy']) && $settings['include_in_hierarchy']) {
@@ -450,25 +421,41 @@ function aiopms_get_page_hierarchy() {
         }
     }
 
-    // Log memory usage after processing custom post types
-    aiopms_log_memory_usage('AFTER_CUSTOM_POST_TYPES', "Completed hierarchy data generation");
-    
-    // End memory monitoring and log final results
-    $final_memory = aiopms_monitor_memory_usage('PAGE_HIERARCHY_GENERATION', $start_memory, 
-        "Generated hierarchy for " . count($hierarchy_data) . " items");
-    
-    // Final memory check
-    if (!aiopms_check_memory_limit(90)) {
-        error_log('AIOPMS: High memory usage detected after hierarchy generation');
-    }
-
         // Cache the results for 1 hour
         set_transient('aiopms_page_hierarchy_cache', $hierarchy_data, HOUR_IN_SECONDS);
         
         return $hierarchy_data;
     } catch (Exception $e) {
-        error_log('AIOPMS: Error in get_page_hierarchy: ' . $e->getMessage());
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('AIOPMS: Error in get_page_hierarchy: ' . $e->getMessage());
+        }
         return array(); // Return empty array on error
+    }
+}
+
+// Ensure REST API and AJAX handlers are loaded early enough
+function aiopms_init_hierarchy() {
+    // Debug: Log that hierarchy initialization is starting
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        // error_log('AIOPMS: Initializing hierarchy system'); // DISABLED to prevent spam
+    }
+    
+    // REMOVED: aiopms_register_hierarchy_rest_routes(); // Incorrectly called here
+    aiopms_register_export_ajax_handlers();
+}
+add_action('init', 'aiopms_init_hierarchy', 1);
+add_action('rest_api_init', 'aiopms_register_hierarchy_rest_routes'); // Correct hook
+
+// REST: Get hierarchy data (read-only)
+function aiopms_rest_get_hierarchy($request) {
+    try {
+        $hierarchy_data = aiopms_get_page_hierarchy();
+        return rest_ensure_response($hierarchy_data);
+    } catch (Exception $e) {
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('AIOPMS Hierarchy Error: ' . $e->getMessage());
+        }
+        return new WP_Error('hierarchy_error', $e->getMessage(), array('status' => 500));
     }
 }
 
@@ -490,7 +477,10 @@ function aiopms_register_hierarchy_rest_routes() {
             return current_user_can('edit_pages');
         }
     ));
-
+    
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        // error_log('AIOPMS: Registering REST API route: aiopms/v1/hierarchy');
+    }
 }
 
 // Register AJAX handlers for file exports
@@ -500,33 +490,6 @@ function aiopms_register_export_ajax_handlers() {
     add_action('wp_ajax_aiopms_export_json', 'aiopms_ajax_export_hierarchy_json');
 }
 
-// Register REST API routes on the proper hook (rest_api_init)
-add_action('rest_api_init', 'aiopms_register_hierarchy_rest_routes');
-
-// Register AJAX handlers on init (this is the correct hook for AJAX)
-add_action('init', 'aiopms_register_export_ajax_handlers');
-
-// REST: Get hierarchy data (read-only)
-function aiopms_rest_get_hierarchy($request) {
-    try {
-        // Debug: Log that REST API callback is being called
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('AIOPMS: REST API callback called');
-        }
-        
-        $hierarchy_data = aiopms_get_page_hierarchy();
-        
-        // Debug: Log the data to help troubleshoot
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('AIOPMS Hierarchy Data: ' . print_r($hierarchy_data, true));
-        }
-        
-        return rest_ensure_response($hierarchy_data);
-    } catch (Exception $e) {
-        error_log('AIOPMS Hierarchy Error: ' . $e->getMessage());
-        return new WP_Error('hierarchy_error', $e->getMessage(), array('status' => 500));
-    }
-}
 
 // AJAX: Export hierarchy data as CSV
 function aiopms_ajax_export_hierarchy_csv() {
@@ -711,11 +674,6 @@ function aiopms_enqueue_hierarchy_assets($hook) {
     $active_tab = isset($_GET['tab']) ? sanitize_key($_GET['tab']) : 'manual';
 
     if ($active_tab === 'hierarchy') {
-        // Debug: Log that hierarchy assets are being enqueued
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('AIOPMS: Enqueuing hierarchy assets for tab: ' . $active_tab);
-        }
-        
         // Enqueue jsTree
         wp_enqueue_style('jstree', AIOPMS_PLUGIN_URL . 'assets/vendor/jstree/themes/default/style.min.css');
         wp_enqueue_script('jstree', AIOPMS_PLUGIN_URL . 'assets/vendor/jstree/jstree.min.js', array('jquery'), '3.3.15', true);
@@ -737,11 +695,6 @@ function aiopms_enqueue_hierarchy_assets($hook) {
                 'readonly_note' => 'Visualization only - use WordPress editor to modify hierarchy'
             )
         );
-        
-        // Debug: Log localization data
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('AIOPMS: Localizing script with data: ' . print_r($localize_data, true));
-        }
         
         wp_localize_script('aiopms-hierarchy', 'aiopmsHierarchy', $localize_data);
     }
@@ -927,5 +880,3 @@ function aiopms_escape_csv($string) {
     }
     return $string;
 }
-
-
