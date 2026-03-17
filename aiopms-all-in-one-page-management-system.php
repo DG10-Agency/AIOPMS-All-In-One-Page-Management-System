@@ -5,7 +5,7 @@
  * Description: A comprehensive page management system for WordPress with bulk creation, AI generation, hierarchy management, schema markup, and menu generation.
  * Version: 3.0
  * Requires at least: 5.6
- * Tested up to: 6.4
+ * Tested up to: 6.7
  * Requires PHP: 7.4
  * Author: DG10 Agency
  * Author URI: https://www.dg10.agency

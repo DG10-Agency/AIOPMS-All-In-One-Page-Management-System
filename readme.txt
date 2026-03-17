@@ -2,9 +2,9 @@
 Contributors: dg10agency
 Tags: pages, schema markup, bulk creation, ai content, seo generator, menu generator, openai, gemini, hierarchy
 Requires at least: 5.6
-Tested up to: 6.4
+Tested up to: 6.9.4
 Requires PHP: 7.4
-Stable tag: 3.0
+Stable tag: 1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -61,29 +61,13 @@ Yes, your API keys are stored securely in your WordPress database and are only u
 
 == Changelog ==
 
-= 3.0 =
-* NEW: Complete UI/UX Overhaul with DG10 Agency Branding (Glassmorphism).
-* NEW: Schema Generator Dashboard with Live Preview/Edit/Export functionality.
-* NEW: Batch processing for Bulk Schema actions.
-* NEW: Intelligent CPT & Taxonomy auto-linking logic.
-* NEW: Integrated Google Gemini and DeepSeek AI providers.
-* IMPROVED: SQL optimization for page counts and dashboard speed.
-* IMPROVED: Full accessibility audit (WCAG 2.1 AA Compliance).
-* FIXED: Resolved CSS syntax errors and unclosed brackets in admin styles.
-* FIXED: Corrected registration order for dependent Taxonomies.
-
-= 2.0 =
-* Initial AI integration for page suggestions.
-* Added early-stage CSV import validation.
-* First version of the Menu Generator tool.
-
 = 1.0 =
-* Core manual creation engine and page hierarchy support.
+* Initial release.
 
 == Upgrade Notice ==
 
-= 3.0 =
-Major Design and Feature upgrade. This version introduces the new Schema dashboard and the DG10 branding system. Please perform a full backup before updating.
+= 1.0 =
+Updates Coming soon...
 
 == Privacy Policy ==
 

@@ -179,7 +179,7 @@ function abpcwa_generate_pages_with_ai($business_type, $business_details, $seo_k
     try {
         // Input validation
         if (empty($business_type) || empty($business_details)) {
-            echo '<div class="notice notice-error"><p>' . __('Business type and details are required for AI generation.', 'aiopms') . '</p></div>';
+            echo '<div class="notice notice-error"><p>' . esc_html__('Business type and details are required for AI generation.', 'aiopms') . '</p></div>';
             return;
         }
 
@@ -191,12 +191,12 @@ function abpcwa_generate_pages_with_ai($business_type, $business_details, $seo_k
 
         // Validate input lengths
         if (strlen($business_type) > 100) {
-            echo '<div class="notice notice-error"><p>' . __('Business type must be 100 characters or less.', 'aiopms') . '</p></div>';
+            echo '<div class="notice notice-error"><p>' . esc_html__('Business type must be 100 characters or less.', 'aiopms') . '</p></div>';
             return;
         }
 
         if (strlen($business_details) > 1000) {
-            echo '<div class="notice notice-error"><p>' . __('Business details must be 1000 characters or less.', 'aiopms') . '</p></div>';
+            echo '<div class="notice notice-error"><p>' . esc_html__('Business details must be 1000 characters or less.', 'aiopms') . '</p></div>';
             return;
         }
 
@@ -204,19 +204,19 @@ function abpcwa_generate_pages_with_ai($business_type, $business_details, $seo_k
         $api_key = get_option('aiopms_' . $provider . '_api_key');
 
         if (empty($api_key)) {
-            echo '<div class="notice notice-error"><p>' . sprintf(__('Please enter your %s API key in the Settings tab.', 'aiopms'), esc_html(ucfirst($provider))) . '</p></div>';
+            echo '<div class="notice notice-error"><p>' . esc_html(sprintf(__('Please enter your %s API key in the Settings tab.', 'aiopms'), ucfirst($provider))) . '</p></div>';
             return;
         }
 
         // Validate API key format
         if (!aiopms_validate_api_key($api_key, $provider)) {
-            echo '<div class="notice notice-error"><p>' . sprintf(__('Invalid %s API key format. Please check your API key.', 'aiopms'), esc_html(ucfirst($provider))) . '</p></div>';
+            echo '<div class="notice notice-error"><p>' . esc_html(sprintf(__('Invalid %s API key format. Please check your API key.', 'aiopms'), ucfirst($provider))) . '</p></div>';
             return;
         }
 
         // Rate limiting check
         if (!aiopms_check_ai_rate_limit($provider)) {
-            echo '<div class="notice notice-error"><p>' . __('Too many AI requests. Please wait a moment before trying again.', 'aiopms') . '</p></div>';
+            echo '<div class="notice notice-error"><p>' . esc_html__('Too many AI requests. Please wait a moment before trying again.', 'aiopms') . '</p></div>';
             return;
         }
 
@@ -235,12 +235,12 @@ function abpcwa_generate_pages_with_ai($business_type, $business_details, $seo_k
                 $suggested_pages = abpcwa_get_deepseek_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key);
                 break;
             default:
-                echo '<div class="notice notice-error"><p>' . __('Invalid AI provider selected.', 'aiopms') . '</p></div>';
+                echo '<div class="notice notice-error"><p>' . esc_html__('Invalid AI provider selected.', 'aiopms') . '</p></div>';
                 return;
         }
 
         if (empty($suggested_pages)) {
-            echo '<div class="notice notice-warning"><p>' . __('Could not generate page suggestions. Please check your API key and try again.', 'aiopms') . '</p></div>';
+            echo '<div class="notice notice-warning"><p>' . esc_html__('Could not generate page suggestions. Please check your API key and try again.', 'aiopms') . '</p></div>';
             return;
         }
 
@@ -250,7 +250,7 @@ function abpcwa_generate_pages_with_ai($business_type, $business_details, $seo_k
     } catch (Exception $e) {
         // Log error
         aiopms_log_ai_generation('page_suggestions', $provider ?? 'unknown', false, 0, $e->getMessage());
-        echo '<div class="notice notice-error"><p>' . __('An error occurred during AI generation. Please try again.', 'aiopms') . '</p></div>';
+        echo '<div class="notice notice-error"><p>' . esc_html__('An error occurred during AI generation. Please try again.', 'aiopms') . '</p></div>';
         error_log('AIOPMS AI Generation Error: ' . $e->getMessage());
         return;
     }
@@ -865,7 +865,7 @@ function abpcwa_create_suggested_pages($pages, $generate_images = false) {
     try {
         // Input validation
         if (empty($pages) || !is_array($pages)) {
-            echo '<div class="notice notice-error"><p>' . __('No pages provided for creation.', 'aiopms') . '</p></div>';
+            echo '<div class="notice notice-error"><p>' . esc_html__('No pages provided for creation.', 'aiopms') . '</p></div>';
             return;
         }
 

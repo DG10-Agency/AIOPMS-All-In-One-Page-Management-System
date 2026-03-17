@@ -2361,7 +2361,7 @@ function aiopms_schema_management_dashboard() {
                 esc_html__('Processed %d pages successfully!', 'aiopms'),
                 $processed
             );
-            echo '<div class="notice notice-success is-dismissible"><p>' . $message . '</p></div>';
+            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html($message) . '</p></div>';
         }
     }
 
@@ -2451,14 +2451,14 @@ function aiopms_schema_management_dashboard() {
                     <span class="aiopms-schema-badge aiopms-schema-<?php echo esc_attr($type); ?>">
                         <?php echo esc_html(ucfirst($type)); ?>
                     </span>
-                    <span class="aiopms-schema-count"><?php echo $count; ?></span>
+                    <span class="aiopms-schema-count"><?php echo esc_html($count); ?></span>
                 </div>
                 <?php endforeach; ?>
             </div>
             <?php endif; ?>
                <!-- EXPORT BUTTON MOVED HERE -->
         <p>
-            <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=aiopms-page-management&action=export_schema_csv'), 'export_schema_csv'); ?>" 
+            <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=aiopms-page-management&action=export_schema_csv'), 'export_schema_csv')); ?>" 
                class="button button-secondary">Export All Schema to CSV</a>
         </p>
 
@@ -2562,20 +2562,20 @@ function aiopms_schema_management_dashboard() {
                         ?>
                         <tr data-post-type="<?php echo esc_attr($page->post_type); ?>" data-post-status="<?php echo esc_attr($page->post_status); ?>">
                             <th class="check-column">
-                                <input type="checkbox" name="selected_pages[]" value="<?php echo $page->ID; ?>">
+                                <input type="checkbox" name="selected_pages[]" value="<?php echo esc_attr($page->ID); ?>">
                             </th>
                             <td>
                                 <strong>
-                                    <a href="<?php echo get_edit_post_link($page->ID); ?>">
+                                    <a href="<?php echo esc_url(get_edit_post_link($page->ID)); ?>">
                                         <?php echo esc_html($page->post_title); ?>
                                     </a>
                                 </strong>
                                 <div class="row-actions">
                                     <span class="view">
-                                        <a href="<?php echo get_permalink($page->ID); ?>" target="_blank">View</a> |
+                                        <a href="<?php echo esc_url(get_permalink($page->ID)); ?>" target="_blank">View</a> |
                                     </span>
                                     <span class="edit">
-                                        <a href="<?php echo get_edit_post_link($page->ID); ?>">Edit</a>
+                                        <a href="<?php echo esc_url(get_edit_post_link($page->ID)); ?>">Edit</a>
                                     </span>
                                 </div>
                             </td>
@@ -2596,13 +2596,13 @@ function aiopms_schema_management_dashboard() {
                             <td>
                                 <div class="aiopms-schema-actions">
                                     <?php if (empty($schema_type)): ?>
-                                        <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=aiopms-page-management&action=generate_schema&post=' . $page->ID), 'generate_schema_' . $page->ID); ?>" 
+                                        <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=aiopms-page-management&action=generate_schema&post=' . $page->ID), 'generate_schema_' . $page->ID)); ?>" 
                                            class="button button-small">Generate Schema</a>
                                     <?php else: ?>
-                                        <button type="button" class="button button-small aiopms-preview-schema" data-page-id="<?php echo $page->ID; ?>">Preview</button>
-                                        <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=aiopms-page-management&action=regenerate_schema&post=' . $page->ID), 'regenerate_schema_' . $page->ID); ?>" 
+                                        <button type="button" class="button button-small aiopms-preview-schema" data-page-id="<?php echo esc_attr($page->ID); ?>">Preview</button>
+                                        <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=aiopms-page-management&action=regenerate_schema&post=' . $page->ID), 'regenerate_schema_' . $page->ID)); ?>" 
                                            class="button button-small">Regenerate</a>
-                                        <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=aiopms-page-management&action=remove_schema&post=' . $page->ID), 'remove_schema_' . $page->ID); ?>" 
+                                        <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=aiopms-page-management&action=remove_schema&post=' . $page->ID), 'remove_schema_' . $page->ID)); ?>" 
                                            class="button button-small button-link-delete" 
                                            onclick="return confirm('Are you sure you want to remove schema from this page?')">Remove</a>
                                     <?php endif; ?>
