@@ -2,12 +2,12 @@
  * AI Generator JS
  * Handles AI suggestion requests and content creation via AJAX
  * 
- * @since 3.0
+ * @since 1.0
  */
 (function ($) {
     'use strict';
 
-    const AIOPMS_AIGenerator = {
+    const ArtitechCore_AIGenerator = {
         init: function () {
             this.bindEvents();
         },
@@ -16,24 +16,24 @@
             const self = this;
 
             // Handle initial suggestion request
-            $(document).on('submit', '#aiopms-ai-request-form', function (e) {
+            $(document).on('submit', '#artitechcore-ai-request-form', function (e) {
                 e.preventDefault();
                 self.generateSuggestions($(this));
             });
 
             // Handle select all pages
             $(document).on('change', '#select-all-pages', function () {
-                $('.aiopms-page-checkbox').prop('checked', $(this).prop('checked'));
+                $('.artitechcore-page-checkbox').prop('checked', $(this).prop('checked'));
                 self.updateButtonStates();
             });
 
             // Handle individual page checkboxes
-            $(document).on('change', '.aiopms-page-checkbox', function () {
+            $(document).on('change', '.artitechcore-page-checkbox', function () {
                 self.updateButtonStates();
             });
 
             // Handle creation of selected content
-            $(document).on('submit', '#aiopms-ai-creation-form', function (e) {
+            $(document).on('submit', '#artitechcore-ai-creation-form', function (e) {
                 e.preventDefault();
                 self.createContent($(this));
             });
@@ -41,24 +41,24 @@
 
         generateSuggestions: function ($form) {
             const self = this;
-            const $results = $('#aiopms-ai-results');
+            const $results = $('#artitechcore-ai-results');
             const $btn = $form.find('button[type="submit"]');
 
             const formData = new FormData($form[0]);
-            formData.append('action', 'aiopms_ai_generate_suggestions');
+            formData.append('action', 'artitechcore_ai_generate_suggestions');
 
             // Show loading state
             $btn.prop('disabled', true).addClass('loading').html('<span class="dg10-spinner"></span> Generating...');
             $results.html(`
-                <div class="aiopms-ai-loading">
-                    <div class="aiopms-ai-loader"></div>
+                <div class="artitechcore-ai-loading">
+                    <div class="artitechcore-ai-loader"></div>
                     <h3>Creating your custom business strategy...</h3>
                     <p>Our AI is analyzing your industry and target audience. This may take up to 2 minutes.</p>
                 </div>
             `);
 
             $.ajax({
-                url: aiopms_ai_data.ajaxurl,
+                url: artitechcore_ai_data.ajaxurl,
                 type: 'POST',
                 data: formData,
                 processData: false,
@@ -101,10 +101,10 @@
             const $btn = $form.find('button[type="submit"]');
 
             // Ensure results container exists
-            if ($form.find('.aiopms-creation-status').length === 0) {
-                $form.append('<div class="aiopms-creation-status"></div>');
+            if ($form.find('.artitechcore-creation-status').length === 0) {
+                $form.append('<div class="artitechcore-creation-status"></div>');
             }
-            const $results = $form.find('.aiopms-creation-status');
+            const $results = $form.find('.artitechcore-creation-status');
 
             // Scroll to bottom
             $('html, body').animate({
@@ -112,7 +112,7 @@
             }, 500);
 
             const formData = new FormData($form[0]);
-            formData.append('action', 'aiopms_ai_create_content');
+            formData.append('action', 'artitechcore_ai_create_content');
 
             $btn.prop('disabled', true).addClass('loading').text('Creating Content...');
 
@@ -130,7 +130,7 @@
 
             // Show overlay with progress
             $results.show().html(`
-                <div class="aiopms-progress-box" style="margin-top: 20px; padding: 30px; background: #fff; border: 1px solid #ccd0d4; border-left: 4px solid #2271b1; box-shadow: 0 1px 1px rgba(0,0,0,.04);">
+                <div class="artitechcore-progress-box" style="margin-top: 20px; padding: 30px; background: #fff; border: 1px solid #ccd0d4; border-left: 4px solid #2271b1; box-shadow: 0 1px 1px rgba(0,0,0,.04);">
                     <div style="display: flex; align-items: center; margin-bottom: 15px;">
                         <span class="dashicons dashicons-update spin" style="font-size: 30px; width: 30px; height: 30px; margin-right: 15px; color: #2271b1;"></span>
                         <h3 id="ai-progress-text" style="margin: 0; font-size: 16px;">${steps[0]}</h3>
@@ -152,7 +152,7 @@
             }, 5000);
 
             $.ajax({
-                url: aiopms_ai_data.ajaxurl,
+                url: artitechcore_ai_data.ajaxurl,
                 type: 'POST',
                 data: formData,
                 processData: false,
@@ -164,13 +164,13 @@
                         $('.dg10-progress-inner').css('width', '100%');
                         setTimeout(function () {
                             $form.html(`
-                                <div class="aiopms-success-state" style="text-align: center; padding: 40px; background: #fff; border: 1px solid #c3c4c7;">
-                                    <div class="aiopms-success-icon" style="font-size: 48px; margin-bottom: 20px; color: #46b450;">✅</div>
+                                <div class="artitechcore-success-state" style="text-align: center; padding: 40px; background: #fff; border: 1px solid #c3c4c7;">
+                                    <div class="artitechcore-success-icon" style="font-size: 48px; margin-bottom: 20px; color: #46b450;">✅</div>
                                     <h2 style="margin-top: 0;">Deployment Complete!</h2>
                                     <p style="font-size: 16px; margin-bottom: 30px;">${response.data.message || 'Your content ecosystem has been created successfully.'}</p>
                                     <div class="dg10-action-links" style="display: flex; gap: 15px; justify-content: center;">
                                         <a href="edit.php?post_type=page" class="button button-primary button-hero">View Created Pages</a>
-                                        <a href="admin.php?page=aiopms_cpt_manager" class="button button-secondary button-hero">Manage Taxonomies & CPTs</a>
+                                        <a href="admin.php?page=artitechcore_cpt_manager" class="button button-secondary button-hero">Manage Taxonomies & CPTs</a>
                                     </div>
                                 </div>
                             `);
@@ -213,13 +213,13 @@
         },
 
         updateButtonStates: function () {
-            const hasSelection = $('.aiopms-page-checkbox:checked, .aiopms-cpt-checkbox:checked').length > 0;
-            $('#aiopms-ai-creation-form button[type="submit"]').prop('disabled', !hasSelection);
+            const hasSelection = $('.artitechcore-page-checkbox:checked, .artitechcore-cpt-checkbox:checked').length > 0;
+            $('#artitechcore-ai-creation-form button[type="submit"]').prop('disabled', !hasSelection);
         }
     };
 
     $(document).ready(function () {
-        AIOPMS_AIGenerator.init();
+        ArtitechCore_AIGenerator.init();
     });
 
 })(jQuery);

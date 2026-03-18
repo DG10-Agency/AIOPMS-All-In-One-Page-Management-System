@@ -16,24 +16,24 @@ jQuery(document).ready(function ($) {
     });
 
     // Preview Schema Modal
-    const $modal = $('#aiopms-schema-modal');
-    
+    const $modal = $('#artitechcore-schema-modal');
+
     // Anchor modal to body to prevent fixed-positioning CSS context bugs within WordPress wrap
     if ($modal.length && $modal.parent()[0] !== document.body) {
         $(document.body).append($modal);
     }
 
     // Preview target (fallback to older id if needed)
-    const $previewCode = $('#aiopms-schema-preview-code').length ? $('#aiopms-schema-preview-code') : $('#aiopms-schema-code');
-    const $closeBtn = $('.aiopms-modal-close');
-    const $editor = $('#aiopms-schema-editor');
-    const $editorWrap = $('#aiopms-schema-editor-wrap');
-    const $pageIdField = $('#aiopms-schema-page-id');
-    const $entityTypeField = $('#aiopms-schema-entity-type');
-    const $saveBtn = $('#aiopms-schema-save');
-    const $validateBtn = $('#aiopms-schema-validate');
-    const $status = $('#aiopms-schema-save-status');
-    const $editToggle = $('#aiopms-schema-edit-toggle');
+    const $previewCode = $('#artitechcore-schema-preview-code').length ? $('#artitechcore-schema-preview-code') : $('#artitechcore-schema-code');
+    const $closeBtn = $('.artitechcore-modal-close');
+    const $editor = $('#artitechcore-schema-editor');
+    const $editorWrap = $('#artitechcore-schema-editor-wrap');
+    const $pageIdField = $('#artitechcore-schema-page-id');
+    const $entityTypeField = $('#artitechcore-schema-entity-type');
+    const $saveBtn = $('#artitechcore-schema-save');
+    const $validateBtn = $('#artitechcore-schema-validate');
+    const $status = $('#artitechcore-schema-save-status');
+    const $editToggle = $('#artitechcore-schema-edit-toggle');
 
     let lastLoadedJson = '';
 
@@ -43,7 +43,7 @@ jQuery(document).ready(function ($) {
         $validateBtn.hide();
         $saveBtn.hide();
         $editToggle.show().text('Edit Schema');
-        $('#aiopms-schema-preview-hint').show();
+        $('#artitechcore-schema-preview-hint').show();
     }
 
     function setEditMode() {
@@ -52,14 +52,14 @@ jQuery(document).ready(function ($) {
         $validateBtn.show();
         $saveBtn.show();
         $editToggle.text('Back to Preview');
-        $('#aiopms-schema-preview-hint').hide();
+        $('#artitechcore-schema-preview-hint').hide();
     }
 
     // Ensure correct initial state even if CSS/theme overrides
     setPreviewMode();
 
     // Open Modal
-    $('.aiopms-preview-schema').on('click', function (e) {
+    $('.artitechcore-preview-schema').on('click', function (e) {
         e.preventDefault();
         const pageId = $(this).data('page-id');
         const $btn = $(this);
@@ -73,15 +73,15 @@ jQuery(document).ready(function ($) {
         $entityTypeField.val('post');
 
         // Use localized data or fallback. 
-        // Note: Ensure wp_localize_script is called in PHP with 'aiopms_schema_data'
-        const ajaxUrl = typeof aiopms_schema_data !== 'undefined' ? aiopms_schema_data.ajaxurl : ajaxurl;
-        const nonce = typeof aiopms_schema_data !== 'undefined' ? aiopms_schema_data.nonce : '';
+        // Note: Ensure wp_localize_script is called in PHP with 'artitechcore_schema_data'
+        const ajaxUrl = typeof artitechcore_schema_data !== 'undefined' ? artitechcore_schema_data.ajaxurl : ajaxurl;
+        const nonce = typeof artitechcore_schema_data !== 'undefined' ? artitechcore_schema_data.nonce : '';
 
         $.ajax({
             url: ajaxUrl,
             type: 'POST',
             data: {
-                action: 'aiopms_get_schema_preview',
+                action: 'artitechcore_get_schema_preview',
                 nonce: nonce,
                 page_id: pageId
             },
@@ -97,24 +97,24 @@ jQuery(document).ready(function ($) {
                     $editor.val(safe);
                     $pageIdField.val(pageId);
                     $entityTypeField.val('post');
-                    
+
                     // Ensure it has brand class
                     $modal.addClass('dg10-brand');
-                    
+
                     // Open modal with scroll lock
-                    $('body').addClass('aiopms-modal-open');
+                    $('body').addClass('artitechcore-modal-open');
                     $modal.fadeIn(200).css('display', 'flex');
                 } else {
                     const msg = (response.data && response.data.message) ? response.data.message : 'Could not fetch schema.';
                     $previewCode.text('{\n  "error": ' + JSON.stringify(msg) + '\n}');
-                    
-                    $('body').addClass('aiopms-modal-open');
+
+                    $('body').addClass('artitechcore-modal-open');
                     $modal.fadeIn(200).css('display', 'flex');
                 }
             },
             error: function () {
                 $previewCode.text('{\n  "error": "Network error occurred."\n}');
-                $('body').addClass('aiopms-modal-open');
+                $('body').addClass('artitechcore-modal-open');
                 $modal.fadeIn(200).css('display', 'flex');
             },
             complete: function () {
@@ -124,7 +124,7 @@ jQuery(document).ready(function ($) {
     });
 
     // Preview term schema
-    $('.aiopms-preview-schema-term').on('click', function (e) {
+    $('.artitechcore-preview-schema-term').on('click', function (e) {
         e.preventDefault();
         const termId = $(this).data('term-id');
         const taxonomy = $(this).data('taxonomy');
@@ -137,14 +137,14 @@ jQuery(document).ready(function ($) {
         $previewCode.text('Loading schema...');
         $editor.val('');
 
-        const ajaxUrl = typeof aiopms_schema_data !== 'undefined' ? aiopms_schema_data.ajaxurl : ajaxurl;
-        const nonce = typeof aiopms_schema_data !== 'undefined' ? aiopms_schema_data.nonce : '';
+        const ajaxUrl = typeof artitechcore_schema_data !== 'undefined' ? artitechcore_schema_data.ajaxurl : ajaxurl;
+        const nonce = typeof artitechcore_schema_data !== 'undefined' ? artitechcore_schema_data.nonce : '';
 
         $.ajax({
             url: ajaxUrl,
             type: 'POST',
             data: {
-                action: 'aiopms_get_term_schema_preview',
+                action: 'artitechcore_get_term_schema_preview',
                 nonce: nonce,
                 term_id: termId,
                 taxonomy: taxonomy
@@ -161,24 +161,24 @@ jQuery(document).ready(function ($) {
                     $editor.val(safe);
                     $pageIdField.val(termId);
                     $entityTypeField.val('term:' + taxonomy);
-                    
+
                     // Ensure it has brand class
                     $modal.addClass('dg10-brand');
-                    
-                    $('body').addClass('aiopms-modal-open');
+
+                    $('body').addClass('artitechcore-modal-open');
                     $modal.fadeIn(200).css('display', 'flex');
                 } else {
                     const msg = (response.data && response.data.message) ? response.data.message : 'Could not fetch schema.';
                     $previewCode.text('{\n  "error": ' + JSON.stringify(msg) + '\n}');
-                    
-                    $('body').addClass('aiopms-modal-open');
+
+                    $('body').addClass('artitechcore-modal-open');
                     $modal.fadeIn(200).css('display', 'flex');
                 }
             },
             error: function () {
                 $previewCode.text('{\n  "error": "Network error occurred."\n}');
-                
-                $('body').addClass('aiopms-modal-open');
+
+                $('body').addClass('artitechcore-modal-open');
                 $modal.fadeIn(200).css('display', 'flex');
             },
             complete: function () {
@@ -189,16 +189,16 @@ jQuery(document).ready(function ($) {
 
     // Close Modal
     $closeBtn.on('click', function () {
-        $modal.fadeOut(200, function() {
-            $('body').removeClass('aiopms-modal-open');
+        $modal.fadeOut(200, function () {
+            $('body').removeClass('artitechcore-modal-open');
         });
     });
 
     // Close on click outside
     $(window).on('click', function (e) {
         if ($(e.target).is($modal)) {
-            $modal.fadeOut(200, function() {
-                $('body').removeClass('aiopms-modal-open');
+            $modal.fadeOut(200, function () {
+                $('body').removeClass('artitechcore-modal-open');
             });
         }
     });
@@ -252,15 +252,15 @@ jQuery(document).ready(function ($) {
             return;
         }
 
-        const ajaxUrl = typeof aiopms_schema_data !== 'undefined' ? aiopms_schema_data.ajaxurl : ajaxurl;
-        const nonce = typeof aiopms_schema_data !== 'undefined' ? aiopms_schema_data.nonce : '';
+        const ajaxUrl = typeof artitechcore_schema_data !== 'undefined' ? artitechcore_schema_data.ajaxurl : ajaxurl;
+        const nonce = typeof artitechcore_schema_data !== 'undefined' ? artitechcore_schema_data.nonce : '';
 
         $saveBtn.prop('disabled', true).text('Saving...');
         $status.text('');
 
         const isTerm = entityType.indexOf('term:') === 0;
         const taxonomy = isTerm ? entityType.replace('term:', '') : '';
-        const actionName = isTerm ? 'aiopms_save_term_schema_override' : 'aiopms_save_schema_override';
+        const actionName = isTerm ? 'artitechcore_save_term_schema_override' : 'artitechcore_save_schema_override';
 
         $.ajax({
             url: ajaxUrl,

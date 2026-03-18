@@ -1,7 +1,7 @@
 /* Enhanced DG10 Brand Admin Menu Styling */
 
 /* Center the plugin icon in the WordPress admin menu */
-#adminmenu #toplevel_page_aiopms-page-management .wp-menu-image {
+#adminmenu #toplevel_page_artitechcore-main .wp-menu-image {
     width: 36px !important;
     height: 34px !important;
     position: relative !important;
@@ -12,8 +12,8 @@
 }
 
 /* Ensure the SVG/img itself is centered and sized like core icons */
-#adminmenu #toplevel_page_aiopms-page-management .wp-menu-image img,
-#adminmenu #toplevel_page_aiopms-page-management .wp-menu-image svg {
+#adminmenu #toplevel_page_artitechcore-main .wp-menu-image img,
+#adminmenu #toplevel_page_artitechcore-main .wp-menu-image svg {
     width: 20px !important;
     height: 20px !important;
     display: block !important;
@@ -31,40 +31,40 @@
 }
 
 /* Enhanced hover and active states with brand colors */
-#adminmenu #toplevel_page_aiopms-page-management:hover .wp-menu-image img,
-#adminmenu #toplevel_page_aiopms-page-management.current .wp-menu-image img {
+#adminmenu #toplevel_page_artitechcore-main:hover .wp-menu-image img,
+#adminmenu #toplevel_page_artitechcore-main.current .wp-menu-image img {
     opacity: 1 !important;
     filter: drop-shadow(0 0 8px rgba(180, 124, 253, 0.6));
     transform: scale(1.1);
 }
 
-#adminmenu #toplevel_page_aiopms-page-management:hover .wp-menu-image,
-#adminmenu #toplevel_page_aiopms-page-management.current .wp-menu-image {
+#adminmenu #toplevel_page_artitechcore-main:hover .wp-menu-image,
+#adminmenu #toplevel_page_artitechcore-main.current .wp-menu-image {
     background: linear-gradient(135deg, rgba(180, 124, 253, 0.1) 0%, rgba(255, 127, 194, 0.1) 100%);
     border-radius: 6px;
 }
 
 /* Enhanced menu item styling */
-#adminmenu #toplevel_page_aiopms-page-management:hover,
-#adminmenu #toplevel_page_aiopms-page-management.current {
+#adminmenu #toplevel_page_artitechcore-main:hover,
+#adminmenu #toplevel_page_artitechcore-main.current {
     background: linear-gradient(135deg, rgba(180, 124, 253, 0.05) 0%, rgba(255, 127, 194, 0.05) 100%);
     border-left: 3px solid var(--dg10-primary, #B47CFD);
 }
 
-#adminmenu #toplevel_page_aiopms-page-management:hover .wp-menu-name,
-#adminmenu #toplevel_page_aiopms-page-management.current .wp-menu-name {
+#adminmenu #toplevel_page_artitechcore-main:hover .wp-menu-name,
+#adminmenu #toplevel_page_artitechcore-main.current .wp-menu-name {
     color: var(--dg10-primary, #B47CFD) !important;
     font-weight: 600;
 }
 
 /* Remove the default dashicon pseudo-element so only our SVG shows */
-#adminmenu #toplevel_page_aiopms-page-management .wp-menu-image:before {
+#adminmenu #toplevel_page_artitechcore-main .wp-menu-image:before {
     content: none !important;
     display: none !important;
 }
 
 /* Enhanced submenu styling */
-#adminmenu #toplevel_page_aiopms-page-management .wp-submenu {
+#adminmenu #toplevel_page_artitechcore-main .wp-submenu {
     background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(10px);
     border-radius: 0 0 8px 8px;
@@ -72,13 +72,13 @@
     border: 1px solid rgba(180, 124, 253, 0.1);
 }
 
-#adminmenu #toplevel_page_aiopms-page-management .wp-submenu li a {
+#adminmenu #toplevel_page_artitechcore-main .wp-submenu li a {
     transition: all 0.2s ease;
     border-radius: 4px;
     margin: 2px 4px;
 }
 
-#adminmenu #toplevel_page_aiopms-page-management .wp-submenu li a:hover {
+#adminmenu #toplevel_page_artitechcore-main .wp-submenu li a:hover {
     background: linear-gradient(135deg, rgba(180, 124, 253, 0.1) 0%, rgba(255, 127, 194, 0.1) 100%);
     color: var(--dg10-primary, #B47CFD);
     transform: translateX(4px);
@@ -87,30 +87,30 @@
 /* Mobile responsive adjustments */
 @media screen and (max-width: 782px) {
 
-    #adminmenu #toplevel_page_aiopms-page-management .wp-menu-image img,
-    #adminmenu #toplevel_page_aiopms-page-management .wp-menu-image svg {
+    #adminmenu #toplevel_page_artitechcore-main .wp-menu-image img,
+    #adminmenu #toplevel_page_artitechcore-main .wp-menu-image svg {
         width: 18px !important;
         height: 18px !important;
     }
 
-    #adminmenu #toplevel_page_aiopms-page-management:hover .wp-menu-image img,
-    #adminmenu #toplevel_page_aiopms-page-management.current .wp-menu-image img {
+    #adminmenu #toplevel_page_artitechcore-main:hover .wp-menu-image img,
+    #adminmenu #toplevel_page_artitechcore-main.current .wp-menu-image img {
         transform: scale(1.05);
     }
 }
 
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
-    #adminmenu #toplevel_page_aiopms-page-management .wp-submenu {
+    #adminmenu #toplevel_page_artitechcore-main .wp-submenu {
         background: rgba(15, 5, 32, 0.98);
         border-color: rgba(180, 124, 253, 0.2);
     }
 
-    #adminmenu #toplevel_page_aiopms-page-management .wp-submenu li a {
+    #adminmenu #toplevel_page_artitechcore-main .wp-submenu li a {
         color: rgba(255, 255, 255, 0.8);
     }
 
-    #adminmenu #toplevel_page_aiopms-page-management .wp-submenu li a:hover {
+    #adminmenu #toplevel_page_artitechcore-main .wp-submenu li a:hover {
         color: var(--dg10-primary, #B47CFD);
         background: linear-gradient(135deg, rgba(180, 124, 253, 0.2) 0%, rgba(255, 127, 194, 0.2) 100%);
     }

@@ -1,10 +1,10 @@
-# AIOPMS - All In One Page Management System
+# ArtitechCore 
 
 [![WordPress](https://img.shields.io/badge/WordPress-5.6%2B-blue.svg)](https://wordpress.org/)
 [![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)](https://php.net/)
 [![License](https://img.shields.io/badge/License-GPL%20v2%2B-green.svg)](https://www.gnu.org/licenses/gpl-2.0.html)
 
-AIOPMS is a high-performance, AI-driven infrastructure for WordPress. Built for the modern DG10 Agency ecosystem, it combines advanced content generation with a professional-grade SEO and Schema management suite.
+ArtitechCore is a high-performance, AI-driven infrastructure for WordPress. Built for the modern DG10 Agency ecosystem, it combines advanced content generation with a professional-grade SEO and Schema management suite.
 
 ---
 
@@ -12,11 +12,11 @@ AIOPMS is a high-performance, AI-driven infrastructure for WordPress. Built for 
 - [🎯 Overview](#-overview)
 - [🚀 Core Pillars](#-core-pillars)
 - [🛠️ Detailed Feature Guide](#-detailed-feature-guide)
-  - [Bulk Page Engine](#bulk-page-engine)
-  - [AI Agency Mode](#ai-agency-mode)
-  - [Schema Generator PRO](#schema-generator-pro)
-  - [CPT & Taxonomy Manager](#cpt--taxonomy-manager)
-  - [Menu Architecture](#menu-architecture)
+  [Bulk Page Engine](#bulk-page-engine)
+  [AI Agency Mode](#ai-agency-mode)
+  [Schema Generator PRO](#schema-generator-pro)
+  [CPT & Taxonomy Manager](#cpt--taxonomy-manager)
+  [Menu Architecture](#menu-architecture)
 - [🎨 Branding & UX Standards](#-branding--ux-standards)
 - [⚙️ Configuration & API Settings](#-configuration--api-settings)
 - [🔒 Security & Technical Specs](#-security--technical-specs)
@@ -29,10 +29,10 @@ AIOPMS is a high-performance, AI-driven infrastructure for WordPress. Built for 
 
 ## 🎯 Overview
 
-**AIOPMS** is not just a page creator; it is a full-site architectural tool. It solves the bottleneck of manual site building by allowing users to deploy complex, inter-linked content ecosystems using simple syntax, CSV imports, or high-intelligence AI agents (OpenAI, Gemini, DeepSeek).
+**ArtitechCore** is not just a page creator; it is a full-site architectural tool. It solves the bottleneck of manual site building by allowing users to deploy complex, inter-linked content ecosystems using simple syntax, CSV imports, or high-intelligence AI agents (OpenAI, Gemini, DeepSeek).
 
-### Why use AIOPMS?
-- **AI-Native**: Unlike other plugins that simply "add AI text," AIOPMS uses AI to build the *structure* of your business (Post Types, Fields, and Categories).
+### Why use ArtitechCore?
+- **AI-Native**: Unlike other plugins that simply "add AI text," ArtitechCore uses AI to build the *structure* of your business (Post Types, Fields, and Categories).
 - **Agency-Ready**: Built following the DG10 Agency design system—high contrast, glassmorphic elements, and premium feel.
 - **SEO-First**: Every page is born with optimized meta-data and a tailored Schema structure.
 
@@ -41,7 +41,7 @@ AIOPMS is a high-performance, AI-driven infrastructure for WordPress. Built for 
 ## 🚀 Core Pillars
 
 ### 1. The Bulk Creation Engine
-AIOPMS provides three distinct ways to build your site:
+ArtitechCore provides three distinct ways to build your site:
 - **Manual Input**: A powerful hyphen-based syntax for rapid drafting.
 - **CSV Data Sync**: Import thousands of records with parent-child logic and custom meta.
 - **AI Business Generator**: Natural language prompts turn business descriptions into full site maps.
@@ -78,7 +78,7 @@ Advanced Mode utilizes the full power of your selected AI Provider:
 4. **Custom Fields**: It implements business-specific fields like `Price`, `Rating`, or `Duration`.
 
 ### Schema Generator PRO
-The most advanced part of the current 3.0 release:
+The most advanced part of the current 1.0 release:
 - **Dashboard Filters**: Filter your site by Post Type or Status to identify gaps in SEO coverage.
 - **One-Click Preview**: Opens a high-performance modal with your JSON-LD.
 - **Live Editor**: Edit the JSON directly in the admin.
@@ -94,9 +94,9 @@ The interface follows the **DG10 Agency Branding** guidelines:
 - **Glassmorphism**: Panels use semi-transparent backdrops and subtle borders.
 - **Consistency**: Buttons, forms, and badges share a unified CSS variable system.
 - **Accessibility**: 
-  - 4.5:1 Contrast ratios for all text.
-  - Viewport-locked modals to prevent "double scrolling."
-  - Sticky headers and footers for long data tables.
+  4.5:1 Contrast ratios for all text.
+  Viewport-locked modals to prevent "double scrolling."
+  Sticky headers and footers for long data tables.
 
 ---
 
@@ -128,15 +128,15 @@ The interface follows the **DG10 Agency Branding** guidelines:
 
 - **Memory Monitoring**: The plugin tracks PHP memory usage during imports and warns users before a crash.
 - **Sequential Looping**: Bulk actions process in batches (200 records) to stay within server timeout limits.
-- **Asset Loading**: CSS/JS is only enqueued on AIOPMS-specific admin pages to keep the rest of your site fast.
+- **Asset Loading**: CSS/JS is only enqueued on ArtitechCore-specific admin pages to keep the rest of your site fast.
 
 ---
 
 ## 🆕 Project Architecture & Launch
 
-AIOPMS was built as a consolidated infrastructure for high-end agency deployments.
+ArtitechCore was built as a consolidated infrastructure for high-end agency deployments.
 
-### Version 1.0 - Initial Launch
+### Version 1.0 Initial Launch
 This version represents the full stabilization of the page management core and AI integration layers.
 - **[Core]** Consolidated all generation logic into a unified dashboard.
 - **[AI]** Implemented intelligent Taxonomy-to-CPT linking logic.
@@ -149,8 +149,8 @@ This version represents the full stabilization of the page management core and A
 ## 📋 Installation & Quick Start
 
 1. **Install**: Upload the ZIP and activate.
-2. **Provider**: Go to `AIOPMS -> Settings` and add your OpenAI/Gemini/DeepSeek key.
-3. **Build**: Use `AI Generation -> Advanced Mode` to map your business.
+2. **Provider**: Go to `ArtitechCore> Settings` and add your OpenAI/Gemini/DeepSeek key.
+3. **Build**: Use `AI Generation> Advanced Mode` to map your business.
 4. **SEO**: Go to `Schema Generator` to finalize your structured data.
 5. **Launch**: Export your finalized schema at any time via the dashboard.
 

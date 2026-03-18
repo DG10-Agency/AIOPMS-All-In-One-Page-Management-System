@@ -1,4 +1,4 @@
-=== AIOPMS - All In One Page Management System ===
+=== ArtitechCore -  ===
 Contributors: dg10agency
 Tags: pages, schema markup, bulk creation, ai content, seo generator, menu generator, openai, gemini, hierarchy
 Requires at least: 5.6
@@ -8,17 +8,17 @@ Stable tag: 1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-AIOPMS is the ultimate page management and SEO infrastructure plugin, combining DG10 Agency design with powerful AI-driven content and schema generation.
+ArtitechCore is the ultimate page management and SEO infrastructure plugin, combining DG10 Agency design with powerful AI-driven content and schema generation.
 
 == Description ==
 
-**AIOPMS (All In One Page Management System)** is a comprehensive solution designed to eliminate the manual labor of building WordPress websites. Built for agencies and power-users, it integrates leading AI providers (OpenAI, Google Gemini, DeepSeek) into a professional interface that manages everything from content hierarchy to structured data (Schema.org).
+**ArtitechCore ()** is a comprehensive solution designed to eliminate the manual labor of building WordPress websites. Built for agencies and power-users, it integrates leading AI providers (OpenAI, Google Gemini, DeepSeek) into a professional interface that manages everything from content hierarchy to structured data (Schema.org).
 
-With AIOPMS, you don't just "write pages"—you architect entire business ecosystems. The plugin understands your business goals and suggests the ideal Custom Post Types, categories, and page structures required for your industry.
+With ArtitechCore, you don't just "write pages"—you architect entire business ecosystems. The plugin understands your business goals and suggests the ideal Custom Post Types, categories, and page structures required for your industry.
 
 = 🚀 Main Features in Detail =
 
-*   **🤖 AI-Powered Content Architecture** - Go beyond text. AIOPMS builds your site structure. It generates intelligent page hierarchies based on your business model.
+*   **🤖 AI-Powered Content Architecture** - Go beyond text. ArtitechCore builds your site structure. It generates intelligent page hierarchies based on your business model.
 *   **🏗️ Advanced CPT & Taxonomy Engine** - Create business-specific Custom Post Types (e.g., Doctors, Products, etc.) and link them to AI-suggested taxonomies. Business-critical fields (Price, Duration, Location) are automatically implemented.
 *   **📊 Pro Schema Management Suite** - A dedicated dashboard to monitor your SEO coverage. Generate, edit, and bulk-manage JSON-LD schema (FAQ, Product, LocalBusiness, etc.) with a live code editor and export your entire schema set to CSV.
 *   **📂 Intelligent CSV Bulk Import** - Deploy hundreds of SEO-optimized pages in seconds. Supports robust validation, parent-child relationships, and metadata mapping.
@@ -31,7 +31,7 @@ With AIOPMS, you don't just "write pages"—you architect entire business ecosys
 
 1. Upload the plugin folder to the `/wp-content/plugins/` directory.
 2. Activate the plugin through the 'Plugins' menu in WordPress.
-3. Access the **AIOPMS** dashboard in your admin sidebar.
+3. Access the **ArtitechCore** dashboard in your admin sidebar.
 4. Go to **Settings** to add your OpenAI, Gemini, or DeepSeek API key to unlock the AI features.
 
 == Frequently Asked Questions ==
@@ -62,7 +62,7 @@ Yes, your API keys are stored securely in your WordPress database and are only u
 == Changelog ==
 
 = 1.0 =
-* Initial release of the All In One Page Management System.
+* Initial release of the .
 * Full AI content and schema generation suite.
 * DG10 Agency design system implementation.
 
@@ -73,4 +73,4 @@ Updates Coming soon...
 
 == Privacy Policy ==
 
-AIOPMS does not store or collect personal user data. If AI features are used, your business context and content are sent to the selected AI provider (OpenAI, Google, or DeepSeek) according to their respective privacy terms. No data is shared with third parties beyond the specific provider selected by the administrator.
+ArtitechCore does not store or collect personal user data. If AI features are used, your business context and content are sent to the selected AI provider (OpenAI, Google, or DeepSeek) according to their respective privacy terms. No data is shared with third parties beyond the specific provider selected by the administrator.

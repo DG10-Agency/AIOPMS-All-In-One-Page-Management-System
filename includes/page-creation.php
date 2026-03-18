@@ -4,9 +4,9 @@ if (!defined('ABSPATH')) {
 }
 
 // Create pages from manual input
-function aiopms_create_pages_manually($titles_str) {
+function artitechcore_create_pages_manually($titles_str) {
     if (!current_user_can('publish_pages')) {
-        wp_die(esc_html__('You do not have sufficient permissions to create pages.', 'aiopms'));
+        wp_die(esc_html__('You do not have sufficient permissions to create pages.', 'artitechcore'));
     }
 
     $titles = explode("\n", sanitize_textarea_field($titles_str));
@@ -60,7 +60,7 @@ function aiopms_create_pages_manually($titles_str) {
             $parent_id = ($depth > 0 && isset($parent_id_stack[$depth - 1])) ? $parent_id_stack[$depth - 1] : 0;
 
             // Generate SEO-optimized slug
-            $post_name = aiopms_generate_seo_slug($title);
+            $post_name = artitechcore_generate_seo_slug($title);
             
             // Create page
             $new_page = array(
@@ -80,17 +80,17 @@ function aiopms_create_pages_manually($titles_str) {
                 // Set featured image with SEO metadata
                 if (!empty($featured_image_url)) {
                     $image_title = "Featured Image for " . sanitize_text_field($title);
-                    $keywords = aiopms_extract_primary_keywords($title);
+                    $keywords = artitechcore_extract_primary_keywords($title);
                     $image_alt = "Visual representation of " . $keywords . " concept";
                     $image_description = "Featured image for " . sanitize_text_field($title) . " page";
                     
-                    aiopms_set_featured_image($page_id, $featured_image_url, $image_title, $image_alt, $image_description);
+                    artitechcore_set_featured_image($page_id, $featured_image_url, $image_title, $image_alt, $image_description);
                 }
 
                 // Generate schema markup for the new page
-                $auto_generate = get_option('aiopms_auto_schema_generation', true);
+                $auto_generate = get_option('artitechcore_auto_schema_generation', true);
                 if ($auto_generate) {
-                    aiopms_generate_schema_markup($page_id);
+                    artitechcore_generate_schema_markup($page_id);
                 }
 
                 // Update parent stack
@@ -101,14 +101,14 @@ function aiopms_create_pages_manually($titles_str) {
     }
 
     if ($created_pages > 0) {
-        echo '<div class="notice notice-success is-dismissible"><p>' . sprintf(esc_html__('%d pages created successfully!', 'aiopms'), absint($created_pages)) . '</p></div>';
+        echo '<div class="notice notice-success is-dismissible"><p>' . sprintf(esc_html__('%d pages created successfully!', 'artitechcore'), absint($created_pages)) . '</p></div>';
     } else {
-        echo '<div class="notice notice-warning is-dismissible"><p>' . esc_html__('No pages were created. Please check your input.', 'aiopms') . '</p></div>';
+        echo '<div class="notice notice-warning is-dismissible"><p>' . esc_html__('No pages were created. Please check your input.', 'artitechcore') . '</p></div>';
     }
 }
 
 // Generate SEO-optimized slug
-function aiopms_generate_seo_slug($title, $max_length = 72) {
+function artitechcore_generate_seo_slug($title, $max_length = 72) {
     // Convert to lowercase
     $slug = strtolower($title);
     
@@ -135,8 +135,8 @@ function aiopms_generate_seo_slug($title, $max_length = 72) {
 }
 
 // Set featured image with SEO metadata
-if (!function_exists('aiopms_set_featured_image')) {
-    function aiopms_set_featured_image($post_id, $image_url, $image_title = '', $image_alt = '', $image_description = '') {
+if (!function_exists('artitechcore_set_featured_image')) {
+    function artitechcore_set_featured_image($post_id, $image_url, $image_title = '', $image_alt = '', $image_description = '') {
     // Check if the image URL is valid
     if (filter_var($image_url, FILTER_VALIDATE_URL) === FALSE) {
         return;
@@ -149,7 +149,7 @@ if (!function_exists('aiopms_set_featured_image')) {
         'posts_per_page' => 1,
         'meta_query'     => array(
             array(
-                'key'     => '_aiopms_source_url',
+                'key'     => '_artitechcore_source_url',
                 'value'   => $image_url,
                 'compare' => '='
             )
@@ -177,7 +177,7 @@ if (!function_exists('aiopms_set_featured_image')) {
     
     if ($upload['error']) {
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('AIOPMS: Failed to upload image - ' . $upload['error']);
+            error_log('ArtitechCore: Failed to upload image - ' . $upload['error']);
         }
         return;
     }
@@ -201,7 +201,7 @@ if (!function_exists('aiopms_set_featured_image')) {
     wp_update_attachment_metadata($attach_id, $attach_data);
     
     // Store source URL for deduplication
-    update_post_meta($attach_id, '_aiopms_source_url', $image_url);
+    update_post_meta($attach_id, '_artitechcore_source_url', $image_url);
     
     // Set alt text if provided
     if (!empty($image_alt)) {

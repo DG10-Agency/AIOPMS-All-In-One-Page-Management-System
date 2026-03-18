@@ -4,131 +4,131 @@ if (!defined('ABSPATH')) {
 }
 
 // Add admin menu
-function aiopms_add_admin_menu() {
+function artitechcore_add_admin_menu() {
     add_menu_page(
-        __('AIOPMS - Page Management', 'aiopms'),
-        __('AIOPMS', 'aiopms'),
+        __('ArtitechCore WP', 'artitechcore'),
+        __('ArtitechCore', 'artitechcore'),
         'manage_options',
-        'aiopms-page-management',
-        'aiopms_admin_page',
-        AIOPMS_PLUGIN_URL . 'assets/images/logo.svg',
+        'artitechcore-main',
+        'artitechcore_admin_page',
+        ArtitechCore_PLUGIN_URL . 'assets/images/logo.svg',
         25
     );
 
     // Add submenus to restore menu item visibility
     add_submenu_page(
-        'aiopms-page-management',
-        __('Manual Creation', 'aiopms'),
-        __('Manual Creation', 'aiopms'),
+        'artitechcore-main',
+        __('Manual Creation', 'artitechcore'),
+        __('Manual Creation', 'artitechcore'),
         'manage_options',
-        'aiopms-page-management',
-        'aiopms_admin_page'
+        'artitechcore-main',
+        'artitechcore_admin_page'
     );
 
     add_submenu_page(
-        'aiopms-page-management',
-        __('CSV Upload', 'aiopms'),
-        __('CSV Upload', 'aiopms'),
+        'artitechcore-main',
+        __('CSV Upload', 'artitechcore'),
+        __('CSV Upload', 'artitechcore'),
         'manage_options',
-        'aiopms-csv-upload',
-        'aiopms_admin_page'
+        'artitechcore-csv-upload',
+        'artitechcore_admin_page'
     );
 
     add_submenu_page(
-        'aiopms-page-management',
-        __('AI Generation', 'aiopms'),
-        __('AI Generation', 'aiopms'),
+        'artitechcore-main',
+        __('AI Generation', 'artitechcore'),
+        __('AI Generation', 'artitechcore'),
         'manage_options',
-        'aiopms-ai-generator',
-        'aiopms_admin_page'
+        'artitechcore-ai-generator',
+        'artitechcore_admin_page'
     );
 
     add_submenu_page(
-        'aiopms-page-management',
-        __('Schema Generator', 'aiopms'),
-        __('Schema Generator', 'aiopms'),
+        'artitechcore-main',
+        __('Schema Generator', 'artitechcore'),
+        __('Schema Generator', 'artitechcore'),
         'manage_options',
-        'aiopms-schema-generator',
-        'aiopms_admin_page'
+        'artitechcore-schema-generator',
+        'artitechcore_admin_page'
     );
 
     add_submenu_page(
-        'aiopms-page-management',
-        __('Menu Generator', 'aiopms'),
-        __('Menu Generator', 'aiopms'),
+        'artitechcore-main',
+        __('Menu Generator', 'artitechcore'),
+        __('Menu Generator', 'artitechcore'),
         'manage_options',
-        'aiopms-menu-generator',
-        'aiopms_admin_page'
+        'artitechcore-menu-generator',
+        'artitechcore_admin_page'
     );
     
     add_submenu_page(
-        'aiopms-page-management',
-        __('Page Hierarchy', 'aiopms'),
-        __('Page Hierarchy', 'aiopms'),
+        'artitechcore-main',
+        __('Page Hierarchy', 'artitechcore'),
+        __('Page Hierarchy', 'artitechcore'),
         'manage_options',
-        'aiopms-hierarchy',
-        'aiopms_admin_page'
+        'artitechcore-hierarchy',
+        'artitechcore_admin_page'
     );
 
     add_submenu_page(
-        'aiopms-page-management',
-        __('Keyword Analysis', 'aiopms'),
-        __('Keyword Analysis', 'aiopms'),
+        'artitechcore-main',
+        __('Keyword Analysis', 'artitechcore'),
+        __('Keyword Analysis', 'artitechcore'),
         'manage_options',
-        'aiopms-keyword-analysis',
-        'aiopms_admin_page'
+        'artitechcore-keyword-analysis',
+        'artitechcore_admin_page'
     );
 
     add_submenu_page(
-        'aiopms-page-management',
-        __('Custom Post Types', 'aiopms'),
-        __('Custom Post Types', 'aiopms'),
+        'artitechcore-main',
+        __('Custom Post Types', 'artitechcore'),
+        __('Custom Post Types', 'artitechcore'),
         'manage_options',
-        'aiopms-cpt-management',
-        'aiopms_admin_page'
+        'artitechcore-cpt-management',
+        'artitechcore_admin_page'
     );
 
     add_submenu_page(
-        'aiopms-page-management',
-        __('Settings', 'aiopms'),
-        __('Settings', 'aiopms'),
+        'artitechcore-main',
+        __('Settings', 'artitechcore'),
+        __('Settings', 'artitechcore'),
         'manage_options',
-        'aiopms-settings',
-        'aiopms_admin_page'
+        'artitechcore-settings',
+        'artitechcore_admin_page'
     );
 }
-add_action('admin_menu', 'aiopms_add_admin_menu');
+add_action('admin_menu', 'artitechcore_add_admin_menu');
 
 // Admin page content
-function aiopms_admin_page() {
+function artitechcore_admin_page() {
     // Determine active tab from URL parameter or page slug
     $active_tab = isset($_GET['tab']) ? sanitize_key($_GET['tab']) : '';
     $current_page = isset($_GET['page']) ? sanitize_key($_GET['page']) : '';
 
     if (empty($active_tab)) {
         switch ($current_page) {
-            case 'aiopms-csv-upload':
+            case 'artitechcore-csv-upload':
                 $active_tab = 'csv';
                 break;
-            case 'aiopms-ai-generator':
+            case 'artitechcore-ai-generator':
                 $active_tab = 'ai';
                 break;
-            case 'aiopms-schema-generator':
+            case 'artitechcore-schema-generator':
                 $active_tab = 'schema';
                 break;
-            case 'aiopms-menu-generator':
+            case 'artitechcore-menu-generator':
                 $active_tab = 'menu';
                 break;
-            case 'aiopms-hierarchy':
+            case 'artitechcore-hierarchy':
                 $active_tab = 'hierarchy';
                 break;
-            case 'aiopms-keyword-analysis':
+            case 'artitechcore-keyword-analysis':
                 $active_tab = 'keyword-analysis';
                 break;
-            case 'aiopms-cpt-management':
+            case 'artitechcore-cpt-management':
                 $active_tab = 'cpt';
                 break;
-            case 'aiopms-settings':
+            case 'artitechcore-settings':
                 $active_tab = 'settings';
                 break;
             default:
@@ -140,72 +140,72 @@ function aiopms_admin_page() {
     // Define menu items with their details
     $menu_items = array(
         'manual' => array(
-            'title' => __('Manual Page Creation', 'aiopms'),
+            'title' => __('Manual Page Creation', 'artitechcore'),
             'icon' => '',
-            'description' => __('Create pages manually with custom hierarchy and attributes', 'aiopms')
+            'description' => __('Create pages manually with custom hierarchy and attributes', 'artitechcore')
         ),
         'csv' => array(
-            'title' => __('CSV Upload', 'aiopms'),
+            'title' => __('CSV Upload', 'artitechcore'),
             'icon' => '',
-            'description' => __('Bulk import pages from CSV files', 'aiopms')
+            'description' => __('Bulk import pages from CSV files', 'artitechcore')
         ),
         'ai' => array(
-            'title' => __('AI Generation', 'aiopms'),
+            'title' => __('AI Generation', 'artitechcore'),
             'icon' => '',
-            'description' => __('Generate pages with AI assistance', 'aiopms')
+            'description' => __('Generate pages with AI assistance', 'artitechcore')
         ),
         'schema' => array(
-            'title' => __('Schema Generator', 'aiopms'),
+            'title' => __('Schema Generator', 'artitechcore'),
             'icon' => '',
-            'description' => __('Create structured data markup', 'aiopms')
+            'description' => __('Create structured data markup', 'artitechcore')
         ),
         'menu' => array(
-            'title' => __('Menu Generator', 'aiopms'),
+            'title' => __('Menu Generator', 'artitechcore'),
             'icon' => '',
-            'description' => __('Automatically generate WordPress menus', 'aiopms')
+            'description' => __('Automatically generate WordPress menus', 'artitechcore')
         ),
         'hierarchy' => array(
-            'title' => __('Page Hierarchy', 'aiopms'),
+            'title' => __('Page Hierarchy', 'artitechcore'),
             'icon' => '',
-            'description' => __('Visualize and manage page structure', 'aiopms')
+            'description' => __('Visualize and manage page structure', 'artitechcore')
         ),
         'keyword-analysis' => array(
-            'title' => __('Keyword Analysis', 'aiopms'),
+            'title' => __('Keyword Analysis', 'artitechcore'),
             'icon' => '',
-            'description' => __('Analyze keyword density and SEO', 'aiopms')
+            'description' => __('Analyze keyword density and SEO', 'artitechcore')
         ),
         'cpt' => array(
-            'title' => __('Custom Post Types', 'aiopms'),
+            'title' => __('Custom Post Types', 'artitechcore'),
             'icon' => '',
-            'description' => __('Create and manage custom post types and fields', 'aiopms')
+            'description' => __('Create and manage custom post types and fields', 'artitechcore')
         ),
         'settings' => array(
-            'title' => __('Settings', 'aiopms'),
+            'title' => __('Settings', 'artitechcore'),
             'icon' => '',
-            'description' => __('Configure plugin options', 'aiopms')
+            'description' => __('Configure plugin options', 'artitechcore')
         )
     );
     ?>
     <div class="wrap dg10-brand">
         <!-- Skip Link for Accessibility - Positioned at page level -->
-        <a href="#page-title" class="skip-link"><?php _e('Skip to main content', 'aiopms'); ?></a>
+        <a href="#page-title" class="skip-link"><?php _e('Skip to main content', 'artitechcore'); ?></a>
         
         <div class="dg10-main-layout">
             <!-- Admin Sidebar -->
-            <aside class="dg10-admin-sidebar" role="complementary" aria-label="<?php esc_attr_e('AIOPMS Navigation Menu', 'aiopms'); ?>">
+            <aside class="dg10-admin-sidebar" role="complementary" aria-label="<?php esc_attr_e('ArtitechCore Navigation Menu', 'artitechcore'); ?>">
                 <div class="dg10-sidebar-header">
                     <div class="dg10-sidebar-title">
-                        <img src="<?php echo AIOPMS_PLUGIN_URL; ?>assets/images/logo.svg" alt="<?php esc_attr_e('AIOPMS Plugin Logo', 'aiopms'); ?>" class="dg10-logo-img" role="img">
-                        <span class="dg10-plugin-name"><?php _e('AIOPMS', 'aiopms'); ?></span>
+                        <img src="<?php echo ArtitechCore_PLUGIN_URL; ?>assets/images/logo.svg" alt="<?php esc_attr_e('ArtitechCore Plugin Logo', 'artitechcore'); ?>" class="dg10-logo-img" role="img">
+                        <span class="dg10-plugin-name"><?php _e('ArtitechCore', 'artitechcore'); ?></span>
                     </div>
-                    <p class="dg10-sidebar-subtitle" role="text"><?php _e('All In One Page Management System', 'aiopms'); ?></p>
+                    <p class="dg10-sidebar-subtitle" role="text"><?php _e('', 'artitechcore'); ?></p>
                 </div>
                 
-                <nav class="dg10-sidebar-nav" role="navigation" aria-label="<?php esc_attr_e('Main Navigation', 'aiopms'); ?>">
+                <nav class="dg10-sidebar-nav" role="navigation" aria-label="<?php esc_attr_e('Main Navigation', 'artitechcore'); ?>">
                     <ul role="list">
                         <?php foreach ($menu_items as $tab_key => $item): ?>
                             <li role="listitem">
-                                <a href="?page=aiopms-page-management&tab=<?php echo esc_attr($tab_key); ?>" 
+                                <a href="?page=artitechcore-main&tab=<?php echo esc_attr($tab_key); ?>" 
                                    class="dg10-sidebar-nav-item <?php echo $active_tab == $tab_key ? 'active' : ''; ?>"
                                    role="menuitem"
                                    aria-label="<?php echo esc_attr($item['title'] . ' - ' . $item['description']); ?>"
@@ -221,9 +221,9 @@ function aiopms_admin_page() {
             </aside>
             
             <!-- Main Content Area -->
-            <main class="dg10-main-content" role="main" aria-label="<?php esc_attr_e('Main Content Area', 'aiopms'); ?>">
+            <main class="dg10-main-content" role="main" aria-label="<?php esc_attr_e('Main Content Area', 'artitechcore'); ?>">
                 <!-- Notification Container for JS Relocation -->
-                <div id="aiopms-notices-container" class="dg10-notices-area"></div>
+                <div id="artitechcore-notices-container" class="dg10-notices-area"></div>
 
                 <article class="dg10-card" role="article" aria-labelledby="page-title">
                     <header class="dg10-card-header" role="banner">
@@ -233,7 +233,7 @@ function aiopms_admin_page() {
                                 // Safe access with fallback for undefined tabs
                                 $tab_title = isset($menu_items[$active_tab]['title']) 
                                     ? $menu_items[$active_tab]['title'] 
-                                    : __('AIOPMS', 'aiopms');
+                                    : __('ArtitechCore', 'artitechcore');
                                 $tab_description = isset($menu_items[$active_tab]['description']) 
                                     ? $menu_items[$active_tab]['description'] 
                                     : '';
@@ -245,59 +245,59 @@ function aiopms_admin_page() {
                             </div>
                         </div>
                     </header>
-                    <div class="dg10-card-body" role="main" aria-label="<?php esc_attr_e('Content Section', 'aiopms'); ?>">
+                    <div class="dg10-card-body" role="main" aria-label="<?php esc_attr_e('Content Section', 'artitechcore'); ?>">
         <?php
         if ($active_tab == 'manual') {
-            aiopms_render_manual_tab_content();
+            artitechcore_render_manual_tab_content();
         } elseif ($active_tab == 'csv') {
-            aiopms_render_csv_tab_content();
+            artitechcore_render_csv_tab_content();
         } elseif ($active_tab == 'ai') {
-            aiopms_ai_generation_tab();
+            artitechcore_ai_generation_tab();
         } elseif ($active_tab == 'schema') {
-            aiopms_schema_generator_tab();
+            artitechcore_schema_generator_tab();
         } elseif ($active_tab == 'menu') {
-            aiopms_menu_generator_tab();
+            artitechcore_menu_generator_tab();
         } elseif ($active_tab == 'hierarchy') {
-            abpcwa_hierarchy_tab();
+            artitechcore_hierarchy_tab();
         } elseif ($active_tab == 'keyword-analysis') {
-            aiopms_keyword_analysis_tab();
+            artitechcore_keyword_analysis_tab();
         } elseif ($active_tab == 'cpt') {
             // Check if function exists (it should as it's included in main plugin file)
-            if (function_exists('aiopms_render_cpt_management_content')) {
-                aiopms_render_cpt_management_content(true);
+            if (function_exists('artitechcore_render_cpt_management_content')) {
+                artitechcore_render_cpt_management_content(true);
             }
         } elseif ($active_tab == 'templates') {
             // Templates tab - render CPT templates directly
-            if (function_exists('aiopms_cpt_templates_tab')) {
-                aiopms_cpt_templates_tab();
+            if (function_exists('artitechcore_cpt_templates_tab')) {
+                artitechcore_cpt_templates_tab();
             } else {
-                echo '<div class="notice notice-warning"><p>' . esc_html__('Templates functionality is part of the CPT Manager. Please access it via the Custom Post Types tab.', 'aiopms') . '</p></div>';
+                echo '<div class="notice notice-warning"><p>' . esc_html__('Templates functionality is part of the CPT Manager. Please access it via the Custom Post Types tab.', 'artitechcore') . '</p></div>';
             }
         } elseif ($active_tab == 'settings') {
-            aiopms_settings_tab();
+            artitechcore_settings_tab();
         }
         ?>
                     </div>
-                    <footer class="dg10-card-footer" role="contentinfo" aria-label="<?php esc_attr_e('About DG10 Agency', 'aiopms'); ?>">
+                    <footer class="dg10-card-footer" role="contentinfo" aria-label="<?php esc_attr_e('About DG10 Agency', 'artitechcore'); ?>">
                         <section class="dg10-promotion-section" role="region" aria-labelledby="about-us-heading">
                             <header class="dg10-promotion-header">
-                                <img src="<?php echo AIOPMS_PLUGIN_URL; ?>assets/images/dg10-brand-logo.svg" alt="<?php esc_attr_e('DG10 Agency Logo', 'aiopms'); ?>" class="dg10-promotion-logo" role="img">
-                                <h3 id="about-us-heading" role="heading" aria-level="3"><?php _e('About us', 'aiopms'); ?></h3>
+                                <img src="<?php echo ArtitechCore_PLUGIN_URL; ?>assets/images/dg10-brand-logo.svg" alt="<?php esc_attr_e('DG10 Agency Logo', 'artitechcore'); ?>" class="dg10-promotion-logo" role="img">
+                                <h3 id="about-us-heading" role="heading" aria-level="3"><?php _e('About us', 'artitechcore'); ?></h3>
                             </header>
                             <div class="dg10-promotion-content">
-                                <p role="text"><?php _e('DG10 Agency specializes in creating powerful WordPress and Elementor solutions. We help businesses build custom websites, optimize performance, and implement complex integrations that drive results.', 'aiopms'); ?></p>
-                                <div class="dg10-promotion-buttons" role="group" aria-label="<?php esc_attr_e('Action Buttons', 'aiopms'); ?>">
-                                    <a href="https://www.dg10.agency" target="_blank" class="dg10-btn dg10-btn-primary" role="button" aria-label="<?php esc_attr_e('Visit DG10 Agency Website - Opens in new tab', 'aiopms'); ?>">
-                                        <span class="btn-text"><?php _e('Visit Website', 'aiopms'); ?></span>
+                                <p role="text"><?php _e('We are the ultimate growth ecosystem for visionary entrepreneurs. Leveraging over a decade of expertise, we empower you to Build | Market | Analyze | Automate | Scale with our services, elite software products, and high-performance AI tools. We aren’t just an agency; we are your digital infrastructure powerhouse, providing the advanced technology and strategic edge you need to dominate your market.', 'artitechcore'); ?></p>
+                                <div class="dg10-promotion-buttons" role="group" aria-label="<?php esc_attr_e('Action Buttons', 'artitechcore'); ?>">
+                                    <a href="https://www.dg10.agency" target="_blank" class="dg10-btn dg10-btn-primary" role="button" aria-label="<?php esc_attr_e('Visit DG10 Agency Website - Opens in new tab', 'artitechcore'); ?>">
+                                        <span class="btn-text"><?php _e('Visit Website', 'artitechcore'); ?></span>
                                         <span class="dg10-btn-icon" aria-hidden="true" role="img" aria-label="<?php esc_attr_e('External link icon'); ?>">→</span>
                                     </a>
-                                    <a href="https://calendly.com/dg10-agency/30min" target="_blank" class="dg10-btn dg10-btn-outline" role="button" aria-label="<?php esc_attr_e('Book a Free Consultation - Opens in new tab', 'aiopms'); ?>">
+                                    <a href="https://calendly.com/dg10-agency/30min" target="_blank" class="dg10-btn dg10-btn-outline" role="button" aria-label="<?php esc_attr_e('Book a Free Consultation - Opens in new tab', 'artitechcore'); ?>">
                                         <span class="dg10-btn-icon" aria-hidden="true" role="img" aria-label="<?php esc_attr_e('Calendar icon'); ?>">📅</span>
-                                        <span class="btn-text"><?php _e('Book a Free Consultation', 'aiopms'); ?></span>
+                                        <span class="btn-text"><?php _e('Book a Free Consultation', 'artitechcore'); ?></span>
                                     </a>
                                 </div>
                                 <p class="dg10-promotion-footer" role="text">
-                                    <?php printf(__('This is an open-source project - please %s.', 'aiopms'), '<a href="' . esc_url(AIOPMS_GITHUB_URL) . '" target="_blank" role="link" aria-label="' . esc_attr__('Star the repository on GitHub - Opens in new tab', 'aiopms') . '">' . __('star the repo on GitHub', 'aiopms') . '</a>'); ?>
+                                    <?php printf(__('This is an open-source project - please %s.', 'artitechcore'), '<a href="' . esc_url(ArtitechCore_GITHUB_URL) . '" target="_blank" role="link" aria-label="' . esc_attr__('Star the repository on GitHub - Opens in new tab', 'artitechcore') . '">' . __('star the repo on GitHub', 'artitechcore') . '</a>'); ?>
                                 </p>
                             </div>
                         </section>
@@ -395,35 +395,35 @@ function aiopms_admin_page() {
 
 // Manual creation tab content
 // Manual creation tab content calling wrapper (renamed for cache bust)
-function aiopms_render_manual_tab_content() {
+function artitechcore_render_manual_tab_content() {
     ?>
-    <div id="aiopms-manual-tab-debug" style="margin-bottom: 20px;">
+    <div id="artitechcore-manual-tab-debug" style="margin-bottom: 20px;">
         <!-- Debug Marker -->
     </div>
-    <div class="aiopms-manual-container">
-        <form method="post" action="" role="form" aria-label="<?php esc_attr_e('Manual Page Creation Form', 'aiopms'); ?>">
-                <?php wp_nonce_field('aiopms_manual_create_pages'); ?>
+    <div class="artitechcore-manual-container">
+        <form method="post" action="" role="form" aria-label="<?php esc_attr_e('Manual Page Creation Form', 'artitechcore'); ?>">
+                <?php wp_nonce_field('artitechcore_manual_create_pages'); ?>
                 <fieldset class="dg10-form-group">
-                    <legend class="sr-only"><?php _e('Page Creation Settings', 'aiopms'); ?></legend>
+                    <legend class="sr-only"><?php _e('Page Creation Settings', 'artitechcore'); ?></legend>
                     <div class="dg10-form-field">
-                        <label for="aiopms_titles" class="dg10-form-label" id="titles-label"><?php _e('Page Titles', 'aiopms'); ?></label>
-                        <textarea name="aiopms_titles" 
-                                  id="aiopms_titles" 
+                        <label for="artitechcore_titles" class="dg10-form-label" id="titles-label"><?php _e('Page Titles', 'artitechcore'); ?></label>
+                        <textarea name="artitechcore_titles" 
+                                  id="artitechcore_titles" 
                                   rows="10" 
                                   class="dg10-form-textarea" 
-                                  placeholder="<?php esc_attr_e('Enter one page title per line. Use hyphens for nesting...', 'aiopms'); ?>"
+                                  placeholder="<?php esc_attr_e('Enter one page title per line. Use hyphens for nesting...', 'artitechcore'); ?>"
                                   aria-labelledby="titles-label"
                                   aria-describedby="syntax-guide"
                                   aria-required="true"
                                   role="textbox"></textarea>
-                        <div id="syntax-guide" class="dg10-form-help" role="region" aria-label="<?php esc_attr_e('Syntax Guide', 'aiopms'); ?>">
-                            <strong><?php _e('Syntax Guide:', 'aiopms'); ?></strong><br>
-                            • <?php _e('Use', 'aiopms'); ?> <code>-</code> <?php _e('for child pages (one hyphen per level)', 'aiopms'); ?><br>
-                            • <?php _e('Use', 'aiopms'); ?> <code>:+</code> <?php _e('for meta description', 'aiopms'); ?><br>
-                            • <?php _e('Use', 'aiopms'); ?> <code>:*</code> <?php _e('for featured image URL', 'aiopms'); ?><br>
-                            • <?php _e('Use', 'aiopms'); ?> <code>::template=template-name.php</code> <?php _e('for page template', 'aiopms'); ?><br>
-                            • <?php _e('Use', 'aiopms'); ?> <code>::status=draft</code> <?php _e('for post status', 'aiopms'); ?><br>
-                            • <strong><?php _e('SEO slugs are automatically generated', 'aiopms'); ?></strong> (<?php _e('max 72 chars', 'aiopms'); ?>)
+                        <div id="syntax-guide" class="dg10-form-help" role="region" aria-label="<?php esc_attr_e('Syntax Guide', 'artitechcore'); ?>">
+                            <strong><?php _e('Syntax Guide:', 'artitechcore'); ?></strong><br>
+                            • <?php _e('Use', 'artitechcore'); ?> <code>-</code> <?php _e('for child pages (one hyphen per level)', 'artitechcore'); ?><br>
+                            • <?php _e('Use', 'artitechcore'); ?> <code>:+</code> <?php _e('for meta description', 'artitechcore'); ?><br>
+                            • <?php _e('Use', 'artitechcore'); ?> <code>:*</code> <?php _e('for featured image URL', 'artitechcore'); ?><br>
+                            • <?php _e('Use', 'artitechcore'); ?> <code>::template=template-name.php</code> <?php _e('for page template', 'artitechcore'); ?><br>
+                            • <?php _e('Use', 'artitechcore'); ?> <code>::status=draft</code> <?php _e('for post status', 'artitechcore'); ?><br>
+                            • <strong><?php _e('SEO slugs are automatically generated', 'artitechcore'); ?></strong> (<?php _e('max 72 chars', 'artitechcore'); ?>)
                         </div>
                     </div>
                 </fieldset>
@@ -432,39 +432,39 @@ function aiopms_render_manual_tab_content() {
                             name="submit" 
                             class="dg10-btn dg10-btn-primary"
                             role="button"
-                            aria-label="<?php esc_attr_e('Create Pages from Titles', 'aiopms'); ?>">
+                            aria-label="<?php esc_attr_e('Create Pages from Titles', 'artitechcore'); ?>">
                         <span class="btn-icon" aria-hidden="true" role="img" aria-label="<?php esc_attr_e('Rocket icon'); ?>">🚀</span>
-                        <span class="btn-text"><?php _e('Create Pages', 'aiopms'); ?></span>
+                        <span class="btn-text"><?php _e('Create Pages', 'artitechcore'); ?></span>
                 </button>
             </form>
     </div>
     <?php
-    if (isset($_POST['submit']) && check_admin_referer('aiopms_manual_create_pages')) {
-        aiopms_create_pages_manually($_POST['aiopms_titles']);
+    if (isset($_POST['submit']) && check_admin_referer('artitechcore_manual_create_pages')) {
+        artitechcore_create_pages_manually($_POST['artitechcore_titles']);
     }
 }
 
 // CSV upload tab content
 // CSV upload tab content calling wrapper (renamed for cache bust)
-function aiopms_render_csv_tab_content() {
+function artitechcore_render_csv_tab_content() {
     ?>
-    <div class="aiopms-csv-container">
-            <form method="post" action="" enctype="multipart/form-data" role="form" aria-label="<?php esc_attr_e('CSV File Upload Form', 'aiopms'); ?>">
-                <?php wp_nonce_field('aiopms_csv_upload'); ?>
+    <div class="artitechcore-csv-container">
+            <form method="post" action="" enctype="multipart/form-data" role="form" aria-label="<?php esc_attr_e('CSV File Upload Form', 'artitechcore'); ?>">
+                <?php wp_nonce_field('artitechcore_csv_upload'); ?>
                 <fieldset class="dg10-form-group">
-                    <legend class="sr-only"><?php _e('CSV Upload Settings', 'aiopms'); ?></legend>
+                    <legend class="sr-only"><?php _e('CSV Upload Settings', 'artitechcore'); ?></legend>
                     <div class="dg10-form-field">
-                        <label for="aiopms_csv_file" class="dg10-form-label" id="csv-file-label"><?php _e('CSV File', 'aiopms'); ?></label>
+                        <label for="artitechcore_csv_file" class="dg10-form-label" id="csv-file-label"><?php _e('CSV File', 'artitechcore'); ?></label>
                         <input type="file" 
-                               name="aiopms_csv_file" 
-                               id="aiopms_csv_file" 
+                               name="artitechcore_csv_file" 
+                               id="artitechcore_csv_file" 
                                accept=".csv"
                                aria-labelledby="csv-file-label"
                                aria-describedby="csv-instructions"
                                aria-required="true"
                                role="button">
-                        <div id="csv-instructions" class="dg10-form-help" role="region" aria-label="<?php esc_attr_e('CSV File Instructions', 'aiopms'); ?>">
-                            <p><?php printf(__('Upload a CSV file with the following columns: %s, %s (optional), %s, %s, %s, %s, %s.', 'aiopms'), 
+                        <div id="csv-instructions" class="dg10-form-help" role="region" aria-label="<?php esc_attr_e('CSV File Instructions', 'artitechcore'); ?>">
+                            <p><?php printf(__('Upload a CSV file with the following columns: %s, %s (optional), %s, %s, %s, %s, %s.', 'artitechcore'), 
                                 '<code>post_title</code>', 
                                 '<code>slug</code>', 
                                 '<code>post_parent</code>', 
@@ -473,10 +473,10 @@ function aiopms_render_csv_tab_content() {
                                 '<code>page_template</code>', 
                                 '<code>post_status</code>'); ?></p>
                             <ul>
-                                <li><?php printf(__('The %s column should contain the title of the parent page.', 'aiopms'), '<code>post_parent</code>'); ?></li>
-                                <li><?php printf(__('%s is optional - if empty, SEO-optimized slugs are automatically generated.', 'aiopms'), '<code>slug</code>'); ?></li>
-                                <li><strong><?php echo esc_html(aiopms_get_max_file_size_display()); ?></strong></li>
-                                <li><?php _e('Maximum rows: 10,000', 'aiopms'); ?></li>
+                                <li><?php printf(__('The %s column should contain the title of the parent page.', 'artitechcore'), '<code>post_parent</code>'); ?></li>
+                                <li><?php printf(__('%s is optional - if empty, SEO-optimized slugs are automatically generated.', 'artitechcore'), '<code>slug</code>'); ?></li>
+                                <li><strong><?php echo esc_html(artitechcore_get_max_file_size_display()); ?></strong></li>
+                                <li><?php _e('Maximum rows: 10,000', 'artitechcore'); ?></li>
                             </ul>
                         </div>
                     </div>
@@ -486,28 +486,28 @@ function aiopms_render_csv_tab_content() {
                             name="submit" 
                             class="dg10-btn dg10-btn-primary"
                             role="button"
-                            aria-label="<?php esc_attr_e('Upload CSV File and Create Pages', 'aiopms'); ?>">
+                            aria-label="<?php esc_attr_e('Upload CSV File and Create Pages', 'artitechcore'); ?>">
                         <span class="btn-icon" aria-hidden="true" role="img" aria-label="<?php esc_attr_e('Upload icon'); ?>">📤</span>
-                        <span class="btn-text"><?php _e('Upload and Create Pages', 'aiopms'); ?></span>
+                        <span class="btn-text"><?php _e('Upload and Create Pages', 'artitechcore'); ?></span>
                     </button>
                 </div>
             </form>
         </div>
     <?php
-    if (isset($_POST['submit']) && check_admin_referer('aiopms_csv_upload')) {
-        if (isset($_FILES['aiopms_csv_file']) && !empty($_FILES['aiopms_csv_file']['tmp_name'])) {
-            aiopms_create_pages_from_csv($_FILES['aiopms_csv_file']);
+    if (isset($_POST['submit']) && check_admin_referer('artitechcore_csv_upload')) {
+        if (isset($_FILES['artitechcore_csv_file']) && !empty($_FILES['artitechcore_csv_file']['tmp_name'])) {
+            artitechcore_create_pages_from_csv($_FILES['artitechcore_csv_file']);
         } else {
-            echo '<div class="notice notice-error"><p>' . __('Please select a CSV file to upload.', 'aiopms') . '</p></div>';
+            echo '<div class="notice notice-error"><p>' . __('Please select a CSV file to upload.', 'artitechcore') . '</p></div>';
         }
     }
 }
 
 // Menu generator tab content
-function aiopms_menu_generator_tab() {
+function artitechcore_menu_generator_tab() {
     // Get registered nav menus for the dropdown
     $locations = get_registered_nav_menus();
-    $location_options = '<option value="">' . __('Auto-detect / None', 'aiopms') . '</option>';
+    $location_options = '<option value="">' . __('Auto-detect / None', 'artitechcore') . '</option>';
     if (!empty($locations)) {
         foreach ($locations as $slug => $name) {
             $location_options .= '<option value="' . esc_attr($slug) . '">' . esc_html($name) . '</option>';
@@ -520,11 +520,11 @@ function aiopms_menu_generator_tab() {
         <p style="margin-bottom: 10px;">
             <label style="font-weight: 500;">
                 <input type="checkbox" name="force_overwrite" value="1"> 
-                ' . __('Force Overwrite Existing Menu', 'aiopms') . '
+                ' . __('Force Overwrite Existing Menu', 'artitechcore') . '
             </label>
         </p>
         <p style="margin: 0;">
-            <label for="menu_loc" style="display: block; margin-bottom: 4px;">' . __('Assign to Location (Optional):', 'aiopms') . '</label>
+            <label for="menu_loc" style="display: block; margin-bottom: 4px;">' . __('Assign to Location (Optional):', 'artitechcore') . '</label>
             <select name="menu_location" style="width: 100%;">
                 ' . $location_options . '
             </select>
@@ -532,7 +532,7 @@ function aiopms_menu_generator_tab() {
     </div>';
     
     // Inline Notification Logic (Simplified for reliability)
-    if (isset($_POST['generate_menu']) && isset($_POST['_wpnonce']) && wp_verify_nonce(sanitize_key($_POST['_wpnonce']), 'aiopms_generate_menu')) {
+    if (isset($_POST['generate_menu']) && isset($_POST['_wpnonce']) && wp_verify_nonce(sanitize_key($_POST['_wpnonce']), 'artitechcore_generate_menu')) {
         $menu_type = isset($_POST['menu_type']) ? sanitize_key($_POST['menu_type']) : '';
         $overwrite = isset($_POST['force_overwrite']) ? true : false;
         $location  = isset($_POST['menu_location']) ? sanitize_key($_POST['menu_location']) : '';
@@ -541,57 +541,57 @@ function aiopms_menu_generator_tab() {
         
         switch ($menu_type) {
             case 'universal_bottom':
-                $result = aiopms_generate_universal_bottom_menu($overwrite, $location);
+                $result = artitechcore_generate_universal_bottom_menu($overwrite, $location);
                 break;
             case 'services':
-                $result = aiopms_generate_services_menu($overwrite, $location);
+                $result = artitechcore_generate_services_menu($overwrite, $location);
                 break;
             case 'company':
-                $result = aiopms_generate_company_menu($overwrite, $location);
+                $result = artitechcore_generate_company_menu($overwrite, $location);
                 break;
             case 'main_navigation':
-                $result = aiopms_generate_main_navigation_menu($overwrite, $location);
+                $result = artitechcore_generate_main_navigation_menu($overwrite, $location);
                 break;
             case 'resources':
-                $result = aiopms_generate_resources_menu($overwrite, $location);
+                $result = artitechcore_generate_resources_menu($overwrite, $location);
                 break;
             case 'footer_quick_links':
-                $result = aiopms_generate_footer_quick_links_menu($overwrite, $location);
+                $result = artitechcore_generate_footer_quick_links_menu($overwrite, $location);
                 break;
             case 'social_media':
-                $result = aiopms_generate_social_media_menu($overwrite, $location);
+                $result = artitechcore_generate_social_media_menu($overwrite, $location);
                 break;
             case 'support':
-                $result = aiopms_generate_support_menu($overwrite, $location);
+                $result = artitechcore_generate_support_menu($overwrite, $location);
                 break;
             case 'products':
-                $result = aiopms_generate_products_menu($overwrite, $location);
+                $result = artitechcore_generate_products_menu($overwrite, $location);
                 break;
         }
 
-        echo '<div id="aiopms-result-notice" class="aiopms-notice" style="background: #fff; border-left: 4px solid #46b450; padding: 20px; margin: 20px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.1);">';
+        echo '<div id="artitechcore-result-notice" class="artitechcore-notice" style="background: #fff; border-left: 4px solid #46b450; padding: 20px; margin: 20px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.1);">';
         
         if (is_wp_error($result)) {
-             echo '<h3 style="margin: 0 0 10px; color: #d63638;">' . __('Error', 'aiopms') . '</h3>';
+             echo '<h3 style="margin: 0 0 10px; color: #d63638;">' . __('Error', 'artitechcore') . '</h3>';
              echo '<p style="font-size: 14px; margin: 0;">' . esc_html($result->get_error_message()) . '</p>';
-             echo '<script>document.getElementById("aiopms-result-notice").style.borderLeftColor = "#d63638";</script>';
+             echo '<script>document.getElementById("artitechcore-result-notice").style.borderLeftColor = "#d63638";</script>';
         } elseif ($result) {
              $edit_link = admin_url('nav-menus.php?action=edit&menu=' . $result);
              $locations_link = admin_url('nav-menus.php?action=locations');
              
-             echo '<h3 style="margin: 0 0 10px; color: #46b450;">' . sprintf(__('%s Created Successfully!', 'aiopms'), ucwords(str_replace('_', ' ', $menu_type))) . '</h3>';
+             echo '<h3 style="margin: 0 0 10px; color: #46b450;">' . sprintf(__('%s Created Successfully!', 'artitechcore'), ucwords(str_replace('_', ' ', $menu_type))) . '</h3>';
              echo '<div style="display: flex; gap: 15px; align-items: center; margin-top: 15px;">';
-             echo '<a href="' . esc_url($edit_link) . '" class="button button-primary button-large">' . __('Edit Menu Items', 'aiopms') . '</a>';
+             echo '<a href="' . esc_url($edit_link) . '" class="button button-primary button-large">' . __('Edit Menu Items', 'artitechcore') . '</a>';
              if (!empty($location)) {
-                echo '<span style="color: #46b450; display: flex; align-items: center;"><span class="dashicons dashicons-yes" style="margin-right: 5px;"></span> ' . __('Assigned to location', 'aiopms') . '</span>';
+                echo '<span style="color: #46b450; display: flex; align-items: center;"><span class="dashicons dashicons-yes" style="margin-right: 5px;"></span> ' . __('Assigned to location', 'artitechcore') . '</span>';
              } else {
-                echo '<a href="' . esc_url($locations_link) . '" class="button button-secondary">' . __('Manage Locations', 'aiopms') . '</a>';
+                echo '<a href="' . esc_url($locations_link) . '" class="button button-secondary">' . __('Manage Locations', 'artitechcore') . '</a>';
              }
              echo '</div>';
         } else {
-             echo '<h3 style="margin: 0 0 10px; color: #dba617;">' . __('Warning', 'aiopms') . '</h3>';
-             echo '<p>' . __('Failed to create menu. No pages found or empty selection.', 'aiopms') . '</p>';
-             echo '<script>document.getElementById("aiopms-result-notice").style.borderLeftColor = "#dba617";</script>';
+             echo '<h3 style="margin: 0 0 10px; color: #dba617;">' . __('Warning', 'artitechcore') . '</h3>';
+             echo '<p>' . __('Failed to create menu. No pages found or empty selection.', 'artitechcore') . '</p>';
+             echo '<script>document.getElementById("artitechcore-result-notice").style.borderLeftColor = "#dba617";</script>';
         }
         echo '</div>';
 
@@ -599,7 +599,7 @@ function aiopms_menu_generator_tab() {
         echo '<script>
         jQuery(document).ready(function($) {
             $("html, body").animate({
-                scrollTop: $("#aiopms-result-notice").offset().top - 100
+                scrollTop: $("#artitechcore-result-notice").offset().top - 100
             }, 500);
         });
         </script>';
@@ -607,8 +607,8 @@ function aiopms_menu_generator_tab() {
     ?>
     <section class="dg10-card" role="region" aria-labelledby="menu-generator-heading">
         <div class="dg10-card-body">
-            <h2 id="menu-generator-heading"><?php _e('Menu Generator', 'aiopms'); ?></h2>
-            <p><?php _e('Automatically generate WordPress menus based on your created pages.', 'aiopms'); ?></p>
+            <h2 id="menu-generator-heading"><?php _e('Menu Generator', 'artitechcore'); ?></h2>
+            <p><?php _e('Automatically generate WordPress menus based on your created pages.', 'artitechcore'); ?></p>
         
         <div class="menu-generator-options">
             <!-- Primary Navigation Menus -->
@@ -616,7 +616,7 @@ function aiopms_menu_generator_tab() {
                 <h3>🧭 Primary Navigation</h3>
                 <div class="menu-cards-grid">
                     <form method="post" action="">
-                        <?php wp_nonce_field('aiopms_generate_menu'); ?>
+                        <?php wp_nonce_field('artitechcore_generate_menu'); ?>
 
                         <div class="menu-option-card">
                             <h3>Main Navigation Menu</h3>
@@ -635,7 +635,7 @@ function aiopms_menu_generator_tab() {
                     </form>
 
                     <form method="post" action="">
-                        <?php wp_nonce_field('aiopms_generate_menu'); ?>
+                        <?php wp_nonce_field('artitechcore_generate_menu'); ?>
 
                         <div class="menu-option-card">
                             <h3>Services Menu</h3>
@@ -658,7 +658,7 @@ function aiopms_menu_generator_tab() {
                 <h3>📄 Content & Products</h3>
                 <div class="menu-cards-grid">
                     <form method="post" action="">
-                        <?php wp_nonce_field('aiopms_generate_menu'); ?>
+                        <?php wp_nonce_field('artitechcore_generate_menu'); ?>
 
                         <div class="menu-option-card">
                             <h3>Products Menu</h3>
@@ -675,7 +675,7 @@ function aiopms_menu_generator_tab() {
                     </form>
 
                     <form method="post" action="">
-                        <?php wp_nonce_field('aiopms_generate_menu'); ?>
+                        <?php wp_nonce_field('artitechcore_generate_menu'); ?>
 
                         <div class="menu-option-card">
                             <h3>Resources Menu</h3>
@@ -692,7 +692,7 @@ function aiopms_menu_generator_tab() {
                     </form>
 
                     <form method="post" action="">
-                        <?php wp_nonce_field('aiopms_generate_menu'); ?>
+                        <?php wp_nonce_field('artitechcore_generate_menu'); ?>
 
                         <div class="menu-option-card">
                             <h3>Support Menu</h3>
@@ -715,7 +715,7 @@ function aiopms_menu_generator_tab() {
                 <h3>🔗 Footer & Links</h3>
                 <div class="menu-cards-grid">
                     <form method="post" action="">
-                        <?php wp_nonce_field('aiopms_generate_menu'); ?>
+                        <?php wp_nonce_field('artitechcore_generate_menu'); ?>
 
                         <div class="menu-option-card">
                             <h3>Universal Bottom Menu</h3>
@@ -733,7 +733,7 @@ function aiopms_menu_generator_tab() {
                     </form>
 
                     <form method="post" action="">
-                        <?php wp_nonce_field('aiopms_generate_menu'); ?>
+                        <?php wp_nonce_field('artitechcore_generate_menu'); ?>
 
                         <div class="menu-option-card">
                             <h3>Footer Quick Links</h3>
@@ -756,7 +756,7 @@ function aiopms_menu_generator_tab() {
                 <h3>🏢 Company & Social</h3>
                 <div class="menu-cards-grid">
                     <form method="post" action="">
-                        <?php wp_nonce_field('aiopms_generate_menu'); ?>
+                        <?php wp_nonce_field('artitechcore_generate_menu'); ?>
 
                         <div class="menu-option-card">
                             <h3>Company Menu</h3>
@@ -773,7 +773,7 @@ function aiopms_menu_generator_tab() {
                     </form>
 
                     <form method="post" action="">
-                        <?php wp_nonce_field('aiopms_generate_menu'); ?>
+                        <?php wp_nonce_field('artitechcore_generate_menu'); ?>
 
                         <div class="menu-option-card">
                             <h3>Social Media Menu</h3>
@@ -813,16 +813,16 @@ function aiopms_menu_generator_tab() {
 
 
 // Keyword Analysis tab content
-function aiopms_keyword_analysis_tab() {
+function artitechcore_keyword_analysis_tab() {
     ?>
     <section class="dg10-card" role="region" aria-labelledby="keyword-analysis-heading">
         <div class="dg10-card-body">
-            <form id="aiopms-keyword-analysis-form">
-                <?php wp_nonce_field('aiopms_keyword_analysis', 'aiopms_keyword_nonce'); ?>
+            <form id="artitechcore-keyword-analysis-form">
+                <?php wp_nonce_field('artitechcore_keyword_analysis', 'artitechcore_keyword_nonce'); ?>
                 
                 <div class="dg10-form-group">
-                    <label for="aiopms_page_select" class="dg10-form-label">Select Page to Analyze</label>
-                    <select name="page_id" id="aiopms_page_select" class="dg10-form-select" required>
+                    <label for="artitechcore_page_select" class="dg10-form-label">Select Page to Analyze</label>
+                    <select name="page_id" id="artitechcore_page_select" class="dg10-form-select" required>
                         <option value="">Loading pages...</option>
                     </select>
                     <div class="dg10-form-help">
@@ -831,8 +831,8 @@ function aiopms_keyword_analysis_tab() {
                 </div>
                 
                 <div class="dg10-form-group">
-                    <label for="aiopms_keywords_input" class="dg10-form-label">Keywords to Analyze</label>
-                    <textarea name="keywords" id="aiopms_keywords_input" rows="8" class="dg10-form-textarea" 
+                    <label for="artitechcore_keywords_input" class="dg10-form-label">Keywords to Analyze</label>
+                    <textarea name="keywords" id="artitechcore_keywords_input" rows="8" class="dg10-form-textarea" 
                               placeholder="Enter keywords to analyze, one per line or separated by commas:&#10;&#10;web design&#10;SEO services&#10;digital marketing&#10;responsive design, mobile optimization" required></textarea>
                     <div class="dg10-form-help">
                         <strong>Format:</strong> One keyword per line, or comma-separated keywords. The analyzer will count exact matches (case-insensitive) and calculate density percentages.
@@ -841,7 +841,7 @@ function aiopms_keyword_analysis_tab() {
                 </div>
                 
                 <div class="dg10-form-group">
-                    <button type="submit" id="aiopms-analyze-btn" class="dg10-btn dg10-btn-primary">
+                    <button type="submit" id="artitechcore-analyze-btn" class="dg10-btn dg10-btn-primary">
                         <span class="btn-text">🔍 Analyze Keywords</span>
                         <span class="dg10-spinner dg10-hidden"></span>
                     </button>
@@ -849,7 +849,7 @@ function aiopms_keyword_analysis_tab() {
             </form>
             
             <!-- Results Section -->
-            <div id="aiopms-analysis-results" class="dg10-hidden">
+            <div id="artitechcore-analysis-results" class="dg10-hidden">
                 <div class="dg10-card">
                     <div class="dg10-card-header">
                         <h3>📊 Analysis Results</h3>

@@ -1,5 +1,5 @@
 /**
- * DG10 Brand System for AIOPMS Plugin
+ * DG10 Brand System for ArtitechCore Plugin
  * Comprehensive branding framework with color variables, typography, and components
  */
 
@@ -217,10 +217,10 @@
 .dg10-brand button.button,
 
 /* 2. Plugin Specific Classes (Legacy & New) */
-.dg10-brand .aiopms-btn,
-.dg10-brand .aiopms-btn-primary,
-.dg10-brand .aiopms-btn-secondary,
-.dg10-brand .aiopms-add-field-btn,
+.dg10-brand .artitechcore-btn,
+.dg10-brand .artitechcore-btn-primary,
+.dg10-brand .artitechcore-btn-secondary,
+.dg10-brand .artitechcore-add-field-btn,
 .dg10-brand #apply-bulk-action {
     background: #B47CFD !important;
     /* DG10 Purple */
@@ -252,10 +252,10 @@
 .dg10-brand input[type="submit"]:hover,
 .dg10-brand button[type="submit"]:hover,
 .dg10-brand button.button:hover,
-.dg10-brand .aiopms-btn:hover,
-.dg10-brand .aiopms-btn-primary:hover,
-.dg10-brand .aiopms-btn-secondary:hover:not(:disabled),
-.dg10-brand .aiopms-add-field-btn:hover,
+.dg10-brand .artitechcore-btn:hover,
+.dg10-brand .artitechcore-btn-primary:hover,
+.dg10-brand .artitechcore-btn-secondary:hover:not(:disabled),
+.dg10-brand .artitechcore-add-field-btn:hover,
 .dg10-brand #apply-bulk-action:hover:not(:disabled) {
     background: #FF7FC2 !important;
     /* DG10 Pink */
@@ -278,8 +278,8 @@
 
 /* 3. Secondary / Outline Buttons (Explicit Overrides) */
 .dg10-brand .button-secondary,
-.dg10-brand .aiopms-btn-secondary,
-.dg10-brand .aiopms-btn-outline {
+.dg10-brand .artitechcore-btn-secondary,
+.dg10-brand .artitechcore-btn-outline {
     background: #FFFFFF !important;
     color: #B47CFD !important;
     border: 2px solid #B47CFD !important;
@@ -287,8 +287,8 @@
 }
 
 .dg10-brand .button-secondary:hover,
-.dg10-brand .aiopms-btn-secondary:hover,
-.dg10-brand .aiopms-btn-outline:hover {
+.dg10-brand .artitechcore-btn-secondary:hover,
+.dg10-brand .artitechcore-btn-outline:hover {
     background: #B47CFD !important;
     color: #FFFFFF !important;
     border-color: #B47CFD !important;
@@ -296,8 +296,8 @@
 
 /* 4. Danger / Delete Buttons */
 .dg10-brand .button-link-delete,
-.dg10-brand .aiopms-btn-danger,
-.dg10-brand .aiopms-action-btn.aiopms-danger {
+.dg10-brand .artitechcore-btn-danger,
+.dg10-brand .artitechcore-action-btn.artitechcore-danger {
     background: #ffffff !important;
     color: #EF4444 !important;
     /* DG10 Error Red */
@@ -307,7 +307,7 @@
 }
 
 .dg10-brand .button-link-delete:hover,
-.dg10-brand .aiopms-btn-danger:hover {
+.dg10-brand .artitechcore-btn-danger:hover {
     background: #EF4444 !important;
     color: #FFFFFF !important;
     border-color: #EF4444 !important;
@@ -317,7 +317,7 @@
 /* 5. Disabled State */
 .dg10-brand button:disabled,
 .dg10-brand input[type="submit"]:disabled,
-.dg10-brand .aiopms-btn:disabled,
+.dg10-brand .artitechcore-btn:disabled,
 .dg10-brand #apply-bulk-action:disabled {
     background: #E5E7EB !important;
     color: #9CA3AF !important;
@@ -328,7 +328,7 @@
 }
 
 /* 6. Icon Buttons (keep small) */
-.dg10-brand .aiopms-action-btn {
+.dg10-brand .artitechcore-action-btn {
     padding: 8px !important;
     width: 32px !important;
     height: 32px !important;
@@ -339,7 +339,7 @@
     box-shadow: none !important;
 }
 
-.dg10-brand .aiopms-action-btn:hover {
+.dg10-brand .artitechcore-action-btn:hover {
     background: #F3F4F6 !important;
     color: #B47CFD !important;
     transform: none !important;
@@ -1627,7 +1627,7 @@
    SCHEMA BADGE ENHANCEMENTS
    ========================================================================== */
 
-.dg10-brand .abpcwa-schema-badge {
+.dg10-brand .artitechcore-schema-badge {
     background: var(--dg10-gradient-primary);
     color: var(--dg10-white);
     border: none;
@@ -1641,44 +1641,44 @@
     transition: all var(--dg10-transition-fast);
 }
 
-.dg10-brand .abpcwa-schema-badge:hover {
+.dg10-brand .artitechcore-schema-badge:hover {
     transform: translateY(-1px);
     box-shadow: var(--dg10-shadow-md);
 }
 
-.dg10-brand .abpcwa-schema-faq {
+.dg10-brand .artitechcore-schema-faq {
     background: var(--dg10-gradient-success);
 }
 
-.dg10-brand .abpcwa-schema-blog {
+.dg10-brand .artitechcore-schema-blog {
     background: var(--dg10-gradient-info);
 }
 
-.dg10-brand .abpcwa-schema-article {
+.dg10-brand .artitechcore-schema-article {
     background: var(--dg10-gradient-primary);
 }
 
-.dg10-brand .abpcwa-schema-service {
+.dg10-brand .artitechcore-schema-service {
     background: var(--dg10-gradient-warning);
 }
 
-.dg10-brand .abpcwa-schema-product {
+.dg10-brand .artitechcore-schema-product {
     background: var(--dg10-gradient-success);
 }
 
-.dg10-brand .abpcwa-schema-organization {
+.dg10-brand .artitechcore-schema-organization {
     background: var(--dg10-gradient-error);
 }
 
-.dg10-brand .abpcwa-schema-local_business {
+.dg10-brand .artitechcore-schema-local_business {
     background: var(--dg10-gradient-info);
 }
 
-.dg10-brand .abpcwa-schema-webpage {
+.dg10-brand .artitechcore-schema-webpage {
     background: linear-gradient(135deg, var(--dg10-neutral) 0%, #9CA3AF 100%);
 }
 
-.dg10-brand .abpcwa-schema-none {
+.dg10-brand .artitechcore-schema-none {
     background: linear-gradient(135deg, #6B7280 0%, #9CA3AF 100%);
 }
 
@@ -1686,46 +1686,46 @@
    HIERARCHY VIEWER ENHANCEMENTS
    ========================================================================== */
 
-.dg10-brand .abpcwa-hierarchy-container {
+.dg10-brand .artitechcore-hierarchy-container {
     background: var(--dg10-white);
     border-radius: var(--dg10-radius-lg);
     box-shadow: var(--dg10-shadow-sm);
     overflow: hidden;
 }
 
-.dg10-brand .abpcwa-hierarchy-header {
+.dg10-brand .artitechcore-hierarchy-header {
     background: var(--dg10-gradient-dark);
     color: var(--dg10-white);
     border: none;
     border-radius: 0;
 }
 
-.dg10-brand .abpcwa-hierarchy-header h2 {
+.dg10-brand .artitechcore-hierarchy-header h2 {
     color: var(--dg10-white);
     margin: 0 0 var(--dg10-spacing-sm) 0;
 }
 
-.dg10-brand .abpcwa-hierarchy-header .description {
+.dg10-brand .artitechcore-hierarchy-header .description {
     color: rgba(255, 255, 255, 0.8);
 }
 
-.dg10-brand .abpcwa-view-controls .button-primary {
+.dg10-brand .artitechcore-view-controls .button-primary {
     background: var(--dg10-gradient-primary);
     border-color: var(--dg10-primary);
 }
 
-.dg10-brand .abpcwa-view-controls .button:not(.button-primary) {
+.dg10-brand .artitechcore-view-controls .button:not(.button-primary) {
     background: var(--dg10-white);
     border-color: var(--dg10-primary);
     color: var(--dg10-primary);
 }
 
-.dg10-brand .abpcwa-view-controls .button:not(.button-primary):hover {
+.dg10-brand .artitechcore-view-controls .button:not(.button-primary):hover {
     background: var(--dg10-primary);
     color: var(--dg10-white);
 }
 
-.dg10-brand .aiopms-grid-card {
+.dg10-brand .artitechcore-grid-card {
     background: var(--dg10-white);
     border: 1px solid #E5E7EB;
     border-radius: var(--dg10-radius-lg);
@@ -1733,31 +1733,31 @@
     transition: all var(--dg10-transition-normal);
 }
 
-.dg10-brand .aiopms-grid-card:hover {
+.dg10-brand .artitechcore-grid-card:hover {
     background: linear-gradient(135deg, rgba(180, 124, 253, 0.05) 0%, rgba(255, 127, 194, 0.05) 100%);
     border-color: var(--dg10-primary);
     transform: translateY(-2px);
     box-shadow: var(--dg10-shadow-md);
 }
 
-.dg10-brand .aiopms-grid-card.level-0 {
+.dg10-brand .artitechcore-grid-card.level-0 {
     background: linear-gradient(135deg, rgba(180, 124, 253, 0.1) 0%, rgba(255, 127, 194, 0.1) 100%);
     border-left: 4px solid var(--dg10-primary);
 }
 
-.dg10-brand .aiopms-grid-card.level-1 {
+.dg10-brand .artitechcore-grid-card.level-1 {
     border-left: 4px solid var(--dg10-accent);
 }
 
-.dg10-brand .aiopms-grid-card.level-2 {
+.dg10-brand .artitechcore-grid-card.level-2 {
     border-left: 4px solid var(--dg10-light-purple);
 }
 
-.dg10-brand .aiopms-grid-card.level-3 {
+.dg10-brand .artitechcore-grid-card.level-3 {
     border-left: 4px solid var(--dg10-light-pink);
 }
 
-.dg10-brand .aiopms-grid-status {
+.dg10-brand .artitechcore-grid-status {
     background: var(--dg10-light-gray);
     color: var(--dg10-neutral);
     border: 1px solid #D1D5DB;
@@ -1765,31 +1765,31 @@
     font-weight: 500;
 }
 
-.dg10-brand .aiopms-grid-status.status-published {
+.dg10-brand .artitechcore-grid-status.status-published {
     background: var(--dg10-gradient-success);
     color: var(--dg10-white);
     border-color: var(--dg10-success);
 }
 
-.dg10-brand .aiopms-grid-status.status-draft {
+.dg10-brand .artitechcore-grid-status.status-draft {
     background: var(--dg10-gradient-warning);
     color: var(--dg10-white);
     border-color: var(--dg10-warning);
 }
 
-.dg10-brand .aiopms-grid-status.status-pending {
+.dg10-brand .artitechcore-grid-status.status-pending {
     background: var(--dg10-gradient-info);
     color: var(--dg10-white);
     border-color: var(--dg10-info);
 }
 
-.dg10-brand .aiopms-grid-status.status-private {
+.dg10-brand .artitechcore-grid-status.status-private {
     background: var(--dg10-gradient-primary);
     color: var(--dg10-white);
     border-color: var(--dg10-primary);
 }
 
-.dg10-brand .aiopms-grid-status.status-trash {
+.dg10-brand .artitechcore-grid-status.status-trash {
     background: var(--dg10-gradient-error);
     color: var(--dg10-white);
     border-color: var(--dg10-error);
@@ -2590,8 +2590,8 @@
 }
 
 /* Enhanced dropdown styling for AI provider selection */
-.dg10-brand select[name="aiopms_ai_provider"],
-.dg10-brand .aiopms-ai-provider-select {
+.dg10-brand select[name="artitechcore_ai_provider"],
+.dg10-brand .artitechcore-ai-provider-select {
     appearance: none !important;
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
@@ -2607,25 +2607,25 @@
     min-width: 200px !important;
 }
 
-.dg10-brand select[name="aiopms_ai_provider"]:hover,
-.dg10-brand .aiopms-ai-provider-select:hover {
+.dg10-brand select[name="artitechcore_ai_provider"]:hover,
+.dg10-brand .artitechcore-ai-provider-select:hover {
     border-color: var(--dg10-primary) !important;
     box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1) !important;
 }
 
-.dg10-brand select[name="aiopms_ai_provider"]:focus,
-.dg10-brand .aiopms-ai-provider-select:focus {
+.dg10-brand select[name="artitechcore_ai_provider"]:focus,
+.dg10-brand .artitechcore-ai-provider-select:focus {
     outline: none !important;
     border-color: var(--dg10-primary) !important;
     box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2) !important;
 }
 
 /* Add a subtle hint text below the dropdown */
-.dg10-brand .form-table tr:has(select[name="aiopms_ai_provider"]) td {
+.dg10-brand .form-table tr:has(select[name="artitechcore_ai_provider"]) td {
     position: relative;
 }
 
-.dg10-brand .form-table tr:has(select[name="aiopms_ai_provider"]) td::after {
+.dg10-brand .form-table tr:has(select[name="artitechcore_ai_provider"]) td::after {
     content: "Click to select your preferred AI provider";
     display: block;
     font-size: var(--dg10-font-size-xs);

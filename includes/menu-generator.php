@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Menu generator functions
-class AIOPMS_Menu_Generator {
+class ArtitechCore_Menu_Generator {
     
     private static $instance = null;
     
@@ -20,7 +20,7 @@ class AIOPMS_Menu_Generator {
      */
     public function get_custom_post_type_archives() {
         $cpt_archives = array();
-        $dynamic_cpts = get_option('aiopms_dynamic_cpts', []);
+        $dynamic_cpts = get_option('artitechcore_dynamic_cpts', []);
         
         foreach ($dynamic_cpts as $post_type => $cpt_info) {
             $archive_url = get_post_type_archive_link($post_type);
@@ -84,7 +84,7 @@ class AIOPMS_Menu_Generator {
         
         // Safety check: Prevent accidental deletion
         if ($menu_exists && !$overwrite) {
-            return new WP_Error('menu_exists', __('Menu already exists. Enable overwrite to update.', 'aiopms'));
+            return new WP_Error('menu_exists', __('Menu already exists. Enable overwrite to update.', 'artitechcore'));
         }
 
         // Delete existing menu if it exists and overwrite is true
@@ -109,7 +109,7 @@ class AIOPMS_Menu_Generator {
         }
         
         // Add sitemap if configured
-        $sitemap_url = get_option('aiopms_sitemap_url', '');
+        $sitemap_url = get_option('artitechcore_sitemap_url', '');
         if (!empty($sitemap_url)) {
             $this->add_menu_item($menu_id, 'Sitemap', $sitemap_url);
         }
@@ -251,7 +251,7 @@ class AIOPMS_Menu_Generator {
         $menu_exists = wp_get_nav_menu_object($menu_name);
         
         if ($menu_exists && !$overwrite) {
-            return new WP_Error('menu_exists', __('Menu already exists. Enable overwrite to update.', 'aiopms'));
+            return new WP_Error('menu_exists', __('Menu already exists. Enable overwrite to update.', 'artitechcore'));
         }
 
         if ($menu_exists) {
@@ -573,7 +573,7 @@ class AIOPMS_Menu_Generator {
         $menu_exists = wp_get_nav_menu_object($menu_name);
 
         if ($menu_exists && !$overwrite) {
-            return new WP_Error('menu_exists', __('Menu already exists. Enable overwrite to update.', 'aiopms'));
+            return new WP_Error('menu_exists', __('Menu already exists. Enable overwrite to update.', 'artitechcore'));
         }
 
         if ($menu_exists) {
@@ -778,7 +778,7 @@ class AIOPMS_Menu_Generator {
         $menu_exists = wp_get_nav_menu_object($menu_name);
 
         if ($menu_exists && !$overwrite) {
-             return new WP_Error('menu_exists', __('Menu already exists. Enable overwrite to update.', 'aiopms'));
+             return new WP_Error('menu_exists', __('Menu already exists. Enable overwrite to update.', 'artitechcore'));
         }
 
         if ($menu_exists) {
@@ -1045,7 +1045,7 @@ class AIOPMS_Menu_Generator {
         $menu_exists = wp_get_nav_menu_object($menu_name);
 
         if ($menu_exists && !$overwrite) {
-            return new WP_Error('menu_exists', __('Menu already exists. Enable overwrite to update.', 'aiopms'));
+            return new WP_Error('menu_exists', __('Menu already exists. Enable overwrite to update.', 'artitechcore'));
         }
 
         if ($menu_exists) {
@@ -1279,7 +1279,7 @@ class AIOPMS_Menu_Generator {
         $menu_exists = wp_get_nav_menu_object($menu_name);
 
         if ($menu_exists && !$overwrite) {
-            return new WP_Error('menu_exists', __('Menu already exists. Enable overwrite to update.', 'aiopms'));
+            return new WP_Error('menu_exists', __('Menu already exists. Enable overwrite to update.', 'artitechcore'));
         }
 
         if ($menu_exists) {
@@ -1473,7 +1473,7 @@ class AIOPMS_Menu_Generator {
         $menu_exists = wp_get_nav_menu_object($menu_name);
 
         if ($menu_exists && !$overwrite) {
-            return new WP_Error('menu_exists', __('Menu already exists. Enable overwrite to update.', 'aiopms'));
+            return new WP_Error('menu_exists', __('Menu already exists. Enable overwrite to update.', 'artitechcore'));
         }
 
         if ($menu_exists) {
@@ -1521,7 +1521,7 @@ class AIOPMS_Menu_Generator {
         $menu_exists = wp_get_nav_menu_object($menu_name);
 
         if ($menu_exists && !$overwrite) {
-            return new WP_Error('menu_exists', __('Menu already exists. Enable overwrite to update.', 'aiopms'));
+            return new WP_Error('menu_exists', __('Menu already exists. Enable overwrite to update.', 'artitechcore'));
         }
 
         if ($menu_exists) {
@@ -1741,7 +1741,7 @@ class AIOPMS_Menu_Generator {
         $menu_exists = wp_get_nav_menu_object($menu_name);
 
         if ($menu_exists && !$overwrite) {
-            return new WP_Error('menu_exists', __('Menu already exists. Enable overwrite to update.', 'aiopms'));
+            return new WP_Error('menu_exists', __('Menu already exists. Enable overwrite to update.', 'artitechcore'));
         }
 
         if ($menu_exists) {
@@ -2120,7 +2120,7 @@ class AIOPMS_Menu_Generator {
         }
         
         echo "<div style='max-width: 1200px; margin: 20px auto;'>";
-        echo "<h2>AIOPMS Menu Generator - Complete Detection Debug</h2>";
+        echo "<h2>ArtitechCore Menu Generator - Complete Detection Debug</h2>";
         
         // Service Detection (existing)
         $this->debug_service_detection();
@@ -2148,52 +2148,52 @@ class AIOPMS_Menu_Generator {
 }
 
 // Initialize menu generator
-$aiopms_menu_generator = AIOPMS_Menu_Generator::get_instance();
+$artitechcore_menu_generator = ArtitechCore_Menu_Generator::get_instance();
 
 // Wrapper functions for admin interface
 // Wrapper functions for admin interface - Updated to support Overwrite and Location
-function aiopms_generate_universal_bottom_menu($overwrite = false, $location = '') {
-    global $aiopms_menu_generator;
-    return $aiopms_menu_generator->create_universal_bottom_menu($overwrite, $location);
+function artitechcore_generate_universal_bottom_menu($overwrite = false, $location = '') {
+    global $artitechcore_menu_generator;
+    return $artitechcore_menu_generator->create_universal_bottom_menu($overwrite, $location);
 }
 
-function aiopms_generate_services_menu($overwrite = false, $location = '') {
-    global $aiopms_menu_generator;
-    return $aiopms_menu_generator->create_services_menu($overwrite, $location);
+function artitechcore_generate_services_menu($overwrite = false, $location = '') {
+    global $artitechcore_menu_generator;
+    return $artitechcore_menu_generator->create_services_menu($overwrite, $location);
 }
 
-function aiopms_generate_company_menu($overwrite = false, $location = '') {
-    global $aiopms_menu_generator;
-    return $aiopms_menu_generator->create_company_menu($overwrite, $location);
+function artitechcore_generate_company_menu($overwrite = false, $location = '') {
+    global $artitechcore_menu_generator;
+    return $artitechcore_menu_generator->create_company_menu($overwrite, $location);
 }
 
-function aiopms_generate_main_navigation_menu($overwrite = false, $location = '') {
-    global $aiopms_menu_generator;
-    return $aiopms_menu_generator->create_main_navigation_menu($overwrite, $location);
+function artitechcore_generate_main_navigation_menu($overwrite = false, $location = '') {
+    global $artitechcore_menu_generator;
+    return $artitechcore_menu_generator->create_main_navigation_menu($overwrite, $location);
 }
 
-function aiopms_generate_resources_menu($overwrite = false, $location = '') {
-    global $aiopms_menu_generator;
-    return $aiopms_menu_generator->create_resources_menu($overwrite, $location);
+function artitechcore_generate_resources_menu($overwrite = false, $location = '') {
+    global $artitechcore_menu_generator;
+    return $artitechcore_menu_generator->create_resources_menu($overwrite, $location);
 }
 
-function aiopms_generate_footer_quick_links_menu($overwrite = false, $location = '') {
-    global $aiopms_menu_generator;
-    return $aiopms_menu_generator->create_footer_quick_links_menu($overwrite, $location);
+function artitechcore_generate_footer_quick_links_menu($overwrite = false, $location = '') {
+    global $artitechcore_menu_generator;
+    return $artitechcore_menu_generator->create_footer_quick_links_menu($overwrite, $location);
 }
 
-function aiopms_generate_social_media_menu($overwrite = false, $location = '') {
-    global $aiopms_menu_generator;
-    return $aiopms_menu_generator->create_social_media_menu($overwrite, $location);
+function artitechcore_generate_social_media_menu($overwrite = false, $location = '') {
+    global $artitechcore_menu_generator;
+    return $artitechcore_menu_generator->create_social_media_menu($overwrite, $location);
 }
 
-function aiopms_generate_support_menu($overwrite = false, $location = '') {
-    global $aiopms_menu_generator;
-    return $aiopms_menu_generator->create_support_menu($overwrite, $location);
+function artitechcore_generate_support_menu($overwrite = false, $location = '') {
+    global $artitechcore_menu_generator;
+    return $artitechcore_menu_generator->create_support_menu($overwrite, $location);
 }
 
-function aiopms_generate_products_menu($overwrite = false, $location = '') {
-    global $aiopms_menu_generator;
-    return $aiopms_menu_generator->create_products_menu($overwrite, $location);
+function artitechcore_generate_products_menu($overwrite = false, $location = '') {
+    global $artitechcore_menu_generator;
+    return $artitechcore_menu_generator->create_products_menu($overwrite, $location);
 }
 

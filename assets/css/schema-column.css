@@ -1,7 +1,7 @@
 /* Enhanced DG10 Brand Schema Column Styling */
 
 /* Base schema badge styling with brand enhancements */
-.abpcwa-schema-badge {
+.artitechcore-schema-badge {
     display: inline-flex;
     align-items: center;
     gap: 4px;
@@ -18,7 +18,7 @@
     overflow: hidden;
 }
 
-.abpcwa-schema-badge::before {
+.artitechcore-schema-badge::before {
     content: '';
     position: absolute;
     top: 0;
@@ -29,78 +29,78 @@
     transition: left 0.5s ease;
 }
 
-.abpcwa-schema-badge:hover::before {
+.artitechcore-schema-badge:hover::before {
     left: 100%;
 }
 
-.abpcwa-schema-badge:hover {
+.artitechcore-schema-badge:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25); /* Enhanced shadow on hover */
 }
 
 /* Enhanced schema type colors with gradients */
-.abpcwa-schema-faq {
+.artitechcore-schema-faq {
     background: linear-gradient(135deg, #10B981 0%, #059669 100%);
     color: #ffffff;
 }
 
-.abpcwa-schema-blog {
+.artitechcore-schema-blog {
     background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
     color: #ffffff;
 }
 
-.abpcwa-schema-article {
+.artitechcore-schema-article {
     background: linear-gradient(135deg, #B47CFD 0%, #8B5CF6 100%);
     color: #ffffff;
 }
 
-.abpcwa-schema-service {
+.artitechcore-schema-service {
     background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
     color: #ffffff;
 }
 
-.abpcwa-schema-product {
+.artitechcore-schema-product {
     background: linear-gradient(135deg, #10B981 0%, #059669 100%);
     color: #ffffff;
 }
 
-.abpcwa-schema-organization {
+.artitechcore-schema-organization {
     background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
     color: #ffffff;
 }
 
-.abpcwa-schema-local_business {
+.artitechcore-schema-local_business {
     background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%);
     color: #ffffff;
 }
 
-.abpcwa-schema-webpage {
+.artitechcore-schema-webpage {
     background: linear-gradient(135deg, #6B7280 0%, #4B5563 100%);
     color: #ffffff;
 }
 
-.abpcwa-schema-none {
+.artitechcore-schema-none {
     background: linear-gradient(135deg, #9CA3AF 0%, #6B7280 100%);
     color: #ffffff;
 }
 
-.abpcwa-schema-howto {
+.artitechcore-schema-howto {
     background: linear-gradient(135deg, #10B981 0%, #059669 100%);
     color: #ffffff;
 }
 
-.abpcwa-schema-review {
+.artitechcore-schema-review {
     background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
     color: #ffffff;
 }
 
-.abpcwa-schema-event {
+.artitechcore-schema-event {
     background: linear-gradient(135deg, #B47CFD 0%, #8B5CF6 100%);
     color: #ffffff;
 }
 
 /* Schema admin page styling */
-.abpcwa-schema-preview {
+.artitechcore-schema-preview {
     background: #f9f9f9;
     border: 1px solid #9CA3AF; /* Darker border for better visibility */
     border-radius: 4px;
@@ -114,7 +114,7 @@
     font-weight: 500; /* Increased weight for better readability */
 }
 
-.abpcwa-schema-type-selector {
+.artitechcore-schema-type-selector {
     margin: 15px 0;
     padding: 10px;
     background: #f7f7f7;
@@ -122,16 +122,16 @@
     border: 1px solid #D1D5DB; /* Add border for better definition */
 }
 
-.abpcwa-schema-type-selector select {
+.artitechcore-schema-type-selector select {
     margin-right: 10px;
 }
 
-.abpcwa-schema-actions {
+.artitechcore-schema-actions {
     margin: 15px 0;
 }
 
 /* Schema generator tab styling */
-.abpcwa-schema-tab h3 {
+.artitechcore-schema-tab h3 {
     margin-top: 30px;
     border-bottom: 2px solid #1D4ED8; /* Darker blue for better contrast */
     padding-bottom: 10px;
@@ -139,7 +139,7 @@
     color: #1F2937; /* Darker color for better contrast */
 }
 
-.abpcwa-schema-stats {
+.artitechcore-schema-stats {
     background: #fff;
     border: 1px solid #9CA3AF; /* Darker border for better visibility */
     border-radius: 4px;
@@ -147,19 +147,19 @@
     margin: 15px 0;
 }
 
-.abpcwa-schema-stats h4 {
+.artitechcore-schema-stats h4 {
     margin-top: 0;
     color: #1D4ED8; /* Darker blue for better contrast */
     font-weight: 700; /* Increased weight for better contrast */
 }
 
-.abpcwa-schema-stats ul {
+.artitechcore-schema-stats ul {
     columns: 2;
     -webkit-columns: 2;
     -moz-columns: 2;
 }
 
-.abpcwa-schema-stats li {
+.artitechcore-schema-stats li {
     margin-bottom: 5px;
     break-inside: avoid;
     -webkit-column-break-inside: avoid;
@@ -168,12 +168,12 @@
 
 /* Responsive design */
 @media screen and (max-width: 782px) {
-    .abpcwa-schema-badge {
+    .artitechcore-schema-badge {
         font-size: 10px;
         padding: 3px 6px;
     }
     
-    .abpcwa-schema-stats ul {
+    .artitechcore-schema-stats ul {
         columns: 1;
         -webkit-columns: 1;
         -moz-columns: 1;

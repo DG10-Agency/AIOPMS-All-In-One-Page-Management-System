@@ -4,18 +4,18 @@
  */
 
 /* View Containers */
-#abpcwa-hierarchy-view-container {
+#artitechcore-hierarchy-view-container {
     position: relative;
     min-height: 500px;
 }
 
-.abpcwa-hierarchy-view {
+.artitechcore-hierarchy-view {
     display: none;
     border-radius: var(--dg10-glass-radius);
     transition: all 0.3s ease;
 }
 
-.abpcwa-hierarchy-view.active-view {
+.artitechcore-hierarchy-view.active-view {
     display: block;
 }
 
@@ -155,7 +155,7 @@
 }
 
 /* --- Org Chart (D3.js) Styles --- */
-#abpcwa-hierarchy-orgchart {
+#artitechcore-hierarchy-orgchart {
     background: var(--dg10-glass-bg);
     border: 1px solid var(--dg10-glass-border);
     border-radius: var(--dg10-glass-radius);
@@ -173,7 +173,7 @@
 }
 
 /* --- Tree View (jsTree) Adjustments --- */
-#abpcwa-hierarchy-tree {
+#artitechcore-hierarchy-tree {
     padding: 30px;
 }
 
@@ -188,7 +188,7 @@
 }
 
 /* --- Loading States --- */
-.aiopms-loading-state {
+.artitechcore-loading-state {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -196,7 +196,7 @@
     padding: 100px 0;
 }
 
-.aiopms-loading-state p {
+.artitechcore-loading-state p {
     margin-top: 20px;
     color: var(--dg10-text-dim);
     font-weight: 500;

@@ -19,13 +19,13 @@ jQuery(document).ready(function ($) {
     // Move any standard WP notices into our custom container
     function relocateNotices() {
         var $notices = $('#wpbody-content > .notice, #wpbody-content > .updated, #wpbody-content > .error, .wrap > .notice, .wrap > .updated, .wrap > .error, .notice');
-        var $container = $('#aiopms-notices-container');
+        var $container = $('#artitechcore-notices-container');
 
         if ($container.length) {
             $notices.each(function () {
                 var $this = $(this);
                 // Don't move if already in container or if it is the container itself
-                if ($this.closest('#aiopms-notices-container').length || $this.attr('id') === 'aiopms-notices-container') return;
+                if ($this.closest('#artitechcore-notices-container').length || $this.attr('id') === 'artitechcore-notices-container') return;
 
                 $this.detach().appendTo($container);
                 $this.css('margin', '10px 0'); // Ensure spacing
@@ -135,8 +135,8 @@ jQuery(document).ready(function ($) {
 
     // Handle AI provider change to enable/disable image generation checkbox
     function updateImageGenerationCheckbox() {
-        var provider = $('select[name="aiopms_ai_provider"]').val();
-        var generateImagesCheckbox = $('#aiopms_generate_images');
+        var provider = $('select[name="artitechcore_ai_provider"]').val();
+        var generateImagesCheckbox = $('#artitechcore_generate_images');
 
         if (provider === 'deepseek') {
             generateImagesCheckbox.prop('disabled', true);
@@ -150,13 +150,13 @@ jQuery(document).ready(function ($) {
     updateImageGenerationCheckbox();
 
     // Update when provider changes
-    $('select[name="aiopms_ai_provider"]').on('change', function () {
+    $('select[name="artitechcore_ai_provider"]').on('change', function () {
         updateImageGenerationCheckbox();
     });
 
     // Show loading state when generating images
     $('form').on('submit', function () {
-        if ($('#aiopms_generate_images').is(':checked') && !$('#aiopms_generate_images').is(':disabled')) {
+        if ($('#artitechcore_generate_images').is(':checked') && !$('#artitechcore_generate_images').is(':disabled')) {
             $('.submit .spinner').css('visibility', 'visible');
             $('input[type="submit"]').prop('disabled', true).val('Generating Images...');
         }
@@ -167,7 +167,7 @@ jQuery(document).ready(function ($) {
         var $form = $(this);
 
         // SKIP loading overlay for AJAX-based AI form - it handles its own loading state
-        if ($form.attr('id') === 'aiopms-ai-request-form') {
+        if ($form.attr('id') === 'artitechcore-ai-request-form') {
             return; // Let ai-generator.js handle loading
         }
 
@@ -175,11 +175,11 @@ jQuery(document).ready(function ($) {
         var buttonText = submitButton.val() || submitButton.text();
 
         // Check if this is the AI generation form (has business_type field)
-        if ($form.find('input[name="aiopms_business_type"]').length > 0 && (buttonText.includes('Generate') || buttonText.includes('Suggestions'))) {
+        if ($form.find('input[name="artitechcore_business_type"]').length > 0 && (buttonText.includes('Generate') || buttonText.includes('Suggestions'))) {
             // Create enhanced loading overlay with brand styling
-            if ($('#aiopms-loading-overlay').length === 0) {
+            if ($('#artitechcore-loading-overlay').length === 0) {
                 $('body').append(`
-                    <div id="aiopms-loading-overlay" class="dg10-loading-overlay">
+                    <div id="artitechcore-loading-overlay" class="dg10-loading-overlay">
                         <div class="dg10-loading-content">
                             <div class="dg10-loading-spinner"></div>
                             <h3 class="dg10-loading-title">
@@ -201,7 +201,7 @@ jQuery(document).ready(function ($) {
             }
 
             // Show loading overlay with animation
-            $('#aiopms-loading-overlay').fadeIn(300);
+            $('#artitechcore-loading-overlay').fadeIn(300);
 
             // Disable submit button and update text
             submitButton.prop('disabled', true);
@@ -213,11 +213,11 @@ jQuery(document).ready(function ($) {
         }
 
         // Check if this is the page creation form (has selected_pages field)
-        if ($form.find('input[name="aiopms_selected_pages[]"]').length > 0 && (buttonText.includes('Create') || buttonText.includes('Pages'))) {
+        if ($form.find('input[name="artitechcore_selected_pages[]"]').length > 0 && (buttonText.includes('Create') || buttonText.includes('Pages'))) {
             // Create enhanced loading overlay for page creation
-            if ($('#aiopms-loading-overlay').length === 0) {
+            if ($('#artitechcore-loading-overlay').length === 0) {
                 $('body').append(`
-                    <div id="aiopms-loading-overlay" class="dg10-loading-overlay">
+                    <div id="artitechcore-loading-overlay" class="dg10-loading-overlay">
                         <div class="dg10-loading-content">
                             <div class="dg10-loading-spinner"></div>
                             <h3 class="dg10-loading-title">
@@ -237,7 +237,7 @@ jQuery(document).ready(function ($) {
             }
 
             // Show loading overlay with animation
-            $('#aiopms-loading-overlay').fadeIn(300);
+            $('#artitechcore-loading-overlay').fadeIn(300);
 
             // Disable submit button and update text
             submitButton.prop('disabled', true);
@@ -257,7 +257,7 @@ jQuery(document).ready(function ($) {
     // ===== AI GENERATOR ADVANCED MODE FUNCTIONALITY =====
 
     // Handle Advanced Mode toggle
-    $('#aiopms_advanced_mode').on('change', function () {
+    $('#artitechcore_advanced_mode').on('change', function () {
         const isAdvancedMode = $(this).is(':checked');
         const $description = $(this).closest('td').find('.description');
 
@@ -303,7 +303,7 @@ jQuery(document).ready(function ($) {
 
     // Enhanced form submission for Advanced Mode
     $('form').on('submit', function (e) {
-        const isAdvancedMode = $('#aiopms_advanced_mode').is(':checked');
+        const isAdvancedMode = $('#artitechcore_advanced_mode').is(':checked');
 
         if (isAdvancedMode) {
             // Add loading state for Advanced Mode
@@ -314,9 +314,9 @@ jQuery(document).ready(function ($) {
 
             // Add progress indicator
             if (!$('#ai-analyzing-indicator').length) {
-                $('<div id="ai-analyzing-indicator" class="aiopms-ai-progress">' +
-                    '<div class="aiopms-progress-bar">' +
-                    '<div class="aiopms-progress-fill"></div>' +
+                $('<div id="ai-analyzing-indicator" class="artitechcore-ai-progress">' +
+                    '<div class="artitechcore-progress-bar">' +
+                    '<div class="artitechcore-progress-fill"></div>' +
                     '</div>' +
                     '<p>AI is analyzing your business and generating custom post type suggestions...</p>' +
                     '</div>').insertAfter($submitBtn);

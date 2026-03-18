@@ -122,13 +122,13 @@
 }
 
 /* Enhanced table styling - only for main content tables, not selection panes */
-.dg10-brand .wp-list-table:not(.aiopms-schema-dashboard .wp-list-table) {
+.dg10-brand .wp-list-table:not(.artitechcore-schema-dashboard .wp-list-table) {
     border-radius: var(--dg10-radius-lg);
     overflow: hidden;
     box-shadow: var(--dg10-shadow-sm);
 }
 
-.dg10-brand .wp-list-table:not(.aiopms-schema-dashboard .wp-list-table) th {
+.dg10-brand .wp-list-table:not(.artitechcore-schema-dashboard .wp-list-table) th {
     background: var(--dg10-gradient-dark) !important;
     /* Force dark gradient background */
     color: #FFFFFF !important;
@@ -140,7 +140,7 @@
     /* Add shadow for better contrast on dark backgrounds */
 }
 
-.dg10-brand .wp-list-table:not(.aiopms-schema-dashboard .wp-list-table) td {
+.dg10-brand .wp-list-table:not(.artitechcore-schema-dashboard .wp-list-table) td {
     border-color: #D1D5DB;
     /* Darker border for better visibility */
     color: #374151;
@@ -149,29 +149,29 @@
     /* Increased weight for better readability */
 }
 
-.dg10-brand .wp-list-table:not(.aiopms-schema-dashboard .wp-list-table) tr:hover {
+.dg10-brand .wp-list-table:not(.artitechcore-schema-dashboard .wp-list-table) tr:hover {
     background: rgba(180, 124, 253, 0.05);
 }
 
 /* Schema generator table should maintain default WordPress styling */
-.dg10-brand .aiopms-schema-dashboard .wp-list-table {
+.dg10-brand .artitechcore-schema-dashboard .wp-list-table {
     border-radius: 0;
     box-shadow: none;
     overflow: visible;
 }
 
-.dg10-brand .aiopms-schema-dashboard .wp-list-table th {
+.dg10-brand .artitechcore-schema-dashboard .wp-list-table th {
     background: #f1f1f1;
     color: #23282d;
     font-weight: 600;
     border: 1px solid #c3c4c7;
 }
 
-.dg10-brand .aiopms-schema-dashboard .wp-list-table td {
+.dg10-brand .artitechcore-schema-dashboard .wp-list-table td {
     border-color: #c3c4c7;
 }
 
-.dg10-brand .aiopms-schema-dashboard .wp-list-table tr:hover {
+.dg10-brand .artitechcore-schema-dashboard .wp-list-table tr:hover {
     background: #f6f7f7;
 }
 
@@ -230,17 +230,17 @@
 }
 
 /* AI Progress Indicator */
-.aiopms-ai-progress {
+.artitechcore-ai-progress {
     background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
     border: 2px solid #2271b1;
     border-radius: 12px;
     padding: 20px;
     margin: 20px 0;
     text-align: center;
-    animation: aiopms-pulse 2s infinite;
+    animation: artitechcore-pulse 2s infinite;
 }
 
-.aiopms-progress-bar {
+.artitechcore-progress-bar {
     width: 100%;
     height: 8px;
     background: #e5e7eb;
@@ -249,15 +249,15 @@
     margin: 15px 0;
 }
 
-.aiopms-progress-fill {
+.artitechcore-progress-fill {
     height: 100%;
     background: linear-gradient(90deg, #2271b1, #3b82f6, #2271b1);
     background-size: 200% 100%;
-    animation: aiopms-progress-slide 2s infinite;
+    animation: artitechcore-progress-slide 2s infinite;
     border-radius: 4px;
 }
 
-.aiopms-ai-progress p {
+.artitechcore-ai-progress p {
     margin: 0;
     color: #1e40af;
     font-weight: 600;
@@ -265,7 +265,7 @@
 }
 
 /* Animations */
-@keyframes aiopms-pulse {
+@keyframes artitechcore-pulse {
 
     0%,
     100% {
@@ -277,7 +277,7 @@
     }
 }
 
-@keyframes aiopms-progress-slide {
+@keyframes artitechcore-progress-slide {
     0% {
         background-position: 200% 0;
     }
@@ -288,7 +288,7 @@
 }
 
 /* Advanced Mode Suggestions Styling */
-.aiopms-advanced-suggestions {
+.artitechcore-advanced-suggestions {
     margin-top: 30px;
     padding: 20px;
     background: #f8fafc;
@@ -296,7 +296,7 @@
     border: 1px solid #e2e8f0;
 }
 
-.aiopms-business-analysis {
+.artitechcore-business-analysis {
     background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
     border: 2px solid #f59e0b;
     border-radius: 12px;
@@ -304,7 +304,7 @@
     margin-bottom: 25px;
 }
 
-.aiopms-business-analysis h3 {
+.artitechcore-business-analysis h3 {
     color: #92400e;
     margin-top: 0;
     font-size: 20px;
@@ -317,7 +317,7 @@
     font-weight: 500;
 }
 
-.aiopms-cpts-section {
+.artitechcore-cpts-section {
     margin-top: 25px;
 }
 
@@ -409,7 +409,7 @@
         margin: 5px 0;
     }
 
-    .aiopms-ai-progress {
+    .artitechcore-ai-progress {
         padding: 15px;
         margin: 15px 0;
     }

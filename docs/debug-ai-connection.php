@@ -6,15 +6,15 @@ if (!current_user_can('manage_options')) {
     die('Unauthorized');
 }
 
-echo "<h2>AI Connectivity Test (v4 - Model Discovery)</h2>";
+echo "<h2>AI Connectivity Test (v4 Model Discovery)</h2>";
 
-$gemini_key = get_option('aiopms_gemini_api_key');
+$gemini_key = get_option('artitechcore_gemini_api_key');
 
 if (empty($gemini_key)) {
     die("❌ Gemini API Key is missing.");
 }
 
-$masked = substr($gemini_key, 0, 5) . '...' . substr($gemini_key, -5);
+$masked = substr($gemini_key, 0, 5) . '...' . substr($gemini_key,5);
 echo "ℹ️ Using Key: $masked<br>";
 
 // 1. Try to LIST available models

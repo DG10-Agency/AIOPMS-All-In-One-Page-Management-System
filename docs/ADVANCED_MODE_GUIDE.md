@@ -1,8 +1,8 @@
-# AIOPMS Advanced Mode - Complete Guide
+# ArtitechCore Advanced Mode Complete Guide
 
 ## Overview
 
-The Advanced Mode is a powerful enhancement to the AIOPMS plugin that goes beyond simple page creation to generate complete content ecosystems with custom post types. Unlike traditional page builders that use predefined templates, Advanced Mode uses AI to dynamically analyze your specific business and suggest relevant content structures.
+The Advanced Mode is a powerful enhancement to the ArtitechCore plugin that goes beyond simple page creation to generate complete content ecosystems with custom post types. Unlike traditional page builders that use predefined templates, Advanced Mode uses AI to dynamically analyze your specific business and suggest relevant content structures.
 
 ## Key Features
 
@@ -20,18 +20,18 @@ The Advanced Mode is a powerful enhancement to the AIOPMS plugin that goes beyon
 - **Schema Markup**: Automatic schema generation for custom post types
 - **Menu Integration**: Custom post type archives included in menu generation
 - **Hierarchy View**: Custom post types appear in page hierarchy and exports
-- **Backward Compatible**: Works alongside existing AIOPMS features
+- **Backward Compatible**: Works alongside existing ArtitechCore features
 
 ## How to Use Advanced Mode
 
 ### Using Advanced Mode
 
-1. Navigate to **AIOPMS → Generate with AI**
+1. Navigate to **ArtitechCore → Generate with AI**
 2. Fill in your business information:
-   - **Business Type**: e.g., "Digital Marketing Agency", "Pet Grooming Service"
-   - **Business Details**: Detailed description of your business and services
-   - **SEO Keywords**: Primary keywords for your business
-   - **Target Audience**: Who your customers are
+   **Business Type**: e.g., "Digital Marketing Agency", "Pet Grooming Service"
+   **Business Details**: Detailed description of your business and services
+   **SEO Keywords**: Primary keywords for your business
+   **Target Audience**: Who your customers are
 3. Check **"Enable Advanced Mode"** to generate custom post types and dynamic content ecosystem
 4. Click **"Generate Page Suggestions"**
 5. Review the AI analysis and suggestions
@@ -67,23 +67,23 @@ The Advanced Mode is a powerful enhancement to the AIOPMS plugin that goes beyon
 ## Custom Post Type Management
 
 ### Viewing Custom Post Types
-1. Navigate to **AIOPMS → Custom Post Types**
+1. Navigate to **ArtitechCore → Custom Post Types**
 2. View all dynamically created custom post types
 3. See post counts, custom fields, and manage entries
 
 ### Manual Custom Post Type Creation
-1. Go to **AIOPMS → Custom Post Types → Create New CPT**
+1. Go to **ArtitechCore → Custom Post Types → Create New CPT**
 2. Define post type slug, label, and description
 3. Add custom fields with appropriate types
 4. Create the custom post type
 
 ### Settings Configuration
-1. Go to **AIOPMS → Custom Post Types → Settings**
+1. Go to **ArtitechCore → Custom Post Types → Settings**
 2. Configure integration options:
-   - **Auto Schema Generation**: Automatically generate schema markup
-   - **Include in Menu Generation**: Add CPT archives to menus
-   - **Include in Hierarchy**: Show CPTs in hierarchy view
-   - **Auto Generate Sample Content**: Create sample entries
+   **Auto Schema Generation**: Automatically generate schema markup
+   **Include in Menu Generation**: Add CPT archives to menus
+   **Include in Hierarchy**: Show CPTs in hierarchy view
+   **Auto Generate Sample Content**: Create sample entries
 
 ## Integration Features
 
@@ -155,8 +155,8 @@ The Advanced Mode is a powerful enhancement to the AIOPMS plugin that goes beyon
 - Enhanced existing files for integration
 
 ### Database Storage
-- Custom post type definitions stored in `aiopms_dynamic_cpts` option
-- CPT settings stored in `aiopms_cpt_settings` option
+- Custom post type definitions stored in `artitechcore_dynamic_cpts` option
+- CPT settings stored in `artitechcore_cpt_settings` option
 - Custom field data stored as post meta
 
 ### API Integration

@@ -1,4 +1,4 @@
-# AIOPMS - Developer Documentation
+# ArtitechCore Developer Documentation
 
 ## Table of Contents
 
@@ -17,7 +17,7 @@
 
 ## Plugin Overview
 
-**AIOPMS (All In One Page Management System)** is a comprehensive WordPress plugin that provides advanced page management capabilities including:
+**ArtitechCore ()** is a comprehensive WordPress plugin that provides advanced page management capabilities including:
 
 - Bulk page creation with AI assistance
 - Page hierarchy visualization and management
@@ -28,7 +28,7 @@
 - CSV import/export functionality
 
 ### Version Information
-- **Current Version**: 3.0
+- **Current Version**: 1.0
 - **Minimum WordPress**: 5.6
 - **Minimum PHP**: 7.4
 - **Tested up to**: WordPress 6.4
@@ -36,8 +36,8 @@
 ## Plugin Structure
 
 ```
-aiopms-all-in-one-page-management-system/
-├── aiopms-all-in-one-page-management-system.php  # Main plugin file
+ArtitechCore-WP/
+├── artitechcore-for-wordpress.php  # Main plugin file
 ├── includes/                                      # Core functionality
 │   ├── admin-menu.php                            # Admin interface
 │   ├── ai-generator.php                          # AI integration
@@ -59,7 +59,7 @@ aiopms-all-in-one-page-management-system/
 
 ### Core Components
 
-#### 1. Main Plugin File (`aiopms-all-in-one-page-management-system.php`)
+#### 1. Main Plugin File (`artitechcore-for-wordpress.php`)
 - Plugin header and metadata
 - Activation/deactivation hooks
 - Constants definition
@@ -95,49 +95,49 @@ aiopms-all-in-one-page-management-system/
 #### Plugin Lifecycle
 ```php
 // Plugin activation
-add_action('aiopms_activate', 'aiopms_setup_default_options');
+add_action('artitechcore_activate', 'artitechcore_setup_default_options');
 
 // Plugin deactivation
-add_action('aiopms_deactivate', 'aiopms_cleanup_data');
+add_action('artitechcore_deactivate', 'artitechcore_cleanup_data');
 ```
 
 #### Admin Interface
 ```php
 // Admin menu registration
-add_action('admin_menu', 'aiopms_add_admin_menu');
+add_action('admin_menu', 'artitechcore_add_admin_menu');
 
 // Admin scripts and styles
-add_action('admin_enqueue_scripts', 'aiopms_enqueue_hierarchy_assets');
+add_action('admin_enqueue_scripts', 'artitechcore_enqueue_hierarchy_assets');
 ```
 
 #### Content Generation
 ```php
 // AI content generation
-add_action('aiopms_generate_content', 'aiopms_process_ai_generation');
+add_action('artitechcore_generate_content', 'artitechcore_process_ai_generation');
 
 // Schema generation
-add_action('save_post', 'aiopms_generate_schema_on_save');
-add_action('aiopms_generate_schema_for_post', 'aiopms_generate_cpt_schema', 10, 2);
+add_action('save_post', 'artitechcore_generate_schema_on_save');
+add_action('artitechcore_generate_schema_for_post', 'artitechcore_generate_cpt_schema', 10, 2);
 ```
 
 #### Custom Post Types
 ```php
 // CPT initialization
-add_action('init', 'aiopms_register_existing_dynamic_cpts', 20);
-add_action('plugins_loaded', 'aiopms_init_custom_post_type_manager');
+add_action('init', 'artitechcore_register_existing_dynamic_cpts', 20);
+add_action('plugins_loaded', 'artitechcore_init_custom_post_type_manager');
 
 // CPT management
-add_action('admin_menu', 'aiopms_add_cpt_management_menu');
+add_action('admin_menu', 'artitechcore_add_cpt_management_menu');
 ```
 
 #### Schema Management
 ```php
 // Schema output
-add_action('wp_head', 'aiopms_output_schema_markup');
+add_action('wp_head', 'artitechcore_output_schema_markup');
 
 // Schema column management
-add_action('manage_page_posts_custom_column', 'aiopms_display_schema_column', 10, 2);
-add_action('pre_get_posts', 'aiopms_handle_schema_column_sorting');
+add_action('manage_page_posts_custom_column', 'artitechcore_display_schema_column', 10, 2);
+add_action('pre_get_posts', 'artitechcore_handle_schema_column_sorting');
 ```
 
 ### Filters
@@ -145,20 +145,20 @@ add_action('pre_get_posts', 'aiopms_handle_schema_column_sorting');
 #### Data Processing
 ```php
 // Hierarchy export data
-add_filter('aiopms_hierarchy_export_data', 'aiopms_add_cpt_to_hierarchy_export');
+add_filter('artitechcore_hierarchy_export_data', 'artitechcore_add_cpt_to_hierarchy_export');
 
 // Menu generation
-add_filter('aiopms_menu_generation_pages', 'aiopms_add_cpt_archives_to_menus');
+add_filter('artitechcore_menu_generation_pages', 'artitechcore_add_cpt_archives_to_menus');
 ```
 
 #### Admin Interface
 ```php
 // Page list columns
-add_filter('manage_page_posts_columns', 'aiopms_add_schema_column');
-add_filter('manage_edit-page_sortable_columns', 'aiopms_make_schema_column_sortable');
+add_filter('manage_page_posts_columns', 'artitechcore_add_schema_column');
+add_filter('manage_edit-page_sortable_columns', 'artitechcore_make_schema_column_sortable');
 
 // Page row actions
-add_filter('page_row_actions', 'aiopms_add_schema_quick_actions', 10, 2);
+add_filter('page_row_actions', 'artitechcore_add_schema_quick_actions', 10, 2);
 ```
 
 ### Custom Hooks
@@ -166,25 +166,25 @@ add_filter('page_row_actions', 'aiopms_add_schema_quick_actions', 10, 2);
 #### Content Generation Hooks
 ```php
 // Before AI generation
-do_action('aiopms_before_ai_generation', $business_type, $business_details);
+do_action('artitechcore_before_ai_generation', $business_type, $business_details);
 
 // After AI generation
-do_action('aiopms_after_ai_generation', $generated_content, $provider);
+do_action('artitechcore_after_ai_generation', $generated_content, $provider);
 
 // Before schema generation
-do_action('aiopms_before_schema_generation', $post_id, $post_type);
+do_action('artitechcore_before_schema_generation', $post_id, $post_type);
 
 // After schema generation
-do_action('aiopms_after_schema_generation', $post_id, $schema_data);
+do_action('artitechcore_after_schema_generation', $post_id, $schema_data);
 ```
 
 #### Hierarchy Hooks
 ```php
 // Before hierarchy export
-do_action('aiopms_before_hierarchy_export', $export_type, $pages);
+do_action('artitechcore_before_hierarchy_export', $export_type, $pages);
 
 // After hierarchy export
-do_action('aiopms_after_hierarchy_export', $export_type, $export_data);
+do_action('artitechcore_after_hierarchy_export', $export_type, $export_data);
 ```
 
 ## API Endpoints
@@ -193,7 +193,7 @@ do_action('aiopms_after_hierarchy_export', $export_type, $export_data);
 
 #### Hierarchy Data
 ```php
-GET /wp-json/aiopms/v1/hierarchy
+GET /wp-json/artitechcore/v1/hierarchy
 ```
 - **Description**: Retrieve page hierarchy data
 - **Authentication**: Requires `edit_pages` capability
@@ -201,7 +201,7 @@ GET /wp-json/aiopms/v1/hierarchy
 
 #### Custom Post Types
 ```php
-GET /wp-json/aiopms/v1/cpts
+GET /wp-json/artitechcore/v1/cpts
 ```
 - **Description**: Retrieve custom post type data
 - **Authentication**: Requires `edit_posts` capability
@@ -212,31 +212,31 @@ GET /wp-json/aiopms/v1/cpts
 #### Export Functions
 ```php
 // CSV Export
-wp_ajax_aiopms_export_csv
+wp_ajax_artitechcore_export_csv
 
 // Markdown Export
-wp_ajax_aiopms_export_markdown
+wp_ajax_artitechcore_export_markdown
 
 // JSON Export
-wp_ajax_aiopms_export_json
+wp_ajax_artitechcore_export_json
 ```
 
 #### Keyword Analysis
 ```php
 // Analyze keywords
-wp_ajax_aiopms_analyze_keywords
+wp_ajax_artitechcore_analyze_keywords
 
 // Get pages for analysis
-wp_ajax_aiopms_get_pages
+wp_ajax_artitechcore_get_pages
 
 // Export analysis results
-wp_ajax_aiopms_export_keyword_analysis
+wp_ajax_artitechcore_export_keyword_analysis
 ```
 
 #### Schema Management
 ```php
 // Get schema preview
-wp_ajax_aiopms_get_schema_preview
+wp_ajax_artitechcore_get_schema_preview
 ```
 
 ## Database Schema
@@ -247,33 +247,33 @@ The plugin stores configuration data in the `wp_options` table:
 
 ```sql
 -- Plugin version and settings
-aiopms_version                    -- Plugin version
-aiopms_ai_provider               -- Selected AI provider (openai, gemini, deepseek)
-aiopms_openai_api_key           -- OpenAI API key
-aiopms_gemini_api_key           -- Gemini API key
-aiopms_deepseek_api_key         -- DeepSeek API key
-aiopms_brand_color              -- Brand color for AI-generated images
-aiopms_default_status           -- Default page status (draft, publish)
-aiopms_auto_schema_generation   -- Auto-generate schema markup
-aiopms_enable_image_generation  -- Enable AI image generation
-aiopms_image_quality            -- Image generation quality
-aiopms_image_size               -- Image generation size
-aiopms_max_tokens               -- Maximum tokens for AI generation
+artitechcore_version                   - Plugin version
+artitechcore_ai_provider              - Selected AI provider (openai, gemini, deepseek)
+artitechcore_openai_api_key          - OpenAI API key
+artitechcore_gemini_api_key          - Gemini API key
+artitechcore_deepseek_api_key        - DeepSeek API key
+artitechcore_brand_color             - Brand color for AI-generated images
+artitechcore_default_status          - Default page status (draft, publish)
+artitechcore_auto_schema_generation  - Auto-generate schema markup
+artitechcore_enable_image_generation - Enable AI image generation
+artitechcore_image_quality           - Image generation quality
+artitechcore_image_size              - Image generation size
+artitechcore_max_tokens              - Maximum tokens for AI generation
 
 -- Custom Post Type settings
-aiopms_dynamic_cpts             -- Dynamic custom post types data
-aiopms_cpt_settings             -- CPT configuration settings
+artitechcore_dynamic_cpts            - Dynamic custom post types data
+artitechcore_cpt_settings            - CPT configuration settings
 
 -- Schema settings
-aiopms_schema_settings          -- Schema generation settings
-aiopms_schema_cache             -- Cached schema data
+artitechcore_schema_settings         - Schema generation settings
+artitechcore_schema_cache            - Cached schema data
 ```
 
 ### Custom Tables
 
 #### Generation Logs Table
 ```sql
-CREATE TABLE wp_aiopms_generation_logs (
+CREATE TABLE wp_artitechcore_generation_logs (
     id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
     user_id bigint(20) unsigned NOT NULL,
     type varchar(50) NOT NULL,
@@ -298,9 +298,9 @@ The plugin uses WordPress post meta for schema data:
 
 ```sql
 -- Schema markup storage
-_aiopms_schema_type     -- Schema type (WebPage, Article, etc.)
-_aiopms_schema_data     -- Serialized schema data
-_aiopms_schema_generated -- Timestamp of schema generation
+_artitechcore_schema_type    - Schema type (WebPage, Article, etc.)
+_artitechcore_schema_data    - Serialized schema data
+_artitechcore_schema_generated- Timestamp of schema generation
 ```
 
 ## Security Measures
@@ -329,10 +329,10 @@ esc_attr($attribute)
 #### Nonce Verification
 ```php
 // Form submissions
-wp_verify_nonce($_POST['_wpnonce'], 'aiopms_action_name')
+wp_verify_nonce($_POST['_wpnonce'], 'artitechcore_action_name')
 
 // AJAX requests
-wp_verify_nonce($_GET['nonce'], 'aiopms_export_nonce')
+wp_verify_nonce($_GET['nonce'], 'artitechcore_export_nonce')
 ```
 
 ### Permission Checks
@@ -362,7 +362,7 @@ current_user_can('manage_options')
 #### AI API Rate Limiting
 ```php
 // Rate limiting implementation
-function aiopms_check_ai_rate_limit($provider = null) {
+function artitechcore_check_ai_rate_limit($provider = null) {
     // 10 requests per minute per provider per user
     // Uses WordPress transients for storage
 }
@@ -399,8 +399,8 @@ if ($file['error'] !== UPLOAD_ERR_OK) {
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/DG10-Agency/AIOPMS-All-In-One-Page-Management-System.git
-cd AIOPMS-All-In-One-Page-Management-System
+git clone https://github.com/DG10-Agency/ArtitechCore-WP.git
+cd ArtitechCore-WP
 ```
 
 2. **Install dependencies**
@@ -438,8 +438,8 @@ WP_DEBUG_LOG=true
 #### Development Constants
 ```php
 // Add to wp-config.php for development
-define('AIOPMS_DEBUG', true);
-define('AIOPMS_DEV_MODE', true);
+define('ArtitechCore_DEBUG', true);
+define('ArtitechCore_DEV_MODE', true);
 ```
 
 ## Contribution Guidelines
@@ -449,7 +449,7 @@ define('AIOPMS_DEV_MODE', true);
 1. **Fork the repository**
 2. **Create a feature branch**
 ```bash
-git checkout -b feature/your-feature-name
+git checkoutb feature/your-feature-name
 ```
 
 3. **Make your changes**
@@ -501,18 +501,18 @@ When reporting issues, include:
 #### Function Naming
 ```php
 // Use descriptive prefixes
-function aiopms_get_page_hierarchy() {}
-function aiopms_generate_schema_markup() {}
-function aiopms_validate_api_key() {}
+function artitechcore_get_page_hierarchy() {}
+function artitechcore_generate_schema_markup() {}
+function artitechcore_validate_api_key() {}
 ```
 
 #### Class Structure
 ```php
-class AIOPMS_Keyword_Analyzer {
+class ArtitechCore_Keyword_Analyzer {
     private $settings;
     
     public function __construct() {
-        $this->settings = get_option('aiopms_settings');
+        $this->settings = get_option('artitechcore_settings');
     }
     
     public function analyze_keywords($keywords) {
@@ -524,10 +524,10 @@ class AIOPMS_Keyword_Analyzer {
 #### Error Handling
 ```php
 try {
-    $result = aiopms_generate_content($data);
+    $result = artitechcore_generate_content($data);
     return $result;
 } catch (Exception $e) {
-    error_log('AIOPMS Error: ' . $e->getMessage());
+    error_log('ArtitechCore Error: ' . $e->getMessage());
     return new WP_Error('generation_failed', $e->getMessage());
 }
 ```
@@ -539,13 +539,13 @@ try {
 (function($) {
     'use strict';
     
-    var AIOPMSHierarchy = {
+    var ArtitechCoreHierarchy = {
         init: function() {
             this.bindEvents();
         },
         
         bindEvents: function() {
-            $(document).on('click', '.aiopms-button', this.handleClick);
+            $(document).on('click', '.artitechcore-button', this.handleClick);
         },
         
         handleClick: function(e) {
@@ -555,7 +555,7 @@ try {
     };
     
     $(document).ready(function() {
-        AIOPMSHierarchy.init();
+        ArtitechCoreHierarchy.init();
     });
     
 })(jQuery);
@@ -566,14 +566,14 @@ try {
 #### Class Naming
 ```css
 /* BEM methodology */
-.aiopms-hierarchy-container {}
-.aiopms-hierarchy-container__header {}
-.aiopms-hierarchy-container__header--active {}
+.artitechcore-hierarchy-container {}
+.artitechcore-hierarchy-container__header {}
+.artitechcore-hierarchy-container__header--active {}
 
 /* Component-based organization */
-.aiopms-button {}
-.aiopms-button--primary {}
-.aiopms-button--secondary {}
+.artitechcore-button {}
+.artitechcore-button--primary {}
+.artitechcore-button--secondary {}
 ```
 
 ## Testing
@@ -582,15 +582,15 @@ try {
 
 #### PHP Unit Tests
 ```php
-class Test_AIOPMS_Hierarchy extends WP_UnitTestCase {
+class Test_ArtitechCore_Hierarchy extends WP_UnitTestCase {
     
     public function test_get_page_hierarchy() {
-        $hierarchy = aiopms_get_page_hierarchy();
+        $hierarchy = artitechcore_get_page_hierarchy();
         $this->assertIsArray($hierarchy);
     }
     
     public function test_memory_monitoring() {
-        $start_memory = aiopms_get_memory_usage();
+        $start_memory = artitechcore_get_memory_usage();
         $this->assertIsArray($start_memory);
         $this->assertArrayHasKey('current_mb', $start_memory);
     }
@@ -599,9 +599,9 @@ class Test_AIOPMS_Hierarchy extends WP_UnitTestCase {
 
 #### JavaScript Tests
 ```javascript
-describe('AIOPMS Hierarchy', function() {
+describe('ArtitechCore Hierarchy', function() {
     it('should initialize correctly', function() {
-        expect(AIOPMSHierarchy).toBeDefined();
+        expect(ArtitechCoreHierarchy).toBeDefined();
     });
     
     it('should handle button clicks', function() {
@@ -614,10 +614,10 @@ describe('AIOPMS Hierarchy', function() {
 
 #### API Endpoint Testing
 ```php
-class Test_AIOPMS_API extends WP_UnitTestCase {
+class Test_ArtitechCore_API extends WP_UnitTestCase {
     
     public function test_hierarchy_endpoint() {
-        $request = new WP_REST_Request('GET', '/aiopms/v1/hierarchy');
+        $request = new WP_REST_Request('GET', '/artitechcore/v1/hierarchy');
         $response = rest_do_request($request);
         
         $this->assertEquals(200, $response->get_status());
@@ -633,11 +633,11 @@ function test_memory_usage_with_large_dataset() {
     $start_memory = memory_get_usage(true);
     
     // Generate large dataset
-    $pages = aiopms_generate_test_pages(1000);
-    $hierarchy = aiopms_get_page_hierarchy();
+    $pages = artitechcore_generate_test_pages(1000);
+    $hierarchy = artitechcore_get_page_hierarchy();
     
     $end_memory = memory_get_usage(true);
-    $memory_used = ($end_memory - $start_memory) / 1024 / 1024;
+    $memory_used = ($end_memory $start_memory) / 1024 / 1024;
     
     $this->assertLessThan(100, $memory_used); // Should use less than 100MB
 }
@@ -650,13 +650,13 @@ function test_memory_usage_with_large_dataset() {
 #### Memory Monitoring
 ```php
 // Monitor memory usage in large operations
-$start_memory = aiopms_monitor_memory_usage('OPERATION_NAME');
+$start_memory = artitechcore_monitor_memory_usage('OPERATION_NAME');
 
 // Perform operation
-$result = aiopms_process_large_dataset();
+$result = artitechcore_process_large_dataset();
 
 // Log memory usage
-aiopms_monitor_memory_usage('OPERATION_NAME', $start_memory);
+artitechcore_monitor_memory_usage('OPERATION_NAME', $start_memory);
 ```
 
 #### Optimization Strategies
@@ -682,11 +682,11 @@ $pages = get_pages(array(
 #### Caching Strategy
 ```php
 // Cache expensive operations
-$cache_key = 'aiopms_hierarchy_' . md5(serialize($args));
+$cache_key = 'artitechcore_hierarchy_' . md5(serialize($args));
 $cached_data = get_transient($cache_key);
 
 if ($cached_data === false) {
-    $cached_data = aiopms_generate_hierarchy_data($args);
+    $cached_data = artitechcore_generate_hierarchy_data($args);
     set_transient($cache_key, $cached_data, HOUR_IN_SECONDS);
 }
 ```
@@ -703,11 +703,11 @@ if ($cached_data === false) {
 ```javascript
 // Debounce expensive operations
 var debouncedSearch = _.debounce(function(query) {
-    AIOPMSHierarchy.performSearch(query);
+    ArtitechCoreHierarchy.performSearch(query);
 }, 300);
 
 // Use event delegation
-$(document).on('click', '.aiopms-button', function() {
+$(document).on('click', '.artitechcore-button', function() {
     // Handle click
 });
 ```
@@ -744,14 +744,14 @@ $(document).on('click', '.aiopms-button', function() {
 // Add to wp-config.php
 define('WP_DEBUG', true);
 define('WP_DEBUG_LOG', true);
-define('AIOPMS_DEBUG', true);
+define('ArtitechCore_DEBUG', true);
 ```
 
 #### Debug Functions
 ```php
 // Log debug information
-if (defined('AIOPMS_DEBUG') && AIOPMS_DEBUG) {
-    error_log('AIOPMS Debug: ' . print_r($data, true));
+if (defined('ArtitechCore_DEBUG') && ArtitechCore_DEBUG) {
+    error_log('ArtitechCore Debug: ' . print_r($data, true));
 }
 ```
 
@@ -779,9 +779,9 @@ the Free Software Foundation; either version 2 of the License, or
 
 - **Developed by**: DG10 Agency
 - **Website**: https://www.dg10.agency
-- **GitHub**: https://github.com/DG10-Agency/AIOPMS-All-In-One-Page-Management-System
+- **GitHub**: https://github.com/DG10-Agency/ArtitechCore-WP.git
 
 ---
 
 *Last updated: December 2024*
-*Version: 3.0*
+*Version: 1.0*

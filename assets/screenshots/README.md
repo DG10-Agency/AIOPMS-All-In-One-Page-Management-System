@@ -1,4 +1,4 @@
-# AIOPMS Plugin Screenshots
+# ArtitechCore Plugin Screenshots
 
 ## Screenshot Naming Convention
 
@@ -25,7 +25,7 @@ For WordPress.org plugin submission, place PNG screenshots in this folder with t
 
 ## How to Capture
 
-1. Navigate to WordPress Admin → AIOPMS
+1. Navigate to WordPress Admin → ArtitechCore
 2. Go to each tab and capture the full interface
 3. Use Windows Snipping Tool (Win+Shift+S) or similar
 4. Save with the exact filenames above

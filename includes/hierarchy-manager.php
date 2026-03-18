@@ -4,8 +4,8 @@ if (!defined('ABSPATH')) {
 }
 
 // Memory monitoring utilities
-if (!function_exists('aiopms_get_memory_usage')) {
-    function aiopms_get_memory_usage() {
+if (!function_exists('artitechcore_get_memory_usage')) {
+    function artitechcore_get_memory_usage() {
         return [
             'current' => memory_get_usage(true),
             'peak' => memory_get_peak_usage(true),
@@ -16,11 +16,11 @@ if (!function_exists('aiopms_get_memory_usage')) {
     }
 }
 
-if (!function_exists('aiopms_log_memory_usage')) {
-    function aiopms_log_memory_usage($context, $additional_info = '') {
-        $memory = aiopms_get_memory_usage();
+if (!function_exists('artitechcore_log_memory_usage')) {
+    function artitechcore_log_memory_usage($context, $additional_info = '') {
+        $memory = artitechcore_get_memory_usage();
         $message = sprintf(
-            'AIOPMS Memory Usage [%s]: Current: %s MB, Peak: %s MB, Limit: %s%s',
+            'ArtitechCore Memory Usage [%s]: Current: %s MB, Peak: %s MB, Limit: %s%s',
             $context,
             $memory['current_mb'],
             $memory['peak_mb'],
@@ -32,12 +32,12 @@ if (!function_exists('aiopms_log_memory_usage')) {
     }
 }
 
-if (!function_exists('aiopms_check_memory_limit')) {
-    function aiopms_check_memory_limit($threshold_percent = 80) {
-        $memory = aiopms_get_memory_usage();
+if (!function_exists('artitechcore_check_memory_limit')) {
+    function artitechcore_check_memory_limit($threshold_percent = 80) {
+        $memory = artitechcore_get_memory_usage();
         
         // Convert memory limit to bytes
-        $limit_bytes = aiopms_convert_memory_limit_to_bytes($memory['limit']);
+        $limit_bytes = artitechcore_convert_memory_limit_to_bytes($memory['limit']);
         
         if ($limit_bytes > 0) {
             $usage_percent = ($memory['current'] / $limit_bytes) * 100;
@@ -45,7 +45,7 @@ if (!function_exists('aiopms_check_memory_limit')) {
             if ($usage_percent >= $threshold_percent) {
                 if (defined('WP_DEBUG') && WP_DEBUG) {
                     error_log(sprintf(
-                        'AIOPMS WARNING: Memory usage at %.1f%% of limit (%s).',
+                        'ArtitechCore WARNING: Memory usage at %.1f%% of limit (%s).',
                         $usage_percent,
                         $memory['limit']
                     ));
@@ -58,8 +58,8 @@ if (!function_exists('aiopms_check_memory_limit')) {
     }
 }
 
-if (!function_exists('aiopms_convert_memory_limit_to_bytes')) {
-    function aiopms_convert_memory_limit_to_bytes($memory_limit) {
+if (!function_exists('artitechcore_convert_memory_limit_to_bytes')) {
+    function artitechcore_convert_memory_limit_to_bytes($memory_limit) {
         if ($memory_limit == -1) {
             return PHP_INT_MAX; // Unlimited memory
         }
@@ -81,9 +81,9 @@ if (!function_exists('aiopms_convert_memory_limit_to_bytes')) {
     }
 }
 
-if (!function_exists('aiopms_monitor_memory_usage')) {
-    function aiopms_monitor_memory_usage($context, $start_memory = null, $additional_info = '') {
-        $current_memory = aiopms_get_memory_usage();
+if (!function_exists('artitechcore_monitor_memory_usage')) {
+    function artitechcore_monitor_memory_usage($context, $start_memory = null, $additional_info = '') {
+        $current_memory = artitechcore_get_memory_usage();
         
         if ($start_memory === null) {
             return $current_memory;
@@ -97,60 +97,60 @@ if (!function_exists('aiopms_monitor_memory_usage')) {
 }
 
 // Hierarchy tab content
-function abpcwa_hierarchy_tab() {
+function artitechcore_hierarchy_tab() {
     ?>
-    <div class="abpcwa-hierarchy-container dg10-form-container">
+    <div class="artitechcore-hierarchy-container dg10-form-container">
         <div class="dg10-tab-header" style="margin-bottom: 30px;">
-            <h3>🌳 <?php esc_html_e('Intelligent Hierarchy Visualizer', 'aiopms'); ?></h3>
-            <p><?php esc_html_e('Analyze and visualize your content architecture through multiple strategic lenses.', 'aiopms'); ?></p>
+            <h3>🌳 <?php esc_html_e('Intelligent Hierarchy Visualizer', 'artitechcore'); ?></h3>
+            <p><?php esc_html_e('Analyze and visualize your content architecture through multiple strategic lenses.', 'artitechcore'); ?></p>
         </div>
 
-        <div class="aiopms-hierarchy-toolbar dg10-card" style="padding: 24px; margin-bottom: 32px;">
+        <div class="artitechcore-hierarchy-toolbar dg10-card" style="padding: 24px; margin-bottom: 32px;">
             <div class="dg10-form-grid" style="grid-template-columns: 1fr auto; align-items: center; gap: 24px;">
-                <div class="abpcwa-hierarchy-search">
+                <div class="artitechcore-hierarchy-search">
                     <div class="dg10-search-wrapper">
                         <span class="search-icon">🔍</span>
-                        <input type="text" id="abpcwa-hierarchy-search" placeholder="<?php esc_attr_e('Search site structure...', 'aiopms'); ?>" class="dg10-form-input">
+                        <input type="text" id="artitechcore-hierarchy-search" placeholder="<?php esc_attr_e('Search site structure...', 'artitechcore'); ?>" class="dg10-form-input">
                     </div>
                 </div>
 
-                <div class="abpcwa-view-controls dg10-btn-group">
+                <div class="artitechcore-view-controls dg10-btn-group">
                     <button class="dg10-btn dg10-btn-primary" data-view="grid">
-                        <span class="nav-icon">📁</span> <?php esc_html_e('Grid View', 'aiopms'); ?>
+                        <span class="nav-icon">📁</span> <?php esc_html_e('Grid View', 'artitechcore'); ?>
                     </button>
                     <button class="dg10-btn dg10-btn-outline" data-view="tree">
-                        <span class="nav-icon">🌲</span> <?php esc_html_e('Tree View', 'aiopms'); ?>
+                        <span class="nav-icon">🌲</span> <?php esc_html_e('Tree View', 'artitechcore'); ?>
                     </button>
                     <button class="dg10-btn dg10-btn-outline" data-view="orgchart">
-                        <span class="nav-icon">📊</span> <?php esc_html_e('Org Chart', 'aiopms'); ?>
+                        <span class="nav-icon">📊</span> <?php esc_html_e('Org Chart', 'artitechcore'); ?>
                     </button>
                 </div>
             </div>
 
-            <div class="aiopms-export-controls" style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--dg10-glass-border);">
+            <div class="artitechcore-export-controls" style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--dg10-glass-border);">
                 <div class="dg10-form-grid" style="grid-template-columns: auto 1fr; align-items: center; gap: 20px;">
-                    <span class="dg10-label-sm"><?php esc_html_e('Export Strategy:', 'aiopms'); ?></span>
-                    <div class="aiopms-export-buttons" style="display: flex; gap: 12px;">
-                        <button class="dg10-btn dg10-btn-sm dg10-btn-outline aiopms-export-trigger" data-type="csv">
+                    <span class="dg10-label-sm"><?php esc_html_e('Export Strategy:', 'artitechcore'); ?></span>
+                    <div class="artitechcore-export-buttons" style="display: flex; gap: 12px;">
+                        <button class="dg10-btn dg10-btn-sm dg10-btn-outline artitechcore-export-trigger" data-type="csv">
                             📥 CSV
                         </button>
-                        <button class="dg10-btn dg10-btn-sm dg10-btn-outline aiopms-export-trigger" data-type="markdown">
+                        <button class="dg10-btn dg10-btn-sm dg10-btn-outline artitechcore-export-trigger" data-type="markdown">
                             📝 Markdown
                         </button>
-                        <button class="dg10-btn dg10-btn-sm dg10-btn-outline aiopms-export-trigger" data-type="json">
+                        <button class="dg10-btn dg10-btn-sm dg10-btn-outline artitechcore-export-trigger" data-type="json">
                             📦 JSON
                         </button>
                         
-                        <div class="aiopms-export-divider" style="width: 1px; background: var(--dg10-glass-border); margin: 0 8px;"></div>
+                        <div class="artitechcore-export-divider" style="width: 1px; background: var(--dg10-glass-border); margin: 0 8px;"></div>
                         
-                        <div class="aiopms-copy-action dg10-form-inline">
-                            <select id="aiopms-copy-type" class="dg10-form-input dg10-input-sm">
-                                <option value="titles"><?php esc_html_e('Copy Titles', 'aiopms'); ?></option>
-                                <option value="urls"><?php esc_html_e('Copy URLs', 'aiopms'); ?></option>
-                                <option value="both"><?php esc_html_e('Copy Titles + URLs', 'aiopms'); ?></option>
+                        <div class="artitechcore-copy-action dg10-form-inline">
+                            <select id="artitechcore-copy-type" class="dg10-form-input dg10-input-sm">
+                                <option value="titles"><?php esc_html_e('Copy Titles', 'artitechcore'); ?></option>
+                                <option value="urls"><?php esc_html_e('Copy URLs', 'artitechcore'); ?></option>
+                                <option value="both"><?php esc_html_e('Copy Titles + URLs', 'artitechcore'); ?></option>
                             </select>
-                            <button class="dg10-btn dg10-btn-sm dg10-btn-primary" id="aiopms-copy-hierarchy">
-                                📋 <?php esc_html_e('Copy', 'aiopms'); ?>
+                            <button class="dg10-btn dg10-btn-sm dg10-btn-primary" id="artitechcore-copy-hierarchy">
+                                📋 <?php esc_html_e('Copy', 'artitechcore'); ?>
                             </button>
                         </div>
                     </div>
@@ -158,38 +158,38 @@ function abpcwa_hierarchy_tab() {
             </div>
         </div>
 
-        <div id="abpcwa-hierarchy-view-container">
-            <div id="abpcwa-hierarchy-grid" class="abpcwa-hierarchy-view active-view dg10-glass-card" style="padding: 40px;">
-                <div class="aiopms-loading-state">
+        <div id="artitechcore-hierarchy-view-container">
+            <div id="artitechcore-hierarchy-grid" class="artitechcore-hierarchy-view active-view dg10-glass-card" style="padding: 40px;">
+                <div class="artitechcore-loading-state">
                     <div class="dg10-spinner"></div>
-                    <p><?php esc_html_e('Synthesizing site architecture...', 'aiopms'); ?></p>
+                    <p><?php esc_html_e('Synthesizing site architecture...', 'artitechcore'); ?></p>
                 </div>
             </div>
-            <div id="abpcwa-hierarchy-tree" class="abpcwa-hierarchy-view dg10-glass-card"></div>
-            <div id="abpcwa-hierarchy-orgchart" class="abpcwa-hierarchy-view dg10-glass-card"></div>
+            <div id="artitechcore-hierarchy-tree" class="artitechcore-hierarchy-view dg10-glass-card"></div>
+            <div id="artitechcore-hierarchy-orgchart" class="artitechcore-hierarchy-view dg10-glass-card"></div>
         </div>
 
         <div class="dg10-notice dg10-notice-info" style="margin-top: 40px;">
-            <p><strong><?php esc_html_e('Note:', 'aiopms'); ?></strong> <?php esc_html_e('This is an analytical visualization. To restructure your hierarchy, please use the native WordPress Page Attributes in the editor.', 'aiopms'); ?></p>
+            <p><strong><?php esc_html_e('Note:', 'artitechcore'); ?></strong> <?php esc_html_e('This is an analytical visualization. To restructure your hierarchy, please use the native WordPress Page Attributes in the editor.', 'artitechcore'); ?></p>
         </div>
     </div>
-    <input type="hidden" id="aiopms-export-nonce" value="<?php echo wp_create_nonce('aiopms_export_nonce'); ?>">
+    <input type="hidden" id="artitechcore-export-nonce" value="<?php echo wp_create_nonce('artitechcore_export_nonce'); ?>">
     <?php
 }
 
 // Get page hierarchy data (read-only)
-function aiopms_get_page_hierarchy() {
+function artitechcore_get_page_hierarchy() {
     try {
         // Check for cached hierarchy data
-        $cached_data = get_transient('aiopms_page_hierarchy_cache');
+        $cached_data = get_transient('artitechcore_page_hierarchy_cache');
         if (false !== $cached_data) {
             return $cached_data;
         }
         // Start memory monitoring
-        $start_memory = aiopms_monitor_memory_usage('PAGE_HIERARCHY_GENERATION');
+        $start_memory = artitechcore_monitor_memory_usage('PAGE_HIERARCHY_GENERATION');
         
         // Performance optimization: Limit pages for large datasets
-        $max_pages = apply_filters('aiopms_max_hierarchy_pages', 1000);
+        $max_pages = apply_filters('artitechcore_max_hierarchy_pages', 1000);
         
         $pages = get_pages(array(
             'sort_column' => 'menu_order, post_title',
@@ -203,7 +203,7 @@ function aiopms_get_page_hierarchy() {
         $page_count = count($pages);
         
         // Check memory limit before processing
-        if (!aiopms_check_memory_limit(75)) {
+        if (!artitechcore_check_memory_limit(75)) {
             // Add warning to hierarchy data
             $hierarchy_data[] = array(
                 'id' => 'memory_warning',
@@ -334,9 +334,9 @@ function aiopms_get_page_hierarchy() {
     }
 
     // Add custom post types if enabled in settings
-    $settings = get_option('aiopms_cpt_settings', array());
+    $settings = get_option('artitechcore_cpt_settings', array());
     if (isset($settings['include_in_hierarchy']) && $settings['include_in_hierarchy']) {
-        $dynamic_cpts = get_option('aiopms_dynamic_cpts', []);
+        $dynamic_cpts = get_option('artitechcore_dynamic_cpts', []);
         
         if (is_array($dynamic_cpts)) {
             foreach ($dynamic_cpts as $post_type => $cpt_info) {
@@ -422,90 +422,90 @@ function aiopms_get_page_hierarchy() {
     }
 
         // Cache the results for 1 hour
-        set_transient('aiopms_page_hierarchy_cache', $hierarchy_data, HOUR_IN_SECONDS);
+        set_transient('artitechcore_page_hierarchy_cache', $hierarchy_data, HOUR_IN_SECONDS);
         
         return $hierarchy_data;
     } catch (Exception $e) {
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('AIOPMS: Error in get_page_hierarchy: ' . $e->getMessage());
+            error_log('ArtitechCore: Error in get_page_hierarchy: ' . $e->getMessage());
         }
         return array(); // Return empty array on error
     }
 }
 
 // Ensure REST API and AJAX handlers are loaded early enough
-function aiopms_init_hierarchy() {
+function artitechcore_init_hierarchy() {
     // Debug: Log that hierarchy initialization is starting
     if (defined('WP_DEBUG') && WP_DEBUG) {
-        // error_log('AIOPMS: Initializing hierarchy system'); // DISABLED to prevent spam
+        // error_log('ArtitechCore: Initializing hierarchy system'); // DISABLED to prevent spam
     }
     
-    // REMOVED: aiopms_register_hierarchy_rest_routes(); // Incorrectly called here
-    aiopms_register_export_ajax_handlers();
+    // REMOVED: artitechcore_register_hierarchy_rest_routes(); // Incorrectly called here
+    artitechcore_register_export_ajax_handlers();
 }
-add_action('init', 'aiopms_init_hierarchy', 1);
-add_action('rest_api_init', 'aiopms_register_hierarchy_rest_routes'); // Correct hook
+add_action('init', 'artitechcore_init_hierarchy', 1);
+add_action('rest_api_init', 'artitechcore_register_hierarchy_rest_routes'); // Correct hook
 
 // REST: Get hierarchy data (read-only)
-function aiopms_rest_get_hierarchy($request) {
+function artitechcore_rest_get_hierarchy($request) {
     try {
-        $hierarchy_data = aiopms_get_page_hierarchy();
+        $hierarchy_data = artitechcore_get_page_hierarchy();
         return rest_ensure_response($hierarchy_data);
     } catch (Exception $e) {
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('AIOPMS Hierarchy Error: ' . $e->getMessage());
+            error_log('ArtitechCore Hierarchy Error: ' . $e->getMessage());
         }
         return new WP_Error('hierarchy_error', $e->getMessage(), array('status' => 500));
     }
 }
 
 // Clear hierarchy cache on post updates
-function aiopms_clear_hierarchy_cache($post_id) {
+function artitechcore_clear_hierarchy_cache($post_id) {
     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
-    delete_transient('aiopms_page_hierarchy_cache');
+    delete_transient('artitechcore_page_hierarchy_cache');
 }
-add_action('save_post', 'aiopms_clear_hierarchy_cache');
-add_action('deleted_post', 'aiopms_clear_hierarchy_cache');
-add_action('switch_theme', 'aiopms_clear_hierarchy_cache');
+add_action('save_post', 'artitechcore_clear_hierarchy_cache');
+add_action('deleted_post', 'artitechcore_clear_hierarchy_cache');
+add_action('switch_theme', 'artitechcore_clear_hierarchy_cache');
 
 // Register REST API endpoint for read-only access
-function aiopms_register_hierarchy_rest_routes() {
-    register_rest_route('aiopms/v1', '/hierarchy', array(
+function artitechcore_register_hierarchy_rest_routes() {
+    register_rest_route('artitechcore/v1', '/hierarchy', array(
         'methods' => 'GET',
-        'callback' => 'aiopms_rest_get_hierarchy',
+        'callback' => 'artitechcore_rest_get_hierarchy',
         'permission_callback' => function () {
             return current_user_can('edit_pages');
         }
     ));
     
     if (defined('WP_DEBUG') && WP_DEBUG) {
-        // error_log('AIOPMS: Registering REST API route: aiopms/v1/hierarchy');
+        // error_log('ArtitechCore: Registering REST API route: artitechcore/v1/hierarchy');
     }
 }
 
 // Register AJAX handlers for file exports
-function aiopms_register_export_ajax_handlers() {
-    add_action('wp_ajax_aiopms_export_csv', 'aiopms_ajax_export_hierarchy_csv');
-    add_action('wp_ajax_aiopms_export_markdown', 'aiopms_ajax_export_hierarchy_markdown');
-    add_action('wp_ajax_aiopms_export_json', 'aiopms_ajax_export_hierarchy_json');
+function artitechcore_register_export_ajax_handlers() {
+    add_action('wp_ajax_artitechcore_export_csv', 'artitechcore_ajax_export_hierarchy_csv');
+    add_action('wp_ajax_artitechcore_export_markdown', 'artitechcore_ajax_export_hierarchy_markdown');
+    add_action('wp_ajax_artitechcore_export_json', 'artitechcore_ajax_export_hierarchy_json');
 }
 
 
 // AJAX: Export hierarchy data as CSV
-function aiopms_ajax_export_hierarchy_csv() {
+function artitechcore_ajax_export_hierarchy_csv() {
     // Verify nonce for security
-    if (!isset($_GET['nonce']) || !wp_verify_nonce(sanitize_key(wp_unslash($_GET['nonce'])), 'aiopms_export_nonce')) {
-        wp_send_json_error(__('Security check failed. Please refresh the page and try again.', 'aiopms'));
+    if (!isset($_GET['nonce']) || !wp_verify_nonce(sanitize_key(wp_unslash($_GET['nonce'])), 'artitechcore_export_nonce')) {
+        wp_send_json_error(__('Security check failed. Please refresh the page and try again.', 'artitechcore'));
     }
 
     // Check user permissions
     if (!current_user_can('edit_pages')) {
-        wp_send_json_error(__('Insufficient permissions to access this feature.', 'aiopms'));
+        wp_send_json_error(__('Insufficient permissions to access this feature.', 'artitechcore'));
     }
 
     try {
         // Start memory monitoring for CSV export
-        $export_start_memory = aiopms_monitor_memory_usage('CSV_EXPORT_AJAX', null, 'Starting CSV export');
+        $export_start_memory = artitechcore_monitor_memory_usage('CSV_EXPORT_AJAX', null, 'Starting CSV export');
         
         $pages = get_pages(array(
             'sort_column' => 'menu_order, post_title',
@@ -513,12 +513,12 @@ function aiopms_ajax_export_hierarchy_csv() {
             'hierarchical' => 0,
         ));
 
-        aiopms_log_memory_usage('CSV_EXPORT_AFTER_GET_PAGES', "Retrieved " . count($pages) . " pages for export");
+        artitechcore_log_memory_usage('CSV_EXPORT_AFTER_GET_PAGES', "Retrieved " . count($pages) . " pages for export");
         
-        $hierarchy_data = aiopms_build_hierarchy_for_export($pages);
+        $hierarchy_data = artitechcore_build_hierarchy_for_export($pages);
         $site_title = sanitize_file_name(get_bloginfo('name'));
         $filename = $site_title . '.csv';
-        $csv_content = aiopms_generate_hierarchy_csv($hierarchy_data);
+        $csv_content = artitechcore_generate_hierarchy_csv($hierarchy_data);
 
         // Clear any previous output
         if (ob_get_level()) {
@@ -534,7 +534,7 @@ function aiopms_ajax_export_hierarchy_csv() {
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 
         // End memory monitoring for CSV export
-        aiopms_monitor_memory_usage('CSV_EXPORT_AJAX', $export_start_memory, 
+        artitechcore_monitor_memory_usage('CSV_EXPORT_AJAX', $export_start_memory, 
             "Completed CSV export (" . strlen($csv_content) . " bytes)");
 
         // Output the CSV content
@@ -547,20 +547,20 @@ function aiopms_ajax_export_hierarchy_csv() {
 }
 
 // AJAX: Export hierarchy data as Markdown
-function aiopms_ajax_export_hierarchy_markdown() {
+function artitechcore_ajax_export_hierarchy_markdown() {
     // Verify nonce for security
-    if (!isset($_GET['nonce']) || !wp_verify_nonce(sanitize_key(wp_unslash($_GET['nonce'])), 'aiopms_export_nonce')) {
-        wp_send_json_error(__('Security check failed. Please refresh the page and try again.', 'aiopms'));
+    if (!isset($_GET['nonce']) || !wp_verify_nonce(sanitize_key(wp_unslash($_GET['nonce'])), 'artitechcore_export_nonce')) {
+        wp_send_json_error(__('Security check failed. Please refresh the page and try again.', 'artitechcore'));
     }
 
     // Check user permissions
     if (!current_user_can('edit_pages')) {
-        wp_send_json_error(__('Insufficient permissions to access this feature.', 'aiopms'));
+        wp_send_json_error(__('Insufficient permissions to access this feature.', 'artitechcore'));
     }
 
     try {
         // Start memory monitoring for Markdown export
-        $export_start_memory = aiopms_monitor_memory_usage('MARKDOWN_EXPORT_AJAX', null, 'Starting Markdown export');
+        $export_start_memory = artitechcore_monitor_memory_usage('MARKDOWN_EXPORT_AJAX', null, 'Starting Markdown export');
         
         $pages = get_pages(array(
             'sort_column' => 'menu_order, post_title',
@@ -568,12 +568,12 @@ function aiopms_ajax_export_hierarchy_markdown() {
             'hierarchical' => 0,
         ));
 
-        aiopms_log_memory_usage('MARKDOWN_EXPORT_AFTER_GET_PAGES', "Retrieved " . count($pages) . " pages for export");
+        artitechcore_log_memory_usage('MARKDOWN_EXPORT_AFTER_GET_PAGES', "Retrieved " . count($pages) . " pages for export");
         
-        $hierarchy_data = aiopms_build_hierarchy_for_export($pages);
+        $hierarchy_data = artitechcore_build_hierarchy_for_export($pages);
         $site_title = sanitize_file_name(get_bloginfo('name'));
         $filename = $site_title . '.md';
-        $markdown_content = aiopms_generate_hierarchy_markdown($hierarchy_data);
+        $markdown_content = artitechcore_generate_hierarchy_markdown($hierarchy_data);
 
         // Clear any previous output
         if (ob_get_level()) {
@@ -589,7 +589,7 @@ function aiopms_ajax_export_hierarchy_markdown() {
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 
         // End memory monitoring for Markdown export
-        aiopms_monitor_memory_usage('MARKDOWN_EXPORT_AJAX', $export_start_memory, 
+        artitechcore_monitor_memory_usage('MARKDOWN_EXPORT_AJAX', $export_start_memory, 
             "Completed Markdown export (" . strlen($markdown_content) . " bytes)");
 
         // Output the Markdown content
@@ -602,20 +602,20 @@ function aiopms_ajax_export_hierarchy_markdown() {
 }
 
 // AJAX: Export hierarchy data as JSON
-function aiopms_ajax_export_hierarchy_json() {
+function artitechcore_ajax_export_hierarchy_json() {
     // Verify nonce for security
-    if (!isset($_GET['nonce']) || !wp_verify_nonce(sanitize_key(wp_unslash($_GET['nonce'])), 'aiopms_export_nonce')) {
-        wp_send_json_error(__('Security check failed. Please refresh the page and try again.', 'aiopms'));
+    if (!isset($_GET['nonce']) || !wp_verify_nonce(sanitize_key(wp_unslash($_GET['nonce'])), 'artitechcore_export_nonce')) {
+        wp_send_json_error(__('Security check failed. Please refresh the page and try again.', 'artitechcore'));
     }
 
     // Check user permissions
     if (!current_user_can('edit_pages')) {
-        wp_send_json_error(__('Insufficient permissions to access this feature.', 'aiopms'));
+        wp_send_json_error(__('Insufficient permissions to access this feature.', 'artitechcore'));
     }
 
     try {
         // Start memory monitoring for JSON export
-        $export_start_memory = aiopms_monitor_memory_usage('JSON_EXPORT_AJAX', null, 'Starting JSON export');
+        $export_start_memory = artitechcore_monitor_memory_usage('JSON_EXPORT_AJAX', null, 'Starting JSON export');
         
         $pages = get_pages(array(
             'sort_column' => 'menu_order, post_title',
@@ -623,9 +623,9 @@ function aiopms_ajax_export_hierarchy_json() {
             'hierarchical' => 0,
         ));
 
-        aiopms_log_memory_usage('JSON_EXPORT_AFTER_GET_PAGES', "Retrieved " . count($pages) . " pages for export");
+        artitechcore_log_memory_usage('JSON_EXPORT_AFTER_GET_PAGES', "Retrieved " . count($pages) . " pages for export");
         
-        $hierarchy_data = aiopms_build_hierarchy_for_export($pages);
+        $hierarchy_data = artitechcore_build_hierarchy_for_export($pages);
         $site_title = sanitize_file_name(get_bloginfo('name'));
         $filename = $site_title . '.json';
         
@@ -653,7 +653,7 @@ function aiopms_ajax_export_hierarchy_json() {
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 
         // End memory monitoring for JSON export
-        aiopms_monitor_memory_usage('JSON_EXPORT_AJAX', $export_start_memory, 
+        artitechcore_monitor_memory_usage('JSON_EXPORT_AJAX', $export_start_memory, 
             "Completed JSON export (" . strlen($json_content) . " bytes)");
 
         // Output the JSON content
@@ -666,8 +666,8 @@ function aiopms_ajax_export_hierarchy_json() {
 }
 
 // Enqueue hierarchy assets
-function aiopms_enqueue_hierarchy_assets($hook) {
-    if ($hook !== 'toplevel_page_aiopms-page-management') {
+function artitechcore_enqueue_hierarchy_assets($hook) {
+    if ($hook !== 'toplevel_page_artitechcore-main') {
         return;
     }
 
@@ -675,19 +675,19 @@ function aiopms_enqueue_hierarchy_assets($hook) {
 
     if ($active_tab === 'hierarchy') {
         // Enqueue jsTree
-        wp_enqueue_style('jstree', AIOPMS_PLUGIN_URL . 'assets/vendor/jstree/themes/default/style.min.css');
-        wp_enqueue_script('jstree', AIOPMS_PLUGIN_URL . 'assets/vendor/jstree/jstree.min.js', array('jquery'), '3.3.15', true);
+        wp_enqueue_style('jstree', ArtitechCore_PLUGIN_URL . 'assets/vendor/jstree/themes/default/style.min.css');
+        wp_enqueue_script('jstree', ArtitechCore_PLUGIN_URL . 'assets/vendor/jstree/jstree.min.js', array('jquery'), '3.3.15', true);
         
         // Enqueue D3.js for Mind Map and Org Chart
-        wp_enqueue_script('d3', AIOPMS_PLUGIN_URL . 'assets/vendor/d3/d3.v7.min.js', array(), '7.0.0', true);
+        wp_enqueue_script('d3', ArtitechCore_PLUGIN_URL . 'assets/vendor/d3/d3.v7.min.js', array(), '7.0.0', true);
 
         // Enqueue our hierarchy scripts
-        wp_enqueue_script('aiopms-hierarchy', AIOPMS_PLUGIN_URL . 'assets/js/hierarchy.js', array('jquery', 'jstree', 'd3'), null, true);
-        wp_enqueue_style('aiopms-hierarchy', AIOPMS_PLUGIN_URL . 'assets/css/hierarchy.css');
+        wp_enqueue_script('artitechcore-hierarchy', ArtitechCore_PLUGIN_URL . 'assets/js/hierarchy.js', array('jquery', 'jstree', 'd3'), null, true);
+        wp_enqueue_style('artitechcore-hierarchy', ArtitechCore_PLUGIN_URL . 'assets/css/hierarchy.css');
         
         // Localize script with data
         $localize_data = array(
-            'rest_url' => rest_url('aiopms/v1/'),
+            'rest_url' => rest_url('artitechcore/v1/'),
             'nonce' => wp_create_nonce('wp_rest'),
             'strings' => array(
                 'loading' => 'Loading page hierarchy...',
@@ -696,15 +696,15 @@ function aiopms_enqueue_hierarchy_assets($hook) {
             )
         );
         
-        wp_localize_script('aiopms-hierarchy', 'aiopmsHierarchy', $localize_data);
+        wp_localize_script('artitechcore-hierarchy', 'artitechcoreHierarchy', $localize_data);
     }
 }
-add_action('admin_enqueue_scripts', 'aiopms_enqueue_hierarchy_assets');
+add_action('admin_enqueue_scripts', 'artitechcore_enqueue_hierarchy_assets');
 
 // Build hierarchical structure for export (including all levels)
-function aiopms_build_hierarchy_for_export($pages) {
+function artitechcore_build_hierarchy_for_export($pages) {
     // Start memory monitoring for export hierarchy building
-    $start_memory = aiopms_monitor_memory_usage('EXPORT_HIERARCHY_BUILD', null, 
+    $start_memory = artitechcore_monitor_memory_usage('EXPORT_HIERARCHY_BUILD', null, 
         "Building hierarchy for " . count($pages) . " pages");
     
     $pages_by_id = array();
@@ -750,16 +750,16 @@ function aiopms_build_hierarchy_for_export($pages) {
     }
 
     // End memory monitoring for export hierarchy building
-    aiopms_monitor_memory_usage('EXPORT_HIERARCHY_BUILD', $start_memory, 
+    artitechcore_monitor_memory_usage('EXPORT_HIERARCHY_BUILD', $start_memory, 
         "Built hierarchy structure for " . count($pages_by_id) . " pages");
 
     return array('pages_by_id' => $pages_by_id, 'roots' => $roots);
 }
 
 // Generate CSV from hierarchy data
-function aiopms_generate_hierarchy_csv($hierarchy_data) {
+function artitechcore_generate_hierarchy_csv($hierarchy_data) {
     // Start memory monitoring for CSV generation
-    $start_memory = aiopms_monitor_memory_usage('CSV_GENERATION', null, 
+    $start_memory = artitechcore_monitor_memory_usage('CSV_GENERATION', null, 
         "Generating CSV for " . count($hierarchy_data['pages_by_id']) . " pages");
     
     $pages_by_id = $hierarchy_data['pages_by_id'];
@@ -777,7 +777,7 @@ function aiopms_generate_hierarchy_csv($hierarchy_data) {
     );
 
     $csv_lines = array();
-    $csv_lines[] = implode(',', array_map('aiopms_escape_csv', $headers));
+    $csv_lines[] = implode(',', array_map('artitechcore_escape_csv', $headers));
 
     // Sort by hierarchy and title
     $sorted_pages = array();
@@ -818,21 +818,21 @@ function aiopms_generate_hierarchy_csv($hierarchy_data) {
             $page['parent'] ?: ''
         );
 
-        $csv_lines[] = implode(',', array_map('aiopms_escape_csv', $row));
+        $csv_lines[] = implode(',', array_map('artitechcore_escape_csv', $row));
     }
 
     // End memory monitoring for CSV generation
     $csv_content = implode("\n", $csv_lines);
-    aiopms_monitor_memory_usage('CSV_GENERATION', $start_memory, 
+    artitechcore_monitor_memory_usage('CSV_GENERATION', $start_memory, 
         "Generated CSV with " . count($csv_lines) . " lines (" . strlen($csv_content) . " bytes)");
 
     return $csv_content;
 }
 
 // Generate Markdown from hierarchy data
-function aiopms_generate_hierarchy_markdown($hierarchy_data) {
+function artitechcore_generate_hierarchy_markdown($hierarchy_data) {
     // Start memory monitoring for Markdown generation
-    $start_memory = aiopms_monitor_memory_usage('MARKDOWN_GENERATION', null, 
+    $start_memory = artitechcore_monitor_memory_usage('MARKDOWN_GENERATION', null, 
         "Generating Markdown for " . count($hierarchy_data['pages_by_id']) . " pages");
     
     $pages_by_id = $hierarchy_data['pages_by_id'];
@@ -865,14 +865,14 @@ function aiopms_generate_hierarchy_markdown($hierarchy_data) {
 
     // End memory monitoring for Markdown generation
     $markdown_content = implode("\n", $markdown_lines);
-    aiopms_monitor_memory_usage('MARKDOWN_GENERATION', $start_memory, 
+    artitechcore_monitor_memory_usage('MARKDOWN_GENERATION', $start_memory, 
         "Generated Markdown with " . count($markdown_lines) . " lines (" . strlen($markdown_content) . " bytes)");
 
     return $markdown_content;
 }
 
 // Helper function to escape CSV values
-function aiopms_escape_csv($string) {
+function artitechcore_escape_csv($string) {
     // Escape quotes and wrap in quotes if contains comma, quote, or newline
     if (strpos($string, ',') !== false || strpos($string, '"') !== false || strpos($string, "\n") !== false) {
         $string = str_replace('"', '""', $string);

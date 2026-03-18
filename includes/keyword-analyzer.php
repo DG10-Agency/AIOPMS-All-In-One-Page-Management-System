@@ -4,23 +4,23 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Keyword Density Analyzer for AIOPMS Plugin
+ * Keyword Density Analyzer for ArtitechCore Plugin
  * Provides comprehensive keyword analysis functionality
  */
 
-class AIOPMS_Keyword_Analyzer {
+class ArtitechCore_Keyword_Analyzer {
     
     private $plugin_url;
     private $plugin_path;
     
     public function __construct() {
-        $this->plugin_url = AIOPMS_PLUGIN_URL;
-        $this->plugin_path = AIOPMS_PLUGIN_PATH;
+        $this->plugin_url = ArtitechCore_PLUGIN_URL;
+        $this->plugin_path = ArtitechCore_PLUGIN_PATH;
         
         // Initialize hooks
-        add_action('wp_ajax_aiopms_analyze_keywords', array($this, 'analyze_keywords_ajax'));
-        add_action('wp_ajax_aiopms_get_pages', array($this, 'get_pages_ajax'));
-        add_action('wp_ajax_aiopms_export_keyword_analysis', array($this, 'export_analysis_ajax'));
+        add_action('wp_ajax_artitechcore_analyze_keywords', array($this, 'analyze_keywords_ajax'));
+        add_action('wp_ajax_artitechcore_get_pages', array($this, 'get_pages_ajax'));
+        add_action('wp_ajax_artitechcore_export_keyword_analysis', array($this, 'export_analysis_ajax'));
     }
     
     /**
@@ -28,13 +28,13 @@ class AIOPMS_Keyword_Analyzer {
      */
     public function get_pages_ajax() {
         // Verify nonce for security
-        if (!check_ajax_referer('aiopms_keyword_analysis', 'nonce', false)) {
-            wp_send_json_error(__('Security check failed. Please refresh the page and try again.', 'aiopms'));
+        if (!check_ajax_referer('artitechcore_keyword_analysis', 'nonce', false)) {
+            wp_send_json_error(__('Security check failed. Please refresh the page and try again.', 'artitechcore'));
         }
         
         // Check user capabilities
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(__('Insufficient permissions to access this feature.', 'aiopms'));
+            wp_send_json_error(__('Insufficient permissions to access this feature.', 'artitechcore'));
         }
         
         $pages = get_posts(array(
@@ -63,13 +63,13 @@ class AIOPMS_Keyword_Analyzer {
      */
     public function analyze_keywords_ajax() {
         // Verify nonce for security
-        if (!check_ajax_referer('aiopms_keyword_analysis', 'nonce', false)) {
-            wp_send_json_error(__('Security check failed. Please refresh the page and try again.', 'aiopms'));
+        if (!check_ajax_referer('artitechcore_keyword_analysis', 'nonce', false)) {
+            wp_send_json_error(__('Security check failed. Please refresh the page and try again.', 'artitechcore'));
         }
         
         // Check user capabilities
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(__('Insufficient permissions to access this feature.', 'aiopms'));
+            wp_send_json_error(__('Insufficient permissions to access this feature.', 'artitechcore'));
         }
         
         // Validate and sanitize input data
@@ -78,22 +78,22 @@ class AIOPMS_Keyword_Analyzer {
         
         // Additional validation
         if (empty($page_id) || $page_id <= 0) {
-            wp_send_json_error(__('Invalid page ID provided.', 'aiopms'));
+            wp_send_json_error(__('Invalid page ID provided.', 'artitechcore'));
         }
         
         if (empty($keywords_input)) {
-            wp_send_json_error(__('Keywords are required for analysis.', 'aiopms'));
+            wp_send_json_error(__('Keywords are required for analysis.', 'artitechcore'));
         }
         
         // Check if page exists and user has access
         $page = get_post($page_id);
         if (!$page || $page->post_status !== 'publish') {
-            wp_send_json_error(__('Page not found or not accessible.', 'aiopms'));
+            wp_send_json_error(__('Page not found or not accessible.', 'artitechcore'));
         }
         
         // Rate limiting check
         if (!$this->check_rate_limit()) {
-            wp_send_json_error(__('Too many requests. Please wait a moment before trying again.', 'aiopms'));
+            wp_send_json_error(__('Too many requests. Please wait a moment before trying again.', 'artitechcore'));
         }
         
         try {
@@ -105,12 +105,12 @@ class AIOPMS_Keyword_Analyzer {
                 wp_send_json_success($analysis);
             } else {
                 $this->log_analysis_activity($page_id, $keywords_input, false, 'Analysis failed');
-                wp_send_json_error(__('Failed to analyze keywords. Please try again.', 'aiopms'));
+                wp_send_json_error(__('Failed to analyze keywords. Please try again.', 'artitechcore'));
             }
         } catch (Exception $e) {
             // Log error
             $this->log_analysis_activity($page_id, $keywords_input, false, $e->getMessage());
-            wp_send_json_error(__('An error occurred during analysis. Please try again.', 'aiopms'));
+            wp_send_json_error(__('An error occurred during analysis. Please try again.', 'artitechcore'));
         }
     }
     
@@ -119,13 +119,13 @@ class AIOPMS_Keyword_Analyzer {
      */
     public function export_analysis_ajax() {
         // Verify nonce for security
-        if (!check_ajax_referer('aiopms_keyword_analysis', 'nonce', false)) {
-            wp_send_json_error(__('Security check failed. Please refresh the page and try again.', 'aiopms'));
+        if (!check_ajax_referer('artitechcore_keyword_analysis', 'nonce', false)) {
+            wp_send_json_error(__('Security check failed. Please refresh the page and try again.', 'artitechcore'));
         }
         
         // Check user capabilities
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(__('Insufficient permissions to access this feature.', 'aiopms'));
+            wp_send_json_error(__('Insufficient permissions to access this feature.', 'artitechcore'));
         }
         
         // Validate and sanitize input data
@@ -134,36 +134,36 @@ class AIOPMS_Keyword_Analyzer {
         
         // Validate format
         if (!in_array($format, array('csv', 'json'))) {
-            wp_send_json_error(__('Invalid export format specified.', 'aiopms'));
+            wp_send_json_error(__('Invalid export format specified.', 'artitechcore'));
         }
         
         // Validate and sanitize analysis data
         if (empty($analysis_data_raw)) {
-            wp_send_json_error(__('No analysis data provided for export.', 'aiopms'));
+            wp_send_json_error(__('No analysis data provided for export.', 'artitechcore'));
         }
         
         // Decode and validate JSON data
         $analysis_data = json_decode(stripslashes($analysis_data_raw), true);
         if (json_last_error() !== JSON_ERROR_NONE) {
-            wp_send_json_error(__('Invalid analysis data format.', 'aiopms'));
+            wp_send_json_error(__('Invalid analysis data format.', 'artitechcore'));
         }
         
         // Validate data structure
         if (!$this->validate_analysis_data($analysis_data)) {
-            wp_send_json_error(__('Invalid analysis data structure.', 'aiopms'));
+            wp_send_json_error(__('Invalid analysis data structure.', 'artitechcore'));
         }
         
         // Rate limiting check
         if (!$this->check_rate_limit('export')) {
-            wp_send_json_error(__('Too many export requests. Please wait a moment before trying again.', 'aiopms'));
+            wp_send_json_error(__('Too many export requests. Please wait a moment before trying again.', 'artitechcore'));
         }
         
         try {
             $this->export_analysis($format, $analysis_data);
         } catch (Exception $e) {
             // Log error
-            error_log('AIOPMS Export Error: ' . $e->getMessage());
-            wp_send_json_error(__('Export failed. Please try again.', 'aiopms'));
+            error_log('ArtitechCore Export Error: ' . $e->getMessage());
+            wp_send_json_error(__('Export failed. Please try again.', 'artitechcore'));
         }
     }
     
@@ -172,7 +172,7 @@ class AIOPMS_Keyword_Analyzer {
      */
     private function check_rate_limit($action = 'analysis') {
         $user_id = get_current_user_id();
-        $transient_key = 'aiopms_rate_limit_' . $action . '_' . $user_id;
+        $transient_key = 'artitechcore_rate_limit_' . $action . '_' . $user_id;
         
         $requests = get_transient($transient_key);
         if ($requests === false) {
@@ -211,7 +211,7 @@ class AIOPMS_Keyword_Analyzer {
         );
         
         // Log to WordPress error log for security monitoring
-        error_log('AIOPMS Analysis Activity: ' . json_encode($log_data));
+        error_log('ArtitechCore Analysis Activity: ' . json_encode($log_data));
         
         // Store in database for detailed tracking (optional)
         $this->store_analysis_log($log_data);
@@ -243,7 +243,7 @@ class AIOPMS_Keyword_Analyzer {
     private function store_analysis_log($log_data) {
         global $wpdb;
         
-        $table_name = $wpdb->prefix . 'aiopms_generation_logs';
+        $table_name = $wpdb->prefix . 'artitechcore_generation_logs';
         
         $wpdb->insert(
             $table_name,
@@ -330,7 +330,7 @@ class AIOPMS_Keyword_Analyzer {
         // Check content size and warn if too large
         $content_size = strlen($content_data['full_content']);
         if ($content_size > 100000) { // 100KB limit
-            error_log('AIOPMS: Large content detected (' . $content_size . ' bytes) for page ID: ' . $page_id);
+            error_log('ArtitechCore: Large content detected (' . $content_size . ' bytes) for page ID: ' . $page_id);
         }
         
         // Analyze each keyword with progress tracking
@@ -346,7 +346,7 @@ class AIOPMS_Keyword_Analyzer {
             if ($index % 10 === 0) {
                 $current_memory = memory_get_usage();
                 if (($current_memory - $start_memory) > 50 * 1024 * 1024) { // 50MB limit
-                    error_log('AIOPMS: Memory limit reached during keyword analysis');
+                    error_log('ArtitechCore: Memory limit reached during keyword analysis');
                     break;
                 }
             }
@@ -365,7 +365,7 @@ class AIOPMS_Keyword_Analyzer {
         // Log memory usage
         $end_memory = memory_get_usage();
         $memory_used = ($end_memory - $start_memory) / 1024 / 1024; // MB
-        error_log('AIOPMS: Keyword analysis memory usage: ' . round($memory_used, 2) . 'MB');
+        error_log('ArtitechCore: Keyword analysis memory usage: ' . round($memory_used, 2) . 'MB');
         
         return array(
             'page_info' => array(
@@ -818,10 +818,10 @@ class AIOPMS_Keyword_Analyzer {
             $recommendations[] = array(
                 'type' => 'warning',
                 'priority' => 'high',
-                'title' => __('Over-Optimization Detected', 'aiopms'),
-                'message' => sprintf(__('%d keyword(s) have high density (≥3%%). Consider reducing usage to avoid keyword stuffing penalties.', 'aiopms'), $status_counts['high']),
+                'title' => __('Over-Optimization Detected', 'artitechcore'),
+                'message' => sprintf(__('%d keyword(s) have high density (≥3%%). Consider reducing usage to avoid keyword stuffing penalties.', 'artitechcore'), $status_counts['high']),
                 'keywords' => $keyword_list,
-                'action' => __('Reduce keyword frequency and use synonyms or related terms instead.', 'aiopms')
+                'action' => __('Reduce keyword frequency and use synonyms or related terms instead.', 'artitechcore')
             );
         }
         
@@ -833,10 +833,10 @@ class AIOPMS_Keyword_Analyzer {
             $recommendations[] = array(
                 'type' => 'info',
                 'priority' => 'medium',
-                'title' => __('Under-Optimization Detected', 'aiopms'),
-                'message' => sprintf(__('%d keyword(s) have low density (0.2-0.8%%). Consider increasing usage naturally.', 'aiopms'), $status_counts['low']),
+                'title' => __('Under-Optimization Detected', 'artitechcore'),
+                'message' => sprintf(__('%d keyword(s) have low density (0.2-0.8%%). Consider increasing usage naturally.', 'artitechcore'), $status_counts['low']),
                 'keywords' => $keyword_list,
-                'action' => __('Add keywords naturally in headings, meta descriptions, and content.', 'aiopms')
+                'action' => __('Add keywords naturally in headings, meta descriptions, and content.', 'artitechcore')
             );
         }
         
@@ -848,10 +848,10 @@ class AIOPMS_Keyword_Analyzer {
             $recommendations[] = array(
                 'type' => 'error',
                 'priority' => 'high',
-                'title' => __('Keywords Not Found', 'aiopms'),
-                'message' => sprintf(__('%d keyword(s) were not found in the content.', 'aiopms'), $status_counts['none']),
+                'title' => __('Keywords Not Found', 'artitechcore'),
+                'message' => sprintf(__('%d keyword(s) were not found in the content.', 'artitechcore'), $status_counts['none']),
                 'keywords' => $keyword_list,
-                'action' => __('Add these keywords to your content, title, or meta description.', 'aiopms')
+                'action' => __('Add these keywords to your content, title, or meta description.', 'artitechcore')
             );
         }
         
@@ -861,9 +861,9 @@ class AIOPMS_Keyword_Analyzer {
             $recommendations[] = array(
                 'type' => 'success',
                 'priority' => 'low',
-                'title' => __('Good Optimization', 'aiopms'),
-                'message' => sprintf(__('%d keyword(s) are well-optimized with good density levels.', 'aiopms'), $good_count),
-                'action' => __('Keep maintaining these keyword levels.', 'aiopms')
+                'title' => __('Good Optimization', 'artitechcore'),
+                'message' => sprintf(__('%d keyword(s) are well-optimized with good density levels.', 'artitechcore'), $good_count),
+                'action' => __('Keep maintaining these keyword levels.', 'artitechcore')
             );
         }
         
@@ -879,17 +879,17 @@ class AIOPMS_Keyword_Analyzer {
                 $recommendations[] = array(
                     'type' => 'warning',
                     'priority' => 'medium',
-                    'title' => __('Content Too Short', 'aiopms'),
-                    'message' => sprintf(__('Content has only %d words. Google prefers content with 300+ words.', 'aiopms'), $total_words),
-                    'action' => __('Add more valuable content to improve SEO performance.', 'aiopms')
+                    'title' => __('Content Too Short', 'artitechcore'),
+                    'message' => sprintf(__('Content has only %d words. Google prefers content with 300+ words.', 'artitechcore'), $total_words),
+                    'action' => __('Add more valuable content to improve SEO performance.', 'artitechcore')
                 );
             } elseif ($total_words > 3000) {
                 $recommendations[] = array(
                     'type' => 'info',
                     'priority' => 'low',
-                    'title' => __('Content Very Long', 'aiopms'),
-                    'message' => sprintf(__('Content has %d words. Consider breaking into multiple pages if appropriate.', 'aiopms'), $total_words),
-                    'action' => __('Ensure content remains engaging and valuable throughout.', 'aiopms')
+                    'title' => __('Content Very Long', 'artitechcore'),
+                    'message' => sprintf(__('Content has %d words. Consider breaking into multiple pages if appropriate.', 'artitechcore'), $total_words),
+                    'action' => __('Ensure content remains engaging and valuable throughout.', 'artitechcore')
                 );
             }
         }
@@ -997,4 +997,4 @@ class AIOPMS_Keyword_Analyzer {
 }
 
 // Initialize the keyword analyzer
-new AIOPMS_Keyword_Analyzer();
+new ArtitechCore_Keyword_Analyzer();

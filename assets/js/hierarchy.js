@@ -4,18 +4,18 @@ jQuery(document).ready(function ($) {
 
     // 1. Initialize the hierarchy visualization
     function initHierarchy() {
-        // Check if aiopmsHierarchy object is available
-        if (typeof aiopmsHierarchy === 'undefined') {
-            console.error('AIOPMS: aiopmsHierarchy object not found!');
+        // Check if artitechcoreHierarchy object is available
+        if (typeof artitechcoreHierarchy === 'undefined') {
+            console.error('ArtitechCore: artitechcoreHierarchy object not found!');
             return;
         }
 
         // Fetch hierarchy data from REST API
         $.ajax({
-            url: aiopmsHierarchy.rest_url + 'hierarchy',
+            url: artitechcoreHierarchy.rest_url + 'hierarchy',
             method: 'GET',
             beforeSend: function (xhr) {
-                xhr.setRequestHeader('X-WP-Nonce', aiopmsHierarchy.nonce);
+                xhr.setRequestHeader('X-WP-Nonce', artitechcoreHierarchy.nonce);
             },
             success: function (data) {
                 hierarchyData = data;
@@ -24,14 +24,14 @@ jQuery(document).ready(function ($) {
                 setupEventHandlers();
             },
             error: function (xhr, status, error) {
-                console.error('AIOPMS: Hierarchy fetch error:', error);
+                console.error('ArtitechCore: Hierarchy fetch error:', error);
                 const errorHtml = `
                     <div class="dg10-notice dg10-notice-error">
                         <p><strong>Error:</strong> Failed to load hierarchy data. ${error}</p>
                     </div>
                 `;
-                $('#abpcwa-hierarchy-view-container').prepend(errorHtml);
-                $('.aiopms-loading-state').hide();
+                $('#artitechcore-hierarchy-view-container').prepend(errorHtml);
+                $('.artitechcore-loading-state').hide();
             }
         });
     }
@@ -43,12 +43,12 @@ jQuery(document).ready(function ($) {
         currentView = view;
 
         // Update button styles in DG10 group
-        $('.abpcwa-view-controls .dg10-btn').removeClass('dg10-btn-primary').addClass('dg10-btn-outline');
-        $('.abpcwa-view-controls .dg10-btn[data-view="' + view + '"]').removeClass('dg10-btn-outline').addClass('dg10-btn-primary');
+        $('.artitechcore-view-controls .dg10-btn').removeClass('dg10-btn-primary').addClass('dg10-btn-outline');
+        $('.artitechcore-view-controls .dg10-btn[data-view="' + view + '"]').removeClass('dg10-btn-outline').addClass('dg10-btn-primary');
 
         // Show the correct view container
-        $('.abpcwa-hierarchy-view').removeClass('active-view').hide();
-        $('#abpcwa-hierarchy-' + view).addClass('active-view').fadeIn(300);
+        $('.artitechcore-hierarchy-view').removeClass('active-view').hide();
+        $('#artitechcore-hierarchy-' + view).addClass('active-view').fadeIn(300);
 
         // Call the appropriate render function
         switch (view) {
@@ -66,11 +66,11 @@ jQuery(document).ready(function ($) {
 
     // 3. Render Functions for each view
     function renderTreeView() {
-        if ($.jstree.reference('#abpcwa-hierarchy-tree')) {
-            $('#abpcwa-hierarchy-tree').jstree(true).settings.core.data = hierarchyData;
-            $('#abpcwa-hierarchy-tree').jstree(true).refresh();
+        if ($.jstree.reference('#artitechcore-hierarchy-tree')) {
+            $('#artitechcore-hierarchy-tree').jstree(true).settings.core.data = hierarchyData;
+            $('#artitechcore-hierarchy-tree').jstree(true).refresh();
         } else {
-            $('#abpcwa-hierarchy-tree').jstree({
+            $('#artitechcore-hierarchy-tree').jstree({
                 'core': {
                     'data': hierarchyData,
                     'themes': { 'name': 'default', 'responsive': true },
@@ -88,7 +88,7 @@ jQuery(document).ready(function ($) {
     }
 
     function renderOrgChartView() {
-        const container = $('#abpcwa-hierarchy-orgchart');
+        const container = $('#artitechcore-hierarchy-orgchart');
         container.empty();
 
         const width = container.width() || 1000;
@@ -180,7 +180,7 @@ jQuery(document).ready(function ($) {
     }
 
     function renderGridView() {
-        const container = $('#abpcwa-hierarchy-grid');
+        const container = $('#artitechcore-hierarchy-grid');
         container.empty();
 
         const roots = hierarchyData.filter(d => d.parent === '#');
@@ -250,19 +250,19 @@ jQuery(document).ready(function ($) {
     // 4. Event Handlers
     function setupEventHandlers() {
         // View switcher
-        $('.abpcwa-view-controls').on('click', '.dg10-btn', function () {
+        $('.artitechcore-view-controls').on('click', '.dg10-btn', function () {
             const view = $(this).data('view');
             if (view !== currentView) switchView(view);
         });
 
         // Search
         let searchTimer;
-        $('#abpcwa-hierarchy-search').on('input', function () {
+        $('#artitechcore-hierarchy-search').on('input', function () {
             clearTimeout(searchTimer);
             const val = $(this).val();
             searchTimer = setTimeout(() => {
                 if (currentView === 'tree') {
-                    $('#abpcwa-hierarchy-tree').jstree(true).search(val);
+                    $('#artitechcore-hierarchy-tree').jstree(true).search(val);
                 } else if (currentView === 'grid') {
                     filterGrid(val);
                 }
@@ -270,16 +270,16 @@ jQuery(document).ready(function ($) {
         });
 
         // Copy Hierarchy
-        $('#aiopms-copy-hierarchy').on('click', function () {
-            const type = $('#aiopms-copy-type').val();
+        $('#artitechcore-copy-hierarchy').on('click', function () {
+            const type = $('#artitechcore-copy-type').val();
             copyHierarchy(type);
         });
 
         // Export Actions
-        $('.aiopms-export-trigger').on('click', function () {
+        $('.artitechcore-export-trigger').on('click', function () {
             const type = $(this).data('type');
-            const nonce = $('#aiopms-export-nonce').val();
-            const url = ajaxurl + '?action=aiopms_export_' + type + '&nonce=' + nonce;
+            const nonce = $('#artitechcore-export-nonce').val();
+            const url = ajaxurl + '?action=artitechcore_export_' + type + '&nonce=' + nonce;
             window.location.href = url;
         });
     }
@@ -325,7 +325,7 @@ jQuery(document).ready(function ($) {
         document.execCommand('copy');
         $temp.remove();
 
-        const btn = $('#aiopms-copy-hierarchy');
+        const btn = $('#artitechcore-copy-hierarchy');
         const originalText = btn.html();
         btn.html('✅ Copied!').addClass('dg10-btn-success');
         setTimeout(() => {

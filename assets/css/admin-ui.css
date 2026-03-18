@@ -1,5 +1,5 @@
 /**
- * AIOPMS Premium Admin UI
+ * ArtitechCore Premium Admin UI
  * Modernized interface for DG10 Agency Plugin
  * Features: Glassmorphism, Premium Forms, Responsive Layouts
  */
@@ -46,15 +46,15 @@
    RESET & LAYOUT
    ========================================================================== */
 .dg10-brand {
-    font-family: var(--dg10-font, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif);
-    color: var(--dg10-text, #E2E8F0);
+    font-family: var(--dg10-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif);
+    color: var(--dg10-dark-blue, #E2E8F0);
     max-width: 1400px;
     margin: 20px auto;
 }
 
 /* Fix Hero Typography for illegible dark-on-dark text */
-.dg10-brand > h1, 
-.aiopms-schema-dashboard > h1.wp-heading-inline {
+.dg10-brand>h1,
+.artitechcore-schema-dashboard>h1.wp-heading-inline {
     color: #ffffff !important;
     font-size: 28px !important;
     font-weight: 700 !important;
@@ -63,8 +63,9 @@
     -webkit-text-fill-color: #ffffff !important;
 }
 
-.dg10-brand > p.description {
-    color: #94a3b8 !important; /* light slate text for subtitle */
+.dg10-brand>p.description {
+    color: #94a3b8 !important;
+    /* light slate text for subtitle */
     font-size: 15px !important;
     margin-top: 0 !important;
     margin-bottom: 24px !important;
@@ -92,8 +93,8 @@
    SIDEBAR COMPONENT
    ========================================================================== */
 .dg10-admin-sidebar {
-    background: var(--glass-bg);
-    backdrop-filter: var(--glass-blur);
+    background: var(--dg10-glass-bg);
+    backdrop-filter: blur(12px);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
     padding: 16px;
@@ -365,11 +366,11 @@
 /* ==========================================================================
    HIERARCHY VISUALIZER
    ========================================================================== */
-.abpcwa-hierarchy-container {
+.artitechcore-hierarchy-container {
     margin: 20px 0;
 }
 
-.abpcwa-hierarchy-header {
+.artitechcore-hierarchy-header {
     margin-bottom: 20px;
     padding: 15px;
     background: linear-gradient(135deg, var(--color-primary) 0%, var(--dg10-accent) 100%);
@@ -378,14 +379,14 @@
     color: #FFFFFF !important;
 }
 
-.abpcwa-hierarchy-header h2 {
+.artitechcore-hierarchy-header h2 {
     margin: 0 0 10px 0;
     color: #FFFFFF !important;
     font-weight: 700;
     text-shadow: none !important;
 }
 
-.abpcwa-hierarchy-header .description {
+.artitechcore-hierarchy-header .description {
     margin: 10px 0;
     font-size: 14px;
     color: rgba(255, 255, 255, 0.9) !important;
@@ -393,21 +394,21 @@
     line-height: 1.5;
 }
 
-.abpcwa-view-controls {
+.artitechcore-view-controls {
     margin: 15px 0;
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
 }
 
-.abpcwa-view-controls .button.button-primary {
+.artitechcore-view-controls .button.button-primary {
     background: var(--color-primary);
     border-color: var(--color-primary);
     color: #fff;
     font-weight: 600;
 }
 
-.abpcwa-hierarchy-view {
+.artitechcore-hierarchy-view {
     display: none;
     min-height: 400px;
     padding: 20px;
@@ -417,13 +418,13 @@
     overflow: visible;
 }
 
-.abpcwa-hierarchy-view.active-view {
+.artitechcore-hierarchy-view.active-view {
     display: block;
 }
 
 /* D3 Visualization Styles */
-#abpcwa-hierarchy-mindmap,
-#abpcwa-hierarchy-orgchart {
+#artitechcore-hierarchy-mindmap,
+#artitechcore-hierarchy-orgchart {
     overflow: hidden;
     position: relative;
     width: 100%;
@@ -444,7 +445,7 @@
 }
 
 /* Enhanced Hierarchy Grid Cards */
-.aiopms-grid-card {
+.artitechcore-grid-card {
     padding: 15px;
     background: #fff;
     border: 1px solid var(--color-border);
@@ -456,33 +457,33 @@
     margin-bottom: 12px;
 }
 
-.aiopms-grid-card:hover {
+.artitechcore-grid-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     border-color: var(--color-primary);
 }
 
-.aiopms-grid-card[data-is-homepage="true"] {
+.artitechcore-grid-card[data-is-homepage="true"] {
     background: linear-gradient(135deg, #fef3c7 0%, #fffbeb 100%);
     border-left: 4px solid #f59e0b;
 }
 
-.aiopms-grid-card.level-0 {
+.artitechcore-grid-card.level-0 {
     border-left: 4px solid var(--color-primary);
 }
 
-.aiopms-grid-card.level-1 {
+.artitechcore-grid-card.level-1 {
     border-left: 4px solid #60A5FA;
     margin-left: 20px;
 }
 
-.aiopms-grid-card.level-2 {
+.artitechcore-grid-card.level-2 {
     border-left: 4px solid #93C5FD;
     margin-left: 40px;
 }
 
 /* Status Badges */
-.aiopms-grid-status {
+.artitechcore-grid-status {
     padding: 2px 8px;
     border-radius: 99px;
     font-size: 11px;
@@ -509,7 +510,7 @@
 /* ==========================================================================
    SCHEMA COLUMN
    ========================================================================== */
-.abpcwa-schema-badge {
+.artitechcore-schema-badge {
     display: inline-flex;
     align-items: center;
     padding: 4px 10px;
@@ -523,27 +524,27 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.abpcwa-schema-article {
+.artitechcore-schema-article {
     background: linear-gradient(135deg, #8B5CF6, #7C3AED);
 }
 
-.abpcwa-schema-organization {
+.artitechcore-schema-organization {
     background: linear-gradient(135deg, #EF4444, #DC2626);
 }
 
-.abpcwa-schema-product {
+.artitechcore-schema-product {
     background: linear-gradient(135deg, #10B981, #059669);
 }
 
-.abpcwa-schema-faq {
+.artitechcore-schema-faq {
     background: linear-gradient(135deg, #3B82F6, #2563EB);
 }
 
-.abpcwa-schema-none {
+.artitechcore-schema-none {
     background: #9CA3AF;
 }
 
-.abpcwa-schema-preview {
+.artitechcore-schema-preview {
     background: #1e1e1e;
     color: #d4d4d4;
     padding: 15px;
@@ -563,7 +564,7 @@
    ========================================================================== */
 
 /* CPT List Grid */
-.aiopms-cpt-grid {
+.artitechcore-cpt-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 24px;
@@ -571,7 +572,7 @@
 }
 
 /* CPT Management Header */
-.aiopms-cpt-list-header {
+.artitechcore-cpt-list-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -584,14 +585,14 @@
     border: 1px solid var(--color-border);
 }
 
-.aiopms-search-filter {
+.artitechcore-search-filter {
     display: flex;
     align-items: center;
     gap: 12px;
     flex: 1;
 }
 
-.aiopms-search-input {
+.artitechcore-search-input {
     min-width: 250px;
     padding: 10px 16px;
     border: 1px solid var(--color-border);
@@ -600,7 +601,7 @@
 }
 
 /* CPT Cards */
-.aiopms-cpt-card {
+.artitechcore-cpt-card {
     background: #fff;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
@@ -611,13 +612,13 @@
     flex-direction: column;
 }
 
-.aiopms-cpt-card:hover {
+.artitechcore-cpt-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 12px 20px -3px rgba(0, 0, 0, 0.1);
     border-color: var(--color-primary);
 }
 
-.aiopms-cpt-card-header {
+.artitechcore-cpt-card-header {
     padding: 16px 20px;
     background: #f8fafc;
     border-bottom: 1px solid var(--color-border);
@@ -626,14 +627,14 @@
     align-items: center;
 }
 
-.aiopms-cpt-card-body {
+.artitechcore-cpt-card-body {
     padding: 24px;
     display: flex;
     gap: 16px;
     flex: 1;
 }
 
-.aiopms-cpt-icon {
+.artitechcore-cpt-icon {
     width: 56px;
     height: 56px;
     display: flex;
@@ -646,22 +647,22 @@
     flex-shrink: 0;
 }
 
-.aiopms-cpt-info {
+.artitechcore-cpt-info {
     flex: 1;
 }
 
-.aiopms-cpt-title {
+.artitechcore-cpt-title {
     margin: 0 0 4px 0;
     font-size: 1.1rem;
     font-weight: 700;
 }
 
-.aiopms-cpt-title a {
+.artitechcore-cpt-title a {
     color: var(--dg10-dark-blue);
     text-decoration: none;
 }
 
-.aiopms-cpt-slug {
+.artitechcore-cpt-slug {
     font-family: 'Monaco', monospace;
     font-size: 0.75rem;
     background: #f1f5f9;
@@ -672,7 +673,7 @@
     margin-bottom: 8px;
 }
 
-.aiopms-cpt-card-footer {
+.artitechcore-cpt-card-footer {
     padding: 20px;
     background: #f8fafc;
     border-top: 1px solid var(--color-border);
@@ -681,16 +682,16 @@
     align-items: center;
 }
 
-.aiopms-cpt-stats {
+.artitechcore-cpt-stats {
     display: flex;
     gap: 16px;
 }
 
-.aiopms-stat {
+.artitechcore-stat {
     text-align: center;
 }
 
-.aiopms-stat-number {
+.artitechcore-stat-number {
     display: block;
     font-size: 1.1rem;
     font-weight: 800;
@@ -698,7 +699,7 @@
     line-height: 1;
 }
 
-.aiopms-stat-label {
+.artitechcore-stat-label {
     font-size: 0.7rem;
     color: var(--color-text-secondary);
     text-transform: uppercase;
@@ -706,7 +707,7 @@
 }
 
 /* Field Builder Styling */
-.aiopms-field-builder {
+.artitechcore-field-builder {
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
     background: #fff;
@@ -714,17 +715,17 @@
     margin: 24px 0;
 }
 
-.aiopms-field-row {
+.artitechcore-field-row {
     padding: 24px;
     background: #fff;
     border-bottom: 1px solid var(--color-border);
 }
 
-.aiopms-field-row:last-child {
+.artitechcore-field-row:last-child {
     border-bottom: none;
 }
 
-.aiopms-field-controls {
+.artitechcore-field-controls {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 20px;
@@ -738,46 +739,46 @@
 /* ==========================================================================
    SCHEMA GENERATOR DASHBOARD – DG10 Branded
    ========================================================================== */
-.aiopms-schema-dashboard {
+.artitechcore-schema-dashboard {
     max-width: 1200px;
 }
 
-.aiopms-schema-dashboard h2 {
+.artitechcore-schema-dashboard h2 {
     color: var(--dg10-dark-blue, #0f0520);
     font-weight: 700;
     font-size: 1.3rem;
     margin: 0 0 8px 0;
 }
 
-.aiopms-schema-dashboard h3 {
+.artitechcore-schema-dashboard h3 {
     color: var(--dg10-dark-purple, #7C3AED);
     font-weight: 600;
 }
 
 /* --- Stats Grid --- */
-.aiopms-stats-grid {
+.artitechcore-stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 16px;
     margin: 16px 0 24px;
 }
 
-.aiopms-stat-card {
-    background: var(--dg10-glass-bg, rgba(255,255,255,0.95));
-    border: 1px solid var(--dg10-glass-border, rgba(139,92,246,0.15));
+.artitechcore-stat-card {
+    background: var(--dg10-glass-bg, rgba(255, 255, 255, 0.95));
+    border: 1px solid var(--dg10-glass-border, rgba(139, 92, 246, 0.15));
     border-radius: var(--dg10-radius-xl, 12px);
     padding: 20px 16px;
     text-align: center;
-    box-shadow: var(--dg10-glass-shadow, 0 4px 20px rgba(139,92,246,0.08));
+    box-shadow: var(--dg10-glass-shadow, 0 4px 20px rgba(139, 92, 246, 0.08));
     transition: transform var(--dg10-transition-fast, 150ms), box-shadow var(--dg10-transition-fast, 150ms);
 }
 
-.aiopms-stat-card:hover {
+.artitechcore-stat-card:hover {
     transform: translateY(-2px);
-    box-shadow: var(--dg10-shadow-md, 0 4px 6px -1px rgba(0,0,0,0.1));
+    box-shadow: var(--dg10-shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1));
 }
 
-.aiopms-stat-card h3 {
+.artitechcore-stat-card h3 {
     font-size: 2em;
     margin: 0 0 6px 0;
     background: var(--dg10-gradient-primary, linear-gradient(135deg, #8B5CF6, #EC4899));
@@ -787,7 +788,7 @@
     font-weight: 800;
 }
 
-.aiopms-stat-card p {
+.artitechcore-stat-card p {
     margin: 0;
     color: var(--dg10-neutral, #4B5563);
     font-weight: 500;
@@ -795,14 +796,14 @@
 }
 
 /* --- Schema Type Badges --- */
-.aiopms-schema-types {
+.artitechcore-schema-types {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     margin: 16px 0;
 }
 
-.aiopms-schema-type {
+.artitechcore-schema-type {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -812,7 +813,7 @@
     border: 1px solid rgba(139, 92, 246, 0.15);
 }
 
-.aiopms-schema-count {
+.artitechcore-schema-count {
     background: var(--dg10-primary, #8B5CF6);
     color: #fff;
     padding: 2px 10px;
@@ -824,7 +825,7 @@
 }
 
 /* --- Bulk Controls & Filters --- */
-.aiopms-bulk-controls {
+.artitechcore-bulk-controls {
     display: flex;
     gap: 10px;
     align-items: center;
@@ -832,18 +833,18 @@
     margin-bottom: 16px;
 }
 
-.aiopms-bulk-controls select {
+.artitechcore-bulk-controls select {
     min-width: 200px;
 }
 
-.aiopms-schema-actions {
+.artitechcore-schema-actions {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
 }
 
 /* --- Status Badges --- */
-.aiopms-page-status {
+.artitechcore-page-status {
     padding: 4px 10px;
     border-radius: 20px;
     font-size: 11px;
@@ -851,60 +852,60 @@
     letter-spacing: 0.02em;
 }
 
-.aiopms-page-status.status-publish {
+.artitechcore-page-status.status-publish {
     background: rgba(5, 150, 105, 0.1);
     color: var(--dg10-success, #059669);
 }
 
-.aiopms-page-status.status-draft {
+.artitechcore-page-status.status-draft {
     background: rgba(217, 119, 6, 0.1);
     color: var(--dg10-warning, #D97706);
 }
 
-.aiopms-page-status.status-pending {
+.artitechcore-page-status.status-pending {
     background: rgba(37, 99, 235, 0.1);
     color: var(--dg10-info, #2563EB);
 }
 
-.aiopms-page-status.status-private {
+.artitechcore-page-status.status-private {
     background: rgba(139, 92, 246, 0.1);
     color: var(--dg10-primary, #8B5CF6);
 }
 
 /* --- Info Cards --- */
-.aiopms-info-grid {
+.artitechcore-info-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 16px;
     margin: 16px 0;
 }
 
-.aiopms-info-card {
+.artitechcore-info-card {
     background: var(--dg10-glass-bg, #fff);
-    border: 1px solid var(--dg10-glass-border, rgba(139,92,246,0.15));
+    border: 1px solid var(--dg10-glass-border, rgba(139, 92, 246, 0.15));
     border-radius: var(--dg10-radius-xl, 12px);
     padding: 20px;
-    box-shadow: var(--dg10-glass-shadow, 0 4px 20px rgba(139,92,246,0.08));
+    box-shadow: var(--dg10-glass-shadow, 0 4px 20px rgba(139, 92, 246, 0.08));
     transition: transform var(--dg10-transition-fast, 150ms);
 }
 
-.aiopms-info-card:hover {
+.artitechcore-info-card:hover {
     transform: translateY(-2px);
 }
 
-.aiopms-info-card h3 {
+.artitechcore-info-card h3 {
     margin-top: 0;
     color: var(--dg10-dark-purple, #7C3AED);
     font-size: 1rem;
 }
 
-.aiopms-info-card p {
+.artitechcore-info-card p {
     color: var(--dg10-neutral, #4B5563);
     font-size: 0.88rem;
     line-height: 1.6;
 }
 
-.aiopms-info-card code {
+.artitechcore-info-card code {
     background: rgba(139, 92, 246, 0.08);
     color: var(--dg10-dark-purple, #7C3AED);
     padding: 2px 6px;
@@ -914,83 +915,84 @@
 }
 
 /* --- Sections / Bulk Actions Containers --- */
-.aiopms-schema-dashboard .aiopms-bulk-actions {
+.artitechcore-schema-dashboard .artitechcore-bulk-actions {
     background: var(--dg10-glass-bg, #fff);
-    border: 1px solid var(--dg10-glass-border, rgba(139,92,246,0.15));
+    border: 1px solid var(--dg10-glass-border, rgba(139, 92, 246, 0.15));
     border-radius: var(--dg10-radius-xl, 12px);
     padding: 20px 24px;
-    box-shadow: var(--dg10-glass-shadow, 0 4px 20px rgba(139,92,246,0.08));
+    box-shadow: var(--dg10-glass-shadow, 0 4px 20px rgba(139, 92, 246, 0.08));
 }
 
 /* --- Responsive --- */
 @media screen and (max-width: 782px) {
-    .aiopms-stats-grid {
+    .artitechcore-stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 
-    .aiopms-info-grid {
+    .artitechcore-info-grid {
         grid-template-columns: 1fr;
     }
 
-    .aiopms-bulk-controls {
+    .artitechcore-bulk-controls {
         flex-direction: column;
         align-items: stretch;
     }
 
-    .aiopms-bulk-controls select {
+    .artitechcore-bulk-controls select {
         width: 100%;
         min-width: unset;
     }
 }
 
 /* Make long tables usable on small screens - scroll the container, not the table itself */
-.aiopms-schema-table-wrap {
+.artitechcore-schema-table-wrap {
     width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 }
 
-.aiopms-schema-dashboard .wp-list-table {
+.artitechcore-schema-dashboard .wp-list-table {
     width: 100%;
     min-width: 600px;
 }
 
-.aiopms-schema-dashboard .wp-list-table thead,
-.aiopms-schema-dashboard .wp-list-table tbody,
-.aiopms-schema-dashboard .wp-list-table tr {
+.artitechcore-schema-dashboard .wp-list-table thead,
+.artitechcore-schema-dashboard .wp-list-table tbody,
+.artitechcore-schema-dashboard .wp-list-table tr {
     width: 100%;
 }
 
 /* Filter/bulk controls responsive layout (fallbacks) */
-.aiopms-bulk-controls {
+.artitechcore-bulk-controls {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 12px;
 }
 
-.aiopms-bulk-controls label {
+.artitechcore-bulk-controls label {
     display: flex;
     align-items: center;
     gap: 8px;
     flex-wrap: wrap;
 }
 
-.aiopms-bulk-controls select,
-.aiopms-bulk-controls input[type="search"],
-.aiopms-bulk-controls input[type="text"] {
+.artitechcore-bulk-controls select,
+.artitechcore-bulk-controls input[type="search"],
+.artitechcore-bulk-controls input[type="text"] {
     max-width: 100%;
 }
 
 @media (max-width: 782px) {
-    .aiopms-modal-header,
-    .aiopms-modal-body,
-    .aiopms-modal-footer {
+
+    .artitechcore-modal-header,
+    .artitechcore-modal-body,
+    .artitechcore-modal-footer {
         padding: 16px;
     }
 
-    .aiopms-schema-dashboard .wp-list-table th,
-    .aiopms-schema-dashboard .wp-list-table td {
+    .artitechcore-schema-dashboard .wp-list-table th,
+    .artitechcore-schema-dashboard .wp-list-table td {
         white-space: nowrap;
     }
 }
@@ -1002,7 +1004,7 @@
    ========================================================================== */
 
 /* Modal header */
-.aiopms-modal-header {
+.artitechcore-modal-header {
     padding: 20px 28px;
     border-bottom: 1px solid rgba(139, 92, 246, 0.12);
     background: linear-gradient(135deg, #0f0520 0%, #1a0a30 100%);
@@ -1015,8 +1017,8 @@
     z-index: 10;
 }
 
-.aiopms-modal-header h2,
-.aiopms-modal-header h3 {
+.artitechcore-modal-header h2,
+.artitechcore-modal-header h3 {
     margin: 0;
     font-weight: 700;
     font-size: 1.15rem;
@@ -1025,12 +1027,12 @@
     background: none !important;
 }
 
-.aiopms-modal-close {
-    background: rgba(255,255,255,0.15);
+.artitechcore-modal-close {
+    background: rgba(255, 255, 255, 0.15);
     border: none;
     font-size: 1.3rem;
     cursor: pointer;
-    color: rgba(255,255,255,0.8);
+    color: rgba(255, 255, 255, 0.8);
     width: 32px;
     height: 32px;
     display: flex;
@@ -1041,27 +1043,27 @@
     line-height: 1;
 }
 
-.aiopms-modal-close:hover {
-    background: rgba(255,255,255,0.25);
+.artitechcore-modal-close:hover {
+    background: rgba(255, 255, 255, 0.25);
     color: #fff;
     transform: rotate(90deg);
 }
 
 /* Modal body */
-.aiopms-modal-body {
+.artitechcore-modal-body {
     padding: 24px 28px;
     flex: 1;
     overflow-y: auto;
     min-height: 0;
 }
 
-.aiopms-modal-body .description {
+.artitechcore-modal-body .description {
     color: var(--dg10-neutral, #4B5563);
     font-size: 0.88rem;
 }
 
 /* Schema preview/editor code block */
-.aiopms-modal-body pre {
+.artitechcore-modal-body pre {
     background: #fafafb;
     color: #111827;
     border-radius: var(--dg10-radius-lg, 8px);
@@ -1073,7 +1075,7 @@
     margin: 12px 0 0;
 }
 
-.aiopms-modal-body pre code {
+.artitechcore-modal-body pre code {
     display: block;
     white-space: pre;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -1083,7 +1085,7 @@
 }
 
 /* Editor textarea */
-#aiopms-schema-editor {
+#artitechcore-schema-editor {
     width: 100%;
     min-height: calc(70vh - 200px);
     max-height: calc(80vh - 160px);
@@ -1098,14 +1100,14 @@
     tab-size: 2;
 }
 
-#aiopms-schema-editor:focus {
+#artitechcore-schema-editor:focus {
     outline: none;
     border-color: var(--dg10-primary, #8B5CF6);
     box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
 }
 
 /* Modal footer */
-.aiopms-modal-footer {
+.artitechcore-modal-footer {
     padding: 16px 28px;
     border-top: 1px solid rgba(139, 92, 246, 0.12);
     background: #f9fafb;
@@ -1120,83 +1122,84 @@
     z-index: 10;
 }
 
-#aiopms-schema-save-status {
+#artitechcore-schema-save-status {
     font-size: 0.85rem;
     font-weight: 500;
 }
 
 /* Make long tables usable on small screens - scroll the container, not the table itself */
-.aiopms-schema-table-wrap {
+.artitechcore-schema-table-wrap {
     width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 }
 
-.aiopms-schema-dashboard .wp-list-table {
+.artitechcore-schema-dashboard .wp-list-table {
     width: 100%;
     min-width: 600px;
 }
 
-.aiopms-schema-dashboard .wp-list-table thead,
-.aiopms-schema-dashboard .wp-list-table tbody,
-.aiopms-schema-dashboard .wp-list-table tr {
+.artitechcore-schema-dashboard .wp-list-table thead,
+.artitechcore-schema-dashboard .wp-list-table tbody,
+.artitechcore-schema-dashboard .wp-list-table tr {
     width: 100%;
 }
 
 /* Filter/bulk controls responsive layout */
-.aiopms-bulk-controls {
+.artitechcore-bulk-controls {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 12px;
 }
 
-.aiopms-bulk-controls label {
+.artitechcore-bulk-controls label {
     display: flex;
     align-items: center;
     gap: 8px;
     flex-wrap: wrap;
 }
 
-.aiopms-bulk-controls select,
-.aiopms-bulk-controls input[type="search"],
-.aiopms-bulk-controls input[type="text"] {
+.artitechcore-bulk-controls select,
+.artitechcore-bulk-controls input[type="search"],
+.artitechcore-bulk-controls input[type="text"] {
     min-width: 220px;
     max-width: 100%;
 }
 
 @media (max-width: 782px) {
-    .aiopms-modal-header,
-    .aiopms-modal-body,
-    .aiopms-modal-footer {
+
+    .artitechcore-modal-header,
+    .artitechcore-modal-body,
+    .artitechcore-modal-footer {
         padding: 16px;
     }
 
-    .aiopms-bulk-controls {
+    .artitechcore-bulk-controls {
         flex-direction: column;
         align-items: stretch;
     }
 
-    .aiopms-bulk-controls label {
+    .artitechcore-bulk-controls label {
         width: 100%;
         justify-content: space-between;
     }
 
-    .aiopms-bulk-controls select,
-    .aiopms-bulk-controls input[type="search"],
-    .aiopms-bulk-controls input[type="text"] {
+    .artitechcore-bulk-controls select,
+    .artitechcore-bulk-controls input[type="search"],
+    .artitechcore-bulk-controls input[type="text"] {
         width: 100%;
         min-width: 0;
     }
 
-    .aiopms-schema-dashboard .wp-list-table th,
-    .aiopms-schema-dashboard .wp-list-table td {
+    .artitechcore-schema-dashboard .wp-list-table th,
+    .artitechcore-schema-dashboard .wp-list-table td {
         white-space: nowrap;
     }
 }
 
 /* Empty State */
-.aiopms-empty-state {
+.artitechcore-empty-state {
     text-align: center;
     padding: 64px 32px;
     background: #f9fafb;
@@ -1204,18 +1207,18 @@
     border: 2px dashed var(--color-border);
 }
 
-.aiopms-empty-state-icon {
+.artitechcore-empty-state-icon {
     font-size: 3rem;
     color: var(--color-border);
     margin-bottom: 24px;
 }
 
-.aiopms-empty-state h3 {
+.artitechcore-empty-state h3 {
     font-size: 1.5rem;
     margin-bottom: 12px;
 }
 
-.aiopms-empty-state p {
+.artitechcore-empty-state p {
     color: var(--color-text-secondary);
     margin-bottom: 32px;
     max-width: 400px;
@@ -1224,24 +1227,24 @@
 }
 
 /* Status Indicators */
-.aiopms-status-indicator {
+.artitechcore-status-indicator {
     width: 10px;
     height: 10px;
     border-radius: 50%;
     display: inline-block;
 }
 
-.aiopms-status-indicator.active {
+.artitechcore-status-indicator.active {
     background: #10b981;
     box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
 }
 
-.aiopms-status-indicator.inactive {
+.artitechcore-status-indicator.inactive {
     background: var(--color-border);
 }
 
 /* Loading Overlay */
-#aiopms-loading-overlay {
+#artitechcore-loading-overlay {
     position: fixed;
     inset: 0;
     background: rgba(255, 255, 255, 0.8);
@@ -1252,7 +1255,7 @@
     justify-content: center;
 }
 
-.aiopms-loading-spinner {
+.artitechcore-loading-spinner {
     text-align: center;
 }
 
@@ -1277,16 +1280,16 @@
    AI Generator Components
    ========================================================================== */
 
-.aiopms-ai-tab {
+.artitechcore-ai-tab {
     max-width: 1000px;
 }
 
-.aiopms-advanced-suggestions {
+.artitechcore-advanced-suggestions {
     margin: 30px 0;
     animation: dg10FadeIn 0.5s ease-out;
 }
 
-.aiopms-business-analysis {
+.artitechcore-business-analysis {
     background: var(--dg10-glass-bg);
     backdrop-filter: var(--dg10-glass-blur);
     padding: 24px;
@@ -1296,7 +1299,7 @@
     box-shadow: var(--dg10-shadow-md);
 }
 
-.aiopms-business-analysis h3 {
+.artitechcore-business-analysis h3 {
     margin: 0 0 20px 0;
     color: var(--color-primary);
     display: flex;
@@ -1315,13 +1318,13 @@
     color: var(--dg10-secondary);
 }
 
-.aiopms-pages-section,
-.aiopms-cpts-section {
+.artitechcore-pages-section,
+.artitechcore-cpts-section {
     margin: 40px 0;
 }
 
-.aiopms-pages-section h3,
-.aiopms-cpts-section h3 {
+.artitechcore-pages-section h3,
+.artitechcore-cpts-section h3 {
     color: var(--color-primary);
     display: flex;
     align-items: center;
@@ -1415,7 +1418,7 @@
     margin-left: 8px;
 }
 
-.aiopms-options {
+.artitechcore-options {
     margin: 32px 0;
     padding: 24px;
     background: var(--dg10-glass-bg);
@@ -1471,7 +1474,7 @@
 }
 
 /* AI Generation Loading State */
-.aiopms-ai-loading {
+.artitechcore-ai-loading {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1480,7 +1483,7 @@
     text-align: center;
 }
 
-.aiopms-ai-loader {
+.artitechcore-ai-loader {
     width: 64px;
     height: 64px;
     border: 5px solid var(--dg10-glass-border);
@@ -1579,14 +1582,14 @@
 /* ==========================================================================
    EXPORT TOOLS
    ========================================================================== */
-.aiopms-export-section {
+.artitechcore-export-section {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
     gap: 32px;
     margin: 32px 0;
 }
 
-.aiopms-export-info {
+.artitechcore-export-info {
     background: #fff;
     padding: 32px;
     border: 1px solid var(--color-border);
@@ -1594,20 +1597,20 @@
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
-.aiopms-export-info h3 {
+.artitechcore-export-info h3 {
     margin: 0 0 20px 0;
     color: var(--color-primary);
     font-size: 1.25rem;
 }
 
-.aiopms-export-controls {
+.artitechcore-export-controls {
     margin-top: 24px;
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
 }
 
-.aiopms-export-preview {
+.artitechcore-export-preview {
     background: #f8fafc;
     padding: 32px;
     border-radius: var(--radius-lg);
@@ -1736,7 +1739,7 @@
 /* ==========================================================================
    ALERTS / TOASTS
    ========================================================================== */
-.aiopms-toast {
+.artitechcore-toast {
     position: fixed;
     top: 40px;
     right: 20px;
@@ -1749,11 +1752,11 @@
     animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.aiopms-toast.success {
+.artitechcore-toast.success {
     background: #10b981;
 }
 
-.aiopms-toast.error {
+.artitechcore-toast.error {
     background: #ef4444;
 }
 
@@ -1843,7 +1846,8 @@
     height: 100%;
     background: linear-gradient(135deg, #B47CFD 0%, #FF7FC2 100%);
     border-radius: 3px;
-    /* animation: dg10-progress-pulse 2s ease-in-out infinite; */ /* Disabled to stop screen flickering */
+    /* animation: dg10-progress-pulse 2s ease-in-out infinite; */
+    /* Disabled to stop screen flickering */
 }
 
 @keyframes dg10-spin {
@@ -1930,7 +1934,7 @@
     border-color: #d1d5db !important;
 }
 
-.abpcwa-hierarchy-header {
+.artitechcore-hierarchy-header {
     background: linear-gradient(135deg, var(--color-primary) 0%, var(--dg10-accent) 100%) !important;
     color: #ffffff !important;
 }
@@ -1943,10 +1947,10 @@
 
 /* === AGGRESSIVE NOTICE HIDING === */
 /* Hide standard WP notices globally when our plugin is active */
-div.notice:not(.aiopms-notice),
-div.updated:not(.aiopms-notice),
-div.error:not(.aiopms-notice),
-.is-dismissible:not(.aiopms-notice),
+div.notice:not(.artitechcore-notice),
+div.updated:not(.artitechcore-notice),
+div.error:not(.artitechcore-notice),
+.is-dismissible:not(.artitechcore-notice),
 #wpbody-content>.notice,
 #wpbody-content>.updated,
 #wpbody-content>.error {
@@ -1960,13 +1964,13 @@ div.error:not(.aiopms-notice),
 }
 
 /* Ensure our container is compatible if needed, or hide if empty */
-#aiopms-notices-container {
+#artitechcore-notices-container {
     display: none !important;
     /* Temporarily hiding container too as user requested NO notifications */
 }
 
-/* === AIOPMS Modal – Full-Viewport, Always Visible === */
-.aiopms-modal-overlay {
+/* === ArtitechCore Modal – Full-Viewport, Always Visible === */
+.artitechcore-modal-overlay {
     position: fixed;
     z-index: 100000;
     inset: 0;
@@ -1983,12 +1987,12 @@ div.error:not(.aiopms-notice),
 }
 
 /* Lock body scroll when modal is open */
-body.aiopms-modal-open {
+body.artitechcore-modal-open {
     overflow: hidden !important;
 }
 
-.aiopms-modal-overlay .aiopms-modal,
-.aiopms-modal-overlay .aiopms-modal-large {
+.artitechcore-modal-overlay .artitechcore-modal,
+.artitechcore-modal-overlay .artitechcore-modal-large {
     background: #fff;
     margin: 0 auto;
     padding: 0;
@@ -2009,6 +2013,7 @@ body.aiopms-modal-open {
         opacity: 0;
         transform: translateY(-30px) scale(0.97);
     }
+
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -2017,26 +2022,26 @@ body.aiopms-modal-open {
 
 /* Responsive modal for narrow screens */
 @media screen and (max-width: 782px) {
-    .aiopms-modal-overlay {
+    .artitechcore-modal-overlay {
         padding: 12px 8px;
     }
 
-    .aiopms-modal-overlay .aiopms-modal,
-    .aiopms-modal-overlay .aiopms-modal-large {
+    .artitechcore-modal-overlay .artitechcore-modal,
+    .artitechcore-modal-overlay .artitechcore-modal-large {
         width: 100%;
         max-height: calc(100vh - 24px);
         border-radius: var(--dg10-radius-lg, 8px);
     }
 
-    .aiopms-modal-header {
+    .artitechcore-modal-header {
         padding: 16px 20px;
     }
 
-    .aiopms-modal-body {
+    .artitechcore-modal-body {
         padding: 16px 20px;
     }
 
-    .aiopms-modal-footer {
+    .artitechcore-modal-footer {
         padding: 12px 20px;
     }
 }

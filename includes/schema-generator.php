@@ -4,17 +4,17 @@ if (!defined('ABSPATH')) {
 }
 
 // Schema types constants
-if (!defined('AIOPMS_SCHEMA_FAQ')) define('AIOPMS_SCHEMA_FAQ', 'faq');
-if (!defined('AIOPMS_SCHEMA_BLOG')) define('AIOPMS_SCHEMA_BLOG', 'blog');
-if (!defined('AIOPMS_SCHEMA_ARTICLE')) define('AIOPMS_SCHEMA_ARTICLE', 'article');
-if (!defined('AIOPMS_SCHEMA_SERVICE')) define('AIOPMS_SCHEMA_SERVICE', 'service');
-if (!defined('AIOPMS_SCHEMA_PRODUCT')) define('AIOPMS_SCHEMA_PRODUCT', 'product');
-if (!defined('AIOPMS_SCHEMA_ORGANIZATION')) define('AIOPMS_SCHEMA_ORGANIZATION', 'organization');
-if (!defined('AIOPMS_SCHEMA_LOCAL_BUSINESS')) define('AIOPMS_SCHEMA_LOCAL_BUSINESS', 'local_business');
-if (!defined('AIOPMS_SCHEMA_WEBPAGE')) define('AIOPMS_SCHEMA_WEBPAGE', 'webpage');
-if (!defined('AIOPMS_SCHEMA_HOWTO')) define('AIOPMS_SCHEMA_HOWTO', 'howto');
-if (!defined('AIOPMS_SCHEMA_REVIEW')) define('AIOPMS_SCHEMA_REVIEW', 'review');
-if (!defined('AIOPMS_SCHEMA_EVENT')) define('AIOPMS_SCHEMA_EVENT', 'event');
+if (!defined('ArtitechCore_SCHEMA_FAQ')) define('ArtitechCore_SCHEMA_FAQ', 'faq');
+if (!defined('ArtitechCore_SCHEMA_BLOG')) define('ArtitechCore_SCHEMA_BLOG', 'blog');
+if (!defined('ArtitechCore_SCHEMA_ARTICLE')) define('ArtitechCore_SCHEMA_ARTICLE', 'article');
+if (!defined('ArtitechCore_SCHEMA_SERVICE')) define('ArtitechCore_SCHEMA_SERVICE', 'service');
+if (!defined('ArtitechCore_SCHEMA_PRODUCT')) define('ArtitechCore_SCHEMA_PRODUCT', 'product');
+if (!defined('ArtitechCore_SCHEMA_ORGANIZATION')) define('ArtitechCore_SCHEMA_ORGANIZATION', 'organization');
+if (!defined('ArtitechCore_SCHEMA_LOCAL_BUSINESS')) define('ArtitechCore_SCHEMA_LOCAL_BUSINESS', 'local_business');
+if (!defined('ArtitechCore_SCHEMA_WEBPAGE')) define('ArtitechCore_SCHEMA_WEBPAGE', 'webpage');
+if (!defined('ArtitechCore_SCHEMA_HOWTO')) define('ArtitechCore_SCHEMA_HOWTO', 'howto');
+if (!defined('ArtitechCore_SCHEMA_REVIEW')) define('ArtitechCore_SCHEMA_REVIEW', 'review');
+if (!defined('ArtitechCore_SCHEMA_EVENT')) define('ArtitechCore_SCHEMA_EVENT', 'event');
 
 /**
  * AI-enriched global entity profile (cached).
@@ -31,30 +31,30 @@ if (!defined('AIOPMS_SCHEMA_EVENT')) define('AIOPMS_SCHEMA_EVENT', 'event');
  *
  * @return array|false
  */
-if (!function_exists('aiopms_get_ai_entity_profile')) {
-function aiopms_get_ai_entity_profile() {
-    $enabled = get_option('aiopms_ai_schema_enrichment', 1);
+if (!function_exists('artitechcore_get_ai_entity_profile')) {
+function artitechcore_get_ai_entity_profile() {
+    $enabled = get_option('artitechcore_ai_schema_enrichment', 1);
     if (empty($enabled)) {
         return false;
     }
 
-    $provider = get_option('aiopms_ai_provider', 'openai');
-    $api_key = get_option('aiopms_' . $provider . '_api_key');
+    $provider = get_option('artitechcore_ai_provider', 'openai');
+    $api_key = get_option('artitechcore_' . $provider . '_api_key');
     if (empty($api_key)) {
         return false;
     }
 
-    $cache_key = 'aiopms_ai_entity_profile_' . md5(home_url() . '|' . get_option('aiopms_business_description', '') . '|' . get_bloginfo('name'));
+    $cache_key = 'artitechcore_ai_entity_profile_' . md5(home_url() . '|' . get_option('artitechcore_business_description', '') . '|' . get_bloginfo('name'));
     $cached = get_transient($cache_key);
     if ($cached !== false) {
         return is_array($cached) ? $cached : false;
     }
 
-    $business_name = get_option('aiopms_business_name', get_bloginfo('name'));
-    $business_description = get_option('aiopms_business_description', get_bloginfo('description'));
-    $business_address = get_option('aiopms_business_address', '');
-    $business_phone = get_option('aiopms_business_phone', '');
-    $business_email = get_option('aiopms_business_email', '');
+    $business_name = get_option('artitechcore_business_name', get_bloginfo('name'));
+    $business_description = get_option('artitechcore_business_description', get_bloginfo('description'));
+    $business_address = get_option('artitechcore_business_address', '');
+    $business_phone = get_option('artitechcore_business_phone', '');
+    $business_email = get_option('artitechcore_business_email', '');
 
     // Light site sample to help inference across themes/setups.
     $sample_posts = get_posts([
@@ -111,13 +111,13 @@ function aiopms_get_ai_entity_profile() {
     $result = null;
     switch ($provider) {
         case 'openai':
-            $result = aiopms_ai_call_openai_json($prompt, $api_key);
+            $result = artitechcore_ai_call_openai_json($prompt, $api_key);
             break;
         case 'gemini':
-            $result = aiopms_ai_call_gemini_json($prompt, $api_key);
+            $result = artitechcore_ai_call_gemini_json($prompt, $api_key);
             break;
         case 'deepseek':
-            $result = aiopms_ai_call_deepseek_json($prompt, $api_key);
+            $result = artitechcore_ai_call_deepseek_json($prompt, $api_key);
             break;
     }
 
@@ -152,8 +152,8 @@ function aiopms_get_ai_entity_profile() {
 }
 }
 
-if (!function_exists('aiopms_schema_types_to_at_type')) {
-function aiopms_schema_types_to_at_type($types, $fallback) {
+if (!function_exists('artitechcore_schema_types_to_at_type')) {
+function artitechcore_schema_types_to_at_type($types, $fallback) {
     $types = array_values(array_unique(array_filter(array_map('sanitize_text_field', (array)$types))));
     if (empty($types)) {
         return $fallback;
@@ -162,8 +162,8 @@ function aiopms_schema_types_to_at_type($types, $fallback) {
 }
 }
 
-if (!function_exists('aiopms_build_primary_person_node')) {
-function aiopms_build_primary_person_node($profile) {
+if (!function_exists('artitechcore_build_primary_person_node')) {
+function artitechcore_build_primary_person_node($profile) {
     if (!is_array($profile) || empty($profile['primaryPerson']['name'])) {
         return null;
     }
@@ -175,7 +175,7 @@ function aiopms_build_primary_person_node($profile) {
     }
 
     $node = [
-        '@type' => aiopms_schema_types_to_at_type($types, 'Person'),
+        '@type' => artitechcore_schema_types_to_at_type($types, 'Person'),
         '@id' => $site_url . '/#primaryPerson',
         'name' => $name,
     ];
@@ -198,14 +198,14 @@ function aiopms_build_primary_person_node($profile) {
 }
 }
 
-if (!function_exists('aiopms_get_schema_source')) {
-function aiopms_get_schema_source($post_id) {
-    $origin = get_post_meta($post_id, '_aiopms_schema_origin', true);
+if (!function_exists('artitechcore_get_schema_source')) {
+function artitechcore_get_schema_source($post_id) {
+    $origin = get_post_meta($post_id, '_artitechcore_schema_origin', true);
     if ($origin === 'generated' || $origin === 'override') {
         return $origin;
     }
     // Fallback heuristic (older installs): if locked, likely user-edited via editor
-    $locked = get_post_meta($post_id, '_aiopms_schema_locked', true);
+    $locked = get_post_meta($post_id, '_artitechcore_schema_locked', true);
     if (!empty($locked)) {
         return 'override';
     }
@@ -220,14 +220,14 @@ function aiopms_get_schema_source($post_id) {
  * @param string $schema_type The detected schema type.
  * @return array|false The extracted schema properties or false on failure.
  */
-function aiopms_ai_extract_schema_data($post_id, $schema_type) {
+function artitechcore_ai_extract_schema_data($post_id, $schema_type) {
     $post = get_post($post_id);
     if (!$post) {
         return false;
     }
 
-    $provider = get_option('aiopms_ai_provider', 'openai');
-    $api_key = get_option('aiopms_' . $provider . '_api_key');
+    $provider = get_option('artitechcore_ai_provider', 'openai');
+    $api_key = get_option('artitechcore_' . $provider . '_api_key');
 
     if (empty($api_key)) {
         return false;
@@ -235,7 +235,7 @@ function aiopms_ai_extract_schema_data($post_id, $schema_type) {
 
     $content = wp_strip_all_tags($post->post_content);
     $title = $post->post_title;
-    $business_knowledge = get_option('aiopms_business_description', '');
+    $business_knowledge = get_option('artitechcore_business_description', '');
     
     // Limit content for API efficiency
     if (strlen($content) > 3000) {
@@ -275,13 +275,13 @@ IMPORTANT: Return ONLY a valid JSON object. Do not include any explanations, mar
     $result = null;
     switch ($provider) {
         case 'openai':
-            $result = aiopms_ai_call_openai_json($prompt, $api_key);
+            $result = artitechcore_ai_call_openai_json($prompt, $api_key);
             break;
         case 'gemini':
-            $result = aiopms_ai_call_gemini_json($prompt, $api_key);
+            $result = artitechcore_ai_call_gemini_json($prompt, $api_key);
             break;
         case 'deepseek':
-            $result = aiopms_ai_call_deepseek_json($prompt, $api_key);
+            $result = artitechcore_ai_call_deepseek_json($prompt, $api_key);
             break;
     }
 
@@ -289,7 +289,7 @@ IMPORTANT: Return ONLY a valid JSON object. Do not include any explanations, mar
 }
 
 // OpenAI JSON extraction helper
-function aiopms_ai_call_openai_json($prompt, $api_key) {
+function artitechcore_ai_call_openai_json($prompt, $api_key) {
     $response = wp_remote_post('https://api.openai.com/v1/chat/completions', [
         'headers' => ['Content-Type' => 'application/json', 'Authorization' => 'Bearer ' . $api_key],
         'body' => json_encode([
@@ -311,7 +311,7 @@ function aiopms_ai_call_openai_json($prompt, $api_key) {
 }
 
 // Gemini JSON extraction helper
-function aiopms_ai_call_gemini_json($prompt, $api_key) {
+function artitechcore_ai_call_gemini_json($prompt, $api_key) {
     $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' . $api_key;
     $response = wp_remote_post($url, [
         'headers' => ['Content-Type' => 'application/json'],
@@ -331,7 +331,7 @@ function aiopms_ai_call_gemini_json($prompt, $api_key) {
 }
 
 // DeepSeek JSON extraction helper
-function aiopms_ai_call_deepseek_json($prompt, $api_key) {
+function artitechcore_ai_call_deepseek_json($prompt, $api_key) {
     $response = wp_remote_post('https://api.deepseek.com/v1/chat/completions', [
         'headers' => ['Content-Type' => 'application/json', 'Authorization' => 'Bearer ' . $api_key],
         'body' => json_encode([
@@ -354,14 +354,14 @@ function aiopms_ai_call_deepseek_json($prompt, $api_key) {
 
 
 // AI-powered content analysis for schema detection
-function aiopms_ai_analyze_content_for_schema($post_id) {
+function artitechcore_ai_analyze_content_for_schema($post_id) {
     $post = get_post($post_id);
     if (!$post) {
         return false;
     }
 
-    $provider = get_option('aiopms_ai_provider', 'openai');
-    $api_key = get_option('aiopms_' . $provider . '_api_key');
+    $provider = get_option('artitechcore_ai_provider', 'openai');
+    $api_key = get_option('artitechcore_' . $provider . '_api_key');
 
     if (empty($api_key)) {
         return false;
@@ -384,18 +384,18 @@ function aiopms_ai_analyze_content_for_schema($post_id) {
     $post_type = $post->post_type;
     switch ($provider) {
         case 'openai':
-            return aiopms_ai_analyze_content_openai($title, $content, $excerpt, $post_type, $api_key, $valid_schema_types);
+            return artitechcore_ai_analyze_content_openai($title, $content, $excerpt, $post_type, $api_key, $valid_schema_types);
         case 'gemini':
-            return aiopms_ai_analyze_content_gemini($title, $content, $excerpt, $post_type, $api_key, $valid_schema_types);
+            return artitechcore_ai_analyze_content_gemini($title, $content, $excerpt, $post_type, $api_key, $valid_schema_types);
         case 'deepseek':
-            return aiopms_ai_analyze_content_deepseek($title, $content, $excerpt, $post_type, $api_key, $valid_schema_types);
+            return artitechcore_ai_analyze_content_deepseek($title, $content, $excerpt, $post_type, $api_key, $valid_schema_types);
         default:
             return false;
     }
 }
 
 // OpenAI content analysis for schema
-function aiopms_ai_analyze_content_openai($title, $content, $excerpt, $post_type, $api_key, $valid_schema_types) {
+function artitechcore_ai_analyze_content_openai($title, $content, $excerpt, $post_type, $api_key, $valid_schema_types) {
     $url = 'https://api.openai.com/v1/chat/completions';
     
     $post_type_hint = '';
@@ -467,7 +467,7 @@ Return only the schema type name, nothing else.";
 }
 
 // Gemini content analysis for schema
-function aiopms_ai_analyze_content_gemini($title, $content, $excerpt, $post_type, $api_key, $valid_schema_types) {
+function artitechcore_ai_analyze_content_gemini($title, $content, $excerpt, $post_type, $api_key, $valid_schema_types) {
     $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' . $api_key;
     
     $post_type_hint = '';
@@ -537,7 +537,7 @@ Return only the schema type name, nothing else.";
 }
 
 // DeepSeek content analysis for schema
-function aiopms_ai_analyze_content_deepseek($title, $content, $excerpt, $post_type, $api_key, $valid_schema_types) {
+function artitechcore_ai_analyze_content_deepseek($title, $content, $excerpt, $post_type, $api_key, $valid_schema_types) {
     $url = 'https://api.deepseek.com/v1/chat/completions';
     
     $post_type_hint = '';
@@ -609,41 +609,41 @@ Return only the schema type name, nothing else.";
 }
 
 // Detect schema type for a page (enhanced with AI analysis)
-function aiopms_detect_schema_type($post_id, $use_ai = true) {
+function artitechcore_detect_schema_type($post_id, $use_ai = true) {
     $post = get_post($post_id);
     if (!$post) {
-        return AIOPMS_SCHEMA_WEBPAGE;
+        return ArtitechCore_SCHEMA_WEBPAGE;
     }
 
     // If AI is disabled, use strong post-type defaults first.
     if (!$use_ai) {
-        if ($post->post_type === 'post') return AIOPMS_SCHEMA_BLOG;
+        if ($post->post_type === 'post') return ArtitechCore_SCHEMA_BLOG;
     }
 
     // Generic CPT inference (works for any public CPT naming)
     $pt = strtolower((string)$post->post_type);
-    if (strpos($pt, 'product') !== false) return AIOPMS_SCHEMA_PRODUCT;
-    if (strpos($pt, 'service') !== false) return AIOPMS_SCHEMA_SERVICE;
-    if (strpos($pt, 'event') !== false) return AIOPMS_SCHEMA_EVENT;
-    if (strpos($pt, 'review') !== false) return AIOPMS_SCHEMA_REVIEW;
-    if (strpos($pt, 'faq') !== false) return AIOPMS_SCHEMA_FAQ;
-    if (strpos($pt, 'article') !== false) return AIOPMS_SCHEMA_ARTICLE;
+    if (strpos($pt, 'product') !== false) return ArtitechCore_SCHEMA_PRODUCT;
+    if (strpos($pt, 'service') !== false) return ArtitechCore_SCHEMA_SERVICE;
+    if (strpos($pt, 'event') !== false) return ArtitechCore_SCHEMA_EVENT;
+    if (strpos($pt, 'review') !== false) return ArtitechCore_SCHEMA_REVIEW;
+    if (strpos($pt, 'faq') !== false) return ArtitechCore_SCHEMA_FAQ;
+    if (strpos($pt, 'article') !== false) return ArtitechCore_SCHEMA_ARTICLE;
 
     // Check if handling a dynamic CPT
-    if (function_exists('aiopms_is_dynamic_cpt') && aiopms_is_dynamic_cpt($post->post_type)) {
+    if (function_exists('artitechcore_is_dynamic_cpt') && artitechcore_is_dynamic_cpt($post->post_type)) {
         // Try to infer schema from CPT slug
         $cpt_slug = strtolower($post->post_type);
-        if (strpos($cpt_slug, 'product') !== false) return AIOPMS_SCHEMA_PRODUCT;
-        if (strpos($cpt_slug, 'service') !== false) return AIOPMS_SCHEMA_SERVICE;
-        if (strpos($cpt_slug, 'event') !== false) return AIOPMS_SCHEMA_EVENT;
-        if (strpos($cpt_slug, 'review') !== false) return AIOPMS_SCHEMA_REVIEW;
-        if (strpos($cpt_slug, 'faq') !== false) return AIOPMS_SCHEMA_FAQ;
-        if (strpos($cpt_slug, 'article') !== false) return AIOPMS_SCHEMA_ARTICLE;
+        if (strpos($cpt_slug, 'product') !== false) return ArtitechCore_SCHEMA_PRODUCT;
+        if (strpos($cpt_slug, 'service') !== false) return ArtitechCore_SCHEMA_SERVICE;
+        if (strpos($cpt_slug, 'event') !== false) return ArtitechCore_SCHEMA_EVENT;
+        if (strpos($cpt_slug, 'review') !== false) return ArtitechCore_SCHEMA_REVIEW;
+        if (strpos($cpt_slug, 'faq') !== false) return ArtitechCore_SCHEMA_FAQ;
+        if (strpos($cpt_slug, 'article') !== false) return ArtitechCore_SCHEMA_ARTICLE;
     }
 
     // Try AI analysis first (if enabled)
     if ($use_ai) {
-        $ai_schema_type = aiopms_ai_analyze_content_for_schema($post_id);
+        $ai_schema_type = artitechcore_ai_analyze_content_for_schema($post_id);
         if ($ai_schema_type) {
             return $ai_schema_type;
         }
@@ -655,61 +655,61 @@ function aiopms_detect_schema_type($post_id, $use_ai = true) {
     $excerpt = $post->post_excerpt;
 
     // Check for FAQ content patterns
-    if (aiopms_is_faq_page($content, $title)) {
-        return AIOPMS_SCHEMA_FAQ;
+    if (artitechcore_is_faq_page($content, $title)) {
+        return ArtitechCore_SCHEMA_FAQ;
     }
 
     // Check for HowTo content
-    if (aiopms_is_howto_page($content, $title)) {
-        return AIOPMS_SCHEMA_HOWTO;
+    if (artitechcore_is_howto_page($content, $title)) {
+        return ArtitechCore_SCHEMA_HOWTO;
     }
 
     // Check for Review content
-    if (aiopms_is_review_page($content, $title)) {
-        return AIOPMS_SCHEMA_REVIEW;
+    if (artitechcore_is_review_page($content, $title)) {
+        return ArtitechCore_SCHEMA_REVIEW;
     }
 
     // Check for Event content
-    if (aiopms_is_event_page($content, $title)) {
-        return AIOPMS_SCHEMA_EVENT;
+    if (artitechcore_is_event_page($content, $title)) {
+        return ArtitechCore_SCHEMA_EVENT;
     }
 
     // Check for blog post
-    if (aiopms_is_blog_post($post)) {
-        return AIOPMS_SCHEMA_BLOG;
+    if (artitechcore_is_blog_post($post)) {
+        return ArtitechCore_SCHEMA_BLOG;
     }
 
     // Check for article
-    if (aiopms_is_article($content, $title)) {
-        return AIOPMS_SCHEMA_ARTICLE;
+    if (artitechcore_is_article($content, $title)) {
+        return ArtitechCore_SCHEMA_ARTICLE;
     }
 
     // Check for service page
-    if (aiopms_is_service_page($title, $content)) {
-        return AIOPMS_SCHEMA_SERVICE;
+    if (artitechcore_is_service_page($title, $content)) {
+        return ArtitechCore_SCHEMA_SERVICE;
     }
 
     // Check for product page
-    if (aiopms_is_product_page($title, $content)) {
-        return AIOPMS_SCHEMA_PRODUCT;
+    if (artitechcore_is_product_page($title, $content)) {
+        return ArtitechCore_SCHEMA_PRODUCT;
     }
 
     // Check for organization page
-    if (aiopms_is_organization_page($title)) {
-        return AIOPMS_SCHEMA_ORGANIZATION;
+    if (artitechcore_is_organization_page($title)) {
+        return ArtitechCore_SCHEMA_ORGANIZATION;
     }
 
     // Check for local business page
-    if (aiopms_is_local_business_page($title)) {
-        return AIOPMS_SCHEMA_LOCAL_BUSINESS;
+    if (artitechcore_is_local_business_page($title)) {
+        return ArtitechCore_SCHEMA_LOCAL_BUSINESS;
     }
 
     // Default to webpage
-    return AIOPMS_SCHEMA_WEBPAGE;
+    return ArtitechCore_SCHEMA_WEBPAGE;
 }
 
 // Check if content contains FAQ patterns
-function aiopms_is_faq_page($content, $title) {
+function artitechcore_is_faq_page($content, $title) {
     // Check title for FAQ indicators
     $faq_keywords = ['faq', 'frequently asked', 'questions', 'q&a', 'help center'];
     foreach ($faq_keywords as $keyword) {
@@ -736,7 +736,7 @@ function aiopms_is_faq_page($content, $title) {
 }
 
 // Check if post is a blog post
-function aiopms_is_blog_post($post) {
+function artitechcore_is_blog_post($post) {
     if ($post->post_type === 'post') {
         return true;
     }
@@ -755,7 +755,7 @@ function aiopms_is_blog_post($post) {
 }
 
 // Check if content is an article
-function aiopms_is_article($content, $title) {
+function artitechcore_is_article($content, $title) {
     // Articles typically have longer content
     if (str_word_count(strip_tags($content)) > 500) {
         return true;
@@ -773,7 +773,7 @@ function aiopms_is_article($content, $title) {
 }
 
 // Check if page is a service page
-function aiopms_is_service_page($title, $content) {
+function artitechcore_is_service_page($title, $content) {
     $service_keywords = ['service', 'solution', 'package', 'offer', 'consulting', 'support'];
     foreach ($service_keywords as $keyword) {
         if (stripos($title, $keyword) !== false) {
@@ -793,7 +793,7 @@ function aiopms_is_service_page($title, $content) {
 }
 
 // Check if page is a product page
-function aiopms_is_product_page($title, $content) {
+function artitechcore_is_product_page($title, $content) {
     $product_keywords = ['product', 'item', 'buy', 'purchase', 'order', 'shop'];
     foreach ($product_keywords as $keyword) {
         if (stripos($title, $keyword) !== false) {
@@ -810,7 +810,7 @@ function aiopms_is_product_page($title, $content) {
 }
 
 // Check if page is an organization page
-function aiopms_is_organization_page($title) {
+function artitechcore_is_organization_page($title) {
     $org_keywords = ['about', 'company', 'team', 'mission', 'vision', 'values', 'history'];
     foreach ($org_keywords as $keyword) {
         if (stripos($title, $keyword) !== false) {
@@ -821,7 +821,7 @@ function aiopms_is_organization_page($title) {
 }
 
 // Check if page is a local business page
-function aiopms_is_local_business_page($title) {
+function artitechcore_is_local_business_page($title) {
     $business_keywords = ['location', 'store', 'office', 'contact', 'address', 'hours', 'map'];
     foreach ($business_keywords as $keyword) {
         if (stripos($title, $keyword) !== false) {
@@ -832,7 +832,7 @@ function aiopms_is_local_business_page($title) {
 }
 
 // Check if page is a HowTo/tutorial page
-function aiopms_is_howto_page($content, $title) {
+function artitechcore_is_howto_page($content, $title) {
     // Check title for HowTo indicators
     $howto_keywords = ['how to', 'how-to', 'tutorial', 'guide', 'step by step', 'instructions', 'walkthrough'];
     foreach ($howto_keywords as $keyword) {
@@ -859,7 +859,7 @@ function aiopms_is_howto_page($content, $title) {
 }
 
 // Check if page is a review page
-function aiopms_is_review_page($content, $title) {
+function artitechcore_is_review_page($content, $title) {
     // Check title for review indicators
     $review_keywords = ['review', 'rating', 'testimonial', 'feedback', 'opinion', 'analysis'];
     foreach ($review_keywords as $keyword) {
@@ -887,7 +887,7 @@ function aiopms_is_review_page($content, $title) {
 }
 
 // Check if page is an event page
-function aiopms_is_event_page($content, $title) {
+function artitechcore_is_event_page($content, $title) {
     // Check title for event indicators
     $event_keywords = ['event', 'conference', 'webinar', 'workshop', 'seminar', 'meeting', 'training', 'course'];
     foreach ($event_keywords as $keyword) {
@@ -916,9 +916,9 @@ function aiopms_is_event_page($content, $title) {
 }
 
 // Generate schema markup for a page
-if (!function_exists('aiopms_generate_schema_markup')) {
-    function aiopms_generate_schema_markup($post_id, $use_ai = true) {
-        $schema_type = aiopms_detect_schema_type($post_id, $use_ai);
+if (!function_exists('artitechcore_generate_schema_markup')) {
+    function artitechcore_generate_schema_markup($post_id, $use_ai = true) {
+        $schema_type = artitechcore_detect_schema_type($post_id, $use_ai);
         $permalink = get_permalink($post_id);
         $site_url = home_url();
         
@@ -926,20 +926,20 @@ if (!function_exists('aiopms_generate_schema_markup')) {
         $graph = [];
 
         // 1. Organization (Global Publisher)
-        $org_schema = aiopms_get_organization_schema();
+        $org_schema = artitechcore_get_organization_schema();
         $graph[] = $org_schema;
 
         // 1b. Primary Person (if detected). This enables explicit linking like Physician ↔ Clinic.
         if ($use_ai) {
-            $profile = aiopms_get_ai_entity_profile();
-            $person_node = aiopms_build_primary_person_node($profile);
+            $profile = artitechcore_get_ai_entity_profile();
+            $person_node = artitechcore_build_primary_person_node($profile);
             if (is_array($person_node)) {
                 $graph[] = $person_node;
             }
         }
 
         // 2. WebSite (Global)
-        $website_schema = aiopms_generate_website_schema();
+        $website_schema = artitechcore_generate_website_schema();
         $graph[] = $website_schema;
 
         // 3. WebPage (Current Page)
@@ -969,44 +969,44 @@ if (!function_exists('aiopms_generate_schema_markup')) {
         }
 
         // 4. BreadcrumbList
-        $breadcrumb_schema = aiopms_generate_breadcrumb_schema($post_id);
+        $breadcrumb_schema = artitechcore_generate_breadcrumb_schema($post_id);
         $graph[] = $breadcrumb_schema;
 
         // 5. Main Entity
         $main_entity = [];
         switch ($schema_type) {
-            case AIOPMS_SCHEMA_FAQ:
-                $main_entity = aiopms_generate_faq_schema($post_id);
+            case ArtitechCore_SCHEMA_FAQ:
+                $main_entity = artitechcore_generate_faq_schema($post_id);
                 break;
-            case AIOPMS_SCHEMA_BLOG:
-                $main_entity = aiopms_generate_blog_schema($post_id);
+            case ArtitechCore_SCHEMA_BLOG:
+                $main_entity = artitechcore_generate_blog_schema($post_id);
                 break;
-            case AIOPMS_SCHEMA_ARTICLE:
-                $main_entity = aiopms_generate_article_schema($post_id);
+            case ArtitechCore_SCHEMA_ARTICLE:
+                $main_entity = artitechcore_generate_article_schema($post_id);
                 break;
-            case AIOPMS_SCHEMA_SERVICE:
-                $main_entity = aiopms_generate_service_schema($post_id);
+            case ArtitechCore_SCHEMA_SERVICE:
+                $main_entity = artitechcore_generate_service_schema($post_id);
                 break;
-            case AIOPMS_SCHEMA_PRODUCT:
-                $main_entity = aiopms_generate_product_schema($post_id);
+            case ArtitechCore_SCHEMA_PRODUCT:
+                $main_entity = artitechcore_generate_product_schema($post_id);
                 break;
-            case AIOPMS_SCHEMA_ORGANIZATION:
+            case ArtitechCore_SCHEMA_ORGANIZATION:
                 // If the page IS the organization page, merge distinct features or just use global org
-                $main_entity = aiopms_generate_organization_schema($post_id);
+                $main_entity = artitechcore_generate_organization_schema($post_id);
                 // Force ID match if specific org page
                 $main_entity['@id'] = $site_url . '/#organization'; 
                 break;
-            case AIOPMS_SCHEMA_LOCAL_BUSINESS:
-                $main_entity = aiopms_generate_local_business_schema($post_id);
+            case ArtitechCore_SCHEMA_LOCAL_BUSINESS:
+                $main_entity = artitechcore_generate_local_business_schema($post_id);
                 break;
-            case AIOPMS_SCHEMA_HOWTO:
-                $main_entity = aiopms_generate_howto_schema($post_id);
+            case ArtitechCore_SCHEMA_HOWTO:
+                $main_entity = artitechcore_generate_howto_schema($post_id);
                 break;
-            case AIOPMS_SCHEMA_REVIEW:
-                $main_entity = aiopms_generate_review_schema($post_id);
+            case ArtitechCore_SCHEMA_REVIEW:
+                $main_entity = artitechcore_generate_review_schema($post_id);
                 break;
-            case AIOPMS_SCHEMA_EVENT:
-                $main_entity = aiopms_generate_event_schema($post_id);
+            case ArtitechCore_SCHEMA_EVENT:
+                $main_entity = artitechcore_generate_event_schema($post_id);
                 break;
             default:
                 // For default webpages, the WebPage IS the main entity, so we don't add a separate node
@@ -1044,11 +1044,11 @@ if (!function_exists('aiopms_generate_schema_markup')) {
         ];
 
         // Store schema data as post meta
-        update_post_meta($post_id, '_aiopms_schema_type', $schema_type);
-        update_post_meta($post_id, '_aiopms_schema_data', $schema_data);
-        update_post_meta($post_id, '_aiopms_schema_origin', 'generated');
+        update_post_meta($post_id, '_artitechcore_schema_type', $schema_type);
+        update_post_meta($post_id, '_artitechcore_schema_data', $schema_data);
+        update_post_meta($post_id, '_artitechcore_schema_origin', 'generated');
         // If this was regenerated, clear any previous lock
-        delete_post_meta($post_id, '_aiopms_schema_locked');
+        delete_post_meta($post_id, '_artitechcore_schema_locked');
         
         return $schema_data;
     }
@@ -1057,26 +1057,26 @@ if (!function_exists('aiopms_generate_schema_markup')) {
 /**
  * Output schema markup in wp_head (posts + taxonomy archives).
  *
- * - Singular: outputs post meta `_aiopms_schema_data` if present.
- * - Term archives: outputs term meta `_aiopms_schema_data` if present; if missing and auto-enabled, generates a baseline CollectionPage graph.
+ * - Singular: outputs post meta `_artitechcore_schema_data` if present.
+ * - Term archives: outputs term meta `_artitechcore_schema_data` if present; if missing and auto-enabled, generates a baseline CollectionPage graph.
  */
-function aiopms_output_schema_markup() {
+function artitechcore_output_schema_markup() {
     // Term archives (category/tag/custom tax)
     if (is_category() || is_tag() || is_tax()) {
         $term = get_queried_object();
         if ($term && isset($term->term_id, $term->taxonomy)) {
-            $schema_data = get_term_meta($term->term_id, '_aiopms_schema_data', true);
+            $schema_data = get_term_meta($term->term_id, '_artitechcore_schema_data', true);
 
-            if (empty($schema_data) && get_option('aiopms_auto_schema_generation', true)) {
-                $schema_data = aiopms_generate_term_schema_markup($term->term_id, $term->taxonomy, true);
+            if (empty($schema_data) && get_option('artitechcore_auto_schema_generation', true)) {
+                $schema_data = artitechcore_generate_term_schema_markup($term->term_id, $term->taxonomy, true);
             }
 
             if (!empty($schema_data)) {
-                echo "\n" . '<!-- AIOPMS Schema -->' . "\n";
+                echo "\n" . '<!-- ArtitechCore Schema -->' . "\n";
                 echo '<script type="application/ld+json">' . "\n";
                 echo wp_json_encode($schema_data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
                 echo "\n" . '</script>' . "\n";
-                echo '<!-- /AIOPMS Schema -->' . "\n";
+                echo '<!-- /ArtitechCore Schema -->' . "\n";
             }
         }
         return;
@@ -1087,9 +1087,9 @@ function aiopms_output_schema_markup() {
         return;
     }
 
-    $schema_data = get_post_meta(get_the_ID(), '_aiopms_schema_data', true);
+    $schema_data = get_post_meta(get_the_ID(), '_artitechcore_schema_data', true);
     if (!empty($schema_data)) {
-        echo "\n" . '<!-- AIOPMS Schema -->' . "\n";
+        echo "\n" . '<!-- ArtitechCore Schema -->' . "\n";
         echo '<script type="application/ld+json">' . "\n";
 
         if (is_array($schema_data) || is_object($schema_data)) {
@@ -1099,16 +1099,16 @@ function aiopms_output_schema_markup() {
         }
 
         echo "\n" . '</script>' . "\n";
-        echo '<!-- /AIOPMS Schema -->' . "\n";
+        echo '<!-- /ArtitechCore Schema -->' . "\n";
     }
 }
-add_action('wp_head', 'aiopms_output_schema_markup');
+add_action('wp_head', 'artitechcore_output_schema_markup');
 
 /**
  * Generate a baseline schema graph for a taxonomy term archive.
- * Stores it in term meta `_aiopms_schema_data`.
+ * Stores it in term meta `_artitechcore_schema_data`.
  */
-function aiopms_generate_term_schema_markup($term_id, $taxonomy, $use_ai = true) {
+function artitechcore_generate_term_schema_markup($term_id, $taxonomy, $use_ai = true) {
     $term = get_term($term_id, $taxonomy);
     if (!$term || is_wp_error($term)) {
         return false;
@@ -1121,8 +1121,8 @@ function aiopms_generate_term_schema_markup($term_id, $taxonomy, $use_ai = true)
     }
 
     $graph = [];
-    $graph[] = aiopms_get_organization_schema();
-    $graph[] = aiopms_generate_website_schema();
+    $graph[] = artitechcore_get_organization_schema();
+    $graph[] = artitechcore_generate_website_schema();
 
     $graph[] = [
         '@type' => 'CollectionPage',
@@ -1140,29 +1140,29 @@ function aiopms_generate_term_schema_markup($term_id, $taxonomy, $use_ai = true)
         '@graph' => $graph,
     ];
 
-    update_term_meta($term_id, '_aiopms_schema_data', $schema_data);
-    update_term_meta($term_id, '_aiopms_schema_origin', 'generated');
+    update_term_meta($term_id, '_artitechcore_schema_data', $schema_data);
+    update_term_meta($term_id, '_artitechcore_schema_origin', 'generated');
 
     return $schema_data;
 }
 
-function aiopms_generate_term_schema_on_edit($term_id, $tt_id = 0, $taxonomy = '') {
+function artitechcore_generate_term_schema_on_edit($term_id, $tt_id = 0, $taxonomy = '') {
     if (!current_user_can('manage_categories')) {
         return;
     }
-    if (!get_option('aiopms_auto_schema_generation', true)) {
+    if (!get_option('artitechcore_auto_schema_generation', true)) {
         return;
     }
     if (empty($taxonomy)) {
         return;
     }
-    aiopms_generate_term_schema_markup($term_id, $taxonomy, true);
+    artitechcore_generate_term_schema_markup($term_id, $taxonomy, true);
 }
-add_action('edited_term', 'aiopms_generate_term_schema_on_edit', 10, 3);
-add_action('created_term', 'aiopms_generate_term_schema_on_edit', 10, 3);
+add_action('edited_term', 'artitechcore_generate_term_schema_on_edit', 10, 3);
+add_action('created_term', 'artitechcore_generate_term_schema_on_edit', 10, 3);
 
 // Generate WebSite Schema
-function aiopms_generate_website_schema() {
+function artitechcore_generate_website_schema() {
     $site_url = home_url();
     $site_name = get_bloginfo('name');
     
@@ -1183,12 +1183,12 @@ function aiopms_generate_website_schema() {
 
 
 // Generate FAQ schema - Enhanced with AI extraction
-function aiopms_generate_faq_schema($post_id) {
+function artitechcore_generate_faq_schema($post_id) {
     $post = get_post($post_id);
     $content = $post->post_content;
     
     // Try AI extraction first for better accuracy
-    $ai_data = aiopms_ai_extract_schema_data($post_id, 'faq');
+    $ai_data = artitechcore_ai_extract_schema_data($post_id, 'faq');
     
     if ($ai_data && is_array($ai_data)) {
         $faq_items = [];
@@ -1214,11 +1214,11 @@ function aiopms_generate_faq_schema($post_id) {
     }
 
     // Fallback: Extract questions and answers from content using regex
-    $faq_items = aiopms_extract_faq_items($content);
+    $faq_items = artitechcore_extract_faq_items($content);
     
     if (empty($faq_items)) {
         // Fallback to webpage schema if no FAQ items found
-        return aiopms_generate_webpage_schema($post_id);
+        return artitechcore_generate_webpage_schema($post_id);
     }
 
     $schema = [
@@ -1232,7 +1232,7 @@ function aiopms_generate_faq_schema($post_id) {
 
 
 // Extract FAQ items from content
-function aiopms_extract_faq_items($content) {
+function artitechcore_extract_faq_items($content) {
     $faq_items = [];
     
     // Pattern to match question-answer pairs
@@ -1269,7 +1269,7 @@ function aiopms_extract_faq_items($content) {
 }
 
 // Generate Blog schema
-function aiopms_generate_blog_schema($post_id) {
+function artitechcore_generate_blog_schema($post_id) {
     $post = get_post($post_id);
     $author_id = $post->post_author;
     $author = get_userdata($author_id);
@@ -1285,7 +1285,7 @@ function aiopms_generate_blog_schema($post_id) {
             '@type' => 'Person',
             'name' => sanitize_text_field($author->display_name)
         ],
-        'publisher' => aiopms_get_organization_schema(),
+        'publisher' => artitechcore_get_organization_schema(),
         'mainEntityOfPage' => [
             '@type' => 'WebPage',
             '@id' => esc_url_raw(get_permalink($post_id))
@@ -1305,7 +1305,7 @@ function aiopms_generate_blog_schema($post_id) {
 }
 
 // Generate Article schema
-function aiopms_generate_article_schema($post_id) {
+function artitechcore_generate_article_schema($post_id) {
     $post = get_post($post_id);
     
     $schema = [
@@ -1319,7 +1319,7 @@ function aiopms_generate_article_schema($post_id) {
             '@type' => 'WebPage',
             '@id' => esc_url_raw(get_permalink($post_id))
         ],
-        'publisher' => aiopms_get_organization_schema()
+        'publisher' => artitechcore_get_organization_schema()
     ];
 
     // Add author if available
@@ -1342,7 +1342,7 @@ function aiopms_generate_article_schema($post_id) {
     }
     
     // Try AI extraction for richer data (Content Aware)
-    $ai_data = aiopms_ai_extract_schema_data($post_id, 'article');
+    $ai_data = artitechcore_ai_extract_schema_data($post_id, 'article');
     if ($ai_data && is_array($ai_data)) {
         if (!empty($ai_data['articleSection'])) {
             $schema['articleSection'] = sanitize_text_field($ai_data['articleSection']);
@@ -1366,19 +1366,19 @@ function aiopms_generate_article_schema($post_id) {
 }
 
 // Generate Service schema - Enhanced with AI extraction
-function aiopms_generate_service_schema($post_id) {
+function artitechcore_generate_service_schema($post_id) {
     $schema = [
         '@context' => 'https://schema.org',
         '@type' => 'Service',
         'name' => sanitize_text_field(get_the_title($post_id)),
         'description' => sanitize_text_field(get_the_excerpt($post_id)),
-        'provider' => aiopms_get_organization_schema(),
+        'provider' => artitechcore_get_organization_schema(),
         'areaServed' => 'Worldwide',
         'serviceType' => sanitize_text_field(get_the_title($post_id))
     ];
 
     // Try AI extraction for richer data
-    $ai_data = aiopms_ai_extract_schema_data($post_id, 'service');
+    $ai_data = artitechcore_ai_extract_schema_data($post_id, 'service');
     if ($ai_data && is_array($ai_data)) {
         if (!empty($ai_data['serviceType'])) {
             $schema['serviceType'] = sanitize_text_field($ai_data['serviceType']);
@@ -1422,7 +1422,7 @@ function aiopms_generate_service_schema($post_id) {
 }
 
 // Generate Product schema - Enhanced with AI extraction
-function aiopms_generate_product_schema($post_id) {
+function artitechcore_generate_product_schema($post_id) {
     $schema = [
         '@context' => 'https://schema.org',
         '@type' => 'Product',
@@ -1432,7 +1432,7 @@ function aiopms_generate_product_schema($post_id) {
     ];
 
     // Try AI extraction for richer data
-    $ai_data = aiopms_ai_extract_schema_data($post_id, 'product');
+    $ai_data = artitechcore_ai_extract_schema_data($post_id, 'product');
     if ($ai_data && is_array($ai_data)) {
         if (!empty($ai_data['brand'])) {
             $schema['brand'] = [
@@ -1492,16 +1492,16 @@ function aiopms_generate_product_schema($post_id) {
 }
 
 // Generate Organization schema
-function aiopms_generate_organization_schema($post_id) {
-    return aiopms_get_organization_schema();
+function artitechcore_generate_organization_schema($post_id) {
+    return artitechcore_get_organization_schema();
 }
 
 // Get organization schema (reusable) - Enhanced with Business Settings
 // Get organization schema (reusable) - Enhanced with Business Settings
-function aiopms_get_organization_schema() {
+function artitechcore_get_organization_schema() {
     // Use business settings if available, fallback to site info
-    $business_name = get_option('aiopms_business_name', get_bloginfo('name'));
-    $business_description = get_option('aiopms_business_description', get_bloginfo('description'));
+    $business_name = get_option('artitechcore_business_name', get_bloginfo('name'));
+    $business_description = get_option('artitechcore_business_description', get_bloginfo('description'));
     $site_url = home_url();
     
     $schema = [
@@ -1521,8 +1521,8 @@ function aiopms_get_organization_schema() {
     }
 
     // Add contact information
-    $email = get_option('aiopms_business_email', '');
-    $phone = get_option('aiopms_business_phone', '');
+    $email = get_option('artitechcore_business_email', '');
+    $phone = get_option('artitechcore_business_phone', '');
     
     if (!empty($email) || !empty($phone)) {
         $schema['contactPoint'] = [
@@ -1538,7 +1538,7 @@ function aiopms_get_organization_schema() {
     }
 
     // Add address if available
-    $address = get_option('aiopms_business_address', '');
+    $address = get_option('artitechcore_business_address', '');
     if (!empty($address)) {
         $schema['address'] = [
             '@type' => 'PostalAddress',
@@ -1548,9 +1548,9 @@ function aiopms_get_organization_schema() {
 
     // Add social links if available
     $social_links = [];
-    $facebook = get_option('aiopms_business_social_facebook', '');
-    $twitter = get_option('aiopms_business_social_twitter', '');
-    $linkedin = get_option('aiopms_business_social_linkedin', '');
+    $facebook = get_option('artitechcore_business_social_facebook', '');
+    $twitter = get_option('artitechcore_business_social_twitter', '');
+    $linkedin = get_option('artitechcore_business_social_linkedin', '');
     
     if (!empty($facebook)) $social_links[] = esc_url_raw($facebook);
     if (!empty($twitter)) $social_links[] = esc_url_raw($twitter);
@@ -1561,9 +1561,9 @@ function aiopms_get_organization_schema() {
     }
 
     // AI-enrich specificity and add key person relationship if detected
-    $profile = aiopms_get_ai_entity_profile();
+    $profile = artitechcore_get_ai_entity_profile();
     if (is_array($profile) && !empty($profile['organization']['types'])) {
-        $schema['@type'] = aiopms_schema_types_to_at_type($profile['organization']['types'], 'Organization');
+        $schema['@type'] = artitechcore_schema_types_to_at_type($profile['organization']['types'], 'Organization');
 
         if (!empty($profile['organization']['specialties'])) {
             $types_str = strtolower(is_array($schema['@type']) ? implode(' ', $schema['@type']) : $schema['@type']);
@@ -1584,7 +1584,7 @@ function aiopms_get_organization_schema() {
 }
 
 // Generate BreadcrumbList schema
-function aiopms_generate_breadcrumb_schema($post_id) {
+function artitechcore_generate_breadcrumb_schema($post_id) {
     $breadcrumbs = [];
     $position = 1;
     $site_url = home_url();
@@ -1633,12 +1633,12 @@ function aiopms_generate_breadcrumb_schema($post_id) {
 
 
 // Generate Local Business schema - Enhanced with Business Settings
-function aiopms_generate_local_business_schema($post_id) {
-    $business_name = get_option('aiopms_business_name', get_bloginfo('name'));
-    $business_description = get_option('aiopms_business_description', get_the_excerpt($post_id));
-    $address = get_option('aiopms_business_address', '');
-    $phone = get_option('aiopms_business_phone', '');
-    $email = get_option('aiopms_business_email', '');
+function artitechcore_generate_local_business_schema($post_id) {
+    $business_name = get_option('artitechcore_business_name', get_bloginfo('name'));
+    $business_description = get_option('artitechcore_business_description', get_the_excerpt($post_id));
+    $address = get_option('artitechcore_business_address', '');
+    $phone = get_option('artitechcore_business_phone', '');
+    $email = get_option('artitechcore_business_email', '');
     
     $schema = [
         '@context' => 'https://schema.org',
@@ -1649,14 +1649,14 @@ function aiopms_generate_local_business_schema($post_id) {
     ];
 
     // AI-enrich LocalBusiness subtype/specificity when applicable (generic across industries).
-    $profile = aiopms_get_ai_entity_profile();
+    $profile = artitechcore_get_ai_entity_profile();
     if (is_array($profile) && !empty($profile['organization']['types'])) {
         $types = (array)$profile['organization']['types'];
         // Ensure LocalBusiness is present when we are explicitly generating a local business node.
         if (!in_array('LocalBusiness', $types, true)) {
             array_unshift($types, 'LocalBusiness');
         }
-        $schema['@type'] = aiopms_schema_types_to_at_type($types, 'LocalBusiness');
+        $schema['@type'] = artitechcore_schema_types_to_at_type($types, 'LocalBusiness');
 
         if (!empty($profile['organization']['specialties'])) {
             $types_str = strtolower(is_array($schema['@type']) ? implode(' ', $schema['@type']) : $schema['@type']);
@@ -1700,7 +1700,7 @@ function aiopms_generate_local_business_schema($post_id) {
 
 
 // Generate WebPage schema (fallback)
-function aiopms_generate_webpage_schema($post_id) {
+function artitechcore_generate_webpage_schema($post_id) {
     $schema = [
         '@context' => 'https://schema.org',
         '@type' => 'WebPage',
@@ -1710,18 +1710,18 @@ function aiopms_generate_webpage_schema($post_id) {
     ];
 
     // Add publisher information
-    $schema['publisher'] = aiopms_get_organization_schema();
+    $schema['publisher'] = artitechcore_get_organization_schema();
 
     return $schema;
 }
 
 // Generate HowTo schema - Enhanced with AI extraction
-function aiopms_generate_howto_schema($post_id) {
+function artitechcore_generate_howto_schema($post_id) {
     $post = get_post($post_id);
     $content = $post->post_content;
     
     // Try AI extraction first for better step identification
-    $ai_data = aiopms_ai_extract_schema_data($post_id, 'howto');
+    $ai_data = artitechcore_ai_extract_schema_data($post_id, 'howto');
     
     if ($ai_data && is_array($ai_data) && !empty($ai_data['steps'])) {
         $steps = [];
@@ -1761,10 +1761,10 @@ function aiopms_generate_howto_schema($post_id) {
     }
 
     // Fallback: Extract steps from content using regex
-    $steps = aiopms_extract_howto_steps($content);
+    $steps = artitechcore_extract_howto_steps($content);
     
     if (empty($steps)) {
-        return aiopms_generate_webpage_schema($post_id);
+        return artitechcore_generate_webpage_schema($post_id);
     }
 
     $schema = [
@@ -1775,12 +1775,12 @@ function aiopms_generate_howto_schema($post_id) {
         'step' => $steps
     ];
 
-    $total_time = aiopms_extract_total_time($content);
+    $total_time = artitechcore_extract_total_time($content);
     if ($total_time) {
         $schema['totalTime'] = $total_time;
     }
 
-    $estimated_cost = aiopms_extract_estimated_cost($content);
+    $estimated_cost = artitechcore_extract_estimated_cost($content);
     if ($estimated_cost) {
         $schema['estimatedCost'] = [
             '@type' => 'MonetaryAmount',
@@ -1794,7 +1794,7 @@ function aiopms_generate_howto_schema($post_id) {
 
 
 // Extract HowTo steps from content
-function aiopms_extract_howto_steps($content) {
+function artitechcore_extract_howto_steps($content) {
     $steps = [];
     
     // Pattern to match numbered steps
@@ -1824,7 +1824,7 @@ function aiopms_extract_howto_steps($content) {
 }
 
 // Extract total time from content
-function aiopms_extract_total_time($content) {
+function artitechcore_extract_total_time($content) {
     $time_patterns = [
         '/(\d+)\s*(?:minutes?|mins?)/i',
         '/(\d+)\s*(?:hours?|hrs?)/i',
@@ -1848,7 +1848,7 @@ function aiopms_extract_total_time($content) {
 }
 
 // Extract estimated cost from content
-function aiopms_extract_estimated_cost($content) {
+function artitechcore_extract_estimated_cost($content) {
     $cost_patterns = [
         '/\$(\d+(?:\.\d{2})?)/',
         '/(\d+(?:\.\d{2})?)\s*(?:dollars?|usd)/i'
@@ -1864,12 +1864,12 @@ function aiopms_extract_estimated_cost($content) {
 }
 
 // Generate Review schema - Enhanced with AI extraction
-function aiopms_generate_review_schema($post_id) {
+function artitechcore_generate_review_schema($post_id) {
     $post = get_post($post_id);
     $content = $post->post_content;
     
     // Try AI extraction first
-    $ai_data = aiopms_ai_extract_schema_data($post_id, 'review');
+    $ai_data = artitechcore_ai_extract_schema_data($post_id, 'review');
     
     $rating = null;
     $reviewed_item = null;
@@ -1881,10 +1881,10 @@ function aiopms_generate_review_schema($post_id) {
     
     // Fallback to regex if AI failed
     if (!$rating) {
-        $rating = aiopms_extract_review_rating($content);
+        $rating = artitechcore_extract_review_rating($content);
     }
     if (!$reviewed_item) {
-        $reviewed_item = aiopms_extract_reviewed_item($post->post_title, $content);
+        $reviewed_item = artitechcore_extract_reviewed_item($post->post_title, $content);
     }
     
     $schema = [
@@ -1919,7 +1919,7 @@ function aiopms_generate_review_schema($post_id) {
 
 
 // Extract review rating from content
-function aiopms_extract_review_rating($content) {
+function artitechcore_extract_review_rating($content) {
     $rating_patterns = [
         '/(\d+)\/(\d+)\s*(?:stars?|rating)/i',
         '/(\d+)\s*(?:out\s*of\s*)?(\d+)/i',
@@ -1944,7 +1944,7 @@ function aiopms_extract_review_rating($content) {
 }
 
 // Extract reviewed item from title and content
-function aiopms_extract_reviewed_item($title, $content) {
+function artitechcore_extract_reviewed_item($title, $content) {
     // Try to extract from title first
     $title_patterns = [
         '/review[:\s]*of\s*([^,]+)/i',
@@ -1973,14 +1973,14 @@ function aiopms_extract_reviewed_item($title, $content) {
 }
 
 // Generate Event schema
-function aiopms_generate_event_schema($post_id) {
+function artitechcore_generate_event_schema($post_id) {
     $post = get_post($post_id);
     $content = $post->post_content;
     
     // Extract event data
-    $event_date = aiopms_extract_event_date($content);
-    $event_location = aiopms_extract_event_location($content);
-    $event_organizer = aiopms_extract_event_organizer($content);
+    $event_date = artitechcore_extract_event_date($content);
+    $event_location = artitechcore_extract_event_location($content);
+    $event_organizer = artitechcore_extract_event_organizer($content);
     
     $schema = [
         '@context' => 'https://schema.org',
@@ -2006,14 +2006,14 @@ function aiopms_generate_event_schema($post_id) {
             'name' => $event_organizer
         ];
     } else {
-        $schema['organizer'] = aiopms_get_organization_schema();
+        $schema['organizer'] = artitechcore_get_organization_schema();
     }
 
     return $schema;
 }
 
 // Extract event date from content
-function aiopms_extract_event_date($content) {
+function artitechcore_extract_event_date($content) {
     $date_patterns = [
         '/(\d{1,2}\/\d{1,2}\/\d{4})/',
         '/(\d{4}-\d{2}-\d{2})/',
@@ -2033,7 +2033,7 @@ function aiopms_extract_event_date($content) {
 }
 
 // Extract event location from content
-function aiopms_extract_event_location($content) {
+function artitechcore_extract_event_location($content) {
     $location_patterns = [
         '/location[:\s]*([^,\.]+)/i',
         '/venue[:\s]*([^,\.]+)/i',
@@ -2050,7 +2050,7 @@ function aiopms_extract_event_location($content) {
 }
 
 // Extract event organizer from content
-function aiopms_extract_event_organizer($content) {
+function artitechcore_extract_event_organizer($content) {
     $organizer_patterns = [
         '/organizer[:\s]*([^,\.]+)/i',
         '/hosted\s*by[:\s]*([^,\.]+)/i',
@@ -2067,7 +2067,7 @@ function aiopms_extract_event_organizer($content) {
 }
 
 // Generate schema when page is saved
-function aiopms_generate_schema_on_save($post_id) {
+function artitechcore_generate_schema_on_save($post_id) {
     // Check if this is an autosave
     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
         return;
@@ -2079,97 +2079,97 @@ function aiopms_generate_schema_on_save($post_id) {
     }
 
     // Check if schema generation is enabled
-    $auto_generate = get_option('aiopms_auto_schema_generation', true);
+    $auto_generate = get_option('artitechcore_auto_schema_generation', true);
     if (!$auto_generate) {
         return;
     }
 
     // If the schema was manually edited/saved, don't overwrite on normal saves
-    if (function_exists('aiopms_should_skip_auto_schema_generation') && aiopms_should_skip_auto_schema_generation($post_id)) {
+    if (function_exists('artitechcore_should_skip_auto_schema_generation') && artitechcore_should_skip_auto_schema_generation($post_id)) {
         return;
     }
 
     // Generate schema markup
-    aiopms_generate_schema_markup($post_id);
+    artitechcore_generate_schema_markup($post_id);
 }
-add_action('save_post', 'aiopms_generate_schema_on_save');
-add_action('save_post_page', 'aiopms_generate_schema_on_save');
+add_action('save_post', 'artitechcore_generate_schema_on_save');
+add_action('save_post_page', 'artitechcore_generate_schema_on_save');
 
 // Add schema column to pages list
-function aiopms_add_schema_column($columns) {
+function artitechcore_add_schema_column($columns) {
     $columns['schema'] = 'Schema';
     return $columns;
 }
-add_filter('manage_page_posts_columns', 'aiopms_add_schema_column');
+add_filter('manage_page_posts_columns', 'artitechcore_add_schema_column');
 
 // Display schema type in the schema column
-function aiopms_display_schema_column($column, $post_id) {
+function artitechcore_display_schema_column($column, $post_id) {
     if ($column === 'schema') {
-        $schema_type = get_post_meta($post_id, '_aiopms_schema_type', true);
+        $schema_type = get_post_meta($post_id, '_artitechcore_schema_type', true);
         if (!empty($schema_type)) {
-            echo '<span class="aiopms-schema-badge aiopms-schema-' . esc_attr($schema_type) . '">' . esc_html(ucfirst($schema_type)) . '</span>';
+            echo '<span class="artitechcore-schema-badge artitechcore-schema-' . esc_attr($schema_type) . '">' . esc_html(ucfirst($schema_type)) . '</span>';
         } else {
-            echo '<span class="aiopms-schema-badge aiopms-schema-none">Not Generated</span>';
+            echo '<span class="artitechcore-schema-badge artitechcore-schema-none">Not Generated</span>';
         }
     }
 }
-add_action('manage_page_posts_custom_column', 'aiopms_display_schema_column', 10, 2);
+add_action('manage_page_posts_custom_column', 'artitechcore_display_schema_column', 10, 2);
 
 // Make schema column sortable
-function aiopms_make_schema_column_sortable($columns) {
+function artitechcore_make_schema_column_sortable($columns) {
     $columns['schema'] = 'schema';
     return $columns;
 }
-add_filter('manage_edit-page_sortable_columns', 'aiopms_make_schema_column_sortable');
+add_filter('manage_edit-page_sortable_columns', 'artitechcore_make_schema_column_sortable');
 
 // Register admin hooks for Dynamic CPTs
-function aiopms_register_cpt_schema_admin_hooks() {
+function artitechcore_register_cpt_schema_admin_hooks() {
     // Register schema column/actions for ALL public post types (posts, pages, CPTs)
     $post_types = get_post_types(['public' => true], 'names');
     unset($post_types['attachment'], $post_types['revision'], $post_types['nav_menu_item']);
 
     foreach ($post_types as $post_type) {
-        add_filter("manage_{$post_type}_posts_columns", 'aiopms_add_schema_column');
-        add_action("manage_{$post_type}_posts_custom_column", 'aiopms_display_schema_column', 10, 2);
-        add_filter("manage_edit-{$post_type}_sortable_columns", 'aiopms_make_schema_column_sortable');
+        add_filter("manage_{$post_type}_posts_columns", 'artitechcore_add_schema_column');
+        add_action("manage_{$post_type}_posts_custom_column", 'artitechcore_display_schema_column', 10, 2);
+        add_filter("manage_edit-{$post_type}_sortable_columns", 'artitechcore_make_schema_column_sortable');
     }
 
     // Row actions for all post types
-    add_filter('post_row_actions', 'aiopms_add_schema_quick_actions', 10, 2);
+    add_filter('post_row_actions', 'artitechcore_add_schema_quick_actions', 10, 2);
 }
-add_action('admin_init', 'aiopms_register_cpt_schema_admin_hooks');
+add_action('admin_init', 'artitechcore_register_cpt_schema_admin_hooks');
 
 // Handle schema column sorting
-function aiopms_handle_schema_column_sorting($query) {
+function artitechcore_handle_schema_column_sorting($query) {
     if (!is_admin() || !$query->is_main_query()) {
         return;
     }
 
     if ($query->get('orderby') === 'schema') {
-        $query->set('meta_key', '_aiopms_schema_type');
+        $query->set('meta_key', '_artitechcore_schema_type');
         $query->set('orderby', 'meta_value');
     }
 }
-add_action('pre_get_posts', 'aiopms_handle_schema_column_sorting');
+add_action('pre_get_posts', 'artitechcore_handle_schema_column_sorting');
 
 // Add quick actions for schema generation
-function aiopms_add_schema_quick_actions($actions, $post) {
-    $schema_type = get_post_meta($post->ID, '_aiopms_schema_type', true);
+function artitechcore_add_schema_quick_actions($actions, $post) {
+    $schema_type = get_post_meta($post->ID, '_artitechcore_schema_type', true);
 
     if (empty($schema_type)) {
-        $actions['generate_schema'] = '<a href="' . wp_nonce_url(admin_url('admin.php?page=aiopms-page-management&action=generate_schema&post=' . $post->ID), 'generate_schema_' . $post->ID) . '">Generate Schema</a>';
+        $actions['generate_schema'] = '<a href="' . wp_nonce_url(admin_url('admin.php?page=artitechcore-main&action=generate_schema&post=' . $post->ID), 'generate_schema_' . $post->ID) . '">Generate Schema</a>';
     } else {
-        $actions['regenerate_schema'] = '<a href="' . wp_nonce_url(admin_url('admin.php?page=aiopms-page-management&action=regenerate_schema&post=' . $post->ID), 'regenerate_schema_' . $post->ID) . '">Regenerate Schema</a>';
-        $actions['remove_schema'] = '<a href="' . wp_nonce_url(admin_url('admin.php?page=aiopms-page-management&action=remove_schema&post=' . $post->ID), 'remove_schema_' . $post->ID) . '" onclick="return confirm(\'Are you sure you want to remove schema from this page?\')">Remove Schema</a>';
+        $actions['regenerate_schema'] = '<a href="' . wp_nonce_url(admin_url('admin.php?page=artitechcore-main&action=regenerate_schema&post=' . $post->ID), 'regenerate_schema_' . $post->ID) . '">Regenerate Schema</a>';
+        $actions['remove_schema'] = '<a href="' . wp_nonce_url(admin_url('admin.php?page=artitechcore-main&action=remove_schema&post=' . $post->ID), 'remove_schema_' . $post->ID) . '" onclick="return confirm(\'Are you sure you want to remove schema from this page?\')">Remove Schema</a>';
     }
 
     return $actions;
 }
-add_filter('page_row_actions', 'aiopms_add_schema_quick_actions', 10, 2);
+add_filter('page_row_actions', 'artitechcore_add_schema_quick_actions', 10, 2);
 
 // Handle schema generation actions
-function aiopms_handle_schema_generation_actions() {
-    if (!isset($_GET['page']) || $_GET['page'] !== 'aiopms-page-management') {
+function artitechcore_handle_schema_generation_actions() {
+    if (!isset($_GET['page']) || $_GET['page'] !== 'artitechcore-main') {
         return;
     }
 
@@ -2179,42 +2179,42 @@ function aiopms_handle_schema_generation_actions() {
 
         if ($action === 'generate_schema') {
             if (wp_verify_nonce($_GET['_wpnonce'], 'generate_schema_' . $post_id)) {
-                aiopms_generate_schema_markup($post_id);
-                wp_redirect(admin_url('admin.php?page=aiopms-page-management&tab=schema&schema_generated=1'));
+                artitechcore_generate_schema_markup($post_id);
+                wp_redirect(admin_url('admin.php?page=artitechcore-main&tab=schema&schema_generated=1'));
                 exit;
             }
         } elseif ($action === 'regenerate_schema') {
             if (wp_verify_nonce($_GET['_wpnonce'], 'regenerate_schema_' . $post_id)) {
-                aiopms_generate_schema_markup($post_id);
-                wp_redirect(admin_url('admin.php?page=aiopms-page-management&tab=schema&schema_regenerated=1'));
+                artitechcore_generate_schema_markup($post_id);
+                wp_redirect(admin_url('admin.php?page=artitechcore-main&tab=schema&schema_regenerated=1'));
                 exit;
             }
         }
     }
 }
-add_action('admin_init', 'aiopms_handle_schema_generation_actions');
+add_action('admin_init', 'artitechcore_handle_schema_generation_actions');
 
 // Add admin notices for schema generation
-function aiopms_schema_generation_notices() {
+function artitechcore_schema_generation_notices() {
     if (isset($_GET['schema_generated']) && sanitize_key($_GET['schema_generated']) == '1') {
-        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Schema generated successfully!', 'aiopms') . '</p></div>';
+        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Schema generated successfully!', 'artitechcore') . '</p></div>';
     }
     if (isset($_GET['schema_regenerated']) && sanitize_key($_GET['schema_regenerated']) == '1') {
-        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Schema regenerated successfully!', 'aiopms') . '</p></div>';
+        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Schema regenerated successfully!', 'artitechcore') . '</p></div>';
     }
 }
-add_action('admin_notices', 'aiopms_schema_generation_notices');
+add_action('admin_notices', 'artitechcore_schema_generation_notices');
 
 // Remove schema from a page
-function aiopms_remove_schema_from_page($post_id) {
-    delete_post_meta($post_id, '_aiopms_schema_type');
-    delete_post_meta($post_id, '_aiopms_schema_data');
+function artitechcore_remove_schema_from_page($post_id) {
+    delete_post_meta($post_id, '_artitechcore_schema_type');
+    delete_post_meta($post_id, '_artitechcore_schema_data');
     return true;
 }
 
 // Handle schema removal actions
-function aiopms_handle_schema_removal_actions() {
-    if (!isset($_GET['page']) || $_GET['page'] !== 'aiopms-page-management') {
+function artitechcore_handle_schema_removal_actions() {
+    if (!isset($_GET['page']) || $_GET['page'] !== 'artitechcore-main') {
         return;
     }
 
@@ -2224,40 +2224,40 @@ function aiopms_handle_schema_removal_actions() {
 
         if ($action === 'remove_schema') {
             if (wp_verify_nonce($_GET['_wpnonce'], 'remove_schema_' . $post_id)) {
-                aiopms_remove_schema_from_page($post_id);
-                wp_redirect(admin_url('admin.php?page=aiopms-page-management&tab=schema&schema_removed=1'));
+                artitechcore_remove_schema_from_page($post_id);
+                wp_redirect(admin_url('admin.php?page=artitechcore-main&tab=schema&schema_removed=1'));
                 exit;
             }
         }
     }
 }
-add_action('admin_init', 'aiopms_handle_schema_removal_actions');
+add_action('admin_init', 'artitechcore_handle_schema_removal_actions');
 
 // Add admin notices for schema removal
-function aiopms_schema_removal_notices() {
+function artitechcore_schema_removal_notices() {
     if (isset($_GET['schema_removed']) && sanitize_key($_GET['schema_removed']) == '1') {
-        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Schema removed successfully!', 'aiopms') . '</p></div>';
+        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Schema removed successfully!', 'artitechcore') . '</p></div>';
     }
 }
-add_action('admin_notices', 'aiopms_schema_removal_notices');
+add_action('admin_notices', 'artitechcore_schema_removal_notices');
 
 // Schema generator tab content (enhanced with management dashboard)
-function aiopms_schema_generator_tab() {
+function artitechcore_schema_generator_tab() {
     // Use the enhanced management dashboard
-    aiopms_schema_management_dashboard();
+    artitechcore_schema_management_dashboard();
 }
 
 // Enhanced schema management dashboard
-function aiopms_schema_management_dashboard() {
+function artitechcore_schema_management_dashboard() {
     // Get all public post types (pages, posts, CPTs) for schema management
     $post_types = get_post_types(['public' => true], 'names');
     unset($post_types['attachment'], $post_types['revision'], $post_types['nav_menu_item']);
     $allowed_post_types = array_values($post_types);
 
     // Server-side filters + pagination (also used by bulk actions)
-    $filter_post_type = isset($_GET['aiopms_post_type']) ? sanitize_key($_GET['aiopms_post_type']) : '';
-    $filter_status = isset($_GET['aiopms_status']) ? sanitize_key($_GET['aiopms_status']) : '';
-    $filter_search = isset($_GET['aiopms_search']) ? sanitize_text_field(wp_unslash($_GET['aiopms_search'])) : '';
+    $filter_post_type = isset($_GET['artitechcore_post_type']) ? sanitize_key($_GET['artitechcore_post_type']) : '';
+    $filter_status = isset($_GET['artitechcore_status']) ? sanitize_key($_GET['artitechcore_status']) : '';
+    $filter_search = isset($_GET['artitechcore_search']) ? sanitize_text_field(wp_unslash($_GET['artitechcore_search'])) : '';
     if ($filter_post_type && !in_array($filter_post_type, $allowed_post_types, true)) {
         $filter_post_type = '';
     }
@@ -2313,25 +2313,25 @@ function aiopms_schema_management_dashboard() {
     };
 
     // Handle bulk actions
-    if (isset($_POST['bulk_schema_action']) && check_admin_referer('aiopms_bulk_schema_action')) {
+    if (isset($_POST['bulk_schema_action']) && check_admin_referer('artitechcore_bulk_schema_action')) {
         $action = sanitize_text_field($_POST['bulk_schema_action']);
         $apply_scope = isset($_POST['bulk_apply_scope']) ? sanitize_key($_POST['bulk_apply_scope']) : 'selected';
         $selected_pages = isset($_POST['selected_pages']) ? array_map('intval', (array)$_POST['selected_pages']) : [];
 
         // Rehydrate filters from POST so bulk acts on the same filtered set
-        if (isset($_POST['aiopms_post_type'])) {
-            $filter_post_type = sanitize_key($_POST['aiopms_post_type']);
+        if (isset($_POST['artitechcore_post_type'])) {
+            $filter_post_type = sanitize_key($_POST['artitechcore_post_type']);
             if ($filter_post_type && !in_array($filter_post_type, $allowed_post_types, true)) {
                 $filter_post_type = '';
             }
             $query_args['post_type'] = $filter_post_type ? [$filter_post_type] : $allowed_post_types;
         }
-        if (isset($_POST['aiopms_status'])) {
-            $filter_status = sanitize_key($_POST['aiopms_status']);
+        if (isset($_POST['artitechcore_status'])) {
+            $filter_status = sanitize_key($_POST['artitechcore_status']);
             $query_args['post_status'] = $filter_status ? [$filter_status] : 'any';
         }
-        if (isset($_POST['aiopms_search'])) {
-            $filter_search = sanitize_text_field(wp_unslash($_POST['aiopms_search']));
+        if (isset($_POST['artitechcore_search'])) {
+            $filter_search = sanitize_text_field(wp_unslash($_POST['artitechcore_search']));
             $query_args['s'] = $filter_search ? $filter_search : '';
         }
 
@@ -2349,16 +2349,16 @@ function aiopms_schema_management_dashboard() {
                     continue;
                 }
                 if ($action === 'generate') {
-                    aiopms_generate_schema_markup($page_id);
+                    artitechcore_generate_schema_markup($page_id);
                     $processed++;
                 } elseif ($action === 'remove') {
-                    aiopms_remove_schema_from_page($page_id);
+                    artitechcore_remove_schema_from_page($page_id);
                     $processed++;
                 }
             }
             
             $message = sprintf(
-                esc_html__('Processed %d pages successfully!', 'aiopms'),
+                esc_html__('Processed %d pages successfully!', 'artitechcore'),
                 $processed
             );
             echo '<div class="notice notice-success is-dismissible"><p>' . esc_html($message) . '</p></div>';
@@ -2377,7 +2377,7 @@ function aiopms_schema_management_dashboard() {
         'types' => []
     ];
 
-    // Count posts that have _aiopms_schema_type meta (any value)
+    // Count posts that have _artitechcore_schema_type meta (any value)
     // Build the post_type IN clause for the same filter set
     $stat_post_types = $filter_post_type ? [$filter_post_type] : $allowed_post_types;
     $pt_placeholders = implode(',', array_fill(0, count($stat_post_types), '%s'));
@@ -2390,7 +2390,7 @@ function aiopms_schema_management_dashboard() {
         "SELECT pm.meta_value AS schema_type, COUNT(*) AS cnt
          FROM {$wpdb->postmeta} pm
          INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
-         WHERE pm.meta_key = '_aiopms_schema_type'
+         WHERE pm.meta_key = '_artitechcore_schema_type'
            AND pm.meta_value != ''
            AND p.post_type IN ($pt_placeholders)
            AND p.post_status IN ($st_placeholders)
@@ -2405,39 +2405,39 @@ function aiopms_schema_management_dashboard() {
         }
     }
     ?>
-    <div class="wrap aiopms-schema-dashboard">
+    <div class="wrap artitechcore-schema-dashboard">
         <p>Manage structured data (schema.org) markup for your pages to improve SEO and search visibility.</p>
 
         <!-- Export -->
-        <div class="aiopms-bulk-actions" style="margin-top: 10px;">
+        <div class="artitechcore-bulk-actions" style="margin-top: 10px;">
             <h2>Export</h2>
             <p class="description" style="margin-top:0;">
-                Export a CSV backup of all schema stored in WordPress (generated by this plugin, edited via the schema editor, or manually added into the <code>_aiopms_schema_data</code> custom field).
+                Export a CSV backup of all schema stored in WordPress (generated by this plugin, edited via the schema editor, or manually added into the <code>_artitechcore_schema_data</code> custom field).
             </p>
             <p>
-                <a class="button button-primary" href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=aiopms_export_schema_csv'), 'aiopms_export_schema_csv')); ?>">
+                <a class="button button-primary" href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=artitechcore_export_schema_csv'), 'artitechcore_export_schema_csv')); ?>">
                     Export Schema CSV
                 </a>
             </p>
         </div>
 
         <!-- Schema Statistics -->
-        <div class="aiopms-schema-stats">
+        <div class="artitechcore-schema-stats">
             <h2>Schema Statistics</h2>
-            <div class="aiopms-stats-grid">
-                <div class="aiopms-stat-card">
+            <div class="artitechcore-stats-grid">
+                <div class="artitechcore-stat-card">
                     <h3><?php echo esc_html($schema_stats['total']); ?></h3>
                     <p>Total Items</p>
                 </div>
-                <div class="aiopms-stat-card">
+                <div class="artitechcore-stat-card">
                     <h3><?php echo esc_html($schema_stats['with_schema']); ?></h3>
                     <p>Items with Schema</p>
                 </div>
-                <div class="aiopms-stat-card">
+                <div class="artitechcore-stat-card">
                     <h3><?php echo esc_html($schema_stats['total'] - $schema_stats['with_schema']); ?></h3>
                     <p>Items without Schema</p>
                 </div>
-                <div class="aiopms-stat-card">
+                <div class="artitechcore-stat-card">
                     <h3><?php echo esc_html($schema_stats['total'] > 0 ? round(($schema_stats['with_schema'] / $schema_stats['total']) * 100, 1) : 0); ?>%</h3>
                     <p>Schema Coverage</p>
                 </div>
@@ -2445,36 +2445,36 @@ function aiopms_schema_management_dashboard() {
             
             <?php if (!empty($schema_stats['types'])): ?>
             <h3>Schema Type Distribution</h3>
-            <div class="aiopms-schema-types">
+            <div class="artitechcore-schema-types">
                 <?php foreach ($schema_stats['types'] as $type => $count): ?>
-                <div class="aiopms-schema-type">
-                    <span class="aiopms-schema-badge aiopms-schema-<?php echo esc_attr($type); ?>">
+                <div class="artitechcore-schema-type">
+                    <span class="artitechcore-schema-badge artitechcore-schema-<?php echo esc_attr($type); ?>">
                         <?php echo esc_html(ucfirst($type)); ?>
                     </span>
-                    <span class="aiopms-schema-count"><?php echo esc_html($count); ?></span>
+                    <span class="artitechcore-schema-count"><?php echo esc_html($count); ?></span>
                 </div>
                 <?php endforeach; ?>
             </div>
             <?php endif; ?>
                <!-- EXPORT BUTTON MOVED HERE -->
         <p>
-            <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=aiopms-page-management&action=export_schema_csv'), 'export_schema_csv')); ?>" 
+            <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=artitechcore-main&action=export_schema_csv'), 'export_schema_csv')); ?>" 
                class="button button-secondary">Export All Schema to CSV</a>
         </p>
 
         <!-- Main Branded Workspace -->
         <div class="dg10-brand">
             <!-- Filters + Bulk Actions -->
-            <div class="aiopms-schema-section" style="margin-bottom: 24px;">
+            <div class="artitechcore-schema-section" style="margin-bottom: 24px;">
                 <form method="get" action="" style="margin-bottom: 20px;">
-                    <input type="hidden" name="page" value="<?php echo esc_attr(sanitize_text_field($_GET['page'] ?? 'aiopms-page-management')); ?>">
+                    <input type="hidden" name="page" value="<?php echo esc_attr(sanitize_text_field($_GET['page'] ?? 'artitechcore-main')); ?>">
                     <input type="hidden" name="tab" value="schema">
 
                     <!-- Vertical Stack Filter Form -->
                     <div style="display: flex; flex-direction: column; gap: 15px; width: 300px; max-width: 100%;">
                         <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 13px;">
                             Post Type
-                            <select name="aiopms_post_type" id="aiopms-filter-post-type" style="width: 100%; max-width: 100%;">
+                            <select name="artitechcore_post_type" id="artitechcore-filter-post-type" style="width: 100%; max-width: 100%;">
                                 <option value="">All</option>
                                 <?php foreach ($allowed_post_types as $pt): ?>
                                     <?php $obj = get_post_type_object($pt); ?>
@@ -2487,7 +2487,7 @@ function aiopms_schema_management_dashboard() {
 
                         <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 13px;">
                             Status
-                            <select name="aiopms_status" id="aiopms-filter-status" style="width: 100%; max-width: 100%;">
+                            <select name="artitechcore_status" id="artitechcore-filter-status" style="width: 100%; max-width: 100%;">
                                 <option value="" <?php selected($filter_status, ''); ?>>All</option>
                                 <option value="publish" <?php selected($filter_status, 'publish'); ?>>Publish</option>
                                 <option value="draft" <?php selected($filter_status, 'draft'); ?>>Draft</option>
@@ -2498,13 +2498,13 @@ function aiopms_schema_management_dashboard() {
 
                         <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 13px;">
                             Search
-                            <input type="search" name="aiopms_search" id="aiopms-filter-search" value="<?php echo esc_attr($filter_search); ?>" placeholder="Search title..." style="width: 100%; max-width: 100%;" />
+                            <input type="search" name="artitechcore_search" id="artitechcore-filter-search" value="<?php echo esc_attr($filter_search); ?>" placeholder="Search title..." style="width: 100%; max-width: 100%;" />
                         </label>
 
                         <div style="display: flex; gap: 10px; margin-top: 5px;">
                             <button type="submit" class="button" style="flex: 1;">Filter Results</button>
                             <?php if ($filter_post_type || $filter_status || $filter_search): ?>
-                                <a class="button button-link" href="<?php echo esc_url(admin_url('admin.php?page=aiopms-page-management&tab=schema')); ?>">Reset</a>
+                                <a class="button button-link" href="<?php echo esc_url(admin_url('admin.php?page=artitechcore-main&tab=schema')); ?>">Reset</a>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -2513,11 +2513,11 @@ function aiopms_schema_management_dashboard() {
                 <hr style="margin-top: 24px; margin-bottom: 24px; border: 0; border-top: 1px solid #e2e8f0;"/>
 
                 <form method="post" action="">
-                    <?php wp_nonce_field('aiopms_bulk_schema_action'); ?>
+                    <?php wp_nonce_field('artitechcore_bulk_schema_action'); ?>
                     <!-- Preserve filter context on submit -->
-                    <input type="hidden" name="aiopms_post_type" value="<?php echo esc_attr($filter_post_type); ?>">
-                    <input type="hidden" name="aiopms_status" value="<?php echo esc_attr($filter_status); ?>">
-                    <input type="hidden" name="aiopms_search" value="<?php echo esc_attr($filter_search); ?>">
+                    <input type="hidden" name="artitechcore_post_type" value="<?php echo esc_attr($filter_post_type); ?>">
+                    <input type="hidden" name="artitechcore_status" value="<?php echo esc_attr($filter_status); ?>">
+                    <input type="hidden" name="artitechcore_search" value="<?php echo esc_attr($filter_search); ?>">
                     
                     <!-- Vertical Stack Bulk Actions -->
                     <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
@@ -2541,7 +2541,7 @@ function aiopms_schema_management_dashboard() {
                     </div>
                     
                     <!-- Pages Table -->
-                    <div class="aiopms-schema-table-wrap">
+                    <div class="artitechcore-schema-table-wrap">
                     <table class="wp-list-table widefat fixed striped">
                     <thead>
                         <tr>
@@ -2557,8 +2557,8 @@ function aiopms_schema_management_dashboard() {
                     <tbody>
                         <?php foreach ($pages as $page): ?>
                         <?php 
-                        $schema_type = get_post_meta($page->ID, '_aiopms_schema_type', true);
-                        $schema_data = get_post_meta($page->ID, '_aiopms_schema_data', true);
+                        $schema_type = get_post_meta($page->ID, '_artitechcore_schema_type', true);
+                        $schema_data = get_post_meta($page->ID, '_artitechcore_schema_data', true);
                         ?>
                         <tr data-post-type="<?php echo esc_attr($page->post_type); ?>" data-post-status="<?php echo esc_attr($page->post_status); ?>">
                             <th class="check-column">
@@ -2580,29 +2580,29 @@ function aiopms_schema_management_dashboard() {
                                 </div>
                             </td>
                             <td>
-                                <span class="aiopms-page-status status-<?php echo esc_attr($page->post_status); ?>">
+                                <span class="artitechcore-page-status status-<?php echo esc_attr($page->post_status); ?>">
                                     <?php echo esc_html(ucfirst($page->post_status)); ?>
                                 </span>
                             </td>
                             <td>
                                 <?php if (!empty($schema_type)): ?>
-                                    <span class="aiopms-schema-badge aiopms-schema-<?php echo esc_attr($schema_type); ?>">
+                                    <span class="artitechcore-schema-badge artitechcore-schema-<?php echo esc_attr($schema_type); ?>">
                                         <?php echo esc_html(ucfirst($schema_type)); ?>
                                     </span>
                                 <?php else: ?>
-                                    <span class="aiopms-schema-badge aiopms-schema-none">No Schema</span>
+                                    <span class="artitechcore-schema-badge artitechcore-schema-none">No Schema</span>
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <div class="aiopms-schema-actions">
+                                <div class="artitechcore-schema-actions">
                                     <?php if (empty($schema_type)): ?>
-                                        <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=aiopms-page-management&action=generate_schema&post=' . $page->ID), 'generate_schema_' . $page->ID)); ?>" 
+                                        <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=artitechcore-main&action=generate_schema&post=' . $page->ID), 'generate_schema_' . $page->ID)); ?>" 
                                            class="button button-small">Generate Schema</a>
                                     <?php else: ?>
-                                        <button type="button" class="button button-small aiopms-preview-schema" data-page-id="<?php echo esc_attr($page->ID); ?>">Preview</button>
-                                        <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=aiopms-page-management&action=regenerate_schema&post=' . $page->ID), 'regenerate_schema_' . $page->ID)); ?>" 
+                                        <button type="button" class="button button-small artitechcore-preview-schema" data-page-id="<?php echo esc_attr($page->ID); ?>">Preview</button>
+                                        <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=artitechcore-main&action=regenerate_schema&post=' . $page->ID), 'regenerate_schema_' . $page->ID)); ?>" 
                                            class="button button-small">Regenerate</a>
-                                        <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=aiopms-page-management&action=remove_schema&post=' . $page->ID), 'remove_schema_' . $page->ID)); ?>" 
+                                        <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=artitechcore-main&action=remove_schema&post=' . $page->ID), 'remove_schema_' . $page->ID)); ?>" 
                                            class="button button-small button-link-delete" 
                                            onclick="return confirm('Are you sure you want to remove schema from this page?')">Remove</a>
                                     <?php endif; ?>
@@ -2635,7 +2635,7 @@ function aiopms_schema_management_dashboard() {
         </div>
 
         <!-- Taxonomy / Term Archives (lightweight; avoids heavy count queries) -->
-        <div class="aiopms-schema-section" style="margin-top: 24px;">
+        <div class="artitechcore-schema-section" style="margin-top: 24px;">
             <h2>Taxonomy Archives</h2>
             <p class="description" style="margin-top:0;">
                 Manage schema for category/tag/custom taxonomy archives. (Showing up to 20 terms per filter to keep the dashboard fast.)
@@ -2643,8 +2643,8 @@ function aiopms_schema_management_dashboard() {
 
             <?php
             $public_tax = get_taxonomies(['public' => true], 'objects');
-            $tax_filter = isset($_GET['aiopms_taxonomy']) ? sanitize_key($_GET['aiopms_taxonomy']) : '';
-            $tax_search = isset($_GET['aiopms_term_search']) ? sanitize_text_field(wp_unslash($_GET['aiopms_term_search'])) : '';
+            $tax_filter = isset($_GET['artitechcore_taxonomy']) ? sanitize_key($_GET['artitechcore_taxonomy']) : '';
+            $tax_search = isset($_GET['artitechcore_term_search']) ? sanitize_text_field(wp_unslash($_GET['artitechcore_term_search'])) : '';
             if ($tax_filter && !isset($public_tax[$tax_filter])) {
                 $tax_filter = '';
             }
@@ -2658,13 +2658,13 @@ function aiopms_schema_management_dashboard() {
             ?>
 
             <form method="get" action="" style="margin-bottom: 12px;">
-                <input type="hidden" name="page" value="<?php echo esc_attr(sanitize_text_field($_GET['page'] ?? 'aiopms-page-management')); ?>">
+                <input type="hidden" name="page" value="<?php echo esc_attr(sanitize_text_field($_GET['page'] ?? 'artitechcore-main')); ?>">
                 <input type="hidden" name="tab" value="schema">
 
-                <div class="aiopms-bulk-controls" style="margin-bottom: 12px;">
+                <div class="artitechcore-bulk-controls" style="margin-bottom: 12px;">
                     <label>
                         <span style="display:inline-block; min-width:90px;">Taxonomy</span>
-                        <select name="aiopms_taxonomy">
+                        <select name="artitechcore_taxonomy">
                             <option value="">All</option>
                             <?php foreach ($public_tax as $tax_name => $tax_obj): ?>
                                 <option value="<?php echo esc_attr($tax_name); ?>" <?php selected($tax_filter, $tax_name); ?>>
@@ -2675,16 +2675,16 @@ function aiopms_schema_management_dashboard() {
                     </label>
                     <label style="flex: 1;">
                         <span style="display:inline-block; min-width:90px;">Search</span>
-                        <input type="search" name="aiopms_term_search" class="regular-text" value="<?php echo esc_attr($tax_search); ?>" placeholder="Search terms..." />
+                        <input type="search" name="artitechcore_term_search" class="regular-text" value="<?php echo esc_attr($tax_search); ?>" placeholder="Search terms..." />
                     </label>
                     <button type="submit" class="button">Filter</button>
                     <?php if ($tax_filter || $tax_search): ?>
-                        <a class="button button-link" href="<?php echo esc_url(admin_url('admin.php?page=aiopms-page-management&tab=schema')); ?>">Reset</a>
+                        <a class="button button-link" href="<?php echo esc_url(admin_url('admin.php?page=artitechcore-main&tab=schema')); ?>">Reset</a>
                     <?php endif; ?>
                 </div>
             </form>
 
-            <div class="aiopms-schema-table-wrap">
+            <div class="artitechcore-schema-table-wrap">
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                 <tr>
@@ -2700,8 +2700,8 @@ function aiopms_schema_management_dashboard() {
                 <?php else: ?>
                     <?php foreach ($terms as $term): ?>
                         <?php
-                        $t_schema = get_term_meta($term->term_id, '_aiopms_schema_data', true);
-                        $t_source = get_term_meta($term->term_id, '_aiopms_schema_origin', true);
+                        $t_schema = get_term_meta($term->term_id, '_artitechcore_schema_data', true);
+                        $t_source = get_term_meta($term->term_id, '_artitechcore_schema_origin', true);
                         $has_schema = !empty($t_schema);
                         ?>
                         <tr>
@@ -2709,20 +2709,20 @@ function aiopms_schema_management_dashboard() {
                             <td><?php echo esc_html($term->taxonomy); ?></td>
                             <td>
                                 <?php if ($has_schema): ?>
-                                    <span class="aiopms-schema-badge aiopms-schema-webpage">Yes</span>
+                                    <span class="artitechcore-schema-badge artitechcore-schema-webpage">Yes</span>
                                     <span class="description" style="margin-left:8px;"><?php echo esc_html($t_source ?: 'unknown'); ?></span>
                                 <?php else: ?>
-                                    <span class="aiopms-schema-badge aiopms-schema-none">No Schema</span>
+                                    <span class="artitechcore-schema-badge artitechcore-schema-none">No Schema</span>
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <div class="aiopms-schema-actions">
+                                <div class="artitechcore-schema-actions">
                                     <?php if (!$has_schema): ?>
-                                        <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=aiopms-page-management&tab=schema&action=generate_term_schema&taxonomy=' . $term->taxonomy . '&term_id=' . $term->term_id), 'aiopms_generate_term_schema_' . $term->term_id)); ?>" class="button button-small">Generate</a>
+                                        <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=artitechcore-main&tab=schema&action=generate_term_schema&taxonomy=' . $term->taxonomy . '&term_id=' . $term->term_id), 'artitechcore_generate_term_schema_' . $term->term_id)); ?>" class="button button-small">Generate</a>
                                     <?php else: ?>
-                                        <button type="button" class="button button-small aiopms-preview-schema-term" data-term-id="<?php echo esc_attr($term->term_id); ?>" data-taxonomy="<?php echo esc_attr($term->taxonomy); ?>">Preview</button>
-                                        <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=aiopms-page-management&tab=schema&action=regenerate_term_schema&taxonomy=' . $term->taxonomy . '&term_id=' . $term->term_id), 'aiopms_regenerate_term_schema_' . $term->term_id)); ?>" class="button button-small">Regenerate</a>
-                                        <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=aiopms-page-management&tab=schema&action=remove_term_schema&taxonomy=' . $term->taxonomy . '&term_id=' . $term->term_id), 'aiopms_remove_term_schema_' . $term->term_id)); ?>" class="button button-small button-link-delete" onclick="return confirm('Remove schema for this term?')">Remove</a>
+                                        <button type="button" class="button button-small artitechcore-preview-schema-term" data-term-id="<?php echo esc_attr($term->term_id); ?>" data-taxonomy="<?php echo esc_attr($term->taxonomy); ?>">Preview</button>
+                                        <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=artitechcore-main&tab=schema&action=regenerate_term_schema&taxonomy=' . $term->taxonomy . '&term_id=' . $term->term_id), 'artitechcore_regenerate_term_schema_' . $term->term_id)); ?>" class="button button-small">Regenerate</a>
+                                        <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=artitechcore-main&tab=schema&action=remove_term_schema&taxonomy=' . $term->taxonomy . '&term_id=' . $term->term_id), 'artitechcore_remove_term_schema_' . $term->term_id)); ?>" class="button button-small button-link-delete" onclick="return confirm('Remove schema for this term?')">Remove</a>
                                     <?php endif; ?>
                                 </div>
                             </td>
@@ -2734,53 +2734,53 @@ function aiopms_schema_management_dashboard() {
             </div>
         </div>
         <!-- Schema Modal -->
-        <div id="aiopms-schema-modal" class="aiopms-modal-overlay" style="display:none;">
-            <div class="aiopms-modal aiopms-modal-large">
-                <div class="aiopms-modal-header">
+        <div id="artitechcore-schema-modal" class="artitechcore-modal-overlay" style="display:none;">
+            <div class="artitechcore-modal artitechcore-modal-large">
+                <div class="artitechcore-modal-header">
                     <h2>Schema Preview</h2>
-                    <span class="aiopms-modal-close">&times;</span>
+                    <span class="artitechcore-modal-close">&times;</span>
                 </div>
-                <div class="aiopms-modal-body">
-                    <p class="description" style="margin-top:0;" id="aiopms-schema-preview-hint">
+                <div class="artitechcore-modal-body">
+                    <p class="description" style="margin-top:0;" id="artitechcore-schema-preview-hint">
                         Preview the JSON-LD below. If you need to adjust it, click <strong>Edit Schema</strong>.
                     </p>
-                    <pre style="margin-top:12px;"><code id="aiopms-schema-preview-code"></code></pre>
+                    <pre style="margin-top:12px;"><code id="artitechcore-schema-preview-code"></code></pre>
 
-                    <div id="aiopms-schema-editor-wrap" style="display:none; margin-top: 12px;">
+                    <div id="artitechcore-schema-editor-wrap" style="display:none; margin-top: 12px;">
                         <p class="description" style="margin-top:0;">
                             You are now editing the schema. Click <strong>Save</strong> to store it for this post and use it on the frontend.
                         </p>
-                        <textarea id="aiopms-schema-editor" class="large-text code" rows="18" spellcheck="false"></textarea>
+                        <textarea id="artitechcore-schema-editor" class="large-text code" rows="18" spellcheck="false"></textarea>
                     </div>
-                    <input type="hidden" id="aiopms-schema-page-id" value="">
-                    <input type="hidden" id="aiopms-schema-entity-type" value="post">
+                    <input type="hidden" id="artitechcore-schema-page-id" value="">
+                    <input type="hidden" id="artitechcore-schema-entity-type" value="post">
                 </div>
-                <div class="aiopms-modal-footer">
-                    <span id="aiopms-schema-save-status" style="margin-right:auto;"></span>
-                    <button type="button" class="button" id="aiopms-schema-edit-toggle">Edit Schema</button>
-                    <button type="button" class="button" id="aiopms-schema-validate" style="display:none;">Validate JSON</button>
-                    <button type="button" class="button button-primary" id="aiopms-schema-save" style="display:none;">Save Schema</button>
+                <div class="artitechcore-modal-footer">
+                    <span id="artitechcore-schema-save-status" style="margin-right:auto;"></span>
+                    <button type="button" class="button" id="artitechcore-schema-edit-toggle">Edit Schema</button>
+                    <button type="button" class="button" id="artitechcore-schema-validate" style="display:none;">Validate JSON</button>
+                    <button type="button" class="button button-primary" id="artitechcore-schema-save" style="display:none;">Save Schema</button>
                 </div>
             </div>
         </div>
 
         <!-- Schema Information -->
-        <div class="aiopms-schema-info">
+        <div class="artitechcore-schema-info">
             <h2>About Schema Markup</h2>
-            <div class="aiopms-info-grid">
-                <div class="aiopms-info-card">
+            <div class="artitechcore-info-grid">
+                <div class="artitechcore-info-card">
                     <h3>What is Schema Markup?</h3>
                     <p>Schema.org markup helps search engines understand your content better, which can lead to rich snippets in search results and improved click-through rates.</p>
                 </div>
-                <div class="aiopms-info-card">
+                <div class="artitechcore-info-card">
                     <h3>Where is Schema Inserted?</h3>
                     <p>Schema markup is automatically inserted in the <code>&lt;head&gt;</code> section of your pages as JSON-LD structured data. It's invisible to visitors but visible to search engines.</p>
                 </div>
-                <div class="aiopms-info-card">
+                <div class="artitechcore-info-card">
                     <h3>Manual Removal</h3>
-                    <p>To manually remove schema from a page, edit the page and remove the <code>_aiopms_schema_type</code> and <code>_aiopms_schema_data</code> custom fields.</p>
+                    <p>To manually remove schema from a page, edit the page and remove the <code>_artitechcore_schema_type</code> and <code>_artitechcore_schema_data</code> custom fields.</p>
                 </div>
-                <div class="aiopms-info-card">
+                <div class="artitechcore-info-card">
                     <h3>AI-Powered Detection</h3>
                     <p>The plugin uses AI to analyze your content and automatically determine the most appropriate schema type for each page, with fallback to keyword-based detection.</p>
                 </div>
@@ -2793,21 +2793,21 @@ function aiopms_schema_management_dashboard() {
 }
 
 // AJAX handler for schema preview
-function aiopms_ajax_get_schema_preview() {
-    check_ajax_referer('aiopms_schema_preview', 'nonce');
+function artitechcore_ajax_get_schema_preview() {
+    check_ajax_referer('artitechcore_schema_preview', 'nonce');
 
     $page_id = isset($_POST['page_id']) ? absint($_POST['page_id']) : 0;
     if (!$page_id) {
-        wp_send_json_error(['message' => esc_html__('Invalid page ID', 'aiopms')]);
+        wp_send_json_error(['message' => esc_html__('Invalid page ID', 'artitechcore')]);
     }
 
     if (!current_user_can('edit_post', $page_id)) {
-        wp_send_json_error(['message' => esc_html__('Unauthorized', 'aiopms')], 403);
+        wp_send_json_error(['message' => esc_html__('Unauthorized', 'artitechcore')], 403);
     }
 
-    $schema_data = get_post_meta($page_id, '_aiopms_schema_data', true);
+    $schema_data = get_post_meta($page_id, '_artitechcore_schema_data', true);
     if (empty($schema_data)) {
-        wp_send_json_error(['message' => esc_html__('No schema data found for this item. Generate schema first, then preview again.', 'aiopms')]);
+        wp_send_json_error(['message' => esc_html__('No schema data found for this item. Generate schema first, then preview again.', 'artitechcore')]);
     }
 
     $schema_json = is_string($schema_data)
@@ -2815,41 +2815,41 @@ function aiopms_ajax_get_schema_preview() {
         : wp_json_encode($schema_data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
     if ($schema_json === '' || $schema_json === false) {
-        wp_send_json_error(['message' => esc_html__('Schema data exists but could not be encoded as JSON.', 'aiopms')]);
+        wp_send_json_error(['message' => esc_html__('Schema data exists but could not be encoded as JSON.', 'artitechcore')]);
     }
 
     wp_send_json_success([
         'post_id' => $page_id,
         'schema_json' => $schema_json,
-        'schema_type' => get_post_meta($page_id, '_aiopms_schema_type', true),
-        'schema_source' => function_exists('aiopms_get_schema_source') ? aiopms_get_schema_source($page_id) : '',
-        'locked' => !empty(get_post_meta($page_id, '_aiopms_schema_locked', true)),
+        'schema_type' => get_post_meta($page_id, '_artitechcore_schema_type', true),
+        'schema_source' => function_exists('artitechcore_get_schema_source') ? artitechcore_get_schema_source($page_id) : '',
+        'locked' => !empty(get_post_meta($page_id, '_artitechcore_schema_locked', true)),
     ]);
 }
-add_action('wp_ajax_aiopms_get_schema_preview', 'aiopms_ajax_get_schema_preview');
+add_action('wp_ajax_artitechcore_get_schema_preview', 'artitechcore_ajax_get_schema_preview');
 
 // AJAX handler for term schema preview
-function aiopms_ajax_get_term_schema_preview() {
-    check_ajax_referer('aiopms_schema_preview', 'nonce');
+function artitechcore_ajax_get_term_schema_preview() {
+    check_ajax_referer('artitechcore_schema_preview', 'nonce');
 
     if (!current_user_can('manage_categories')) {
-        wp_send_json_error(['message' => esc_html__('Unauthorized', 'aiopms')], 403);
+        wp_send_json_error(['message' => esc_html__('Unauthorized', 'artitechcore')], 403);
     }
 
     $term_id = isset($_POST['term_id']) ? absint($_POST['term_id']) : 0;
     $taxonomy = isset($_POST['taxonomy']) ? sanitize_key($_POST['taxonomy']) : '';
     if (!$term_id || !$taxonomy) {
-        wp_send_json_error(['message' => esc_html__('Invalid term.', 'aiopms')]);
+        wp_send_json_error(['message' => esc_html__('Invalid term.', 'artitechcore')]);
     }
 
     $term = get_term($term_id, $taxonomy);
     if (!$term || is_wp_error($term)) {
-        wp_send_json_error(['message' => esc_html__('Term not found.', 'aiopms')]);
+        wp_send_json_error(['message' => esc_html__('Term not found.', 'artitechcore')]);
     }
 
-    $schema_data = get_term_meta($term_id, '_aiopms_schema_data', true);
+    $schema_data = get_term_meta($term_id, '_artitechcore_schema_data', true);
     if (empty($schema_data)) {
-        wp_send_json_error(['message' => esc_html__('No schema data found for this term. Generate schema first, then preview again.', 'aiopms')]);
+        wp_send_json_error(['message' => esc_html__('No schema data found for this term. Generate schema first, then preview again.', 'artitechcore')]);
     }
 
     $schema_json = is_string($schema_data)
@@ -2857,11 +2857,11 @@ function aiopms_ajax_get_term_schema_preview() {
         : wp_json_encode($schema_data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
     if ($schema_json === '' || $schema_json === false) {
-        wp_send_json_error(['message' => esc_html__('Schema data exists but could not be encoded as JSON.', 'aiopms')]);
+        wp_send_json_error(['message' => esc_html__('Schema data exists but could not be encoded as JSON.', 'artitechcore')]);
     }
 
-    $origin = get_term_meta($term_id, '_aiopms_schema_origin', true);
-    $locked = !empty(get_term_meta($term_id, '_aiopms_schema_locked', true));
+    $origin = get_term_meta($term_id, '_artitechcore_schema_origin', true);
+    $locked = !empty(get_term_meta($term_id, '_artitechcore_schema_locked', true));
 
     wp_send_json_success([
         'term_id' => $term_id,
@@ -2871,99 +2871,99 @@ function aiopms_ajax_get_term_schema_preview() {
         'locked' => $locked,
     ]);
 }
-add_action('wp_ajax_aiopms_get_term_schema_preview', 'aiopms_ajax_get_term_schema_preview');
+add_action('wp_ajax_artitechcore_get_term_schema_preview', 'artitechcore_ajax_get_term_schema_preview');
 
 // AJAX handler to save edited schema JSON-LD to post meta
-function aiopms_ajax_save_schema_override() {
-    check_ajax_referer('aiopms_schema_preview', 'nonce');
+function artitechcore_ajax_save_schema_override() {
+    check_ajax_referer('artitechcore_schema_preview', 'nonce');
 
     $page_id = isset($_POST['page_id']) ? absint($_POST['page_id']) : 0;
     if (!$page_id) {
-        wp_send_json_error(['message' => esc_html__('Invalid page ID', 'aiopms')]);
+        wp_send_json_error(['message' => esc_html__('Invalid page ID', 'artitechcore')]);
     }
 
     if (!current_user_can('edit_post', $page_id)) {
-        wp_send_json_error(['message' => esc_html__('Unauthorized', 'aiopms')], 403);
+        wp_send_json_error(['message' => esc_html__('Unauthorized', 'artitechcore')], 403);
     }
 
     $raw = isset($_POST['schema_json']) ? wp_unslash($_POST['schema_json']) : '';
     $raw = trim($raw);
     if ($raw === '') {
-        wp_send_json_error(['message' => esc_html__('Schema JSON is empty.', 'aiopms')]);
+        wp_send_json_error(['message' => esc_html__('Schema JSON is empty.', 'artitechcore')]);
     }
 
     $decoded = json_decode($raw, true);
     if (!is_array($decoded)) {
-        wp_send_json_error(['message' => esc_html__('Invalid JSON. Please fix and try again.', 'aiopms')]);
+        wp_send_json_error(['message' => esc_html__('Invalid JSON. Please fix and try again.', 'artitechcore')]);
     }
 
     // Basic sanity: schema should be object-like (associative array) or a list of nodes
     $encoded = wp_json_encode($decoded, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     if (!$encoded) {
-        wp_send_json_error(['message' => esc_html__('Could not encode schema JSON.', 'aiopms')]);
+        wp_send_json_error(['message' => esc_html__('Could not encode schema JSON.', 'artitechcore')]);
     }
 
-    update_post_meta($page_id, '_aiopms_schema_data', $decoded);
-    update_post_meta($page_id, '_aiopms_schema_locked', 1);
-    update_post_meta($page_id, '_aiopms_schema_origin', 'override');
+    update_post_meta($page_id, '_artitechcore_schema_data', $decoded);
+    update_post_meta($page_id, '_artitechcore_schema_locked', 1);
+    update_post_meta($page_id, '_artitechcore_schema_origin', 'override');
 
     wp_send_json_success([
-        'message' => esc_html__('Schema saved.', 'aiopms'),
+        'message' => esc_html__('Schema saved.', 'artitechcore'),
         'data' => $decoded,
     ]);
 }
-add_action('wp_ajax_aiopms_save_schema_override', 'aiopms_ajax_save_schema_override');
+add_action('wp_ajax_artitechcore_save_schema_override', 'artitechcore_ajax_save_schema_override');
 
-function aiopms_ajax_save_term_schema_override() {
-    check_ajax_referer('aiopms_schema_preview', 'nonce');
+function artitechcore_ajax_save_term_schema_override() {
+    check_ajax_referer('artitechcore_schema_preview', 'nonce');
 
     if (!current_user_can('manage_categories')) {
-        wp_send_json_error(['message' => esc_html__('Unauthorized', 'aiopms')], 403);
+        wp_send_json_error(['message' => esc_html__('Unauthorized', 'artitechcore')], 403);
     }
 
     $term_id = isset($_POST['term_id']) ? absint($_POST['term_id']) : 0;
     $taxonomy = isset($_POST['taxonomy']) ? sanitize_key($_POST['taxonomy']) : '';
     if (!$term_id || !$taxonomy) {
-        wp_send_json_error(['message' => esc_html__('Invalid term.', 'aiopms')]);
+        wp_send_json_error(['message' => esc_html__('Invalid term.', 'artitechcore')]);
     }
 
     $raw = isset($_POST['schema_json']) ? wp_unslash($_POST['schema_json']) : '';
     $raw = trim($raw);
     if ($raw === '') {
-        wp_send_json_error(['message' => esc_html__('Schema JSON is empty.', 'aiopms')]);
+        wp_send_json_error(['message' => esc_html__('Schema JSON is empty.', 'artitechcore')]);
     }
 
     $decoded = json_decode($raw, true);
     if (!is_array($decoded)) {
-        wp_send_json_error(['message' => esc_html__('Invalid JSON. Please fix and try again.', 'aiopms')]);
+        wp_send_json_error(['message' => esc_html__('Invalid JSON. Please fix and try again.', 'artitechcore')]);
     }
 
     $encoded = wp_json_encode($decoded, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     if (!$encoded) {
-        wp_send_json_error(['message' => esc_html__('Could not encode schema JSON.', 'aiopms')]);
+        wp_send_json_error(['message' => esc_html__('Could not encode schema JSON.', 'artitechcore')]);
     }
 
-    update_term_meta($term_id, '_aiopms_schema_data', $decoded);
-    update_term_meta($term_id, '_aiopms_schema_locked', 1);
-    update_term_meta($term_id, '_aiopms_schema_origin', 'override');
+    update_term_meta($term_id, '_artitechcore_schema_data', $decoded);
+    update_term_meta($term_id, '_artitechcore_schema_locked', 1);
+    update_term_meta($term_id, '_artitechcore_schema_origin', 'override');
 
     wp_send_json_success([
-        'message' => esc_html__('Schema saved.', 'aiopms'),
+        'message' => esc_html__('Schema saved.', 'artitechcore'),
         'data' => $decoded,
     ]);
 }
-add_action('wp_ajax_aiopms_save_term_schema_override', 'aiopms_ajax_save_term_schema_override');
+add_action('wp_ajax_artitechcore_save_term_schema_override', 'artitechcore_ajax_save_term_schema_override');
 
-function aiopms_remove_schema_from_term($term_id) {
-    delete_term_meta($term_id, '_aiopms_schema_data');
-    delete_term_meta($term_id, '_aiopms_schema_origin');
-    delete_term_meta($term_id, '_aiopms_schema_locked');
+function artitechcore_remove_schema_from_term($term_id) {
+    delete_term_meta($term_id, '_artitechcore_schema_data');
+    delete_term_meta($term_id, '_artitechcore_schema_origin');
+    delete_term_meta($term_id, '_artitechcore_schema_locked');
     return true;
 }
 
 // Handle term schema management actions
-function aiopms_handle_term_schema_actions() {
-    if (!isset($_GET['page']) || $_GET['page'] !== 'aiopms-page-management') {
+function artitechcore_handle_term_schema_actions() {
+    if (!isset($_GET['page']) || $_GET['page'] !== 'artitechcore-main') {
         return;
     }
     if (!isset($_GET['tab']) || $_GET['tab'] !== 'schema') {
@@ -2986,49 +2986,49 @@ function aiopms_handle_term_schema_actions() {
         return;
     }
 
-    if ($action === 'generate_term_schema' && wp_verify_nonce($_GET['_wpnonce'], 'aiopms_generate_term_schema_' . $term_id)) {
-        aiopms_generate_term_schema_markup($term_id, $taxonomy, true);
-        wp_redirect(admin_url('admin.php?page=aiopms-page-management&tab=schema&term_schema_generated=1'));
+    if ($action === 'generate_term_schema' && wp_verify_nonce($_GET['_wpnonce'], 'artitechcore_generate_term_schema_' . $term_id)) {
+        artitechcore_generate_term_schema_markup($term_id, $taxonomy, true);
+        wp_redirect(admin_url('admin.php?page=artitechcore-main&tab=schema&term_schema_generated=1'));
         exit;
     }
 
-    if ($action === 'regenerate_term_schema' && wp_verify_nonce($_GET['_wpnonce'], 'aiopms_regenerate_term_schema_' . $term_id)) {
+    if ($action === 'regenerate_term_schema' && wp_verify_nonce($_GET['_wpnonce'], 'artitechcore_regenerate_term_schema_' . $term_id)) {
         // Regenerate should overwrite lock
-        delete_term_meta($term_id, '_aiopms_schema_locked');
-        aiopms_generate_term_schema_markup($term_id, $taxonomy, true);
-        wp_redirect(admin_url('admin.php?page=aiopms-page-management&tab=schema&term_schema_regenerated=1'));
+        delete_term_meta($term_id, '_artitechcore_schema_locked');
+        artitechcore_generate_term_schema_markup($term_id, $taxonomy, true);
+        wp_redirect(admin_url('admin.php?page=artitechcore-main&tab=schema&term_schema_regenerated=1'));
         exit;
     }
 
-    if ($action === 'remove_term_schema' && wp_verify_nonce($_GET['_wpnonce'], 'aiopms_remove_term_schema_' . $term_id)) {
-        aiopms_remove_schema_from_term($term_id);
-        wp_redirect(admin_url('admin.php?page=aiopms-page-management&tab=schema&term_schema_removed=1'));
+    if ($action === 'remove_term_schema' && wp_verify_nonce($_GET['_wpnonce'], 'artitechcore_remove_term_schema_' . $term_id)) {
+        artitechcore_remove_schema_from_term($term_id);
+        wp_redirect(admin_url('admin.php?page=artitechcore-main&tab=schema&term_schema_removed=1'));
         exit;
     }
 }
-add_action('admin_init', 'aiopms_handle_term_schema_actions');
+add_action('admin_init', 'artitechcore_handle_term_schema_actions');
 
-function aiopms_term_schema_notices() {
+function artitechcore_term_schema_notices() {
     if (isset($_GET['term_schema_generated'])) {
-        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Term schema generated successfully!', 'aiopms') . '</p></div>';
+        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Term schema generated successfully!', 'artitechcore') . '</p></div>';
     }
     if (isset($_GET['term_schema_regenerated'])) {
-        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Term schema regenerated successfully!', 'aiopms') . '</p></div>';
+        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Term schema regenerated successfully!', 'artitechcore') . '</p></div>';
     }
     if (isset($_GET['term_schema_removed'])) {
-        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Term schema removed successfully!', 'aiopms') . '</p></div>';
+        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Term schema removed successfully!', 'artitechcore') . '</p></div>';
     }
 }
-add_action('admin_notices', 'aiopms_term_schema_notices');
+add_action('admin_notices', 'artitechcore_term_schema_notices');
 
 // Admin-post handler: export schema CSV backup
-function aiopms_admin_export_schema_csv() {
+function artitechcore_admin_export_schema_csv() {
     if (!current_user_can('manage_options')) {
-        wp_die(esc_html__('Unauthorized', 'aiopms'), 403);
+        wp_die(esc_html__('Unauthorized', 'artitechcore'), 403);
     }
-    check_admin_referer('aiopms_export_schema_csv');
+    check_admin_referer('artitechcore_export_schema_csv');
 
-    // Query all posts that have schema stored in _aiopms_schema_data
+    // Query all posts that have schema stored in _artitechcore_schema_data
     $q = new WP_Query([
         'post_type' => 'any',
         'post_status' => 'any',
@@ -3036,13 +3036,13 @@ function aiopms_admin_export_schema_csv() {
         'fields' => 'ids',
         'meta_query' => [
             [
-                'key' => '_aiopms_schema_data',
+                'key' => '_artitechcore_schema_data',
                 'compare' => 'EXISTS',
             ],
         ],
     ]);
 
-    $filename = 'aiopms-schema-export-' . gmdate('Y-m-d-His') . '.csv';
+    $filename = 'artitechcore-schema-export-' . gmdate('Y-m-d-His') . '.csv';
     nocache_headers();
     header('Content-Type: text/csv; charset=utf-8');
     header('Content-Disposition: attachment; filename=' . $filename);
@@ -3051,7 +3051,7 @@ function aiopms_admin_export_schema_csv() {
 
     $out = fopen('php://output', 'w');
     if (!$out) {
-        wp_die(esc_html__('Could not open output stream.', 'aiopms'));
+        wp_die(esc_html__('Could not open output stream.', 'artitechcore'));
     }
 
     // Header row
@@ -3075,7 +3075,7 @@ function aiopms_admin_export_schema_csv() {
             continue;
         }
 
-        $schema_data = get_post_meta($post_id, '_aiopms_schema_data', true);
+        $schema_data = get_post_meta($post_id, '_artitechcore_schema_data', true);
         if (empty($schema_data)) {
             continue;
         }
@@ -3085,8 +3085,8 @@ function aiopms_admin_export_schema_csv() {
             ? $schema_data
             : wp_json_encode($schema_data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
-        $schema_type = get_post_meta($post_id, '_aiopms_schema_type', true);
-        $locked = get_post_meta($post_id, '_aiopms_schema_locked', true);
+        $schema_type = get_post_meta($post_id, '_artitechcore_schema_type', true);
+        $locked = get_post_meta($post_id, '_artitechcore_schema_locked', true);
 
         fputcsv($out, [
             'post',
@@ -3097,7 +3097,7 @@ function aiopms_admin_export_schema_csv() {
             get_permalink($post_id),
             get_post_modified_time('c', true, $post_id),
             $schema_type,
-            aiopms_get_schema_source($post_id),
+            artitechcore_get_schema_source($post_id),
             !empty($locked) ? '1' : '0',
             $schema_json,
         ]);
@@ -3110,7 +3110,7 @@ function aiopms_admin_export_schema_csv() {
         'number' => 0,
         'meta_query' => [
             [
-                'key' => '_aiopms_schema_data',
+                'key' => '_artitechcore_schema_data',
                 'compare' => 'EXISTS',
             ]
         ],
@@ -3118,7 +3118,7 @@ function aiopms_admin_export_schema_csv() {
 
     if (!is_wp_error($terms) && !empty($terms)) {
         foreach ($terms as $term) {
-            $schema_data = get_term_meta($term->term_id, '_aiopms_schema_data', true);
+            $schema_data = get_term_meta($term->term_id, '_artitechcore_schema_data', true);
             if (empty($schema_data)) {
                 continue;
             }
@@ -3126,9 +3126,9 @@ function aiopms_admin_export_schema_csv() {
                 ? $schema_data
                 : wp_json_encode($schema_data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
-            $origin = get_term_meta($term->term_id, '_aiopms_schema_origin', true);
+            $origin = get_term_meta($term->term_id, '_artitechcore_schema_origin', true);
             $source = ($origin === 'generated' || $origin === 'override') ? $origin : 'unknown';
-            $locked = get_term_meta($term->term_id, '_aiopms_schema_locked', true);
+            $locked = get_term_meta($term->term_id, '_artitechcore_schema_locked', true);
 
             $link = get_term_link($term);
             if (is_wp_error($link)) {
@@ -3154,10 +3154,10 @@ function aiopms_admin_export_schema_csv() {
     fclose($out);
     exit;
 }
-add_action('admin_post_aiopms_export_schema_csv', 'aiopms_admin_export_schema_csv');
+add_action('admin_post_artitechcore_export_schema_csv', 'artitechcore_admin_export_schema_csv');
 
 // Prevent auto-regeneration from overwriting a user override
-function aiopms_should_skip_auto_schema_generation($post_id) {
-    $locked = get_post_meta($post_id, '_aiopms_schema_locked', true);
+function artitechcore_should_skip_auto_schema_generation($post_id) {
+    $locked = get_post_meta($post_id, '_artitechcore_schema_locked', true);
     return !empty($locked);
 }

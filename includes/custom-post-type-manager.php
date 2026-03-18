@@ -4,82 +4,83 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Custom Post Type Manager for AIOPMS - Complete Overhaul
+ * Custom Post Type Manager for ArtitechCore - Complete Overhaul
  * Handles dynamic custom post type registration, management, and integration
  * 
- * @package AIOPMS
- * @version 3.0
+ * @package ArtitechCore
+ * @version 1.0
  * @author DG10 Agency
- * @since 3.0
+ * @since 1.0
  */
 
 // Initialize custom post type manager with enhanced security and performance
-function aiopms_init_custom_post_type_manager() {
+function artitechcore_init_custom_post_type_manager() {
     // Register existing dynamic CPTs on init with caching
-    add_action('init', 'aiopms_register_existing_dynamic_cpts', 20);
+    add_action('init', 'artitechcore_register_existing_dynamic_cpts', 20);
     
-    // Add admin menu for CPT management - REMOVED to consolidate into main AIOPMS menu
-    // add_action('admin_menu', 'aiopms_add_cpt_management_menu');
+    // Add admin menu for CPT management - REMOVED to consolidate into main ArtitechCore menu
+    // add_action('admin_menu', 'artitechcore_add_cpt_management_menu');
     
     // Add REST API endpoints for CPT data
-    add_action('rest_api_init', 'aiopms_register_cpt_rest_endpoints');
+    add_action('rest_api_init', 'artitechcore_register_cpt_rest_endpoints');
     
     // Add CPT data to hierarchy export
-    add_filter('aiopms_hierarchy_export_data', 'aiopms_add_cpt_to_hierarchy_export');
+    add_filter('artitechcore_hierarchy_export_data', 'artitechcore_add_cpt_to_hierarchy_export');
     
     // Add CPT archives to menu generation
-    add_filter('aiopms_menu_generation_pages', 'aiopms_add_cpt_archives_to_menus');
+    add_filter('artitechcore_menu_generation_pages', 'artitechcore_add_cpt_archives_to_menus');
     
     // Add schema generation for CPTs
-    add_action('aiopms_generate_schema_for_post', 'aiopms_generate_cpt_schema', 10, 2);
+    add_action('artitechcore_generate_schema_for_post', 'artitechcore_generate_cpt_schema', 10, 2);
     
     // Add AJAX handlers for CPT management
-    add_action('wp_ajax_aiopms_create_cpt_ajax', 'aiopms_handle_cpt_creation_ajax');
-    add_action('wp_ajax_aiopms_delete_cpt_ajax', 'aiopms_handle_cpt_deletion_ajax');
-    add_action('wp_ajax_aiopms_get_cpt_data', 'aiopms_get_cpt_data_ajax');
-    add_action('wp_ajax_aiopms_bulk_cpt_operations', 'aiopms_handle_bulk_cpt_operations_ajax');
-    add_action('wp_ajax_aiopms_update_cpt_ajax', 'aiopms_handle_cpt_update_ajax');
-    add_action('wp_ajax_aiopms_duplicate_cpt', 'aiopms_handle_duplicate_cpt_ajax');
+    add_action('wp_ajax_artitechcore_create_cpt_ajax', 'artitechcore_handle_cpt_creation_ajax');
+    add_action('wp_ajax_artitechcore_delete_cpt_ajax', 'artitechcore_handle_cpt_deletion_ajax');
+    add_action('wp_ajax_artitechcore_get_cpt_data', 'artitechcore_get_cpt_data_ajax');
+    add_action('wp_ajax_artitechcore_bulk_cpt_operations', 'artitechcore_handle_bulk_cpt_operations_ajax');
+    add_action('wp_ajax_artitechcore_update_cpt_ajax', 'artitechcore_handle_cpt_update_ajax');
+    add_action('wp_ajax_artitechcore_duplicate_cpt', 'artitechcore_handle_duplicate_cpt_ajax');
+    add_action('wp_ajax_artitechcore_get_cpt_item_count', 'artitechcore_handle_get_cpt_item_count_ajax');
     
     // Add custom field meta boxes and save handlers
-    add_action('add_meta_boxes', 'aiopms_add_custom_field_meta_boxes');
-    add_action('save_post', 'aiopms_save_custom_field_data', 10, 2);
+    add_action('add_meta_boxes', 'artitechcore_add_custom_field_meta_boxes');
+    add_action('save_post', 'artitechcore_save_custom_field_data', 10, 2);
     
     // Performance optimization: Clear cache when CPTs are updated
-    add_action('updated_option', 'aiopms_clear_cpt_cache', 10, 3);
+    add_action('updated_option', 'artitechcore_clear_cpt_cache', 10, 3);
     
     // Security: Add capability checks
-    add_action('admin_init', 'aiopms_check_cpt_management_capabilities');
+    add_action('admin_init', 'artitechcore_check_cpt_management_capabilities');
     
     // --- Custom Taxonomy Manager Hooks ---
     // Register existing dynamic Taxonomies on init
-    add_action('init', 'aiopms_register_existing_dynamic_taxonomies', 21);
+    add_action('init', 'artitechcore_register_existing_dynamic_taxonomies', 21);
     
     // AJAX handlers for Taxonomy management
-    add_action('wp_ajax_aiopms_create_taxonomy_ajax', 'aiopms_handle_taxonomy_creation_ajax');
-    add_action('wp_ajax_aiopms_delete_taxonomy_ajax', 'aiopms_handle_taxonomy_deletion_ajax');
+    add_action('wp_ajax_artitechcore_create_taxonomy_ajax', 'artitechcore_handle_taxonomy_creation_ajax');
+    add_action('wp_ajax_artitechcore_delete_taxonomy_ajax', 'artitechcore_handle_taxonomy_deletion_ajax');
 }
-add_action('plugins_loaded', 'aiopms_init_custom_post_type_manager');
+add_action('plugins_loaded', 'artitechcore_init_custom_post_type_manager');
 
 /**
  * Register existing dynamic CPTs with caching and performance optimization
  * 
- * @since 3.0
+ * @since 1.0
  */
-function aiopms_register_existing_dynamic_cpts() {
+function artitechcore_register_existing_dynamic_cpts() {
     // Check cache first for performance
-    $cached_cpts = wp_cache_get('aiopms_dynamic_cpts', 'aiopms_cpt_cache');
+    $cached_cpts = wp_cache_get('artitechcore_dynamic_cpts', 'artitechcore_cpt_cache');
     
     if (false === $cached_cpts) {
-    $dynamic_cpts = get_option('aiopms_dynamic_cpts', []);
-        wp_cache_set('aiopms_dynamic_cpts', $dynamic_cpts, 'aiopms_cpt_cache', HOUR_IN_SECONDS);
+    $dynamic_cpts = get_option('artitechcore_dynamic_cpts', []);
+        wp_cache_set('artitechcore_dynamic_cpts', $dynamic_cpts, 'artitechcore_cpt_cache', HOUR_IN_SECONDS);
         $cached_cpts = $dynamic_cpts;
     }
     
     if (!empty($cached_cpts) && is_array($cached_cpts)) {
         foreach ($cached_cpts as $post_type => $cpt_data) {
-            if (aiopms_validate_cpt_data($cpt_data)) {
-        aiopms_register_dynamic_custom_post_type($cpt_data);
+            if (artitechcore_validate_cpt_data($cpt_data)) {
+        artitechcore_register_dynamic_custom_post_type($cpt_data);
             }
         }
     }
@@ -91,12 +92,12 @@ function aiopms_register_existing_dynamic_cpts() {
  * 
  * @param array $cpt_data CPT configuration data
  * @return bool|WP_Error Success status or error object
- * @since 3.0
+ * @since 1.0
  */
-function aiopms_register_dynamic_custom_post_type($cpt_data) {
+function artitechcore_register_dynamic_custom_post_type($cpt_data) {
     // Validate input data
-    if (!aiopms_validate_cpt_data($cpt_data)) {
-        return new WP_Error('invalid_cpt_data', __('Invalid CPT data provided', 'aiopms'));
+    if (!artitechcore_validate_cpt_data($cpt_data)) {
+        return new WP_Error('invalid_cpt_data', __('Invalid CPT data provided', 'artitechcore'));
     }
     
     // Sanitize all input data
@@ -106,7 +107,7 @@ function aiopms_register_dynamic_custom_post_type($cpt_data) {
     
     // Validate post type name
     if (empty($post_type) || strlen($post_type) > 20) {
-        return new WP_Error('invalid_post_type', __('Invalid post type name', 'aiopms'));
+        return new WP_Error('invalid_post_type', __('Invalid post type name', 'artitechcore'));
     }
     
     // Build comprehensive labels array
@@ -169,43 +170,43 @@ function aiopms_register_dynamic_custom_post_type($cpt_data) {
     );
     
     // Apply filters for extensibility
-    $args = apply_filters('aiopms_cpt_registration_args', $args, $post_type, $cpt_data);
+    $args = apply_filters('artitechcore_cpt_registration_args', $args, $post_type, $cpt_data);
     
     // Register the post type
     $result = register_post_type($post_type, $args);
     
     if (is_wp_error($result)) {
-        error_log('AIOPMS CPT Registration Error: ' . $result->get_error_message());
+        error_log('ArtitechCore CPT Registration Error: ' . $result->get_error_message());
         return $result;
     }
     
     // Register custom fields if provided
     if (!empty($cpt_data['custom_fields']) && is_array($cpt_data['custom_fields'])) {
-        $field_result = aiopms_register_custom_fields($post_type, $cpt_data['custom_fields']);
+        $field_result = artitechcore_register_custom_fields($post_type, $cpt_data['custom_fields']);
         if (is_wp_error($field_result)) {
             return $field_result;
         }
     }
     
     // Store CPT data for persistence with proper sanitization
-    $existing_cpts = get_option('aiopms_dynamic_cpts', array());
-    $existing_cpts[$post_type] = aiopms_sanitize_cpt_data($cpt_data);
-    update_option('aiopms_dynamic_cpts', $existing_cpts);
+    $existing_cpts = get_option('artitechcore_dynamic_cpts', array());
+    $existing_cpts[$post_type] = artitechcore_sanitize_cpt_data($cpt_data);
+    update_option('artitechcore_dynamic_cpts', $existing_cpts);
     
     // Clear cache
-    wp_cache_delete('aiopms_dynamic_cpts', 'aiopms_cpt_cache');
+    wp_cache_delete('artitechcore_dynamic_cpts', 'artitechcore_cpt_cache');
     
     // Generate sample content if enabled
-    $settings = get_option('aiopms_cpt_settings', array());
+    $settings = get_option('artitechcore_cpt_settings', array());
     if (!empty($settings['auto_generate_sample_content']) && !empty($cpt_data['sample_entries'])) {
-        aiopms_create_sample_cpt_entries($cpt_data);
+        artitechcore_create_sample_cpt_entries($cpt_data);
     }
     
     // Trigger action for other plugins/themes
-    do_action('aiopms_cpt_registered', $post_type, $cpt_data);
+    do_action('artitechcore_cpt_registered', $post_type, $cpt_data);
     
     // Log successful registration
-    aiopms_log_cpt_activity('register', $post_type, true);
+    artitechcore_log_cpt_activity('register', $post_type, true);
     
     return true;
 }
@@ -213,37 +214,37 @@ function aiopms_register_dynamic_custom_post_type($cpt_data) {
 /**
  * Add CPT management menu with proper capabilities
  * 
- * @since 3.0
+ * @since 1.0
  */
-function aiopms_add_cpt_management_menu() {
+function artitechcore_add_cpt_management_menu() {
     add_submenu_page(
-        'aiopms-page-management',
-        __('Custom Post Types', 'aiopms'),
-        __('Custom Post Types', 'aiopms'),
+        'artitechcore-main',
+        __('Custom Post Types', 'artitechcore'),
+        __('Custom Post Types', 'artitechcore'),
         'manage_options',
-        'aiopms-cpt-management',
-        'aiopms_cpt_management_page'
+        'artitechcore-cpt-management',
+        'artitechcore_cpt_management_page'
     );
 }
 
-function aiopms_cpt_management_page() {
-    aiopms_render_cpt_management_content(false);
+function artitechcore_cpt_management_page() {
+    artitechcore_render_cpt_management_content(false);
 }
 
 /**
  * Render CPT management content with conditional layout
  * 
  * @param bool $is_tab Whether it's being rendered as a tab in the main menu
- * @since 3.0
+ * @since 1.0
  */
-function aiopms_render_cpt_management_content($is_tab = false) {
+function artitechcore_render_cpt_management_content($is_tab = false) {
     // Check user capabilities
     if (!current_user_can('manage_options')) {
         if ($is_tab) {
-            echo '<div class="notice notice-error"><p>' . esc_html__('You do not have sufficient permissions to access this page.', 'aiopms') . '</p></div>';
+            echo '<div class="notice notice-error"><p>' . esc_html__('You do not have sufficient permissions to access this page.', 'artitechcore') . '</p></div>';
             return;
         } else {
-            wp_die(__('You do not have sufficient permissions to access this page.', 'aiopms'));
+            wp_die(__('You do not have sufficient permissions to access this page.', 'artitechcore'));
         }
     }
     
@@ -257,65 +258,65 @@ function aiopms_render_cpt_management_content($is_tab = false) {
     // Define menu items with their details
     $menu_items = array(
         'list' => array(
-            'title' => __('Manage CPTs', 'aiopms'),
+            'title' => __('Manage CPTs', 'artitechcore'),
             'icon' => '📋',
-            'description' => __('View and manage existing custom post types', 'aiopms')
+            'description' => __('View and manage existing custom post types', 'artitechcore')
         ),
         'create' => array(
-            'title' => __('Create New CPT', 'aiopms'),
+            'title' => __('Create New CPT', 'artitechcore'),
             'icon' => '➕',
-            'description' => __('Create new custom post types manually', 'aiopms')
+            'description' => __('Create new custom post types manually', 'artitechcore')
         ),
         'templates' => array(
-            'title' => __('Templates & Presets', 'aiopms'),
+            'title' => __('Templates & Presets', 'artitechcore'),
             'icon' => '📋',
-            'description' => __('Use predefined CPT templates for common use cases', 'aiopms')
+            'description' => __('Use predefined CPT templates for common use cases', 'artitechcore')
         ),
         'bulk' => array(
-            'title' => __('Bulk Operations', 'aiopms'),
+            'title' => __('Bulk Operations', 'artitechcore'),
             'icon' => '⚡',
-            'description' => __('Perform bulk operations on multiple CPTs', 'aiopms')
+            'description' => __('Perform bulk operations on multiple CPTs', 'artitechcore')
         ),
         'import-export' => array(
-            'title' => __('Import/Export', 'aiopms'),
+            'title' => __('Import/Export', 'artitechcore'),
             'icon' => '📤',
-            'description' => __('Import and export CPT configurations', 'aiopms')
+            'description' => __('Import and export CPT configurations', 'artitechcore')
         ),
         'taxonomies' => array(
-            'title' => __('Manage Taxonomies', 'aiopms'),
+            'title' => __('Manage Taxonomies', 'artitechcore'),
             'icon' => '🏷️',
-            'description' => __('Create and manage custom taxonomies', 'aiopms')
+            'description' => __('Create and manage custom taxonomies', 'artitechcore')
         ),
         'settings' => array(
-            'title' => __('Settings', 'aiopms'),
+            'title' => __('Settings', 'artitechcore'),
             'icon' => '⚙️',
-            'description' => __('Configure custom post type settings', 'aiopms')
+            'description' => __('Configure custom post type settings', 'artitechcore')
         )
     );
     if (!$is_tab):
     ?>
-    <div class="wrap dg10-brand" id="aiopms-cpt-management">
+    <div class="wrap dg10-brand" id="artitechcore-cpt-management">
         <!-- Skip Link for Accessibility -->
-        <a href="#main-content" class="skip-link"><?php esc_html_e('Skip to main content', 'aiopms'); ?></a>
+        <a href="#main-content" class="skip-link"><?php esc_html_e('Skip to main content', 'artitechcore'); ?></a>
         
         <div class="dg10-main-layout">
             <!-- Admin Sidebar -->
-            <aside class="dg10-admin-sidebar" role="complementary" aria-label="<?php esc_attr_e('CPT Management Navigation', 'aiopms'); ?>">
+            <aside class="dg10-admin-sidebar" role="complementary" aria-label="<?php esc_attr_e('CPT Management Navigation', 'artitechcore'); ?>">
                 <div class="dg10-sidebar-header">
                     <div class="dg10-sidebar-title">
-                        <img src="<?php echo esc_url(AIOPMS_PLUGIN_URL . 'assets/images/logo.svg'); ?>" 
-                             alt="<?php esc_attr_e('AIOPMS Plugin Logo', 'aiopms'); ?>" 
+                        <img src="<?php echo esc_url(ArtitechCore_PLUGIN_URL . 'assets/images/logo.svg'); ?>" 
+                             alt="<?php esc_attr_e('ArtitechCore Plugin Logo', 'artitechcore'); ?>" 
                              style="width: 24px; height: 24px;">
-                        <?php esc_html_e('AIOPMS', 'aiopms'); ?>
+                        <?php esc_html_e('ArtitechCore', 'artitechcore'); ?>
                     </div>
-                    <p class="dg10-sidebar-subtitle"><?php esc_html_e('Custom Post Type Management', 'aiopms'); ?></p>
+                    <p class="dg10-sidebar-subtitle"><?php esc_html_e('Custom Post Type Management', 'artitechcore'); ?></p>
                 </div>
                 
-                <nav class="dg10-sidebar-nav" role="navigation" aria-label="<?php esc_attr_e('CPT Management Navigation', 'aiopms'); ?>">
+                <nav class="dg10-sidebar-nav" role="navigation" aria-label="<?php esc_attr_e('CPT Management Navigation', 'artitechcore'); ?>">
                     <ul role="list">
                     <?php foreach ($menu_items as $tab_key => $item): ?>
                             <li role="listitem">
-                                <a href="<?php echo esc_url(add_query_arg(array('page' => 'aiopms-cpt-management', 'tab' => $tab_key), admin_url('admin.php'))); ?>" 
+                                <a href="<?php echo esc_url(add_query_arg(array('page' => 'artitechcore-cpt-management', 'tab' => $tab_key), admin_url('admin.php'))); ?>" 
                                    class="dg10-sidebar-nav-item <?php echo $active_tab === $tab_key ? 'active' : ''; ?>"
                                    role="menuitem"
                                    aria-label="<?php echo esc_attr($item['title'] . ' - ' . $item['description']); ?>"
@@ -331,11 +332,11 @@ function aiopms_render_cpt_management_content($is_tab = false) {
             </aside>
             
             <!-- Main Content Area -->
-            <main class="dg10-main-content" role="main" aria-label="<?php esc_attr_e('Main Content Area', 'aiopms'); ?>" id="main-content">
+            <main class="dg10-main-content" role="main" aria-label="<?php esc_attr_e('Main Content Area', 'artitechcore'); ?>" id="main-content">
                 <article class="dg10-card">
     <?php else: ?>
-        <div class="aiopms-cpt-tab-navigator" style="margin-bottom: 24px;">
-            <div class="abpcwa-view-controls">
+        <div class="artitechcore-cpt-tab-navigator" style="margin-bottom: 24px;">
+            <div class="artitechcore-view-controls">
                 <?php foreach ($menu_items as $tab_key => $item): ?>
                     <a href="<?php echo esc_url(add_query_arg(array('tab' => 'cpt', 'cpt_subtab' => $tab_key))); ?>" 
                        class="button <?php echo $active_tab === $tab_key ? 'button-primary' : ''; ?>">
@@ -358,42 +359,42 @@ function aiopms_render_cpt_management_content($is_tab = false) {
                     
                     <div class="dg10-card-body">
                         <!-- Loading Overlay -->
-                        <div id="aiopms-loading-overlay" class="aiopms-loading-overlay" style="display: none;" aria-hidden="true">
-                            <div class="aiopms-loading-spinner">
+                        <div id="artitechcore-loading-overlay" class="artitechcore-loading-overlay" style="display: none;" aria-hidden="true">
+                            <div class="artitechcore-loading-spinner">
                                 <div class="spinner"></div>
-                                <p><?php esc_html_e('Processing...', 'aiopms'); ?></p>
+                                <p><?php esc_html_e('Processing...', 'artitechcore'); ?></p>
                             </div>
                         </div>
                         
                         <!-- Error/Success Messages -->
-                        <div id="aiopms-messages" class="aiopms-messages" role="status" aria-live="polite"></div>
+                        <div id="artitechcore-messages" class="artitechcore-messages" role="status" aria-live="polite"></div>
                         
                         <?php
                         // Route to appropriate tab content
                         switch ($active_tab) {
                             case 'list':
-                            aiopms_cpt_list_tab();
+                            artitechcore_cpt_list_tab();
                                 break;
                             case 'create':
-                            aiopms_cpt_create_tab();
+                            artitechcore_cpt_create_tab();
                                 break;
                             case 'templates':
-                                aiopms_cpt_templates_tab();
+                                artitechcore_cpt_templates_tab();
                                 break;
                             case 'bulk':
-                                aiopms_cpt_bulk_operations_tab();
+                                artitechcore_cpt_bulk_operations_tab();
                                 break;
                             case 'import-export':
-                                aiopms_cpt_import_export_tab();
+                                artitechcore_cpt_import_export_tab();
                                 break;
                             case 'taxonomies':
-                                aiopms_cpt_taxonomies_tab();
+                                artitechcore_cpt_taxonomies_tab();
                                 break;
                             case 'settings':
-                            aiopms_cpt_settings_tab();
+                            artitechcore_cpt_settings_tab();
                                 break;
                             default:
-                                aiopms_cpt_list_tab();
+                                artitechcore_cpt_list_tab();
                                 break;
                         }
                         ?>
@@ -412,72 +413,72 @@ function aiopms_render_cpt_management_content($is_tab = false) {
 /**
  * Enhanced CPT list tab with AJAX and better UX
  * 
- * @since 3.0
+ * @since 1.0
  */
-function aiopms_cpt_list_tab() {
-    $dynamic_cpts = get_option('aiopms_dynamic_cpts', array());
+function artitechcore_cpt_list_tab() {
+    $dynamic_cpts = get_option('artitechcore_dynamic_cpts', array());
     ?>
-    <div class="aiopms-cpt-list" id="cpt-list-container">
-        <div class="aiopms-cpt-list-header">
-            <div class="aiopms-search-filter">
-                <label for="cpt-search" class="screen-reader-text"><?php esc_html_e('Search CPTs', 'aiopms'); ?></label>
-                <input type="search" id="cpt-search" placeholder="<?php esc_attr_e('Search custom post types...', 'aiopms'); ?>" 
-                       class="aiopms-search-input" aria-label="<?php esc_attr_e('Search custom post types', 'aiopms'); ?>">
+    <div class="artitechcore-cpt-list" id="cpt-list-container">
+        <div class="artitechcore-cpt-list-header">
+            <div class="artitechcore-search-filter">
+                <label for="cpt-search" class="screen-reader-text"><?php esc_html_e('Search CPTs', 'artitechcore'); ?></label>
+                <input type="search" id="cpt-search" placeholder="<?php esc_attr_e('Search custom post types...', 'artitechcore'); ?>" 
+                       class="artitechcore-search-input" aria-label="<?php esc_attr_e('Search custom post types', 'artitechcore'); ?>">
                 
-                <select id="cpt-filter-status" aria-label="<?php esc_attr_e('Filter by status', 'aiopms'); ?>">
-                    <option value=""><?php esc_html_e('All Statuses', 'aiopms'); ?></option>
-                    <option value="active"><?php esc_html_e('Active', 'aiopms'); ?></option>
-                    <option value="inactive"><?php esc_html_e('Inactive', 'aiopms'); ?></option>
+                <select id="cpt-filter-status" aria-label="<?php esc_attr_e('Filter by status', 'artitechcore'); ?>">
+                    <option value=""><?php esc_html_e('All Statuses', 'artitechcore'); ?></option>
+                    <option value="active"><?php esc_html_e('Active', 'artitechcore'); ?></option>
+                    <option value="inactive"><?php esc_html_e('Inactive', 'artitechcore'); ?></option>
                 </select>
                 
                 <button type="button" class="dg10-btn dg10-btn-outline" id="refresh-cpt-list" 
-                        aria-label="<?php esc_attr_e('Refresh CPT list', 'aiopms'); ?>">
+                        aria-label="<?php esc_attr_e('Refresh CPT list', 'artitechcore'); ?>">
                     <span class="nav-icon">🔄</span>
-                    <?php esc_html_e('Refresh', 'aiopms'); ?>
+                    <?php esc_html_e('Refresh', 'artitechcore'); ?>
                 </button>
             </div>
             
-            <div class="aiopms-bulk-actions">
-                <select id="bulk-action-select" class="dg10-form-select" aria-label="<?php esc_attr_e('Bulk actions', 'aiopms'); ?>">
-                    <option value=""><?php esc_html_e('Bulk Actions', 'aiopms'); ?></option>
-                    <option value="activate"><?php esc_html_e('Activate', 'aiopms'); ?></option>
-                    <option value="deactivate"><?php esc_html_e('Deactivate', 'aiopms'); ?></option>
-                    <option value="export"><?php esc_html_e('Export', 'aiopms'); ?></option>
-                    <option value="delete"><?php esc_html_e('Delete', 'aiopms'); ?></option>
+            <div class="artitechcore-bulk-actions">
+                <select id="bulk-action-select" class="dg10-form-select" aria-label="<?php esc_attr_e('Bulk actions', 'artitechcore'); ?>">
+                    <option value=""><?php esc_html_e('Bulk Actions', 'artitechcore'); ?></option>
+                    <option value="activate"><?php esc_html_e('Activate', 'artitechcore'); ?></option>
+                    <option value="deactivate"><?php esc_html_e('Deactivate', 'artitechcore'); ?></option>
+                    <option value="export"><?php esc_html_e('Export', 'artitechcore'); ?></option>
+                    <option value="delete"><?php esc_html_e('Delete', 'artitechcore'); ?></option>
                 </select>
                 <button type="button" class="dg10-btn dg10-btn-primary" id="apply-bulk-action" disabled>
-                    <?php esc_html_e('Apply', 'aiopms'); ?>
+                    <?php esc_html_e('Apply', 'artitechcore'); ?>
                 </button>
             </div>
         </div>
         
         <?php if (empty($dynamic_cpts)): ?>
-            <div class="aiopms-empty-state">
-                <div class="aiopms-empty-state-icon">
+            <div class="artitechcore-empty-state">
+                <div class="artitechcore-empty-state-icon">
                     <span class="dashicons dashicons-admin-post" aria-hidden="true"></span>
                 </div>
-                <h3><?php esc_html_e('No Custom Post Types', 'aiopms'); ?></h3>
-                <p><?php esc_html_e('You haven\'t created any custom post types yet. Get started by creating your first CPT.', 'aiopms'); ?></p>
-                <div class="aiopms-empty-state-actions">
+                <h3><?php esc_html_e('No Custom Post Types', 'artitechcore'); ?></h3>
+                <p><?php esc_html_e('You haven\'t created any custom post types yet. Get started by creating your first CPT.', 'artitechcore'); ?></p>
+                <div class="artitechcore-empty-state-actions">
                     <a href="<?php echo esc_url(add_query_arg('tab', 'create')); ?>" class="button button-primary">
                         <span class="dashicons dashicons-plus-alt" aria-hidden="true"></span>
-                        <?php esc_html_e('Create New CPT', 'aiopms'); ?>
+                        <?php esc_html_e('Create New CPT', 'artitechcore'); ?>
                     </a>
                     <a href="<?php echo esc_url(add_query_arg('tab', 'templates')); ?>" class="button button-secondary">
                         <span class="dashicons dashicons-admin-page" aria-hidden="true"></span>
-                        <?php esc_html_e('Use Template', 'aiopms'); ?>
+                        <?php esc_html_e('Use Template', 'artitechcore'); ?>
                     </a>
                 </div>
             </div>
         <?php else: ?>
-            <div class="aiopms-cpt-grid" id="cpt-grid">
+            <div class="artitechcore-cpt-grid" id="cpt-grid">
                     <?php foreach ($dynamic_cpts as $post_type => $cpt_data): ?>
-                    <?php aiopms_render_cpt_card($post_type, $cpt_data); ?>
+                    <?php artitechcore_render_cpt_card($post_type, $cpt_data); ?>
                     <?php endforeach; ?>
             </div>
             
             <!-- Pagination -->
-            <div class="aiopms-pagination" id="cpt-pagination">
+            <div class="artitechcore-pagination" id="cpt-pagination">
                 <!-- Pagination will be populated via AJAX if needed -->
             </div>
         <?php endif; ?>
@@ -485,15 +486,15 @@ function aiopms_cpt_list_tab() {
     <script type="text/javascript">
     jQuery(document).ready(function($) {
         // Edit CPT
-        $(document).on('click', '.aiopms-action-btn[data-action="edit"]', function() {
+        $(document).on('click', '.artitechcore-action-btn[data-action="edit"]', function() {
             var cpt = $(this).data('cpt');
-            window.location.href = '<?php echo admin_url('admin.php?page=aiopms-cpt-management&tab=cpt&cpt_subtab=create&action=edit&cpt='); ?>' + cpt;
+            window.location.href = '<?php echo admin_url('admin.php?page=artitechcore-cpt-management&tab=cpt&cpt_subtab=create&action=edit&cpt='); ?>' + cpt;
         });
 
         // Duplicate CPT
-        $(document).on('click', '.aiopms-action-btn[data-action="duplicate"]', function() {
+        $(document).on('click', '.artitechcore-action-btn[data-action="duplicate"]', function() {
             var cpt = $(this).data('cpt');
-            if(!confirm('<?php echo esc_js(__('Duplicate this Custom Post Type?', 'aiopms')); ?>')) return;
+            if(!confirm('<?php echo esc_js(__('Duplicate this Custom Post Type?', 'artitechcore')); ?>')) return;
             
             var $btn = $(this);
             var $icon = $btn.find('.dashicons');
@@ -501,9 +502,9 @@ function aiopms_cpt_list_tab() {
             $icon.attr('class', 'dashicons dashicons-update-alt spin');
             
             $.post(ajaxurl, {
-                action: 'aiopms_handle_duplicate_cpt_ajax',
+                action: 'artitechcore_handle_duplicate_cpt_ajax',
                 cpt_slug: cpt,
-                nonce: '<?php echo wp_create_nonce("aiopms_cpt_ajax"); ?>'
+                nonce: '<?php echo wp_create_nonce("artitechcore_cpt_ajax"); ?>'
             }, function(response) {
                 if(response.success) {
                     location.reload();
@@ -515,26 +516,34 @@ function aiopms_cpt_list_tab() {
         });
 
         // Delete CPT
-        $(document).on('click', '.aiopms-action-btn[data-action="delete"]', function() {
+        $(document).on('click', '.artitechcore-action-btn[data-action="delete"]', function() {
             var cpt = $(this).data('cpt');
-            if(!confirm('<?php echo esc_js(__('Permanently delete this CPT? This cannot be undone.', 'aiopms')); ?>')) return;
-
             var $btn = $(this);
             var $icon = $btn.find('.dashicons');
             var originalClass = $icon.attr('class');
-            $icon.attr('class', 'dashicons dashicons-update-alt spin');
-
+            
             $.post(ajaxurl, {
-                action: 'aiopms_delete_cpt_ajax',
-                post_type: cpt,
-                nonce: '<?php echo wp_create_nonce("aiopms_cpt_ajax"); ?>'
-            }, function(response) {
-                if(response.success) {
-                    location.reload();
-                } else {
-                    alert(response.data || 'Error deleting CPT');
-                    $icon.attr('class', originalClass);
-                }
+                action: 'artitechcore_get_cpt_item_count',
+                post_types: [cpt],
+                nonce: '<?php echo wp_create_nonce("artitechcore_cpt_ajax"); ?>'
+            }, function(countResponse) {
+                var count = countResponse.success ? countResponse.data.count : 0;
+                if(!confirm('<?php echo esc_js(__('Are you sure you want to delete this CPT? This will permanently delete ALL ', 'artitechcore')); ?>' + count + '<?php echo esc_js(__(' posts of this type. This cannot be undone.', 'artitechcore')); ?>')) return;
+
+                $icon.attr('class', 'dashicons dashicons-update-alt spin');
+
+                $.post(ajaxurl, {
+                    action: 'artitechcore_delete_cpt_ajax',
+                    post_type: cpt,
+                    nonce: '<?php echo wp_create_nonce("artitechcore_cpt_ajax"); ?>'
+                }, function(response) {
+                    if(response.success) {
+                        location.reload();
+                    } else {
+                        alert(response.data || 'Error deleting CPT');
+                        $icon.attr('class', originalClass);
+                    }
+                });
             });
         });
 
@@ -555,20 +564,35 @@ function aiopms_cpt_list_tab() {
             if (!action || checked.length === 0) return;
             
             if (action === 'delete') {
-                if (!confirm('<?php echo esc_js(__('Permanently delete selected items?', 'aiopms')); ?>')) return;
+                $.post(ajaxurl, {
+                    action: 'artitechcore_get_cpt_item_count',
+                    post_types: checked,
+                    nonce: '<?php echo wp_create_nonce("artitechcore_cpt_ajax"); ?>'
+                }, function(countResponse) {
+                    var count = countResponse.success ? countResponse.data.count : 0;
+                    if (!confirm('<?php echo esc_js(__('Permanently delete selected items? This will delete ALL ', 'artitechcore')); ?>' + count + '<?php echo esc_js(__(' posts. This cannot be undone.', 'artitechcore')); ?>')) {
+                        return;
+                    }
+                    performBulkAction();
+                });
+                return;
             }
             
-            var $btn = $(this);
-            $btn.prop('disabled', true).text('<?php echo esc_js(__('Processing...', 'aiopms')); ?>');
+            function performBulkAction() {
+                var $btn = $('#apply-bulk-action');
+                $btn.prop('disabled', true).text('<?php echo esc_js(__('Processing...', 'artitechcore')); ?>');
+                
+                $.post(ajaxurl, {
+                    action: 'artitechcore_handle_bulk_cpt_operations_ajax',
+                    bulk_action: action,
+                    cpt_ids: checked,
+                    nonce: '<?php echo wp_create_nonce("artitechcore_cpt_ajax"); ?>'
+                }, function(response) {
+                   location.reload();
+                });
+            }
             
-            $.post(ajaxurl, {
-                action: 'aiopms_handle_bulk_cpt_operations_ajax',
-                bulk_action: action,
-                cpt_ids: checked,
-                nonce: '<?php echo wp_create_nonce("aiopms_cpt_ajax"); ?>'
-            }, function(response) {
-               location.reload();
-            });
+            performBulkAction();
         });
     });
     </script>
@@ -578,49 +602,49 @@ function aiopms_cpt_list_tab() {
 /**
  * Enhanced CPT create tab with AJAX support and better UX
  * 
- * @since 3.0
+ * @since 1.0
  */
-function aiopms_cpt_create_tab() {
+function artitechcore_cpt_create_tab() {
     ?>
-    <div class="aiopms-cpt-create">
-        <form id="aiopms-cpt-form" class="dg10-form" method="post" action="">
-            <?php wp_nonce_field('aiopms_create_manual_cpt'); ?>
+    <div class="artitechcore-cpt-create">
+        <form id="artitechcore-cpt-form" class="dg10-form" method="post" action="">
+            <?php wp_nonce_field('artitechcore_create_manual_cpt'); ?>
             
             <div class="dg10-form-section">
                 <div class="dg10-form-group">
-                    <label for="cpt_name" class="dg10-form-label"><?php esc_html_e('Post Type Slug', 'aiopms'); ?></label>
+                    <label for="cpt_name" class="dg10-form-label"><?php esc_html_e('Post Type Slug', 'artitechcore'); ?></label>
                     <input type="text" name="cpt_name" id="cpt_name" class="dg10-form-input" required 
-                           placeholder="<?php esc_attr_e('e.g., portfolio', 'aiopms'); ?>"
+                           placeholder="<?php esc_attr_e('e.g., portfolio', 'artitechcore'); ?>"
                            pattern="[a-z_][a-z0-9_]*" maxlength="20">
                     <p class="dg10-form-help">
-                        <?php esc_html_e('Lowercase, no spaces, use underscores. Max 20 characters.', 'aiopms'); ?>
+                        <?php esc_html_e('Lowercase, no spaces, use underscores. Max 20 characters.', 'artitechcore'); ?>
                     </p>
-                    <div class="aiopms-field-validation"></div>
+                    <div class="artitechcore-field-validation"></div>
                 </div>
 
                 <div class="dg10-form-group">
-                    <label for="cpt_label" class="dg10-form-label"><?php esc_html_e('Display Label', 'aiopms'); ?></label>
+                    <label for="cpt_label" class="dg10-form-label"><?php esc_html_e('Display Label', 'artitechcore'); ?></label>
                     <input type="text" name="cpt_label" id="cpt_label" class="dg10-form-input" required 
-                           placeholder="<?php esc_attr_e('e.g., Portfolio', 'aiopms'); ?>">
-                    <p class="dg10-form-help"><?php esc_html_e('Human-readable name for the post type.', 'aiopms'); ?></p>
-                    <div class="aiopms-field-validation"></div>
+                           placeholder="<?php esc_attr_e('e.g., Portfolio', 'artitechcore'); ?>">
+                    <p class="dg10-form-help"><?php esc_html_e('Human-readable name for the post type.', 'artitechcore'); ?></p>
+                    <div class="artitechcore-field-validation"></div>
                 </div>
 
                 <div class="dg10-form-group">
-                    <label for="cpt_description" class="dg10-form-label"><?php esc_html_e('Description', 'aiopms'); ?></label>
+                    <label for="cpt_description" class="dg10-form-label"><?php esc_html_e('Description', 'artitechcore'); ?></label>
                     <textarea name="cpt_description" id="cpt_description" rows="3" class="dg10-form-textarea" 
-                              placeholder="<?php esc_attr_e('Brief description of what this post type is for', 'aiopms'); ?>"></textarea>
+                              placeholder="<?php esc_attr_e('Brief description of what this post type is for', 'artitechcore'); ?>"></textarea>
                 </div>
 
                 <div class="dg10-form-group">
-                    <label for="cpt_menu_icon" class="dg10-form-label"><?php esc_html_e('Menu Icon', 'aiopms'); ?></label>
-                    <div class="aiopms-icon-selector">
+                    <label for="cpt_menu_icon" class="dg10-form-label"><?php esc_html_e('Menu Icon', 'artitechcore'); ?></label>
+                    <div class="artitechcore-icon-selector">
                         <input type="text" name="cpt_menu_icon" id="cpt_menu_icon" class="dg10-form-input" 
                                value="dashicons-admin-post">
                         <p class="dg10-form-help">
                             <?php 
                             printf(
-                                esc_html__('Enter a %s (e.g., dashicons-portfolio).', 'aiopms'),
+                                esc_html__('Enter a %s (e.g., dashicons-portfolio).', 'artitechcore'),
                                 '<a href="https://developer.wordpress.org/resource/dashicons/" target="_blank">Dashicon class</a>'
                             ); 
                             ?>
@@ -631,25 +655,25 @@ function aiopms_cpt_create_tab() {
                 <div class="dg10-form-group">
                     <label class="dg10-checkbox-label">
                         <input type="checkbox" name="cpt_hierarchical" id="cpt_hierarchical">
-                        <span><?php esc_html_e('Hierarchical', 'aiopms'); ?></span>
-                        <small><?php esc_html_e('(Like Pages, allowing parents)', 'aiopms'); ?></small>
+                        <span><?php esc_html_e('Hierarchical', 'artitechcore'); ?></span>
+                        <small><?php esc_html_e('(Like Pages, allowing parents)', 'artitechcore'); ?></small>
                     </label>
                 </div>
             </div>
             
-            <div class="aiopms-field-builder dg10-card" style="margin-top: 40px;">
-                <div class="aiopms-field-builder-header dg10-card-header" style="padding: 20px 32px;">
-                    <h3 class="aiopms-field-builder-title" style="margin: 0;"><?php esc_html_e('Custom Meta Fields', 'aiopms'); ?></h3>
-                    <button type="button" class="dg10-btn dg10-btn-outline aiopms-add-field-btn" style="box-shadow: none !important; background: #fff !important; color: #8B5CF6 !important;">
+            <div class="artitechcore-field-builder dg10-card" style="margin-top: 40px;">
+                <div class="artitechcore-field-builder-header dg10-card-header" style="padding: 20px 32px;">
+                    <h3 class="artitechcore-field-builder-title" style="margin: 0;"><?php esc_html_e('Custom Meta Fields', 'artitechcore'); ?></h3>
+                    <button type="button" class="dg10-btn dg10-btn-outline artitechcore-add-field-btn" style="box-shadow: none !important; background: #fff !important; color: #8B5CF6 !important;">
                         <span class="nav-icon">➕</span>
-                        <?php esc_html_e('Add New Field', 'aiopms'); ?>
+                        <?php esc_html_e('Add New Field', 'artitechcore'); ?>
                     </button>
                 </div>
                 
-                <div id="custom-fields-container" class="aiopms-field-rows">
+                <div id="custom-fields-container" class="artitechcore-field-rows">
                     <!-- Dynamic fields will be added here via JS -->
-                    <div class="aiopms-empty-builder-state" style="padding: 40px; text-align: center; color: var(--dg10-text-secondary);">
-                        <p><?php esc_html_e('No custom fields added yet. Click "Add New Field" to begin.', 'aiopms'); ?></p>
+                    <div class="artitechcore-empty-builder-state" style="padding: 40px; text-align: center; color: var(--dg10-text-secondary);">
+                        <p><?php esc_html_e('No custom fields added yet. Click "Add New Field" to begin.', 'artitechcore'); ?></p>
                     </div>
                 </div>
             </div>
@@ -657,7 +681,7 @@ function aiopms_cpt_create_tab() {
             <div class="dg10-form-actions">
                 <button type="submit" class="dg10-btn dg10-btn-primary">
                     <span class="nav-icon">🚀</span>
-                    <?php esc_html_e('Create Custom Post Type', 'aiopms'); ?>
+                    <?php esc_html_e('Create Custom Post Type', 'artitechcore'); ?>
                 </button>
             </div>
         </form>
@@ -669,18 +693,18 @@ function aiopms_cpt_create_tab() {
         var cpt = urlParams.get('cpt');
         
         if (action === 'edit' && cpt) {
-            $('button[type="submit"]').html('<span class="nav-icon">💾</span> <?php esc_html_e("Update Custom Post Type", "aiopms"); ?>');
+            $('button[type="submit"]').html('<span class="nav-icon">💾</span> <?php esc_html_e("Update Custom Post Type", "artitechcore"); ?>');
             $('#cpt_name').val(cpt).prop('readonly', true).addClass('disabled');
             
             // Add hidden field to signal update
             if ($('input[name="is_update"]').length === 0) {
-                 $('<input>').attr({type: 'hidden', name: 'is_update', value: '1'}).appendTo('#aiopms-cpt-form');
+                 $('<input>').attr({type: 'hidden', name: 'is_update', value: '1'}).appendTo('#artitechcore-cpt-form');
             }
 
             $.post(ajaxurl, {
-                action: 'aiopms_get_cpt_data_ajax',
+                action: 'artitechcore_get_cpt_data_ajax',
                 post_type: cpt,
-                nonce: '<?php echo wp_create_nonce("aiopms_cpt_ajax"); ?>'
+                nonce: '<?php echo wp_create_nonce("artitechcore_cpt_ajax"); ?>'
             }, function(response) {
                 if (response.success) {
                     var data = response.data;
@@ -694,7 +718,7 @@ function aiopms_cpt_create_tab() {
                         $('#custom-fields-container').empty();
                         
                         data.custom_fields.forEach(function(field) {
-                            $('.aiopms-add-field-btn').trigger('click');
+                            $('.artitechcore-add-field-btn').trigger('click');
                             var $row = $('.custom-field-row').last();
                             $row.find('.field-name-input').val(field.name);
                             $row.find('input[name$="[label]"]').val(field.label);
@@ -717,9 +741,9 @@ function aiopms_cpt_create_tab() {
 }
 
 // CPT settings tab
-function aiopms_cpt_settings_tab() {
+function artitechcore_cpt_settings_tab() {
     // Handle settings save
-    if (isset($_POST['save_cpt_settings']) && isset($_POST['_wpnonce']) && wp_verify_nonce(sanitize_key($_POST['_wpnonce']), 'aiopms_save_cpt_settings')) {
+    if (isset($_POST['save_cpt_settings']) && isset($_POST['_wpnonce']) && wp_verify_nonce(sanitize_key($_POST['_wpnonce']), 'artitechcore_save_cpt_settings')) {
         $settings = array(
             'auto_schema_generation' => isset($_POST['auto_schema_generation']),
             'include_in_menus' => isset($_POST['include_in_menus']),
@@ -727,11 +751,11 @@ function aiopms_cpt_settings_tab() {
             'auto_generate_sample_content' => isset($_POST['auto_generate_sample_content'])
         );
         
-        update_option('aiopms_cpt_settings', $settings);
+        update_option('artitechcore_cpt_settings', $settings);
         echo '<div class="notice notice-success"><p>Settings saved successfully!</p></div>';
     }
     
-    $settings = get_option('aiopms_cpt_settings', array(
+    $settings = get_option('artitechcore_cpt_settings', array(
         'auto_schema_generation' => true,
         'include_in_menus' => true,
         'include_in_hierarchy' => true,
@@ -739,11 +763,11 @@ function aiopms_cpt_settings_tab() {
     ));
     
     ?>
-    <div class="aiopms-cpt-settings">
-        <p>Configure how custom post types integrate with other AIOPMS features.</p>
+    <div class="artitechcore-cpt-settings">
+        <p>Configure how custom post types integrate with other ArtitechCore features.</p>
         
         <form method="post" action="">
-            <?php wp_nonce_field('aiopms_save_cpt_settings'); ?>
+            <?php wp_nonce_field('artitechcore_save_cpt_settings'); ?>
             
             <table class="form-table">
                 <tr>
@@ -791,7 +815,7 @@ function aiopms_cpt_settings_tab() {
             <div class="dg10-form-actions">
                 <button type="submit" name="save_cpt_settings" class="dg10-btn dg10-btn-primary">
                     <span class="nav-icon">💾</span>
-                    <?php esc_html_e('Save Settings', 'aiopms'); ?>
+                    <?php esc_html_e('Save Settings', 'artitechcore'); ?>
                 </button>
             </div>
         </form>
@@ -800,10 +824,10 @@ function aiopms_cpt_settings_tab() {
 }
 
 // Register REST API endpoints for CPT data
-function aiopms_register_cpt_rest_endpoints() {
-    register_rest_route('aiopms/v1', '/cpts', array(
+function artitechcore_register_cpt_rest_endpoints() {
+    register_rest_route('artitechcore/v1', '/cpts', array(
         'methods' => 'GET',
-        'callback' => 'aiopms_get_cpts_rest_data',
+        'callback' => 'artitechcore_get_cpts_rest_data',
         'permission_callback' => function() {
             return current_user_can('manage_options');
         }
@@ -811,8 +835,8 @@ function aiopms_register_cpt_rest_endpoints() {
 }
 
 // Get CPTs data for REST API
-function aiopms_get_cpts_rest_data($request) {
-    $dynamic_cpts = get_option('aiopms_dynamic_cpts', []);
+function artitechcore_get_cpts_rest_data($request) {
+    $dynamic_cpts = get_option('artitechcore_dynamic_cpts', []);
     $cpt_data = array();
     
     foreach ($dynamic_cpts as $post_type => $cpt_info) {
@@ -843,13 +867,13 @@ function aiopms_get_cpts_rest_data($request) {
 }
 
 // Add CPT data to hierarchy export
-function aiopms_add_cpt_to_hierarchy_export($data) {
-    $settings = get_option('aiopms_cpt_settings', array());
+function artitechcore_add_cpt_to_hierarchy_export($data) {
+    $settings = get_option('artitechcore_cpt_settings', array());
     if (!isset($settings['include_in_hierarchy']) || !$settings['include_in_hierarchy']) {
         return $data;
     }
     
-    $dynamic_cpts = get_option('aiopms_dynamic_cpts', []);
+    $dynamic_cpts = get_option('artitechcore_dynamic_cpts', []);
     
     foreach ($dynamic_cpts as $post_type => $cpt_info) {
         $posts = get_posts(array(
@@ -874,13 +898,13 @@ function aiopms_add_cpt_to_hierarchy_export($data) {
 }
 
 // Add CPT archives to menu generation
-function aiopms_add_cpt_archives_to_menus($pages) {
-    $settings = get_option('aiopms_cpt_settings', array());
+function artitechcore_add_cpt_archives_to_menus($pages) {
+    $settings = get_option('artitechcore_cpt_settings', array());
     if (!isset($settings['include_in_menus']) || !$settings['include_in_menus']) {
         return $pages;
     }
     
-    $dynamic_cpts = get_option('aiopms_dynamic_cpts', []);
+    $dynamic_cpts = get_option('artitechcore_dynamic_cpts', []);
     
     foreach ($dynamic_cpts as $post_type => $cpt_info) {
         $archive_url = get_post_type_archive_link($post_type);
@@ -898,13 +922,13 @@ function aiopms_add_cpt_archives_to_menus($pages) {
 }
 
 // Generate schema markup for custom post types
-function aiopms_generate_cpt_schema($post_id, $post) {
-    $settings = get_option('aiopms_cpt_settings', array());
+function artitechcore_generate_cpt_schema($post_id, $post) {
+    $settings = get_option('artitechcore_cpt_settings', array());
     if (!isset($settings['auto_schema_generation']) || !$settings['auto_schema_generation']) {
         return;
     }
     
-    $dynamic_cpts = get_option('aiopms_dynamic_cpts', []);
+    $dynamic_cpts = get_option('artitechcore_dynamic_cpts', []);
     $post_type = $post->post_type;
     
     if (!isset($dynamic_cpts[$post_type])) {
@@ -935,7 +959,7 @@ function aiopms_generate_cpt_schema($post_id, $post) {
     }
     
     // Add schema to post meta
-    update_post_meta($post_id, '_aiopms_schema_markup', $schema);
+    update_post_meta($post_id, '_artitechcore_schema_markup', $schema);
 }
 
 /**
@@ -943,7 +967,7 @@ function aiopms_generate_cpt_schema($post_id, $post) {
  */
 
 // Validate CPT data structure and content
-function aiopms_validate_cpt_data($cpt_data) {
+function artitechcore_validate_cpt_data($cpt_data) {
     if (!is_array($cpt_data)) return false;
     
     // Required fields
@@ -968,7 +992,7 @@ function aiopms_validate_cpt_data($cpt_data) {
 
     // Check conflict with existing non-dynamic post types (only for new registrations)
     // We can't easily distinguish new vs edit here without context, but we can check if it exists and is NOT in our dynamic list
-    if (post_type_exists($post_type) && !aiopms_is_dynamic_cpt($post_type)) {
+    if (post_type_exists($post_type) && !artitechcore_is_dynamic_cpt($post_type)) {
         return false;
     }
     
@@ -976,7 +1000,7 @@ function aiopms_validate_cpt_data($cpt_data) {
 }
 
 // Validate field data structure
-function aiopms_validate_field_data($field) {
+function artitechcore_validate_field_data($field) {
     if (!is_array($field)) return false;
     if (empty($field['name']) || empty($field['label']) || empty($field['type'])) return false;
     
@@ -987,7 +1011,7 @@ function aiopms_validate_field_data($field) {
 }
 
 // Sanitize CPT data for storage
-function aiopms_sanitize_cpt_data($cpt_data) {
+function artitechcore_sanitize_cpt_data($cpt_data) {
     $sanitized = array(
         'name' => sanitize_key($cpt_data['name']),
         'label' => sanitize_text_field($cpt_data['label']),
@@ -1001,7 +1025,7 @@ function aiopms_sanitize_cpt_data($cpt_data) {
     
     if (!empty($cpt_data['custom_fields']) && is_array($cpt_data['custom_fields'])) {
         foreach ($cpt_data['custom_fields'] as $field) {
-            if (aiopms_validate_field_data($field)) {
+            if (artitechcore_validate_field_data($field)) {
                 $sanitized['custom_fields'][] = array(
                     'name' => sanitize_key($field['name']),
                     'label' => sanitize_text_field($field['label']),
@@ -1018,7 +1042,7 @@ function aiopms_sanitize_cpt_data($cpt_data) {
 }
 
 // Sanitize field values based on field type
-function aiopms_sanitize_field_value($value, $field_type) {
+function artitechcore_sanitize_field_value($value, $field_type) {
     switch ($field_type) {
         case 'textarea':
         case 'wysiwyg':
@@ -1039,7 +1063,7 @@ function aiopms_sanitize_field_value($value, $field_type) {
 }
 
 // Validate field values
-function aiopms_validate_field_value($value, $field_config) {
+function artitechcore_validate_field_value($value, $field_config) {
     switch ($field_config['type']) {
         case 'url':
             return empty($value) || filter_var($value, FILTER_VALIDATE_URL);
@@ -1056,23 +1080,23 @@ function aiopms_validate_field_value($value, $field_config) {
 }
 
 // Check user capabilities for CPT management
-function aiopms_check_cpt_management_capabilities() {
-    if (is_admin() && isset($_GET['page']) && $_GET['page'] === 'aiopms-cpt-management') {
+function artitechcore_check_cpt_management_capabilities() {
+    if (is_admin() && isset($_GET['page']) && $_GET['page'] === 'artitechcore-cpt-management') {
         if (!current_user_can('manage_options')) {
-            wp_die(__('You do not have sufficient permissions to access this page.', 'aiopms'));
+            wp_die(__('You do not have sufficient permissions to access this page.', 'artitechcore'));
         }
     }
 }
 
 // Clear CPT cache when options are updated
-function aiopms_clear_cpt_cache($option_name, $old_value, $value) {
-    if ($option_name === 'aiopms_dynamic_cpts') {
-        wp_cache_delete('aiopms_dynamic_cpts', 'aiopms_cpt_cache');
+function artitechcore_clear_cpt_cache($option_name, $old_value, $value) {
+    if ($option_name === 'artitechcore_dynamic_cpts') {
+        wp_cache_delete('artitechcore_dynamic_cpts', 'artitechcore_cpt_cache');
     }
 }
 
 // Log CPT activities for debugging and monitoring
-function aiopms_log_cpt_activity($action, $post_type, $success, $error_message = '') {
+function artitechcore_log_cpt_activity($action, $post_type, $success, $error_message = '') {
     $log_entry = array(
         'timestamp' => current_time('mysql'),
         'action' => $action,
@@ -1082,7 +1106,7 @@ function aiopms_log_cpt_activity($action, $post_type, $success, $error_message =
         'error_message' => $error_message
     );
     
-    $logs = get_option('aiopms_cpt_logs', array());
+    $logs = get_option('artitechcore_cpt_logs', array());
     $logs[] = $log_entry;
     
     // Keep only last 100 log entries
@@ -1090,19 +1114,19 @@ function aiopms_log_cpt_activity($action, $post_type, $success, $error_message =
         $logs = array_slice($logs, -100);
     }
     
-    update_option('aiopms_cpt_logs', $logs);
+    update_option('artitechcore_cpt_logs', $logs);
 }
 
 /**
  * Enhanced custom field registration with security
  */
-function aiopms_register_custom_fields($post_type, $fields) {
+function artitechcore_register_custom_fields($post_type, $fields) {
     if (empty($fields) || !is_array($fields)) {
-        return new WP_Error('invalid_fields', __('Invalid fields data provided', 'aiopms'));
+        return new WP_Error('invalid_fields', __('Invalid fields data provided', 'artitechcore'));
     }
     
     foreach ($fields as $field) {
-        if (!aiopms_validate_field_data($field)) {
+        if (!artitechcore_validate_field_data($field)) {
             continue;
         }
         
@@ -1130,22 +1154,22 @@ function aiopms_register_custom_fields($post_type, $fields) {
                 return get_post_meta($post['id'], $field_name, true);
             },
             'update_callback' => function($value, $post) use ($field_name, $field_config) {
-                return update_post_meta($post->ID, $field_name, aiopms_sanitize_field_value($value, $field_config['type']));
+                return update_post_meta($post->ID, $field_name, artitechcore_sanitize_field_value($value, $field_config['type']));
             },
-            'schema' => aiopms_get_field_schema($field_config['type']),
+            'schema' => artitechcore_get_field_schema($field_config['type']),
         ));
         
         // Store field configuration
-        $existing_fields = get_option('aiopms_custom_fields', array());
+        $existing_fields = get_option('artitechcore_custom_fields', array());
         $existing_fields[$post_type][$field_name] = $field_config;
-        update_option('aiopms_custom_fields', $existing_fields);
+        update_option('artitechcore_custom_fields', $existing_fields);
     }
     
     return true;
 }
 
 // Get field schema for REST API
-function aiopms_get_field_schema($field_type) {
+function artitechcore_get_field_schema($field_type) {
     $schemas = array(
         'text' => array('type' => 'string'),
         'textarea' => array('type' => 'string'),
@@ -1162,19 +1186,19 @@ function aiopms_get_field_schema($field_type) {
 }
 
 // Helper function to get all dynamic CPTs
-function aiopms_get_dynamic_cpts() {
-    return get_option('aiopms_dynamic_cpts', []);
+function artitechcore_get_dynamic_cpts() {
+    return get_option('artitechcore_dynamic_cpts', []);
 }
 
 // Helper function to check if a post type is dynamic
-function aiopms_is_dynamic_cpt($post_type) {
-    $dynamic_cpts = get_option('aiopms_dynamic_cpts', []);
+function artitechcore_is_dynamic_cpt($post_type) {
+    $dynamic_cpts = get_option('artitechcore_dynamic_cpts', []);
     return isset($dynamic_cpts[$post_type]);
 }
 
 // Helper function to get CPT info
-function aiopms_get_cpt_info($post_type) {
-    $dynamic_cpts = get_option('aiopms_dynamic_cpts', []);
+function artitechcore_get_cpt_info($post_type) {
+    $dynamic_cpts = get_option('artitechcore_dynamic_cpts', []);
     return isset($dynamic_cpts[$post_type]) ? $dynamic_cpts[$post_type] : null;
 }
 
@@ -1183,12 +1207,12 @@ function aiopms_get_cpt_info($post_type) {
  * 
  * @param array $form_data Form submission data
  * @return bool|WP_Error Success status or error object
- * @since 3.0
+ * @since 1.0
  */
-function aiopms_process_cpt_creation($form_data) {
+function artitechcore_process_cpt_creation($form_data) {
     // Security check
     if (!current_user_can('manage_options')) {
-        return new WP_Error('insufficient_permissions', __('You do not have permission to create custom post types.', 'aiopms'));
+        return new WP_Error('insufficient_permissions', __('You do not have permission to create custom post types.', 'artitechcore'));
     }
     
     $cpt_data = array(
@@ -1216,60 +1240,87 @@ function aiopms_process_cpt_creation($form_data) {
         }
     }
     
-    return aiopms_register_dynamic_custom_post_type($cpt_data);
+    return artitechcore_register_dynamic_custom_post_type($cpt_data);
 }
 
 /**
  * AJAX handler for CPT creation
  * 
- * @since 3.0
+ * @since 1.0
  */
-function aiopms_handle_cpt_creation_ajax() {
+function artitechcore_handle_cpt_creation_ajax() {
     // Security checks
-    check_ajax_referer('aiopms_cpt_ajax', 'nonce');
+    check_ajax_referer('artitechcore_cpt_ajax', 'nonce');
     
     if (!current_user_can('manage_options')) {
-        wp_send_json_error(__('You do not have permission to create custom post types.', 'aiopms'));
+        wp_send_json_error(__('You do not have permission to create custom post types.', 'artitechcore'));
     }
     
-    $result = aiopms_process_cpt_creation($_POST);
+    $result = artitechcore_process_cpt_creation($_POST);
     
     if (is_wp_error($result)) {
         wp_send_json_error($result->get_error_message());
     } else {
         wp_send_json_success(array(
-            'message' => __('Custom post type created successfully!', 'aiopms'),
+            'message' => __('Custom post type created successfully!', 'artitechcore'),
             'cpt_data' => $_POST
         ));
     }
 }
 
 /**
- * AJAX handler for CPT deletion
+ * AJAX handler to get post count for one or more CPTs
  * 
- * @since 3.0
+ * @since 1.0
  */
-function aiopms_handle_cpt_deletion_ajax() {
-    // Security checks
-    check_ajax_referer('aiopms_cpt_ajax', 'nonce');
+function artitechcore_handle_get_cpt_item_count_ajax() {
+    check_ajax_referer('artitechcore_cpt_ajax', 'nonce');
     
     if (!current_user_can('manage_options')) {
-        wp_send_json_error(__('You do not have permission to delete custom post types.', 'aiopms'));
+        wp_send_json_error(__('Unauthorized access', 'artitechcore'));
+    }
+    
+    $post_types = isset($_POST['post_types']) ? (array) $_POST['post_types'] : array();
+    
+    if (empty($post_types)) {
+        wp_send_json_error(__('No post types specified', 'artitechcore'));
+    }
+    
+    $total_count = 0;
+    foreach ($post_types as $post_type) {
+        $counts = wp_count_posts(sanitize_key($post_type));
+        $total_count += array_sum((array) $counts);
+    }
+    
+    wp_send_json_success(array('count' => $total_count));
+}
+
+/**
+ * AJAX handler for CPT deletion
+ * 
+ * @since 1.0
+ */
+function artitechcore_handle_cpt_deletion_ajax() {
+    // Security checks
+    check_ajax_referer('artitechcore_cpt_ajax', 'nonce');
+    
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error(__('You do not have permission to delete custom post types.', 'artitechcore'));
     }
     
     $post_type = sanitize_key($_POST['post_type'] ?? '');
     
     if (empty($post_type)) {
-        wp_send_json_error(__('Invalid post type specified.', 'aiopms'));
+        wp_send_json_error(__('Invalid post type specified.', 'artitechcore'));
     }
     
-    $result = aiopms_delete_custom_post_type($post_type);
+    $result = artitechcore_delete_custom_post_type($post_type);
     
     if (is_wp_error($result)) {
         wp_send_json_error($result->get_error_message());
     } else {
         wp_send_json_success(array(
-            'message' => __('Custom post type deleted successfully!', 'aiopms')
+            'message' => __('Custom post type deleted successfully!', 'artitechcore')
         ));
     }
 }
@@ -1277,25 +1328,25 @@ function aiopms_handle_cpt_deletion_ajax() {
 /**
  * AJAX handler for duplicating a CPT
  * 
- * @since 3.0
+ * @since 1.0
  */
-function aiopms_handle_duplicate_cpt_ajax() {
-    check_ajax_referer('aiopms_cpt_ajax', 'nonce');
+function artitechcore_handle_duplicate_cpt_ajax() {
+    check_ajax_referer('artitechcore_cpt_ajax', 'nonce');
     
     if (!current_user_can('manage_options')) {
-        wp_send_json_error(__('Insufficient permissions.', 'aiopms'));
+        wp_send_json_error(__('Insufficient permissions.', 'artitechcore'));
     }
     
     $cpt_slug = sanitize_key($_POST['cpt_slug'] ?? '');
     
     if (empty($cpt_slug)) {
-        wp_send_json_error(__('Invalid CPT slug.', 'aiopms'));
+        wp_send_json_error(__('Invalid CPT slug.', 'artitechcore'));
     }
     
-    $dynamic_cpts = get_option('aiopms_dynamic_cpts', array());
+    $dynamic_cpts = get_option('artitechcore_dynamic_cpts', array());
     
     if (!isset($dynamic_cpts[$cpt_slug])) {
-        wp_send_json_error(__('Custom post type not found.', 'aiopms'));
+        wp_send_json_error(__('Custom post type not found.', 'artitechcore'));
     }
     
     $original_cpt = $dynamic_cpts[$cpt_slug];
@@ -1310,18 +1361,18 @@ function aiopms_handle_duplicate_cpt_ajax() {
     }
     
     $new_cpt['name'] = $new_slug;
-    $new_cpt['label'] = $original_cpt['label'] . ' ' . __('(Copy)', 'aiopms');
+    $new_cpt['label'] = $original_cpt['label'] . ' ' . __('(Copy)', 'artitechcore');
     
-    $result = aiopms_register_dynamic_custom_post_type($new_cpt);
+    $result = artitechcore_register_dynamic_custom_post_type($new_cpt);
     
     if (is_wp_error($result)) {
         wp_send_json_error($result->get_error_message());
     }
     
-    aiopms_log_cpt_activity('duplicate', $new_slug, true);
+    artitechcore_log_cpt_activity('duplicate', $new_slug, true);
     
     wp_send_json_success(array(
-        'message' => __('Custom post type duplicated successfully!', 'aiopms'),
+        'message' => __('Custom post type duplicated successfully!', 'artitechcore'),
         'new_slug' => $new_slug
     ));
 }
@@ -1331,19 +1382,19 @@ function aiopms_handle_duplicate_cpt_ajax() {
  * 
  * @param string $post_type Post type slug to delete
  * @return bool|WP_Error Success status or error object
- * @since 3.0
+ * @since 1.0
  */
-function aiopms_delete_custom_post_type($post_type) {
+function artitechcore_delete_custom_post_type($post_type) {
     $post_type = sanitize_key($post_type);
     
     if (empty($post_type)) {
-        return new WP_Error('invalid_post_type', __('Invalid post type specified.', 'aiopms'));
+        return new WP_Error('invalid_post_type', __('Invalid post type specified.', 'artitechcore'));
     }
     
-    $dynamic_cpts = get_option('aiopms_dynamic_cpts', array());
+    $dynamic_cpts = get_option('artitechcore_dynamic_cpts', array());
     
     if (!isset($dynamic_cpts[$post_type])) {
-        return new WP_Error('cpt_not_found', __('Custom post type not found.', 'aiopms'));
+        return new WP_Error('cpt_not_found', __('Custom post type not found.', 'artitechcore'));
     }
     
     // Check if there are any posts of this type
@@ -1367,20 +1418,20 @@ function aiopms_delete_custom_post_type($post_type) {
     
     // Remove from stored CPTs
     unset($dynamic_cpts[$post_type]);
-    update_option('aiopms_dynamic_cpts', $dynamic_cpts);
+    update_option('artitechcore_dynamic_cpts', $dynamic_cpts);
     
     // Remove custom fields configuration
-    $custom_fields = get_option('aiopms_custom_fields', array());
+    $custom_fields = get_option('artitechcore_custom_fields', array());
     if (isset($custom_fields[$post_type])) {
         unset($custom_fields[$post_type]);
-        update_option('aiopms_custom_fields', $custom_fields);
+        update_option('artitechcore_custom_fields', $custom_fields);
     }
     
     // Clear cache
-    wp_cache_delete('aiopms_dynamic_cpts', 'aiopms_cpt_cache');
+    wp_cache_delete('artitechcore_dynamic_cpts', 'artitechcore_cpt_cache');
     
     // Log activity
-    aiopms_log_cpt_activity('delete', $post_type, true);
+    artitechcore_log_cpt_activity('delete', $post_type, true);
     
     return true;
 }
@@ -1388,18 +1439,18 @@ function aiopms_delete_custom_post_type($post_type) {
 /**
  * Add custom field meta boxes with proper security and validation
  * 
- * @since 3.0
+ * @since 1.0
  */
-function aiopms_add_custom_field_meta_boxes() {
-    $custom_fields = get_option('aiopms_custom_fields', array());
+function artitechcore_add_custom_field_meta_boxes() {
+    $custom_fields = get_option('artitechcore_custom_fields', array());
     
     foreach ($custom_fields as $post_type => $fields) {
         if (post_type_exists($post_type)) {
             foreach ($fields as $field_name => $field_config) {
                 add_meta_box(
-                    'aiopms_' . $field_name,
+                    'artitechcore_' . $field_name,
                     $field_config['label'],
-                    'aiopms_render_custom_field_meta_box',
+                    'artitechcore_render_custom_field_meta_box',
                     $post_type,
                     'normal',
                     'high',
@@ -1415,9 +1466,9 @@ function aiopms_add_custom_field_meta_boxes() {
  * 
  * @param WP_Post $post Current post object
  * @param array $metabox Metabox configuration
- * @since 3.0
+ * @since 1.0
  */
-function aiopms_render_custom_field_meta_box($post, $metabox) {
+function artitechcore_render_custom_field_meta_box($post, $metabox) {
     $field_config = $metabox['args']['field_config'];
     $field_name = $field_config['name'];
     $field_type = $field_config['type'];
@@ -1428,10 +1479,10 @@ function aiopms_render_custom_field_meta_box($post, $metabox) {
     
     $value = get_post_meta($post->ID, $field_name, true);
     $required_attr = $field_required ? 'required aria-required="true"' : '';
-    $field_id = 'aiopms_' . $field_name;
+    $field_id = 'artitechcore_' . $field_name;
     
     // Add nonce for security
-    wp_nonce_field('aiopms_save_custom_fields_' . $post->ID, 'aiopms_custom_fields_nonce');
+    wp_nonce_field('artitechcore_save_custom_fields_' . $post->ID, 'artitechcore_custom_fields_nonce');
     
     ?>
     <table class="form-table" role="presentation">
@@ -1440,12 +1491,12 @@ function aiopms_render_custom_field_meta_box($post, $metabox) {
                 <label for="<?php echo esc_attr($field_id); ?>">
                     <?php echo esc_html($field_label); ?>
                     <?php if ($field_required): ?>
-                        <span class="required" aria-label="<?php esc_attr_e('Required field', 'aiopms'); ?>">*</span>
+                        <span class="required" aria-label="<?php esc_attr_e('Required field', 'artitechcore'); ?>">*</span>
                     <?php endif; ?>
                 </label>
             </th>
             <td>
-                <?php aiopms_render_field_input($field_id, $field_name, $field_type, $value, $field_options, $required_attr, $field_description); ?>
+                <?php artitechcore_render_field_input($field_id, $field_name, $field_type, $value, $field_options, $required_attr, $field_description); ?>
                 
                 <?php if (!empty($field_description)): ?>
                     <p class="description" id="<?php echo esc_attr($field_id . '_desc'); ?>">
@@ -1453,7 +1504,7 @@ function aiopms_render_custom_field_meta_box($post, $metabox) {
                     </p>
                 <?php endif; ?>
                 
-                <div class="aiopms-field-validation" id="<?php echo esc_attr($field_id . '_validation'); ?>" 
+                <div class="artitechcore-field-validation" id="<?php echo esc_attr($field_id . '_validation'); ?>" 
                      style="display: none;" role="alert" aria-live="polite"></div>
             </td>
         </tr>
@@ -1471,9 +1522,9 @@ function aiopms_render_custom_field_meta_box($post, $metabox) {
  * @param array $options Field options for select/radio fields
  * @param string $required_attr Required attribute string
  * @param string $field_description Field description for aria-describedby
- * @since 3.0
+ * @since 1.0
  */
-function aiopms_render_field_input($field_id, $field_name, $field_type, $value, $options = array(), $required_attr = '', $field_description = '') {
+function artitechcore_render_field_input($field_id, $field_name, $field_type, $value, $options = array(), $required_attr = '', $field_description = '') {
     $aria_describedby = !empty($field_description) ? 'aria-describedby="' . esc_attr($field_id . '_desc') . '"' : '';
     
     switch ($field_type) {
@@ -1496,7 +1547,7 @@ function aiopms_render_field_input($field_id, $field_name, $field_type, $value, 
                     class="regular-text"
                     <?php echo $required_attr; ?>
                     <?php echo $aria_describedby; ?>>
-                <option value=""><?php esc_html_e('Select an option', 'aiopms'); ?></option>
+                <option value=""><?php esc_html_e('Select an option', 'artitechcore'); ?></option>
                 <?php foreach ($options as $option_value => $option_label): ?>
                     <option value="<?php echo esc_attr($option_value); ?>" 
                             <?php selected($value, $option_value); ?>>
@@ -1564,7 +1615,7 @@ function aiopms_render_field_input($field_id, $field_name, $field_type, $value, 
                        value="1" 
                        <?php checked($value, 1); ?>
                        <?php echo $aria_describedby; ?>>
-                <?php esc_html_e('Check this option', 'aiopms'); ?>
+                <?php esc_html_e('Check this option', 'artitechcore'); ?>
             </label>
             <?php
             break;
@@ -1588,21 +1639,21 @@ function aiopms_render_field_input($field_id, $field_name, $field_type, $value, 
  * 
  * @param int $post_id Post ID
  * @param WP_Post $post Post object
- * @since 3.0
+ * @since 1.0
  */
-function aiopms_save_custom_field_data($post_id, $post) {
+function artitechcore_save_custom_field_data($post_id, $post) {
     // Security checks
     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
     if (defined('DOING_AJAX') && DOING_AJAX) return;
     if (!current_user_can('edit_post', $post_id)) return;
     
     // Verify nonce
-    if (!isset($_POST['aiopms_custom_fields_nonce']) || 
-        !wp_verify_nonce(sanitize_key($_POST['aiopms_custom_fields_nonce']), 'aiopms_save_custom_fields_' . $post_id)) {
+    if (!isset($_POST['artitechcore_custom_fields_nonce']) || 
+        !wp_verify_nonce(sanitize_key($_POST['artitechcore_custom_fields_nonce']), 'artitechcore_save_custom_fields_' . $post_id)) {
         return;
     }
     
-    $custom_fields = get_option('aiopms_custom_fields', array());
+    $custom_fields = get_option('artitechcore_custom_fields', array());
     $post_type = get_post_type($post_id);
     
     if (!isset($custom_fields[$post_type])) {
@@ -1611,20 +1662,20 @@ function aiopms_save_custom_field_data($post_id, $post) {
     
     foreach ($custom_fields[$post_type] as $field_name => $field_config) {
         if (isset($_POST[$field_name])) {
-            $value = aiopms_sanitize_field_value(wp_unslash($_POST[$field_name]), $field_config['type']);
+            $value = artitechcore_sanitize_field_value(wp_unslash($_POST[$field_name]), $field_config['type']);
             
             // Validate required fields
             if ($field_config['required'] && empty($value)) {
                 add_filter('redirect_post_location', function($location) use ($field_config) {
-                    return add_query_arg('aiopms_error', 'required_field_' . $field_config['name'], $location);
+                    return add_query_arg('artitechcore_error', 'required_field_' . $field_config['name'], $location);
                 });
                 continue;
             }
             
             // Validate field-specific rules
-            if (!aiopms_validate_field_value($value, $field_config)) {
+            if (!artitechcore_validate_field_value($value, $field_config)) {
                 add_filter('redirect_post_location', function($location) use ($field_config) {
-                    return add_query_arg('aiopms_error', 'invalid_field_' . $field_config['name'], $location);
+                    return add_query_arg('artitechcore_error', 'invalid_field_' . $field_config['name'], $location);
                 });
                 continue;
             }
@@ -1642,99 +1693,99 @@ function aiopms_save_custom_field_data($post_id, $post) {
  * 
  * @param string $post_type Post type slug
  * @param array $cpt_data CPT configuration data
- * @since 3.0
+ * @since 1.0
  */
-function aiopms_render_cpt_card($post_type, $cpt_data) {
+function artitechcore_render_cpt_card($post_type, $cpt_data) {
     $posts_count = wp_count_posts($post_type);
     $total_posts = isset($posts_count->publish) ? ($posts_count->publish + $posts_count->draft + $posts_count->private) : 0;
     $is_active = post_type_exists($post_type);
-    $last_modified = get_option('aiopms_cpt_modified_' . $post_type, '');
+    $last_modified = get_option('artitechcore_cpt_modified_' . $post_type, '');
     ?>
-    <div class="aiopms-cpt-card" data-cpt="<?php echo esc_attr($post_type); ?>">
-        <div class="aiopms-cpt-card-header">
-            <div class="aiopms-cpt-checkbox">
+    <div class="artitechcore-cpt-card" data-cpt="<?php echo esc_attr($post_type); ?>">
+        <div class="artitechcore-cpt-card-header">
+            <div class="artitechcore-cpt-checkbox">
                 <input type="checkbox" id="cpt-<?php echo esc_attr($post_type); ?>" 
                        value="<?php echo esc_attr($post_type); ?>" class="cpt-checkbox"
-                       aria-label="<?php echo esc_attr(sprintf(__('Select %s', 'aiopms'), $cpt_data['label'])); ?>">
+                       aria-label="<?php echo esc_attr(sprintf(__('Select %s', 'artitechcore'), $cpt_data['label'])); ?>">
             </div>
-            <div class="aiopms-cpt-status">
-                <span class="aiopms-status-indicator <?php echo $is_active ? 'active' : 'inactive'; ?>" 
-                      title="<?php echo $is_active ? esc_attr__('Active', 'aiopms') : esc_attr__('Inactive', 'aiopms'); ?>">
+            <div class="artitechcore-cpt-status">
+                <span class="artitechcore-status-indicator <?php echo $is_active ? 'active' : 'inactive'; ?>" 
+                      title="<?php echo $is_active ? esc_attr__('Active', 'artitechcore') : esc_attr__('Inactive', 'artitechcore'); ?>">
                 </span>
             </div>
-            <div class="aiopms-cpt-actions">
-                <button type="button" class="aiopms-action-btn" data-action="edit" 
+            <div class="artitechcore-cpt-actions">
+                <button type="button" class="artitechcore-action-btn" data-action="edit" 
                         data-cpt="<?php echo esc_attr($post_type); ?>"
-                        aria-label="<?php echo esc_attr(sprintf(__('Edit %s', 'aiopms'), $cpt_data['label'])); ?>">
+                        aria-label="<?php echo esc_attr(sprintf(__('Edit %s', 'artitechcore'), $cpt_data['label'])); ?>">
                     <span class="dashicons dashicons-edit" aria-hidden="true"></span>
                 </button>
-                <button type="button" class="aiopms-action-btn" data-action="duplicate" 
+                <button type="button" class="artitechcore-action-btn" data-action="duplicate" 
                         data-cpt="<?php echo esc_attr($post_type); ?>"
-                        aria-label="<?php echo esc_attr(sprintf(__('Duplicate %s', 'aiopms'), $cpt_data['label'])); ?>">
+                        aria-label="<?php echo esc_attr(sprintf(__('Duplicate %s', 'artitechcore'), $cpt_data['label'])); ?>">
                     <span class="dashicons dashicons-admin-page" aria-hidden="true"></span>
                 </button>
-                <button type="button" class="aiopms-action-btn aiopms-danger" data-action="delete" 
+                <button type="button" class="artitechcore-action-btn artitechcore-danger" data-action="delete" 
                         data-cpt="<?php echo esc_attr($post_type); ?>"
-                        aria-label="<?php echo esc_attr(sprintf(__('Delete %s', 'aiopms'), $cpt_data['label'])); ?>">
+                        aria-label="<?php echo esc_attr(sprintf(__('Delete %s', 'artitechcore'), $cpt_data['label'])); ?>">
                     <span class="dashicons dashicons-trash" aria-hidden="true"></span>
                 </button>
             </div>
         </div>
         
-        <div class="aiopms-cpt-card-body">
-            <div class="aiopms-cpt-icon">
+        <div class="artitechcore-cpt-card-body">
+            <div class="artitechcore-cpt-icon">
                 <span class="dashicons <?php echo esc_attr($cpt_data['menu_icon'] ?? 'dashicons-admin-post'); ?>" aria-hidden="true"></span>
             </div>
-            <div class="aiopms-cpt-info">
-                <h3 class="aiopms-cpt-title">
+            <div class="artitechcore-cpt-info">
+                <h3 class="artitechcore-cpt-title">
                     <a href="<?php echo esc_url(admin_url('edit.php?post_type=' . $post_type)); ?>" 
-                       title="<?php echo esc_attr(sprintf(__('View all %s', 'aiopms'), $cpt_data['label'])); ?>">
+                       title="<?php echo esc_attr(sprintf(__('View all %s', 'artitechcore'), $cpt_data['label'])); ?>">
                         <?php echo esc_html($cpt_data['label']); ?>
                     </a>
                 </h3>
-                <code class="aiopms-cpt-slug"><?php echo esc_html($post_type); ?></code>
+                <code class="artitechcore-cpt-slug"><?php echo esc_html($post_type); ?></code>
                 
                 <?php 
                 $archive_link = get_post_type_archive_link($post_type);
                 if ($archive_link): 
                 ?>
-                    <a href="<?php echo esc_url($archive_link); ?>" class="aiopms-archive-link" target="_blank" title="<?php esc_attr_e('View Public Archive', 'aiopms'); ?>">
+                    <a href="<?php echo esc_url($archive_link); ?>" class="artitechcore-archive-link" target="_blank" title="<?php esc_attr_e('View Public Archive', 'artitechcore'); ?>">
                         <span class="dashicons dashicons-external"></span>
                     </a>
                 <?php endif; ?>
 
                 <?php if (!empty($cpt_data['description'])): ?>
-                    <p class="aiopms-cpt-description"><?php echo esc_html($cpt_data['description']); ?></p>
+                    <p class="artitechcore-cpt-description"><?php echo esc_html($cpt_data['description']); ?></p>
                 <?php endif; ?>
             </div>
         </div>
         
-        <div class="aiopms-cpt-card-footer">
-            <div class="aiopms-cpt-stats">
-                <div class="aiopms-stat">
-                    <span class="aiopms-stat-number"><?php echo esc_html($total_posts); ?></span>
-                    <span class="aiopms-stat-label"><?php esc_html_e('Posts', 'aiopms'); ?></span>
+        <div class="artitechcore-cpt-card-footer">
+            <div class="artitechcore-cpt-stats">
+                <div class="artitechcore-stat">
+                    <span class="artitechcore-stat-number"><?php echo esc_html($total_posts); ?></span>
+                    <span class="artitechcore-stat-label"><?php esc_html_e('Posts', 'artitechcore'); ?></span>
                 </div>
-                <div class="aiopms-stat">
-                    <span class="aiopms-stat-number"><?php echo esc_html(count($cpt_data['custom_fields'] ?? array())); ?></span>
-                    <span class="aiopms-stat-label"><?php esc_html_e('Fields', 'aiopms'); ?></span>
+                <div class="artitechcore-stat">
+                    <span class="artitechcore-stat-number"><?php echo esc_html(count($cpt_data['custom_fields'] ?? array())); ?></span>
+                    <span class="artitechcore-stat-label"><?php esc_html_e('Fields', 'artitechcore'); ?></span>
                 </div>
             </div>
             
-            <div class="aiopms-cpt-quick-actions">
+            <div class="artitechcore-cpt-quick-actions">
                 <a href="<?php echo esc_url(admin_url('edit.php?post_type=' . $post_type)); ?>" 
                    class="dg10-btn dg10-btn-outline" style="padding: 6px 12px; font-size: 0.85rem;">
-                    <?php esc_html_e('View Posts', 'aiopms'); ?>
+                    <?php esc_html_e('View Posts', 'artitechcore'); ?>
                 </a>
                 <a href="<?php echo esc_url(admin_url('post-new.php?post_type=' . $post_type)); ?>" 
                    class="dg10-btn dg10-btn-primary" style="padding: 6px 12px; font-size: 0.85rem;">
-                    <?php esc_html_e('Add New', 'aiopms'); ?>
+                    <?php esc_html_e('Add New', 'artitechcore'); ?>
                 </a>
             </div>
             
             <?php if (!empty($last_modified)): ?>
-                <div class="aiopms-cpt-meta">
-                    <small><?php echo esc_html(sprintf(__('Modified: %s', 'aiopms'), $last_modified)); ?></small>
+                <div class="artitechcore-cpt-meta">
+                    <small><?php echo esc_html(sprintf(__('Modified: %s', 'artitechcore'), $last_modified)); ?></small>
                 </div>
             <?php endif; ?>
         </div>
@@ -1743,47 +1794,47 @@ function aiopms_render_cpt_card($post_type, $cpt_data) {
 }
 
 // Add placeholder functions for missing tabs
-function aiopms_cpt_templates_tab() {
+function artitechcore_cpt_templates_tab() {
     // Handle template creation
-    if (isset($_POST['create_from_template']) && isset($_POST['_wpnonce']) && wp_verify_nonce(sanitize_key($_POST['_wpnonce']), 'aiopms_create_from_template')) {
-        aiopms_create_cpt_from_template();
+    if (isset($_POST['create_from_template']) && isset($_POST['_wpnonce']) && wp_verify_nonce(sanitize_key($_POST['_wpnonce']), 'artitechcore_create_from_template')) {
+        artitechcore_create_cpt_from_template();
     }
     
-    $templates = aiopms_get_cpt_templates();
+    $templates = artitechcore_get_cpt_templates();
     ?>
-    <div class="aiopms-cpt-templates">
-        <div class="aiopms-templates-header">
-            <h3><?php esc_html_e('CPT Templates & Presets', 'aiopms'); ?></h3>
-            <p><?php esc_html_e('Choose from pre-built custom post type templates for common use cases. Templates include custom fields and sample content.', 'aiopms'); ?></p>
+    <div class="artitechcore-cpt-templates">
+        <div class="artitechcore-templates-header">
+            <h3><?php esc_html_e('CPT Templates & Presets', 'artitechcore'); ?></h3>
+            <p><?php esc_html_e('Choose from pre-built custom post type templates for common use cases. Templates include custom fields and sample content.', 'artitechcore'); ?></p>
         </div>
         
-        <div class="aiopms-templates-grid">
+        <div class="artitechcore-templates-grid">
             <?php foreach ($templates as $template_id => $template): ?>
-                <div class="aiopms-template-card" data-template="<?php echo esc_attr($template_id); ?>">
-                    <div class="aiopms-template-header">
-                        <div class="aiopms-template-icon">
+                <div class="artitechcore-template-card" data-template="<?php echo esc_attr($template_id); ?>">
+                    <div class="artitechcore-template-header">
+                        <div class="artitechcore-template-icon">
                             <span class="dashicons <?php echo esc_attr($template['icon']); ?>" aria-hidden="true"></span>
                         </div>
-                        <div class="aiopms-template-info">
+                        <div class="artitechcore-template-info">
                             <h4><?php echo esc_html($template['name']); ?></h4>
-                            <p class="aiopms-template-description"><?php echo esc_html($template['description']); ?></p>
+                            <p class="artitechcore-template-description"><?php echo esc_html($template['description']); ?></p>
                         </div>
                     </div>
                     
-                    <div class="aiopms-template-details">
-                        <div class="aiopms-template-stats">
-                            <div class="aiopms-stat">
-                                <span class="aiopms-stat-number"><?php echo esc_html(count($template['custom_fields'])); ?></span>
-                                <span class="aiopms-stat-label"><?php esc_html_e('Fields', 'aiopms'); ?></span>
+                    <div class="artitechcore-template-details">
+                        <div class="artitechcore-template-stats">
+                            <div class="artitechcore-stat">
+                                <span class="artitechcore-stat-number"><?php echo esc_html(count($template['custom_fields'])); ?></span>
+                                <span class="artitechcore-stat-label"><?php esc_html_e('Fields', 'artitechcore'); ?></span>
                             </div>
-                            <div class="aiopms-stat">
-                                <span class="aiopms-stat-number"><?php echo esc_html(count($template['sample_entries'] ?? [])); ?></span>
-                                <span class="aiopms-stat-label"><?php esc_html_e('Samples', 'aiopms'); ?></span>
+                            <div class="artitechcore-stat">
+                                <span class="artitechcore-stat-number"><?php echo esc_html(count($template['sample_entries'] ?? [])); ?></span>
+                                <span class="artitechcore-stat-label"><?php esc_html_e('Samples', 'artitechcore'); ?></span>
                             </div>
                         </div>
                         
-                        <div class="aiopms-template-features">
-                            <h5><?php esc_html_e('Features', 'aiopms'); ?></h5>
+                        <div class="artitechcore-template-features">
+                            <h5><?php esc_html_e('Features', 'artitechcore'); ?></h5>
                             <ul>
                                 <?php foreach ($template['features'] as $feature): ?>
                                     <li><?php echo esc_html($feature); ?></li>
@@ -1792,15 +1843,15 @@ function aiopms_cpt_templates_tab() {
                         </div>
                         
                         <?php if (!empty($template['custom_fields'])): ?>
-                            <div class="aiopms-template-fields">
-                                <h5><?php esc_html_e('Custom Fields', 'aiopms'); ?></h5>
-                                <div class="aiopms-fields-preview">
+                            <div class="artitechcore-template-fields">
+                                <h5><?php esc_html_e('Custom Fields', 'artitechcore'); ?></h5>
+                                <div class="artitechcore-fields-preview">
                                     <?php foreach (array_slice($template['custom_fields'], 0, 3) as $field): ?>
-                                        <span class="aiopms-field-tag"><?php echo esc_html($field['label']); ?></span>
+                                        <span class="artitechcore-field-tag"><?php echo esc_html($field['label']); ?></span>
                                     <?php endforeach; ?>
                                     <?php if (count($template['custom_fields']) > 3): ?>
-                                        <span class="aiopms-field-tag aiopms-more-fields">
-                                            +<?php echo esc_html(count($template['custom_fields']) - 3); ?> <?php esc_html_e('more', 'aiopms'); ?>
+                                        <span class="artitechcore-field-tag artitechcore-more-fields">
+                                            +<?php echo esc_html(count($template['custom_fields']) - 3); ?> <?php esc_html_e('more', 'artitechcore'); ?>
                                         </span>
                                     <?php endif; ?>
                                 </div>
@@ -1808,19 +1859,19 @@ function aiopms_cpt_templates_tab() {
                         <?php endif; ?>
                     </div>
                     
-                    <div class="aiopms-template-actions">
-                        <button type="button" class="dg10-btn dg10-btn-outline aiopms-preview-template" 
+                    <div class="artitechcore-template-actions">
+                        <button type="button" class="dg10-btn dg10-btn-outline artitechcore-preview-template" 
                                 data-template="<?php echo esc_attr($template_id); ?>" style="flex: 1;">
                             <span class="nav-icon">👁️</span>
-                            <?php esc_html_e('Preview', 'aiopms'); ?>
+                            <?php esc_html_e('Preview', 'artitechcore'); ?>
                         </button>
                         
-                        <form method="post" action="" class="aiopms-template-form" style="display: contents;">
-                            <?php wp_nonce_field('aiopms_create_from_template'); ?>
+                        <form method="post" action="" class="artitechcore-template-form" style="display: contents;">
+                            <?php wp_nonce_field('artitechcore_create_from_template'); ?>
                             <input type="hidden" name="template_id" value="<?php echo esc_attr($template_id); ?>">
                             <button type="submit" name="create_from_template" class="dg10-btn dg10-btn-primary" style="flex: 1;">
                                 <span class="nav-icon">➕</span>
-                                <?php esc_html_e('Create', 'aiopms'); ?>
+                                <?php esc_html_e('Create', 'artitechcore'); ?>
                             </button>
                         </form>
                     </div>
@@ -1829,22 +1880,22 @@ function aiopms_cpt_templates_tab() {
         </div>
         
         <!-- Template Preview Modal -->
-        <div id="aiopms-template-preview-modal" class="aiopms-modal-overlay" style="display: none;">
-            <div class="aiopms-modal">
-                <div class="aiopms-modal-header">
-                    <h3 id="preview-template-name"><?php esc_html_e('Template Preview', 'aiopms'); ?></h3>
-                    <button class="aiopms-modal-close">&times;</button>
+        <div id="artitechcore-template-preview-modal" class="artitechcore-modal-overlay" style="display: none;">
+            <div class="artitechcore-modal">
+                <div class="artitechcore-modal-header">
+                    <h3 id="preview-template-name"><?php esc_html_e('Template Preview', 'artitechcore'); ?></h3>
+                    <button class="artitechcore-modal-close">&times;</button>
                 </div>
-                <div class="aiopms-modal-body" id="preview-template-content">
+                <div class="artitechcore-modal-body" id="preview-template-content">
                     <!-- Template preview content will be loaded here -->
                 </div>
-                <div class="aiopms-modal-footer">
-                    <button type="button" class="dg10-btn dg10-btn-outline aiopms-modal-close">
-                        <?php esc_html_e('Close', 'aiopms'); ?>
+                <div class="artitechcore-modal-footer">
+                    <button type="button" class="dg10-btn dg10-btn-outline artitechcore-modal-close">
+                        <?php esc_html_e('Close', 'artitechcore'); ?>
                     </button>
                     <button type="button" class="dg10-btn dg10-btn-primary" id="create-from-preview">
                         <span class="nav-icon">➕</span>
-                        <?php esc_html_e('Create CPT', 'aiopms'); ?>
+                        <?php esc_html_e('Create CPT', 'artitechcore'); ?>
                     </button>
                 </div>
             </div>
@@ -1853,67 +1904,67 @@ function aiopms_cpt_templates_tab() {
     <?php
 }
 
-function aiopms_cpt_bulk_operations_tab() {
-    $dynamic_cpts = get_option('aiopms_dynamic_cpts', array());
+function artitechcore_cpt_bulk_operations_tab() {
+    $dynamic_cpts = get_option('artitechcore_dynamic_cpts', array());
     ?>
-    <div class="aiopms-cpt-bulk">
-        <div class="aiopms-bulk-header">
-            <h3><?php esc_html_e('Bulk Operations', 'aiopms'); ?></h3>
-            <p><?php esc_html_e('Perform bulk operations on multiple custom post types. Select CPTs and choose an action to apply.', 'aiopms'); ?></p>
+    <div class="artitechcore-cpt-bulk">
+        <div class="artitechcore-bulk-header">
+            <h3><?php esc_html_e('Bulk Operations', 'artitechcore'); ?></h3>
+            <p><?php esc_html_e('Perform bulk operations on multiple custom post types. Select CPTs and choose an action to apply.', 'artitechcore'); ?></p>
         </div>
         
         <?php if (empty($dynamic_cpts)): ?>
-            <div class="aiopms-empty-state">
-                <div class="aiopms-empty-state-icon">
+            <div class="artitechcore-empty-state">
+                <div class="artitechcore-empty-state-icon">
                     <span class="dashicons dashicons-admin-post" aria-hidden="true"></span>
                 </div>
-                <h4><?php esc_html_e('No Custom Post Types', 'aiopms'); ?></h4>
-                <p><?php esc_html_e('You need to create some custom post types before you can perform bulk operations.', 'aiopms'); ?></p>
+                <h4><?php esc_html_e('No Custom Post Types', 'artitechcore'); ?></h4>
+                <p><?php esc_html_e('You need to create some custom post types before you can perform bulk operations.', 'artitechcore'); ?></p>
                 <a href="<?php echo esc_url(add_query_arg('tab', 'create')); ?>" class="button button-primary">
-                    <?php esc_html_e('Create Your First CPT', 'aiopms'); ?>
+                    <?php esc_html_e('Create Your First CPT', 'artitechcore'); ?>
                 </a>
             </div>
         <?php else: ?>
-            <div class="aiopms-bulk-operations">
-                <div class="aiopms-bulk-selection">
-                    <div class="aiopms-bulk-controls">
+            <div class="artitechcore-bulk-operations">
+                <div class="artitechcore-bulk-selection">
+                    <div class="artitechcore-bulk-controls">
                         <label>
-                            <input type="checkbox" id="select-all-bulk" class="aiopms-select-all">
-                            <?php esc_html_e('Select All CPTs', 'aiopms'); ?>
+                            <input type="checkbox" id="select-all-bulk" class="artitechcore-select-all">
+                            <?php esc_html_e('Select All CPTs', 'artitechcore'); ?>
                         </label>
-                        <span class="aiopms-selection-count">
-                            <span id="selected-count">0</span> <?php esc_html_e('CPTs selected', 'aiopms'); ?>
+                        <span class="artitechcore-selection-count">
+                            <span id="selected-count">0</span> <?php esc_html_e('CPTs selected', 'artitechcore'); ?>
                         </span>
                     </div>
                     
-                    <div class="aiopms-bulk-actions-panel">
-                        <select id="bulk-action-selector" class="aiopms-bulk-selector">
-                            <option value=""><?php esc_html_e('Choose Bulk Action...', 'aiopms'); ?></option>
-                            <option value="activate"><?php esc_html_e('Activate Selected CPTs', 'aiopms'); ?></option>
-                            <option value="deactivate"><?php esc_html_e('Deactivate Selected CPTs', 'aiopms'); ?></option>
-                            <option value="export"><?php esc_html_e('Export Selected CPTs', 'aiopms'); ?></option>
-                            <option value="duplicate"><?php esc_html_e('Duplicate Selected CPTs', 'aiopms'); ?></option>
-                            <option value="delete"><?php esc_html_e('Delete Selected CPTs', 'aiopms'); ?></option>
+                    <div class="artitechcore-bulk-actions-panel">
+                        <select id="bulk-action-selector" class="artitechcore-bulk-selector">
+                            <option value=""><?php esc_html_e('Choose Bulk Action...', 'artitechcore'); ?></option>
+                            <option value="activate"><?php esc_html_e('Activate Selected CPTs', 'artitechcore'); ?></option>
+                            <option value="deactivate"><?php esc_html_e('Deactivate Selected CPTs', 'artitechcore'); ?></option>
+                            <option value="export"><?php esc_html_e('Export Selected CPTs', 'artitechcore'); ?></option>
+                            <option value="duplicate"><?php esc_html_e('Duplicate Selected CPTs', 'artitechcore'); ?></option>
+                            <option value="delete"><?php esc_html_e('Delete Selected CPTs', 'artitechcore'); ?></option>
                         </select>
                         
                         <button type="button" id="apply-bulk-action-btn" class="dg10-btn dg10-btn-primary" disabled>
                             <span class="nav-icon">⚡</span>
-                            <?php esc_html_e('Apply Action', 'aiopms'); ?>
+                            <?php esc_html_e('Apply Action', 'artitechcore'); ?>
                         </button>
                     </div>
                 </div>
                 
-                <div class="aiopms-bulk-cpt-list">
+                <div class="artitechcore-bulk-cpt-list">
                     <table class="dg10-table">
                         <thead>
                             <tr>
-                                <th width="50px"><?php esc_html_e('Select', 'aiopms'); ?></th>
-                                <th><?php esc_html_e('CPT Name', 'aiopms'); ?></th>
-                                <th><?php esc_html_e('Label', 'aiopms'); ?></th>
-                                <th><?php esc_html_e('Status', 'aiopms'); ?></th>
-                                <th><?php esc_html_e('Posts', 'aiopms'); ?></th>
-                                <th><?php esc_html_e('Fields', 'aiopms'); ?></th>
-                                <th><?php esc_html_e('Last Modified', 'aiopms'); ?></th>
+                                <th width="50px"><?php esc_html_e('Select', 'artitechcore'); ?></th>
+                                <th><?php esc_html_e('CPT Name', 'artitechcore'); ?></th>
+                                <th><?php esc_html_e('Label', 'artitechcore'); ?></th>
+                                <th><?php esc_html_e('Status', 'artitechcore'); ?></th>
+                                <th><?php esc_html_e('Posts', 'artitechcore'); ?></th>
+                                <th><?php esc_html_e('Fields', 'artitechcore'); ?></th>
+                                <th><?php esc_html_e('Last Modified', 'artitechcore'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1922,11 +1973,11 @@ function aiopms_cpt_bulk_operations_tab() {
                                 $posts_count = wp_count_posts($post_type);
                                 $total_posts = isset($posts_count->publish) ? ($posts_count->publish + $posts_count->draft + $posts_count->private) : 0;
                                 $is_active = post_type_exists($post_type);
-                                $last_modified = get_option('aiopms_cpt_modified_' . $post_type, '');
+                                $last_modified = get_option('artitechcore_cpt_modified_' . $post_type, '');
                                 ?>
                                 <tr data-cpt="<?php echo esc_attr($post_type); ?>">
                                     <td>
-                                        <input type="checkbox" class="aiopms-cpt-checkbox" value="<?php echo esc_attr($post_type); ?>">
+                                        <input type="checkbox" class="artitechcore-cpt-checkbox" value="<?php echo esc_attr($post_type); ?>">
                                     </td>
                                     <td>
                                         <code><?php echo esc_html($post_type); ?></code>
@@ -1935,8 +1986,8 @@ function aiopms_cpt_bulk_operations_tab() {
                                         <strong><?php echo esc_html($cpt_data['label']); ?></strong>
                                     </td>
                                     <td>
-                                        <span class="aiopms-status-badge <?php echo $is_active ? 'active' : 'inactive'; ?>">
-                                            <?php echo $is_active ? esc_html__('Active', 'aiopms') : esc_html__('Inactive', 'aiopms'); ?>
+                                        <span class="artitechcore-status-badge <?php echo $is_active ? 'active' : 'inactive'; ?>">
+                                            <?php echo $is_active ? esc_html__('Active', 'artitechcore') : esc_html__('Inactive', 'artitechcore'); ?>
                                         </span>
                                     </td>
                                     <td>
@@ -1954,8 +2005,8 @@ function aiopms_cpt_bulk_operations_tab() {
                     </table>
                 </div>
                 
-                <div class="aiopms-bulk-results" id="bulk-results" style="display: none;">
-                    <h4><?php esc_html_e('Operation Results', 'aiopms'); ?></h4>
+                <div class="artitechcore-bulk-results" id="bulk-results" style="display: none;">
+                    <h4><?php esc_html_e('Operation Results', 'artitechcore'); ?></h4>
                     <div id="bulk-results-content"></div>
                 </div>
             </div>
@@ -1964,67 +2015,67 @@ function aiopms_cpt_bulk_operations_tab() {
     <?php
 }
 
-function aiopms_cpt_import_export_tab() {
-    $dynamic_cpts = get_option('aiopms_dynamic_cpts', array());
+function artitechcore_cpt_import_export_tab() {
+    $dynamic_cpts = get_option('artitechcore_dynamic_cpts', array());
     
     // Handle export request
-    if (isset($_POST['export_cpts']) && isset($_POST['_wpnonce']) && wp_verify_nonce(sanitize_key($_POST['_wpnonce']), 'aiopms_export_cpts')) {
-        aiopms_handle_cpt_export();
+    if (isset($_POST['export_cpts']) && isset($_POST['_wpnonce']) && wp_verify_nonce(sanitize_key($_POST['_wpnonce']), 'artitechcore_export_cpts')) {
+        artitechcore_handle_cpt_export();
         return;
     }
     
     // Handle import request
-    if (isset($_POST['import_cpts']) && isset($_POST['_wpnonce']) && wp_verify_nonce(sanitize_key($_POST['_wpnonce']), 'aiopms_import_cpts')) {
-        aiopms_handle_cpt_import();
+    if (isset($_POST['import_cpts']) && isset($_POST['_wpnonce']) && wp_verify_nonce(sanitize_key($_POST['_wpnonce']), 'artitechcore_import_cpts')) {
+        artitechcore_handle_cpt_import();
     }
     ?>
-    <div class="aiopms-cpt-import-export">
-        <div class="aiopms-import-export-header">
-            <h3><?php esc_html_e('Import/Export CPTs', 'aiopms'); ?></h3>
-            <p><?php esc_html_e('Import and export custom post type configurations to backup, migrate, or share your CPTs.', 'aiopms'); ?></p>
+    <div class="artitechcore-cpt-import-export">
+        <div class="artitechcore-import-export-header">
+            <h3><?php esc_html_e('Import/Export CPTs', 'artitechcore'); ?></h3>
+            <p><?php esc_html_e('Import and export custom post type configurations to backup, migrate, or share your CPTs.', 'artitechcore'); ?></p>
         </div>
         
-        <div class="aiopms-import-export-grid">
+        <div class="artitechcore-import-export-grid">
             <!-- Export Section -->
-            <div class="aiopms-export-section">
-                <div class="aiopms-section-header">
-                    <h4><?php esc_html_e('Export CPTs', 'aiopms'); ?></h4>
-                    <p><?php esc_html_e('Export your custom post types to a JSON file for backup or migration.', 'aiopms'); ?></p>
+            <div class="artitechcore-export-section">
+                <div class="artitechcore-section-header">
+                    <h4><?php esc_html_e('Export CPTs', 'artitechcore'); ?></h4>
+                    <p><?php esc_html_e('Export your custom post types to a JSON file for backup or migration.', 'artitechcore'); ?></p>
                 </div>
                 
                 <?php if (empty($dynamic_cpts)): ?>
-                    <div class="aiopms-empty-state">
+                    <div class="artitechcore-empty-state">
                         <span class="dashicons dashicons-download" aria-hidden="true"></span>
-                        <p><?php esc_html_e('No custom post types to export.', 'aiopms'); ?></p>
+                        <p><?php esc_html_e('No custom post types to export.', 'artitechcore'); ?></p>
                     </div>
                 <?php else: ?>
-                    <form method="post" action="" class="aiopms-export-form">
-                        <?php wp_nonce_field('aiopms_export_cpts'); ?>
+                    <form method="post" action="" class="artitechcore-export-form">
+                        <?php wp_nonce_field('artitechcore_export_cpts'); ?>
                         
-                        <div class="aiopms-export-options">
-                            <h5><?php esc_html_e('Export Options', 'aiopms'); ?></h5>
+                        <div class="artitechcore-export-options">
+                            <h5><?php esc_html_e('Export Options', 'artitechcore'); ?></h5>
                             
-                            <label class="aiopms-export-option">
+                            <label class="artitechcore-export-option">
                                 <input type="radio" name="export_type" value="all" checked>
                                 <span class="option-label">
-                                    <strong><?php esc_html_e('Export All CPTs', 'aiopms'); ?></strong>
-                                    <small><?php esc_html_e('Export all custom post types', 'aiopms'); ?></small>
+                                    <strong><?php esc_html_e('Export All CPTs', 'artitechcore'); ?></strong>
+                                    <small><?php esc_html_e('Export all custom post types', 'artitechcore'); ?></small>
                                 </span>
                             </label>
                             
-                            <label class="aiopms-export-option">
+                            <label class="artitechcore-export-option">
                                 <input type="radio" name="export_type" value="selected">
                                 <span class="option-label">
-                                    <strong><?php esc_html_e('Export Selected CPTs', 'aiopms'); ?></strong>
-                                    <small><?php esc_html_e('Choose specific CPTs to export', 'aiopms'); ?></small>
+                                    <strong><?php esc_html_e('Export Selected CPTs', 'artitechcore'); ?></strong>
+                                    <small><?php esc_html_e('Choose specific CPTs to export', 'artitechcore'); ?></small>
                                 </span>
                             </label>
                         </div>
                         
-                        <div class="aiopms-cpt-selection" id="cpt-selection" style="display: none;">
-                            <h5><?php esc_html_e('Select CPTs to Export', 'aiopms'); ?></h5>
+                        <div class="artitechcore-cpt-selection" id="cpt-selection" style="display: none;">
+                            <h5><?php esc_html_e('Select CPTs to Export', 'artitechcore'); ?></h5>
                             <?php foreach ($dynamic_cpts as $post_type => $cpt_data): ?>
-                                <label class="aiopms-cpt-option">
+                                <label class="artitechcore-cpt-option">
                                     <input type="checkbox" name="export_cpts[]" value="<?php echo esc_attr($post_type); ?>">
                                     <span class="cpt-info">
                                         <strong><?php echo esc_html($cpt_data['label']); ?></strong>
@@ -2034,10 +2085,10 @@ function aiopms_cpt_import_export_tab() {
                             <?php endforeach; ?>
                         </div>
                         
-                        <div class="aiopms-export-actions">
+                        <div class="artitechcore-export-actions">
                             <button type="submit" name="export_cpts" class="dg10-btn dg10-btn-primary">
                                 <span class="nav-icon">📥</span>
-                                <?php esc_html_e('Export CPTs', 'aiopms'); ?>
+                                <?php esc_html_e('Export CPTs', 'artitechcore'); ?>
                             </button>
                         </div>
                     </form>
@@ -2045,50 +2096,50 @@ function aiopms_cpt_import_export_tab() {
             </div>
             
             <!-- Import Section -->
-            <div class="aiopms-import-section">
-                <div class="aiopms-section-header">
-                    <h4><?php esc_html_e('Import CPTs', 'aiopms'); ?></h4>
-                    <p><?php esc_html_e('Import custom post types from a JSON file.', 'aiopms'); ?></p>
+            <div class="artitechcore-import-section">
+                <div class="artitechcore-section-header">
+                    <h4><?php esc_html_e('Import CPTs', 'artitechcore'); ?></h4>
+                    <p><?php esc_html_e('Import custom post types from a JSON file.', 'artitechcore'); ?></p>
                 </div>
                 
-                <form method="post" action="" enctype="multipart/form-data" class="aiopms-import-form">
-                    <?php wp_nonce_field('aiopms_import_cpts'); ?>
+                <form method="post" action="" enctype="multipart/form-data" class="artitechcore-import-form">
+                    <?php wp_nonce_field('artitechcore_import_cpts'); ?>
                     
-                    <div class="aiopms-import-options">
-                        <div class="aiopms-file-upload">
-                            <label for="cpt-import-file" class="aiopms-upload-label">
+                    <div class="artitechcore-import-options">
+                        <div class="artitechcore-file-upload">
+                            <label for="cpt-import-file" class="artitechcore-upload-label">
                                 <span class="dashicons dashicons-upload" aria-hidden="true"></span>
-                                <span class="upload-text"><?php esc_html_e('Choose JSON file to import', 'aiopms'); ?></span>
+                                <span class="upload-text"><?php esc_html_e('Choose JSON file to import', 'artitechcore'); ?></span>
                                 <input type="file" id="cpt-import-file" name="cpt_import_file" accept=".json" required>
                             </label>
-                            <p class="description"><?php esc_html_e('Select a JSON file exported from AIOPMS CPT Manager.', 'aiopms'); ?></p>
+                            <p class="description"><?php esc_html_e('Select a JSON file exported from ArtitechCore CPT Manager.', 'artitechcore'); ?></p>
                         </div>
                         
-                        <div class="aiopms-import-settings">
-                            <h5><?php esc_html_e('Import Settings', 'aiopms'); ?></h5>
+                        <div class="artitechcore-import-settings">
+                            <h5><?php esc_html_e('Import Settings', 'artitechcore'); ?></h5>
                             
-                            <label class="aiopms-import-option">
+                            <label class="artitechcore-import-option">
                                 <input type="checkbox" name="import_overwrite" value="1">
                                 <span class="option-label">
-                                    <strong><?php esc_html_e('Overwrite Existing CPTs', 'aiopms'); ?></strong>
-                                    <small><?php esc_html_e('Replace existing CPTs with the same name', 'aiopms'); ?></small>
+                                    <strong><?php esc_html_e('Overwrite Existing CPTs', 'artitechcore'); ?></strong>
+                                    <small><?php esc_html_e('Replace existing CPTs with the same name', 'artitechcore'); ?></small>
                                 </span>
                             </label>
                             
-                            <label class="aiopms-import-option">
+                            <label class="artitechcore-import-option">
                                 <input type="checkbox" name="import_activate" value="1" checked>
                                 <span class="option-label">
-                                    <strong><?php esc_html_e('Activate Imported CPTs', 'aiopms'); ?></strong>
-                                    <small><?php esc_html_e('Automatically activate imported CPTs', 'aiopms'); ?></small>
+                                    <strong><?php esc_html_e('Activate Imported CPTs', 'artitechcore'); ?></strong>
+                                    <small><?php esc_html_e('Automatically activate imported CPTs', 'artitechcore'); ?></small>
                                 </span>
                             </label>
                         </div>
                     </div>
                     
-                    <div class="aiopms-import-actions">
+                    <div class="artitechcore-import-actions">
                         <button type="submit" name="import_cpts" class="dg10-btn dg10-btn-primary">
                             <span class="nav-icon">📤</span>
-                            <?php esc_html_e('Import CPTs', 'aiopms'); ?>
+                            <?php esc_html_e('Import CPTs', 'artitechcore'); ?>
                         </button>
                     </div>
                 </form>
@@ -2096,10 +2147,10 @@ function aiopms_cpt_import_export_tab() {
         </div>
         
         <!-- Import/Export History -->
-        <div class="aiopms-import-export-history">
-            <h4><?php esc_html_e('Recent Operations', 'aiopms'); ?></h4>
-            <div class="aiopms-history-list">
-                <?php aiopms_display_import_export_history(); ?>
+        <div class="artitechcore-import-export-history">
+            <h4><?php esc_html_e('Recent Operations', 'artitechcore'); ?></h4>
+            <div class="artitechcore-history-list">
+                <?php artitechcore_display_import_export_history(); ?>
             </div>
         </div>
     </div>
@@ -2109,26 +2160,26 @@ function aiopms_cpt_import_export_tab() {
 /**
  * AJAX handler to retrieve CPT data for editing/display
  * 
- * @since 3.0
+ * @since 1.0
  */
-function aiopms_get_cpt_data_ajax() {
+function artitechcore_get_cpt_data_ajax() {
     // Security checks
-    check_ajax_referer('aiopms_cpt_ajax', 'nonce');
+    check_ajax_referer('artitechcore_cpt_ajax', 'nonce');
     
     if (!current_user_can('manage_options')) {
-        wp_send_json_error(__('Insufficient permissions.', 'aiopms'));
+        wp_send_json_error(__('Insufficient permissions.', 'artitechcore'));
     }
     
     $post_type = sanitize_key($_POST['post_type'] ?? '');
     
     if (empty($post_type)) {
-        wp_send_json_error(__('Invalid post type specified.', 'aiopms'));
+        wp_send_json_error(__('Invalid post type specified.', 'artitechcore'));
     }
     
-    $dynamic_cpts = get_option('aiopms_dynamic_cpts', array());
+    $dynamic_cpts = get_option('artitechcore_dynamic_cpts', array());
     
     if (!isset($dynamic_cpts[$post_type])) {
-        wp_send_json_error(__('Custom post type not found.', 'aiopms'));
+        wp_send_json_error(__('Custom post type not found.', 'artitechcore'));
     }
     
     $cpt_data = $dynamic_cpts[$post_type];
@@ -2137,7 +2188,7 @@ function aiopms_get_cpt_data_ajax() {
     $posts_count = wp_count_posts($post_type);
     $total_posts = isset($posts_count->publish) ? ($posts_count->publish + $posts_count->draft + $posts_count->private) : 0;
     $is_active = post_type_exists($post_type);
-    $last_modified = get_option('aiopms_cpt_modified_' . $post_type, '');
+    $last_modified = get_option('artitechcore_cpt_modified_' . $post_type, '');
     
     wp_send_json_success(array(
         'cpt_data' => $cpt_data,
@@ -2153,24 +2204,24 @@ function aiopms_get_cpt_data_ajax() {
 /**
  * AJAX handler for bulk CPT operations
  * 
- * @since 3.0
+ * @since 1.0
  */
-function aiopms_handle_bulk_cpt_operations_ajax() {
+function artitechcore_handle_bulk_cpt_operations_ajax() {
     // Security checks
-    check_ajax_referer('aiopms_cpt_ajax', 'nonce');
+    check_ajax_referer('artitechcore_cpt_ajax', 'nonce');
     
     if (!current_user_can('manage_options')) {
-        wp_send_json_error(__('Insufficient permissions.', 'aiopms'));
+        wp_send_json_error(__('Insufficient permissions.', 'artitechcore'));
     }
     
     $action = sanitize_key($_POST['bulk_action'] ?? '');
     $cpt_ids = array_map('sanitize_key', (array) ($_POST['cpt_ids'] ?? array()));
     
     if (empty($action) || empty($cpt_ids)) {
-        wp_send_json_error(__('Invalid bulk action or no CPTs selected.', 'aiopms'));
+        wp_send_json_error(__('Invalid bulk action or no CPTs selected.', 'artitechcore'));
     }
     
-    $dynamic_cpts = get_option('aiopms_dynamic_cpts', array());
+    $dynamic_cpts = get_option('artitechcore_dynamic_cpts', array());
     $results = array();
     $success_count = 0;
     $error_count = 0;
@@ -2180,7 +2231,7 @@ function aiopms_handle_bulk_cpt_operations_ajax() {
             $results[] = array(
                 'post_type' => $post_type,
                 'status' => 'error',
-                'message' => __('CPT not found.', 'aiopms')
+                'message' => __('CPT not found.', 'artitechcore')
             );
             $error_count++;
             continue;
@@ -2188,7 +2239,7 @@ function aiopms_handle_bulk_cpt_operations_ajax() {
         
         switch ($action) {
             case 'activate':
-                $result = aiopms_register_dynamic_custom_post_type($dynamic_cpts[$post_type]);
+                $result = artitechcore_register_dynamic_custom_post_type($dynamic_cpts[$post_type]);
                 if (is_wp_error($result)) {
                     $results[] = array(
                         'post_type' => $post_type,
@@ -2200,7 +2251,7 @@ function aiopms_handle_bulk_cpt_operations_ajax() {
                     $results[] = array(
                         'post_type' => $post_type,
                         'status' => 'success',
-                        'message' => __('CPT activated successfully.', 'aiopms')
+                        'message' => __('CPT activated successfully.', 'artitechcore')
                     );
                     $success_count++;
                 }
@@ -2212,13 +2263,13 @@ function aiopms_handle_bulk_cpt_operations_ajax() {
                 $results[] = array(
                     'post_type' => $post_type,
                     'status' => 'success',
-                    'message' => __('CPT deactivated successfully.', 'aiopms')
+                    'message' => __('CPT deactivated successfully.', 'artitechcore')
                 );
                 $success_count++;
                 break;
                 
             case 'delete':
-                $delete_result = aiopms_delete_custom_post_type($post_type);
+                $delete_result = artitechcore_delete_custom_post_type($post_type);
                 if (is_wp_error($delete_result)) {
                     $results[] = array(
                         'post_type' => $post_type,
@@ -2230,7 +2281,7 @@ function aiopms_handle_bulk_cpt_operations_ajax() {
                     $results[] = array(
                         'post_type' => $post_type,
                         'status' => 'success',
-                        'message' => __('CPT deleted successfully.', 'aiopms')
+                        'message' => __('CPT deleted successfully.', 'artitechcore')
                     );
                     $success_count++;
                 }
@@ -2241,12 +2292,12 @@ function aiopms_handle_bulk_cpt_operations_ajax() {
                     'post_type' => $post_type,
                     'cpt_data' => $dynamic_cpts[$post_type],
                     'export_date' => current_time('mysql'),
-                    'version' => '3.0'
+                    'version' => '1.0'
                 );
                 $results[] = array(
                     'post_type' => $post_type,
                     'status' => 'success',
-                    'message' => __('CPT exported successfully.', 'aiopms'),
+                    'message' => __('CPT exported successfully.', 'artitechcore'),
                     'export_data' => $export_data
                 );
                 $success_count++;
@@ -2256,7 +2307,7 @@ function aiopms_handle_bulk_cpt_operations_ajax() {
                 $results[] = array(
                     'post_type' => $post_type,
                     'status' => 'error',
-                    'message' => __('Invalid bulk action.', 'aiopms')
+                    'message' => __('Invalid bulk action.', 'artitechcore')
                 );
                 $error_count++;
                 break;
@@ -2264,7 +2315,7 @@ function aiopms_handle_bulk_cpt_operations_ajax() {
     }
     
     // Clear cache after bulk operations
-    wp_cache_delete('aiopms_dynamic_cpts', 'aiopms_cpt_cache');
+    wp_cache_delete('artitechcore_dynamic_cpts', 'artitechcore_cpt_cache');
     
     wp_send_json_success(array(
         'action' => $action,
@@ -2273,7 +2324,7 @@ function aiopms_handle_bulk_cpt_operations_ajax() {
         'error_count' => $error_count,
         'results' => $results,
         'message' => sprintf(
-            __('Bulk operation completed. %d successful, %d failed.', 'aiopms'),
+            __('Bulk operation completed. %d successful, %d failed.', 'artitechcore'),
             $success_count,
             $error_count
         )
@@ -2283,14 +2334,14 @@ function aiopms_handle_bulk_cpt_operations_ajax() {
 /**
  * AJAX handler for updating CPT data
  * 
- * @since 3.0
+ * @since 1.0
  */
-function aiopms_handle_cpt_update_ajax() {
+function artitechcore_handle_cpt_update_ajax() {
     // Security checks
-    check_ajax_referer('aiopms_cpt_ajax', 'nonce');
+    check_ajax_referer('artitechcore_cpt_ajax', 'nonce');
     
     if (!current_user_can('manage_options')) {
-        wp_send_json_error(__('Insufficient permissions.', 'aiopms'));
+        wp_send_json_error(__('Insufficient permissions.', 'artitechcore'));
     }
     
     $post_type = sanitize_key($_POST['cpt_name'] ?? '');
@@ -2299,13 +2350,13 @@ function aiopms_handle_cpt_update_ajax() {
     $menu_icon = sanitize_text_field($_POST['cpt_menu_icon'] ?? 'dashicons-admin-post');
     
     if (empty($post_type) || empty($label)) {
-        wp_send_json_error(__('Invalid CPT data provided.', 'aiopms'));
+        wp_send_json_error(__('Invalid CPT data provided.', 'artitechcore'));
     }
     
-    $dynamic_cpts = get_option('aiopms_dynamic_cpts', array());
+    $dynamic_cpts = get_option('artitechcore_dynamic_cpts', array());
     
     if (!isset($dynamic_cpts[$post_type])) {
-        wp_send_json_error(__('Custom post type not found.', 'aiopms'));
+        wp_send_json_error(__('Custom post type not found.', 'artitechcore'));
     }
     
     // Update CPT data
@@ -2314,26 +2365,26 @@ function aiopms_handle_cpt_update_ajax() {
     $dynamic_cpts[$post_type]['menu_icon'] = $menu_icon;
     
     // Save updated data
-    update_option('aiopms_dynamic_cpts', $dynamic_cpts);
+    update_option('artitechcore_dynamic_cpts', $dynamic_cpts);
     
     // Update last modified timestamp
-    update_option('aiopms_cpt_modified_' . $post_type, current_time('mysql'));
+    update_option('artitechcore_cpt_modified_' . $post_type, current_time('mysql'));
     
     // Clear cache
-    wp_cache_delete('aiopms_dynamic_cpts', 'aiopms_cpt_cache');
+    wp_cache_delete('artitechcore_dynamic_cpts', 'artitechcore_cpt_cache');
     
     // Re-register the CPT with updated data
-    $result = aiopms_register_dynamic_custom_post_type($dynamic_cpts[$post_type]);
+    $result = artitechcore_register_dynamic_custom_post_type($dynamic_cpts[$post_type]);
     
     if (is_wp_error($result)) {
         wp_send_json_error($result->get_error_message());
     }
     
     // Log activity
-    aiopms_log_cpt_activity('update', $post_type, true);
+    artitechcore_log_cpt_activity('update', $post_type, true);
     
     wp_send_json_success(array(
-        'message' => __('CPT updated successfully.', 'aiopms'),
+        'message' => __('CPT updated successfully.', 'artitechcore'),
         'cpt_data' => $dynamic_cpts[$post_type]
     ));
 }
@@ -2342,9 +2393,9 @@ function aiopms_handle_cpt_update_ajax() {
  * Get available CPT templates
  * 
  * @return array Array of CPT templates
- * @since 3.0
+ * @since 1.0
  */
-function aiopms_get_cpt_templates() {
+function artitechcore_get_cpt_templates() {
     return array(
         'portfolio' => array(
             'name' => 'Portfolio',
@@ -2811,24 +2862,24 @@ function aiopms_get_cpt_templates() {
 /**
  * Create CPT from template
  * 
- * @since 3.0
+ * @since 1.0
  */
-function aiopms_create_cpt_from_template() {
+function artitechcore_create_cpt_from_template() {
     if (!current_user_can('manage_options')) {
-        wp_die(__('You do not have sufficient permissions to access this page.', 'aiopms'));
+        wp_die(__('You do not have sufficient permissions to access this page.', 'artitechcore'));
     }
     
     $template_id = sanitize_key($_POST['template_id'] ?? '');
     
     if (empty($template_id)) {
-        echo '<div class="notice notice-error"><p>' . __('Invalid template selected.', 'aiopms') . '</p></div>';
+        echo '<div class="notice notice-error"><p>' . __('Invalid template selected.', 'artitechcore') . '</p></div>';
         return;
     }
     
-    $templates = aiopms_get_cpt_templates();
+    $templates = artitechcore_get_cpt_templates();
     
     if (!isset($templates[$template_id])) {
-        echo '<div class="notice notice-error"><p>' . __('Template not found.', 'aiopms') . '</p></div>';
+        echo '<div class="notice notice-error"><p>' . __('Template not found.', 'artitechcore') . '</p></div>';
         return;
     }
     
@@ -2846,16 +2897,16 @@ function aiopms_create_cpt_from_template() {
     );
     
     // Register the CPT
-    $result = aiopms_register_dynamic_custom_post_type($cpt_data);
+    $result = artitechcore_register_dynamic_custom_post_type($cpt_data);
     
     if (is_wp_error($result)) {
         echo '<div class="notice notice-error"><p>' . esc_html($result->get_error_message()) . '</p></div>';
     } else {
-        echo '<div class="notice notice-success"><p>' . sprintf(__('Custom post type "%s" created successfully from template!', 'aiopms'), $template['name']) . '</p></div>';
+        echo '<div class="notice notice-success"><p>' . sprintf(__('Custom post type "%s" created successfully from template!', 'artitechcore'), $template['name']) . '</p></div>';
         
         // Create sample entries if available
         if (!empty($template['sample_entries'])) {
-            aiopms_create_sample_cpt_entries($cpt_data);
+            artitechcore_create_sample_cpt_entries($cpt_data);
         }
     }
 }
@@ -2863,18 +2914,18 @@ function aiopms_create_cpt_from_template() {
 /**
  * Handle CPT export
  * 
- * @since 3.0
+ * @since 1.0
  */
-function aiopms_handle_cpt_export() {
+function artitechcore_handle_cpt_export() {
     if (!current_user_can('manage_options')) {
-        wp_die(__('You do not have sufficient permissions to access this page.', 'aiopms'));
+        wp_die(__('You do not have sufficient permissions to access this page.', 'artitechcore'));
     }
     
     $export_type = sanitize_key($_POST['export_type'] ?? 'all');
-    $dynamic_cpts = get_option('aiopms_dynamic_cpts', array());
+    $dynamic_cpts = get_option('artitechcore_dynamic_cpts', array());
     
     $export_data = array(
-        'version' => '3.0',
+        'version' => '1.0',
         'export_date' => current_time('mysql'),
         'site_url' => get_site_url(),
         'cpts' => array()
@@ -2892,12 +2943,12 @@ function aiopms_handle_cpt_export() {
     }
     
     if (empty($export_data['cpts'])) {
-        echo '<div class="notice notice-error"><p>' . __('No CPTs selected for export.', 'aiopms') . '</p></div>';
+        echo '<div class="notice notice-error"><p>' . __('No CPTs selected for export.', 'artitechcore') . '</p></div>';
         return;
     }
     
     // Generate filename
-    $filename = 'aiopms-cpts-export-' . date('Y-m-d-H-i-s') . '.json';
+    $filename = 'artitechcore-cpts-export-' . date('Y-m-d-H-i-s') . '.json';
     
     // Set headers for download
     header('Content-Type: application/json');
@@ -2912,15 +2963,15 @@ function aiopms_handle_cpt_export() {
 /**
  * Handle CPT import
  * 
- * @since 3.0
+ * @since 1.0
  */
-function aiopms_handle_cpt_import() {
+function artitechcore_handle_cpt_import() {
     if (!current_user_can('manage_options')) {
-        wp_die(__('You do not have sufficient permissions to access this page.', 'aiopms'));
+        wp_die(__('You do not have sufficient permissions to access this page.', 'artitechcore'));
     }
     
     if (!isset($_FILES['cpt_import_file']) || $_FILES['cpt_import_file']['error'] !== UPLOAD_ERR_OK) {
-        echo '<div class="notice notice-error"><p>' . __('Please select a valid JSON file to import.', 'aiopms') . '</p></div>';
+        echo '<div class="notice notice-error"><p>' . __('Please select a valid JSON file to import.', 'artitechcore') . '</p></div>';
         return;
     }
     
@@ -2928,19 +2979,19 @@ function aiopms_handle_cpt_import() {
     $import_data = json_decode($file_content, true);
     
     if (json_last_error() !== JSON_ERROR_NONE) {
-        echo '<div class="notice notice-error"><p>' . __('Invalid JSON file format.', 'aiopms') . '</p></div>';
+        echo '<div class="notice notice-error"><p>' . __('Invalid JSON file format.', 'artitechcore') . '</p></div>';
         return;
     }
     
     if (!isset($import_data['cpts']) || !is_array($import_data['cpts'])) {
-        echo '<div class="notice notice-error"><p>' . __('Invalid import file format.', 'aiopms') . '</p></div>';
+        echo '<div class="notice notice-error"><p>' . __('Invalid import file format.', 'artitechcore') . '</p></div>';
         return;
     }
     
     $overwrite = isset($_POST['import_overwrite']);
     $activate = isset($_POST['import_activate']);
     
-    $dynamic_cpts = get_option('aiopms_dynamic_cpts', array());
+    $dynamic_cpts = get_option('artitechcore_dynamic_cpts', array());
     $imported_count = 0;
     $skipped_count = 0;
     $errors = array();
@@ -2952,37 +3003,37 @@ function aiopms_handle_cpt_import() {
         }
         
         // Validate CPT data
-        if (!aiopms_validate_cpt_data($cpt_data)) {
-            $errors[] = sprintf(__('Invalid data for CPT "%s"', 'aiopms'), $post_type);
+        if (!artitechcore_validate_cpt_data($cpt_data)) {
+            $errors[] = sprintf(__('Invalid data for CPT "%s"', 'artitechcore'), $post_type);
             continue;
         }
         
         // Sanitize and save CPT data
-        $dynamic_cpts[$post_type] = aiopms_sanitize_cpt_data($cpt_data);
+        $dynamic_cpts[$post_type] = artitechcore_sanitize_cpt_data($cpt_data);
         $imported_count++;
         
         // Activate if requested
         if ($activate) {
-            aiopms_register_dynamic_custom_post_type($dynamic_cpts[$post_type]);
+            artitechcore_register_dynamic_custom_post_type($dynamic_cpts[$post_type]);
         }
     }
     
     // Save updated CPTs
-    update_option('aiopms_dynamic_cpts', $dynamic_cpts);
+    update_option('artitechcore_dynamic_cpts', $dynamic_cpts);
     
     // Clear cache
-    wp_cache_delete('aiopms_dynamic_cpts', 'aiopms_cpt_cache');
+    wp_cache_delete('artitechcore_dynamic_cpts', 'artitechcore_cpt_cache');
     
     // Display results
     $message_parts = array();
     if ($imported_count > 0) {
-        $message_parts[] = sprintf(__('%d CPTs imported successfully.', 'aiopms'), $imported_count);
+        $message_parts[] = sprintf(__('%d CPTs imported successfully.', 'artitechcore'), $imported_count);
     }
     if ($skipped_count > 0) {
-        $message_parts[] = sprintf(__('%d CPTs skipped (already exist).', 'aiopms'), $skipped_count);
+        $message_parts[] = sprintf(__('%d CPTs skipped (already exist).', 'artitechcore'), $skipped_count);
     }
     if (!empty($errors)) {
-        $message_parts[] = sprintf(__('%d errors occurred.', 'aiopms'), count($errors));
+        $message_parts[] = sprintf(__('%d errors occurred.', 'artitechcore'), count($errors));
     }
     
     if (!empty($message_parts)) {
@@ -3000,11 +3051,11 @@ function aiopms_handle_cpt_import() {
  * 
  * @since 3.0
  */
-function aiopms_display_import_export_history() {
-    $history = get_option('aiopms_import_export_history', array());
+function artitechcore_display_import_export_history() {
+    $history = get_option('artitechcore_import_export_history', array());
     
     if (empty($history)) {
-        echo '<p>' . __('No recent import/export operations.', 'aiopms') . '</p>';
+        echo '<p>' . __('No recent import/export operations.', 'artitechcore') . '</p>';
         return;
     }
     
@@ -3013,12 +3064,12 @@ function aiopms_display_import_export_history() {
         return strtotime($b['date']) - strtotime($a['date']);
     });
     
-    echo '<div class="aiopms-history-items">';
+    echo '<div class="artitechcore-history-items">';
     foreach (array_slice($history, 0, 10) as $item) {
         $icon = $item['type'] === 'export' ? 'dashicons-download' : 'dashicons-upload';
         $class = $item['type'] === 'export' ? 'export' : 'import';
         
-        echo '<div class="aiopms-history-item ' . $class . '">';
+        echo '<div class="artitechcore-history-item ' . $class . '">';
         echo '<span class="dashicons ' . $icon . '" aria-hidden="true"></span>';
         echo '<div class="history-details">';
         echo '<strong>' . ucfirst($item['type']) . '</strong> - ';
@@ -3039,13 +3090,13 @@ function aiopms_display_import_export_history() {
  * 
  * @since 3.1
  */
-function aiopms_register_existing_dynamic_taxonomies() {
-    $dynamic_taxonomies = get_option('aiopms_dynamic_taxonomies', []);
+function artitechcore_register_existing_dynamic_taxonomies() {
+    $dynamic_taxonomies = get_option('artitechcore_dynamic_taxonomies', []);
     
     if (!empty($dynamic_taxonomies) && is_array($dynamic_taxonomies)) {
         foreach ($dynamic_taxonomies as $taxonomy_slug => $taxonomy_data) {
-            if (aiopms_validate_taxonomy_data($taxonomy_data)) {
-                aiopms_register_dynamic_taxonomy($taxonomy_data);
+            if (artitechcore_validate_taxonomy_data($taxonomy_data)) {
+                artitechcore_register_dynamic_taxonomy($taxonomy_data);
             }
         }
     }
@@ -3058,7 +3109,7 @@ function aiopms_register_existing_dynamic_taxonomies() {
  * @return bool|WP_Error
  * @since 3.1
  */
-function aiopms_register_dynamic_taxonomy($taxonomy_data) {
+function artitechcore_register_dynamic_taxonomy($taxonomy_data) {
     $taxonomy_slug = sanitize_key($taxonomy_data['name']);
     $singular_label = sanitize_text_field($taxonomy_data['singular_label']);
     $plural_label = sanitize_text_field($taxonomy_data['plural_label']);
@@ -3070,14 +3121,14 @@ function aiopms_register_dynamic_taxonomy($taxonomy_data) {
     $labels = array(
         'name'              => $plural_label,
         'singular_name'     => $singular_label,
-        'search_items'      => sprintf(__('Search %s', 'aiopms'), $plural_label),
-        'all_items'         => sprintf(__('All %s', 'aiopms'), $plural_label),
-        'parent_item'       => $hierarchical ? sprintf(__('Parent %s', 'aiopms'), $singular_label) : null,
-        'parent_item_colon' => $hierarchical ? sprintf(__('Parent %s:', 'aiopms'), $singular_label) : null,
-        'edit_item'         => sprintf(__('Edit %s', 'aiopms'), $singular_label),
-        'update_item'       => sprintf(__('Update %s', 'aiopms'), $singular_label),
-        'add_new_item'      => sprintf(__('Add New %s', 'aiopms'), $singular_label),
-        'new_item_name'     => sprintf(__('New %s Name', 'aiopms'), $singular_label),
+        'search_items'      => sprintf(__('Search %s', 'artitechcore'), $plural_label),
+        'all_items'         => sprintf(__('All %s', 'artitechcore'), $plural_label),
+        'parent_item'       => $hierarchical ? sprintf(__('Parent %s', 'artitechcore'), $singular_label) : null,
+        'parent_item_colon' => $hierarchical ? sprintf(__('Parent %s:', 'artitechcore'), $singular_label) : null,
+        'edit_item'         => sprintf(__('Edit %s', 'artitechcore'), $singular_label),
+        'update_item'       => sprintf(__('Update %s', 'artitechcore'), $singular_label),
+        'add_new_item'      => sprintf(__('Add New %s', 'artitechcore'), $singular_label),
+        'new_item_name'     => sprintf(__('New %s Name', 'artitechcore'), $singular_label),
         'menu_name'         => $plural_label,
     );
     
@@ -3097,7 +3148,7 @@ function aiopms_register_dynamic_taxonomy($taxonomy_data) {
     $result = register_taxonomy($taxonomy_slug, $post_types, $args);
     
     if (is_wp_error($result)) {
-        error_log('AIOPMS Taxonomy Registration Error: ' . $result->get_error_message());
+        error_log('ArtitechCore Taxonomy Registration Error: ' . $result->get_error_message());
         return $result;
     }
     
@@ -3111,7 +3162,7 @@ function aiopms_register_dynamic_taxonomy($taxonomy_data) {
  * @return bool
  * @since 3.1
  */
-function aiopms_validate_taxonomy_data($taxonomy_data) {
+function artitechcore_validate_taxonomy_data($taxonomy_data) {
     if (!is_array($taxonomy_data)) return false;
     if (empty($taxonomy_data['name']) || empty($taxonomy_data['singular_label']) || empty($taxonomy_data['plural_label'])) return false;
     
@@ -3130,47 +3181,47 @@ function aiopms_validate_taxonomy_data($taxonomy_data) {
  * 
  * @since 3.1
  */
-function aiopms_cpt_taxonomies_tab() {
-    $dynamic_taxonomies = get_option('aiopms_dynamic_taxonomies', array());
-    $dynamic_cpts = get_option('aiopms_dynamic_cpts', array());
+function artitechcore_cpt_taxonomies_tab() {
+    $dynamic_taxonomies = get_option('artitechcore_dynamic_taxonomies', array());
+    $dynamic_cpts = get_option('artitechcore_dynamic_cpts', array());
     
     // Get all public post types for association
     $all_post_types = get_post_types(array('public' => true), 'objects');
     ?>
-    <div class="aiopms-taxonomies-manager">
+    <div class="artitechcore-taxonomies-manager">
         <div class="dg10-form-grid" style="grid-template-columns: 1fr 1fr; gap: 32px;">
             <!-- Create New Taxonomy Form -->
             <div class="dg10-card">
                 <div class="dg10-card-header" style="padding: 20px 24px;">
-                    <h3 style="margin: 0;">➕ <?php esc_html_e('Create New Taxonomy', 'aiopms'); ?></h3>
+                    <h3 style="margin: 0;">➕ <?php esc_html_e('Create New Taxonomy', 'artitechcore'); ?></h3>
                 </div>
                 <div class="dg10-card-body" style="padding: 24px;">
-                    <form id="aiopms-taxonomy-form" method="post">
-                        <?php wp_nonce_field('aiopms_create_taxonomy'); ?>
+                    <form id="artitechcore-taxonomy-form" method="post">
+                        <?php wp_nonce_field('artitechcore_create_taxonomy'); ?>
                         
                         <div class="dg10-form-group" style="margin-bottom: 20px;">
-                            <label for="taxonomy_name" class="dg10-form-label"><?php esc_html_e('Taxonomy Slug', 'aiopms'); ?></label>
+                            <label for="taxonomy_name" class="dg10-form-label"><?php esc_html_e('Taxonomy Slug', 'artitechcore'); ?></label>
                             <input type="text" name="taxonomy_name" id="taxonomy_name" class="dg10-form-input" required
-                                   placeholder="<?php esc_attr_e('e.g., genre', 'aiopms'); ?>"
+                                   placeholder="<?php esc_attr_e('e.g., genre', 'artitechcore'); ?>"
                                    pattern="[a-z_][a-z0-9_]*" maxlength="32">
-                            <p class="dg10-form-help"><?php esc_html_e('Lowercase, no spaces, use underscores. Max 32 chars.', 'aiopms'); ?></p>
+                            <p class="dg10-form-help"><?php esc_html_e('Lowercase, no spaces, use underscores. Max 32 chars.', 'artitechcore'); ?></p>
                         </div>
                         
                         <div class="dg10-form-group" style="margin-bottom: 20px;">
-                            <label for="taxonomy_singular_label" class="dg10-form-label"><?php esc_html_e('Singular Label', 'aiopms'); ?></label>
+                            <label for="taxonomy_singular_label" class="dg10-form-label"><?php esc_html_e('Singular Label', 'artitechcore'); ?></label>
                             <input type="text" name="taxonomy_singular_label" id="taxonomy_singular_label" class="dg10-form-input" required
-                                   placeholder="<?php esc_attr_e('e.g., Genre', 'aiopms'); ?>">
+                                   placeholder="<?php esc_attr_e('e.g., Genre', 'artitechcore'); ?>">
                         </div>
                         
                         <div class="dg10-form-group" style="margin-bottom: 20px;">
-                            <label for="taxonomy_plural_label" class="dg10-form-label"><?php esc_html_e('Plural Label', 'aiopms'); ?></label>
+                            <label for="taxonomy_plural_label" class="dg10-form-label"><?php esc_html_e('Plural Label', 'artitechcore'); ?></label>
                             <input type="text" name="taxonomy_plural_label" id="taxonomy_plural_label" class="dg10-form-input" required
-                                   placeholder="<?php esc_attr_e('e.g., Genres', 'aiopms'); ?>">
+                                   placeholder="<?php esc_attr_e('e.g., Genres', 'artitechcore'); ?>">
                         </div>
                         
                         <div class="dg10-form-group" style="margin-bottom: 20px;">
-                            <label class="dg10-form-label"><?php esc_html_e('Assign to Post Types', 'aiopms'); ?></label>
-                            <div class="aiopms-checkbox-group" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px;">
+                            <label class="dg10-form-label"><?php esc_html_e('Assign to Post Types', 'artitechcore'); ?></label>
+                            <div class="artitechcore-checkbox-group" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px;">
                                 <?php foreach ($all_post_types as $pt_slug => $pt_obj): ?>
                                     <label class="dg10-checkbox-label" style="display: flex; align-items: center; gap: 8px;">
                                         <input type="checkbox" name="taxonomy_post_types[]" value="<?php echo esc_attr($pt_slug); ?>">
@@ -3183,14 +3234,14 @@ function aiopms_cpt_taxonomies_tab() {
                         <div class="dg10-form-group" style="margin-bottom: 20px;">
                             <label class="dg10-checkbox-label" style="display: flex; align-items: center; gap: 8px;">
                                 <input type="checkbox" name="taxonomy_hierarchical" id="taxonomy_hierarchical" checked>
-                                <span><?php esc_html_e('Hierarchical (like Categories)', 'aiopms'); ?></span>
+                                <span><?php esc_html_e('Hierarchical (like Categories)', 'artitechcore'); ?></span>
                             </label>
-                            <p class="dg10-form-help"><?php esc_html_e('Unchecked = Flat (like Tags)', 'aiopms'); ?></p>
+                            <p class="dg10-form-help"><?php esc_html_e('Unchecked = Flat (like Tags)', 'artitechcore'); ?></p>
                         </div>
                         
                         <div class="dg10-form-actions">
                             <button type="submit" class="button button-primary">
-                                <?php esc_html_e('Create Taxonomy', 'aiopms'); ?>
+                                <?php esc_html_e('Create Taxonomy', 'artitechcore'); ?>
                             </button>
                         </div>
                     </form>
@@ -3200,18 +3251,18 @@ function aiopms_cpt_taxonomies_tab() {
             <!-- Existing Taxonomies List -->
             <div class="dg10-card">
                 <div class="dg10-card-header" style="padding: 20px 24px;">
-                    <h3 style="margin: 0;">📋 <?php esc_html_e('Existing Taxonomies', 'aiopms'); ?></h3>
+                    <h3 style="margin: 0;">📋 <?php esc_html_e('Existing Taxonomies', 'artitechcore'); ?></h3>
                 </div>
                 <div class="dg10-card-body" style="padding: 24px;">
                     <?php if (empty($dynamic_taxonomies)): ?>
-                        <div class="aiopms-empty-state" style="text-align: center; padding: 40px;">
+                        <div class="artitechcore-empty-state" style="text-align: center; padding: 40px;">
                             <span class="dashicons dashicons-tag" style="font-size: 48px; color: var(--dg10-text-dim);"></span>
-                            <p><?php esc_html_e('No custom taxonomies created yet.', 'aiopms'); ?></p>
+                            <p><?php esc_html_e('No custom taxonomies created yet.', 'artitechcore'); ?></p>
                         </div>
                     <?php else: ?>
-                        <div class="aiopms-taxonomy-list">
+                        <div class="artitechcore-taxonomy-list">
                             <?php foreach ($dynamic_taxonomies as $slug => $data): ?>
-                                <div class="aiopms-taxonomy-item dg10-glass-card" style="padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                                <div class="artitechcore-taxonomy-item dg10-glass-card" style="padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
                                     <div>
                                         <strong><?php echo esc_html($data['plural_label']); ?></strong>
                                         <code style="margin-left: 8px; font-size: 0.8em; background: var(--dg10-bg-muted); padding: 2px 6px; border-radius: 4px;"><?php echo esc_html($slug); ?></code>
@@ -3219,12 +3270,12 @@ function aiopms_cpt_taxonomies_tab() {
                                         <small style="color: var(--dg10-text-dim);">
                                             <?php 
                                             $pts = isset($data['post_types']) ? implode(', ', $data['post_types']) : 'post';
-                                            echo esc_html__('Attached to:', 'aiopms') . ' ' . esc_html($pts);
+                                            echo esc_html__('Attached to:', 'artitechcore') . ' ' . esc_html($pts);
                                             ?>
                                         </small>
                                     </div>
-                                    <button type="button" class="button button-link-delete aiopms-delete-taxonomy" data-taxonomy="<?php echo esc_attr($slug); ?>">
-                                        <?php esc_html_e('Delete', 'aiopms'); ?>
+                                    <button type="button" class="button button-link-delete artitechcore-delete-taxonomy" data-taxonomy="<?php echo esc_attr($slug); ?>">
+                                        <?php esc_html_e('Delete', 'artitechcore'); ?>
                                     </button>
                                 </div>
                             <?php endforeach; ?>
@@ -3238,7 +3289,7 @@ function aiopms_cpt_taxonomies_tab() {
     <script type="text/javascript">
     jQuery(document).ready(function($) {
         // Create Taxonomy Form Submission
-        $('#aiopms-taxonomy-form').on('submit', function(e) {
+        $('#artitechcore-taxonomy-form').on('submit', function(e) {
             e.preventDefault();
             var $form = $(this);
             var $btn = $form.find('button[type="submit"]');
@@ -3250,7 +3301,7 @@ function aiopms_cpt_taxonomies_tab() {
                 url: ajaxurl,
                 method: 'POST',
                 data: {
-                    action: 'aiopms_create_taxonomy_ajax',
+                    action: 'artitechcore_create_taxonomy_ajax',
                     nonce: $form.find('input[name="_wpnonce"]').val(),
                     taxonomy_name: $('#taxonomy_name').val(),
                     taxonomy_singular_label: $('#taxonomy_singular_label').val(),
@@ -3274,7 +3325,7 @@ function aiopms_cpt_taxonomies_tab() {
         });
         
         // Delete Taxonomy
-        $('.aiopms-delete-taxonomy').on('click', function() {
+        $('.artitechcore-delete-taxonomy').on('click', function() {
             var taxonomy = $(this).data('taxonomy');
             if (!confirm('Are you sure you want to delete the "' + taxonomy + '" taxonomy?')) return;
             
@@ -3282,8 +3333,8 @@ function aiopms_cpt_taxonomies_tab() {
                 url: ajaxurl,
                 method: 'POST',
                 data: {
-                    action: 'aiopms_delete_taxonomy_ajax',
-                    nonce: '<?php echo wp_create_nonce('aiopms_delete_taxonomy'); ?>',
+                    action: 'artitechcore_delete_taxonomy_ajax',
+                    nonce: '<?php echo wp_create_nonce('artitechcore_delete_taxonomy'); ?>',
                     taxonomy: taxonomy
                 },
                 success: function(response) {
@@ -3305,15 +3356,15 @@ function aiopms_cpt_taxonomies_tab() {
  * 
  * @since 3.1
  */
-function aiopms_handle_taxonomy_creation_ajax() {
+function artitechcore_handle_taxonomy_creation_ajax() {
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_key($_POST['nonce']), 'aiopms_create_taxonomy')) {
-        wp_send_json_error(__('Security check failed.', 'aiopms'));
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_key($_POST['nonce']), 'artitechcore_create_taxonomy')) {
+        wp_send_json_error(__('Security check failed.', 'artitechcore'));
     }
     
     // Check permissions
     if (!current_user_can('manage_options')) {
-        wp_send_json_error(__('Permission denied.', 'aiopms'));
+        wp_send_json_error(__('Permission denied.', 'artitechcore'));
     }
     
     $taxonomy_data = array(
@@ -3327,32 +3378,32 @@ function aiopms_handle_taxonomy_creation_ajax() {
     );
     
     // Validate
-    if (!aiopms_validate_taxonomy_data($taxonomy_data)) {
-        wp_send_json_error(__('Invalid taxonomy data. Check slug and labels.', 'aiopms'));
+    if (!artitechcore_validate_taxonomy_data($taxonomy_data)) {
+        wp_send_json_error(__('Invalid taxonomy data. Check slug and labels.', 'artitechcore'));
     }
     
     // Check if already exists
-    $existing = get_option('aiopms_dynamic_taxonomies', array());
+    $existing = get_option('artitechcore_dynamic_taxonomies', array());
     if (isset($existing[$taxonomy_data['name']])) {
-        wp_send_json_error(__('A taxonomy with this slug already exists.', 'aiopms'));
+        wp_send_json_error(__('A taxonomy with this slug already exists.', 'artitechcore'));
     }
     
     // Check if WordPress already has this taxonomy registered
     if (taxonomy_exists($taxonomy_data['name'])) {
-        wp_send_json_error(__('This taxonomy slug is already in use by WordPress or another plugin.', 'aiopms'));
+        wp_send_json_error(__('This taxonomy slug is already in use by WordPress or another plugin.', 'artitechcore'));
     }
     
     // Save
     $existing[$taxonomy_data['name']] = $taxonomy_data;
-    update_option('aiopms_dynamic_taxonomies', $existing);
+    update_option('artitechcore_dynamic_taxonomies', $existing);
     
     // Register immediately
-    aiopms_register_dynamic_taxonomy($taxonomy_data);
+    artitechcore_register_dynamic_taxonomy($taxonomy_data);
     
     // Flush rewrite rules on next load
-    update_option('aiopms_flush_rewrite_rules', true);
+    update_option('artitechcore_flush_rewrite_rules', true);
     
-    wp_send_json_success(array('message' => __('Taxonomy created successfully!', 'aiopms')));
+    wp_send_json_success(array('message' => __('Taxonomy created successfully!', 'artitechcore')));
 }
 
 /**
@@ -3360,34 +3411,34 @@ function aiopms_handle_taxonomy_creation_ajax() {
  * 
  * @since 3.1
  */
-function aiopms_handle_taxonomy_deletion_ajax() {
+function artitechcore_handle_taxonomy_deletion_ajax() {
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_key($_POST['nonce']), 'aiopms_delete_taxonomy')) {
-        wp_send_json_error(__('Security check failed.', 'aiopms'));
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_key($_POST['nonce']), 'artitechcore_delete_taxonomy')) {
+        wp_send_json_error(__('Security check failed.', 'artitechcore'));
     }
     
     // Check permissions
     if (!current_user_can('manage_options')) {
-        wp_send_json_error(__('Permission denied.', 'aiopms'));
+        wp_send_json_error(__('Permission denied.', 'artitechcore'));
     }
     
     $taxonomy_slug = sanitize_key($_POST['taxonomy'] ?? '');
     if (empty($taxonomy_slug)) {
-        wp_send_json_error(__('No taxonomy specified.', 'aiopms'));
+        wp_send_json_error(__('No taxonomy specified.', 'artitechcore'));
     }
     
-    $existing = get_option('aiopms_dynamic_taxonomies', array());
+    $existing = get_option('artitechcore_dynamic_taxonomies', array());
     if (!isset($existing[$taxonomy_slug])) {
-        wp_send_json_error(__('Taxonomy not found.', 'aiopms'));
+        wp_send_json_error(__('Taxonomy not found.', 'artitechcore'));
     }
     
     unset($existing[$taxonomy_slug]);
-    update_option('aiopms_dynamic_taxonomies', $existing);
+    update_option('artitechcore_dynamic_taxonomies', $existing);
     
     // Flush rewrite rules on next load
-    update_option('aiopms_flush_rewrite_rules', true);
+    update_option('artitechcore_flush_rewrite_rules', true);
     
-    wp_send_json_success(array('message' => __('Taxonomy deleted.', 'aiopms')));
+    wp_send_json_success(array('message' => __('Taxonomy deleted.', 'artitechcore')));
 }
 
 /**
@@ -3395,11 +3446,11 @@ function aiopms_handle_taxonomy_deletion_ajax() {
  * 
  * @since 3.1
  */
-function aiopms_maybe_flush_rewrite_rules() {
-    if (get_option('aiopms_flush_rewrite_rules')) {
+function artitechcore_maybe_flush_rewrite_rules() {
+    if (get_option('artitechcore_flush_rewrite_rules')) {
         flush_rewrite_rules();
-        delete_option('aiopms_flush_rewrite_rules');
+        delete_option('artitechcore_flush_rewrite_rules');
     }
 }
-add_action('init', 'aiopms_maybe_flush_rewrite_rules', 99);
+add_action('init', 'artitechcore_maybe_flush_rewrite_rules', 99);
 

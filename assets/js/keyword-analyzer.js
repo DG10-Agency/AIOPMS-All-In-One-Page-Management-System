@@ -5,18 +5,18 @@ jQuery(document).ready(function ($) {
     loadPages();
 
     // Keyword count display
-    $('#aiopms_keywords_input').on('input', function () {
+    $('#artitechcore_keywords_input').on('input', function () {
         const text = $(this).val();
         const keywords = text.split(/[\r\n,]+/).filter(k => k.trim().length > 0);
         $('#keyword-count').text('Keywords: ' + keywords.length);
     });
 
     // Form submission
-    $('#aiopms-keyword-analysis-form').on('submit', function (e) {
+    $('#artitechcore-keyword-analysis-form').on('submit', function (e) {
         e.preventDefault();
 
-        const pageId = $('#aiopms_page_select').val();
-        const keywords = $('#aiopms_keywords_input').val();
+        const pageId = $('#artitechcore_page_select').val();
+        const keywords = $('#artitechcore_keywords_input').val();
 
         if (!pageId || !keywords.trim()) {
             alert('Please select a page and enter keywords to analyze.');
@@ -44,12 +44,12 @@ jQuery(document).ready(function ($) {
             url: ajaxurl,
             type: 'POST',
             data: {
-                action: 'aiopms_get_pages',
-                nonce: aiopms_keyword_data.nonce
+                action: 'artitechcore_get_pages',
+                nonce: artitechcore_keyword_data.nonce
             },
             success: function (response) {
                 if (response.success) {
-                    const select = $('#aiopms_page_select');
+                    const select = $('#artitechcore_page_select');
                     select.empty();
                     select.append('<option value="">Select a page...</option>');
 
@@ -71,7 +71,7 @@ jQuery(document).ready(function ($) {
     }
 
     function analyzeKeywords(pageId, keywords) {
-        const btn = $('#aiopms-analyze-btn');
+        const btn = $('#artitechcore-analyze-btn');
         const btnText = btn.find('.btn-text');
         const spinner = btn.find('.dg10-spinner');
 
@@ -84,16 +84,16 @@ jQuery(document).ready(function ($) {
             url: ajaxurl,
             type: 'POST',
             data: {
-                action: 'aiopms_analyze_keywords',
+                action: 'artitechcore_analyze_keywords',
                 page_id: pageId,
                 keywords: keywords,
-                nonce: aiopms_keyword_data.nonce
+                nonce: artitechcore_keyword_data.nonce
             },
             success: function (response) {
                 if (response.success) {
                     analysisData = response.data;
                     displayResults(response.data);
-                    $('#aiopms-analysis-results').removeClass('dg10-hidden');
+                    $('#artitechcore-analysis-results').removeClass('dg10-hidden');
                 } else {
                     alert('Analysis failed: ' + (response.data || 'Unknown error'));
                 }
@@ -113,7 +113,7 @@ jQuery(document).ready(function ($) {
 
     function showNotification(message, type = 'info') {
         const notification = $(`
-            <div class="aiopms-notification notification-${type}">
+            <div class="artitechcore-notification notification-${type}">
                 <span class="notification-message"></span>
                 <button class="notification-close" aria-label="Close notification">&times;</button>
             </div>
@@ -326,13 +326,13 @@ jQuery(document).ready(function ($) {
         form.append($('<input>', {
             type: 'hidden',
             name: 'action',
-            value: 'aiopms_export_keyword_analysis'
+            value: 'artitechcore_export_keyword_analysis'
         }));
 
         form.append($('<input>', {
             type: 'hidden',
             name: 'nonce',
-            value: aiopms_keyword_data.nonce
+            value: artitechcore_keyword_data.nonce
         }));
 
         form.append($('<input>', {

@@ -3,7 +3,7 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-function aiopms_extract_first_email($text) {
+function artitechcore_extract_first_email($text) {
     if (!is_string($text) || $text === '') {
         return '';
     }
@@ -14,7 +14,7 @@ function aiopms_extract_first_email($text) {
     return '';
 }
 
-function aiopms_extract_first_phone($text) {
+function artitechcore_extract_first_phone($text) {
     if (!is_string($text) || $text === '') {
         return '';
     }
@@ -31,7 +31,7 @@ function aiopms_extract_first_phone($text) {
     return '';
 }
 
-function aiopms_extract_possible_address($text) {
+function artitechcore_extract_possible_address($text) {
     if (!is_string($text) || $text === '') {
         return '';
     }
@@ -54,7 +54,7 @@ function aiopms_extract_possible_address($text) {
     return '';
 }
 
-function aiopms_scan_widget_areas_for_contact_info(&$detected) {
+function artitechcore_scan_widget_areas_for_contact_info(&$detected) {
     if (!function_exists('wp_get_sidebars_widgets')) {
         return;
     }
@@ -115,19 +115,19 @@ function aiopms_scan_widget_areas_for_contact_info(&$detected) {
             }
         }
         if (empty($detected['email'])) {
-            $detected['email'] = aiopms_extract_first_email(wp_strip_all_tags($combined));
+            $detected['email'] = artitechcore_extract_first_email(wp_strip_all_tags($combined));
         }
     }
 
     if (empty($detected['phone'])) {
-        $detected['phone'] = aiopms_extract_first_phone($combined);
+        $detected['phone'] = artitechcore_extract_first_phone($combined);
         if (empty($detected['phone'])) {
-            $detected['phone'] = aiopms_extract_first_phone(wp_strip_all_tags($combined));
+            $detected['phone'] = artitechcore_extract_first_phone(wp_strip_all_tags($combined));
         }
     }
 
     if (empty($detected['address'])) {
-        $detected['address'] = aiopms_extract_possible_address(wp_strip_all_tags($combined));
+        $detected['address'] = artitechcore_extract_possible_address(wp_strip_all_tags($combined));
     }
 }
 
@@ -136,7 +136,7 @@ function aiopms_scan_widget_areas_for_contact_info(&$detected) {
  * Scans WP core settings, pages, WooCommerce, and SEO plugins
  * @return array Detected business information
  */
-function aiopms_auto_detect_business_info() {
+function artitechcore_auto_detect_business_info() {
     $detected = [
         'name' => '',
         'description' => '',
@@ -220,17 +220,17 @@ function aiopms_auto_detect_business_info() {
             
             // Extract phone (if not already found)
             if (empty($detected['phone'])) {
-                $detected['phone'] = aiopms_extract_first_phone($content);
+                $detected['phone'] = artitechcore_extract_first_phone($content);
             }
             
             // Extract address patterns (if not already found)
             if (empty($detected['address'])) {
-                $detected['address'] = aiopms_extract_possible_address($content);
+                $detected['address'] = artitechcore_extract_possible_address($content);
             }
 
             // Extract email (prefer actual content over admin_email)
             if (empty($detected['email']) || $detected['email'] === get_option('admin_email', '')) {
-                $found_email = aiopms_extract_first_email($content);
+                $found_email = artitechcore_extract_first_email($content);
                 if (!empty($found_email)) {
                     $detected['email'] = $found_email;
                 }
@@ -247,7 +247,7 @@ function aiopms_auto_detect_business_info() {
     }
 
     // 6. Scan widget areas (common place for footer contact blocks)
-    aiopms_scan_widget_areas_for_contact_info($detected);
+    artitechcore_scan_widget_areas_for_contact_info($detected);
 
     // 6. Scan menus for social links
     $nav_menus = wp_get_nav_menus();
@@ -275,99 +275,99 @@ function aiopms_auto_detect_business_info() {
 /**
  * AJAX handler for re-scanning website
  */
-function aiopms_ajax_rescan_business_info() {
-    check_ajax_referer('aiopms_rescan_nonce', 'nonce');
+function artitechcore_ajax_rescan_business_info() {
+    check_ajax_referer('artitechcore_rescan_nonce', 'nonce');
     
     if (!current_user_can('manage_options')) {
         wp_send_json_error(['message' => 'Unauthorized']);
     }
     
-    $detected = aiopms_auto_detect_business_info();
+    $detected = artitechcore_auto_detect_business_info();
     
     // Save detected values to options
-    update_option('aiopms_business_name', $detected['name']);
-    update_option('aiopms_business_description', $detected['description']);
-    update_option('aiopms_business_address', $detected['address']);
-    update_option('aiopms_business_phone', $detected['phone']);
-    update_option('aiopms_business_email', $detected['email']);
-    update_option('aiopms_business_social_facebook', $detected['facebook']);
-    update_option('aiopms_business_social_twitter', $detected['twitter']);
-    update_option('aiopms_business_social_linkedin', $detected['linkedin']);
+    update_option('artitechcore_business_name', $detected['name']);
+    update_option('artitechcore_business_description', $detected['description']);
+    update_option('artitechcore_business_address', $detected['address']);
+    update_option('artitechcore_business_phone', $detected['phone']);
+    update_option('artitechcore_business_email', $detected['email']);
+    update_option('artitechcore_business_social_facebook', $detected['facebook']);
+    update_option('artitechcore_business_social_twitter', $detected['twitter']);
+    update_option('artitechcore_business_social_linkedin', $detected['linkedin']);
     
     wp_send_json_success([
-        'message' => __('Business information detected and saved!', 'aiopms'),
+        'message' => __('Business information detected and saved!', 'artitechcore'),
         'data' => $detected
     ]);
 }
-add_action('wp_ajax_aiopms_rescan_business_info', 'aiopms_ajax_rescan_business_info');
+add_action('wp_ajax_artitechcore_rescan_business_info', 'artitechcore_ajax_rescan_business_info');
 
 /**
  * Auto-detect on plugin activation (if settings are empty)
  */
-function aiopms_maybe_auto_detect_on_load() {
+function artitechcore_maybe_auto_detect_on_load() {
     // Only run once if business name is empty
-    if (empty(get_option('aiopms_business_name', ''))) {
-        $detected = aiopms_auto_detect_business_info();
+    if (empty(get_option('artitechcore_business_name', ''))) {
+        $detected = artitechcore_auto_detect_business_info();
         
         // Only save if we actually detected something
         if (!empty($detected['name'])) {
-            update_option('aiopms_business_name', $detected['name']);
+            update_option('artitechcore_business_name', $detected['name']);
         }
         if (!empty($detected['description'])) {
-            update_option('aiopms_business_description', $detected['description']);
+            update_option('artitechcore_business_description', $detected['description']);
         }
         if (!empty($detected['address'])) {
-            update_option('aiopms_business_address', $detected['address']);
+            update_option('artitechcore_business_address', $detected['address']);
         }
         if (!empty($detected['phone'])) {
-            update_option('aiopms_business_phone', $detected['phone']);
+            update_option('artitechcore_business_phone', $detected['phone']);
         }
         if (!empty($detected['email'])) {
-            update_option('aiopms_business_email', $detected['email']);
+            update_option('artitechcore_business_email', $detected['email']);
         }
         if (!empty($detected['facebook'])) {
-            update_option('aiopms_business_social_facebook', $detected['facebook']);
+            update_option('artitechcore_business_social_facebook', $detected['facebook']);
         }
         if (!empty($detected['twitter'])) {
-            update_option('aiopms_business_social_twitter', $detected['twitter']);
+            update_option('artitechcore_business_social_twitter', $detected['twitter']);
         }
         if (!empty($detected['linkedin'])) {
-            update_option('aiopms_business_social_linkedin', $detected['linkedin']);
+            update_option('artitechcore_business_social_linkedin', $detected['linkedin']);
         }
     }
 }
-add_action('admin_init', 'aiopms_maybe_auto_detect_on_load');
+add_action('admin_init', 'artitechcore_maybe_auto_detect_on_load');
 
 
 // Register settings with sanitization callbacks
-function aiopms_register_settings() {
-    register_setting('aiopms_settings_group', 'aiopms_ai_provider', 'sanitize_key');
-    register_setting('aiopms_settings_group', 'aiopms_openai_api_key', 'sanitize_text_field');
-    register_setting('aiopms_settings_group', 'aiopms_gemini_api_key', 'sanitize_text_field');
-    register_setting('aiopms_settings_group', 'aiopms_deepseek_api_key', 'sanitize_text_field');
-    register_setting('aiopms_settings_group', 'aiopms_brand_color', 'sanitize_hex_color');
-    register_setting('aiopms_settings_group', 'aiopms_sitemap_url', 'esc_url_raw');
-    register_setting('aiopms_settings_group', 'aiopms_auto_schema_generation', 'absint');
+function artitechcore_register_settings() {
+    register_setting('artitechcore_settings_group', 'artitechcore_ai_provider', 'sanitize_key');
+    register_setting('artitechcore_settings_group', 'artitechcore_openai_api_key', 'sanitize_text_field');
+    register_setting('artitechcore_settings_group', 'artitechcore_gemini_api_key', 'sanitize_text_field');
+    register_setting('artitechcore_settings_group', 'artitechcore_deepseek_api_key', 'sanitize_text_field');
+    register_setting('artitechcore_settings_group', 'artitechcore_brand_color', 'sanitize_hex_color');
+    register_setting('artitechcore_settings_group', 'artitechcore_sitemap_url', 'esc_url_raw');
+    register_setting('artitechcore_settings_group', 'artitechcore_auto_schema_generation', 'absint');
     
     // Business Information Settings
-    register_setting('aiopms_settings_group', 'aiopms_business_name', 'sanitize_text_field');
-    register_setting('aiopms_settings_group', 'aiopms_business_description', 'sanitize_textarea_field');
-    register_setting('aiopms_settings_group', 'aiopms_business_address', 'sanitize_textarea_field');
-    register_setting('aiopms_settings_group', 'aiopms_business_phone', 'sanitize_text_field');
-    register_setting('aiopms_settings_group', 'aiopms_business_email', 'sanitize_email');
-    register_setting('aiopms_settings_group', 'aiopms_business_social_facebook', 'esc_url_raw');
-    register_setting('aiopms_settings_group', 'aiopms_business_social_twitter', 'esc_url_raw');
-    register_setting('aiopms_settings_group', 'aiopms_business_social_linkedin', 'esc_url_raw');
+    register_setting('artitechcore_settings_group', 'artitechcore_business_name', 'sanitize_text_field');
+    register_setting('artitechcore_settings_group', 'artitechcore_business_description', 'sanitize_textarea_field');
+    register_setting('artitechcore_settings_group', 'artitechcore_business_address', 'sanitize_textarea_field');
+    register_setting('artitechcore_settings_group', 'artitechcore_business_phone', 'sanitize_text_field');
+    register_setting('artitechcore_settings_group', 'artitechcore_business_email', 'sanitize_email');
+    register_setting('artitechcore_settings_group', 'artitechcore_business_social_facebook', 'esc_url_raw');
+    register_setting('artitechcore_settings_group', 'artitechcore_business_social_twitter', 'esc_url_raw');
+    register_setting('artitechcore_settings_group', 'artitechcore_business_social_linkedin', 'esc_url_raw');
 }
-add_action('admin_init', 'aiopms_register_settings');
+add_action('admin_init', 'artitechcore_register_settings');
 
 // Settings tab content
-function aiopms_settings_tab() {
+function artitechcore_settings_tab() {
     ?>
     <form method="post" action="options.php">
         <?php
-        settings_fields('aiopms_settings_group');
-        do_settings_sections('aiopms-page-management');
+        settings_fields('artitechcore_settings_group');
+        do_settings_sections('artitechcore-main');
         submit_button();
         ?>
     </form>
@@ -375,182 +375,182 @@ function aiopms_settings_tab() {
 }
 
 // Add settings section and fields
-function aiopms_settings_init() {
+function artitechcore_settings_init() {
     add_settings_section(
-        'aiopms_settings_section',
-        __('AI Settings', 'aiopms'),
-        'aiopms_settings_section_callback',
-        'aiopms-page-management'
+        'artitechcore_settings_section',
+        __('AI Settings', 'artitechcore'),
+        'artitechcore_settings_section_callback',
+        'artitechcore-main'
     );
 
     add_settings_field(
-        'aiopms_ai_provider',
-        __('AI Provider', 'aiopms'),
-        'aiopms_ai_provider_callback',
-        'aiopms-page-management',
-        'aiopms_settings_section'
+        'artitechcore_ai_provider',
+        __('AI Provider', 'artitechcore'),
+        'artitechcore_ai_provider_callback',
+        'artitechcore-main',
+        'artitechcore_settings_section'
     );
 
     add_settings_field(
-        'aiopms_openai_api_key',
-        __('OpenAI API Key', 'aiopms'),
-        'aiopms_openai_api_key_callback',
-        'aiopms-page-management',
-        'aiopms_settings_section'
+        'artitechcore_openai_api_key',
+        __('OpenAI API Key', 'artitechcore'),
+        'artitechcore_openai_api_key_callback',
+        'artitechcore-main',
+        'artitechcore_settings_section'
     );
 
     add_settings_field(
-        'aiopms_gemini_api_key',
-        __('Gemini API Key', 'aiopms'),
-        'aiopms_gemini_api_key_callback',
-        'aiopms-page-management',
-        'aiopms_settings_section'
+        'artitechcore_gemini_api_key',
+        __('Gemini API Key', 'artitechcore'),
+        'artitechcore_gemini_api_key_callback',
+        'artitechcore-main',
+        'artitechcore_settings_section'
     );
 
     add_settings_field(
-        'aiopms_deepseek_api_key',
-        __('DeepSeek API Key', 'aiopms'),
-        'aiopms_deepseek_api_key_callback',
-        'aiopms-page-management',
-        'aiopms_settings_section'
+        'artitechcore_deepseek_api_key',
+        __('DeepSeek API Key', 'artitechcore'),
+        'artitechcore_deepseek_api_key_callback',
+        'artitechcore-main',
+        'artitechcore_settings_section'
     );
 
     add_settings_field(
-        'aiopms_brand_color',
-        __('Brand Color', 'aiopms'),
-        'aiopms_brand_color_callback',
-        'aiopms-page-management',
-        'aiopms_settings_section'
+        'artitechcore_brand_color',
+        __('Brand Color', 'artitechcore'),
+        'artitechcore_brand_color_callback',
+        'artitechcore-main',
+        'artitechcore_settings_section'
     );
 
     add_settings_field(
-        'aiopms_sitemap_url',
-        __('Sitemap URL', 'aiopms'),
-        'aiopms_sitemap_url_callback',
-        'aiopms-page-management',
-        'aiopms_settings_section'
+        'artitechcore_sitemap_url',
+        __('Sitemap URL', 'artitechcore'),
+        'artitechcore_sitemap_url_callback',
+        'artitechcore-main',
+        'artitechcore_settings_section'
     );
 
     // Schema settings section
     add_settings_section(
-        'aiopms_schema_settings_section',
-        __('Schema Settings', 'aiopms'),
-        'aiopms_schema_settings_section_callback',
-        'aiopms-page-management'
+        'artitechcore_schema_settings_section',
+        __('Schema Settings', 'artitechcore'),
+        'artitechcore_schema_settings_section_callback',
+        'artitechcore-main'
     );
 
     add_settings_field(
-        'aiopms_auto_schema_generation',
-        __('Auto Schema Generation', 'aiopms'),
-        'aiopms_auto_schema_generation_callback',
-        'aiopms-page-management',
-        'aiopms_schema_settings_section'
+        'artitechcore_auto_schema_generation',
+        __('Auto Schema Generation', 'artitechcore'),
+        'artitechcore_auto_schema_generation_callback',
+        'artitechcore-main',
+        'artitechcore_schema_settings_section'
     );
 
     // Business Information Section
     add_settings_section(
-        'aiopms_business_settings_section',
-        __('Business Information (Knowledge Base)', 'aiopms'),
-        'aiopms_business_settings_section_callback',
-        'aiopms-page-management'
+        'artitechcore_business_settings_section',
+        __('Business Information (Knowledge Base)', 'artitechcore'),
+        'artitechcore_business_settings_section_callback',
+        'artitechcore-main'
     );
 
-    add_settings_field('aiopms_business_name', __('Business Name', 'aiopms'), 'aiopms_business_name_callback', 'aiopms-page-management', 'aiopms_business_settings_section');
-    add_settings_field('aiopms_business_description', __('Business Description / Knowledge', 'aiopms'), 'aiopms_business_description_callback', 'aiopms-page-management', 'aiopms_business_settings_section');
-    add_settings_field('aiopms_business_address', __('Business Address', 'aiopms'), 'aiopms_business_address_callback', 'aiopms-page-management', 'aiopms_business_settings_section');
-    add_settings_field('aiopms_business_phone', __('Phone Number', 'aiopms'), 'aiopms_business_phone_callback', 'aiopms-page-management', 'aiopms_business_settings_section');
-    add_settings_field('aiopms_business_email', __('Email Address', 'aiopms'), 'aiopms_business_email_callback', 'aiopms-page-management', 'aiopms_business_settings_section');
-    add_settings_field('aiopms_business_social', __('Social Media Links', 'aiopms'), 'aiopms_business_social_callback', 'aiopms-page-management', 'aiopms_business_settings_section');
+    add_settings_field('artitechcore_business_name', __('Business Name', 'artitechcore'), 'artitechcore_business_name_callback', 'artitechcore-main', 'artitechcore_business_settings_section');
+    add_settings_field('artitechcore_business_description', __('Business Description / Knowledge', 'artitechcore'), 'artitechcore_business_description_callback', 'artitechcore-main', 'artitechcore_business_settings_section');
+    add_settings_field('artitechcore_business_address', __('Business Address', 'artitechcore'), 'artitechcore_business_address_callback', 'artitechcore-main', 'artitechcore_business_settings_section');
+    add_settings_field('artitechcore_business_phone', __('Phone Number', 'artitechcore'), 'artitechcore_business_phone_callback', 'artitechcore-main', 'artitechcore_business_settings_section');
+    add_settings_field('artitechcore_business_email', __('Email Address', 'artitechcore'), 'artitechcore_business_email_callback', 'artitechcore-main', 'artitechcore_business_settings_section');
+    add_settings_field('artitechcore_business_social', __('Social Media Links', 'artitechcore'), 'artitechcore_business_social_callback', 'artitechcore-main', 'artitechcore_business_settings_section');
 }
-add_action('admin_init', 'aiopms_settings_init');
+add_action('admin_init', 'artitechcore_settings_init');
 
 // Section callback
-function aiopms_settings_section_callback() {
-    echo '<p>' . __('Select your preferred AI provider and enter the corresponding API key. Set your brand color for AI-generated featured images and configure the sitemap URL for menu generation.', 'aiopms') . '</p>';
+function artitechcore_settings_section_callback() {
+    echo '<p>' . __('Select your preferred AI provider and enter the corresponding API key. Set your brand color for AI-generated featured images and configure the sitemap URL for menu generation.', 'artitechcore') . '</p>';
 }
 
 // AI Provider field callback
-function aiopms_ai_provider_callback() {
-    $provider = get_option('aiopms_ai_provider', 'openai');
+function artitechcore_ai_provider_callback() {
+    $provider = get_option('artitechcore_ai_provider', 'openai');
     ?>
-    <select name="aiopms_ai_provider" class="aiopms-ai-provider-select">
+    <select name="artitechcore_ai_provider" class="artitechcore-ai-provider-select">
         <option value="openai" <?php selected($provider, 'openai'); ?>>🤖 OpenAI (GPT-4)</option>
         <option value="gemini" <?php selected($provider, 'gemini'); ?>>🧠 Google Gemini</option>
         <option value="deepseek" <?php selected($provider, 'deepseek'); ?>>⚡ DeepSeek</option>
     </select>
-    <p class="description"><?php esc_html_e('Choose your preferred AI provider. Each has different strengths and pricing models. We Strictly recommend using OpenAI for best results.', 'aiopms'); ?></p>
+    <p class="description"><?php esc_html_e('Choose your preferred AI provider. Each has different strengths and pricing models. We Strictly recommend using OpenAI for best results.', 'artitechcore'); ?></p>
     <?php
 }
 
 // OpenAI API Key field callback
-function aiopms_openai_api_key_callback() {
-    $api_key = get_option('aiopms_openai_api_key');
-    echo '<input type="password" name="aiopms_openai_api_key" value="' . esc_attr($api_key) . '" class="regular-text" autocomplete="off">';
+function artitechcore_openai_api_key_callback() {
+    $api_key = get_option('artitechcore_openai_api_key');
+    echo '<input type="password" name="artitechcore_openai_api_key" value="' . esc_attr($api_key) . '" class="regular-text" autocomplete="off">';
 }
 
 // Gemini API Key field callback
-function aiopms_gemini_api_key_callback() {
-    $api_key = get_option('aiopms_gemini_api_key');
-    echo '<input type="password" name="aiopms_gemini_api_key" value="' . esc_attr($api_key) . '" class="regular-text" autocomplete="off">';
+function artitechcore_gemini_api_key_callback() {
+    $api_key = get_option('artitechcore_gemini_api_key');
+    echo '<input type="password" name="artitechcore_gemini_api_key" value="' . esc_attr($api_key) . '" class="regular-text" autocomplete="off">';
 }
 
 // DeepSeek API Key field callback
-function aiopms_deepseek_api_key_callback() {
-    $api_key = get_option('aiopms_deepseek_api_key');
-    echo '<input type="password" name="aiopms_deepseek_api_key" value="' . esc_attr($api_key) . '" class="regular-text" autocomplete="off">';
+function artitechcore_deepseek_api_key_callback() {
+    $api_key = get_option('artitechcore_deepseek_api_key');
+    echo '<input type="password" name="artitechcore_deepseek_api_key" value="' . esc_attr($api_key) . '" class="regular-text" autocomplete="off">';
 }
 
 // Brand Color field callback
-function aiopms_brand_color_callback() {
-    $brand_color = get_option('aiopms_brand_color', '#b47cfd');
+function artitechcore_brand_color_callback() {
+    $brand_color = get_option('artitechcore_brand_color', '#b47cfd');
     ?>
-    <input type="color" name="aiopms_brand_color" value="<?php echo esc_attr($brand_color); ?>" class="regular-text">
-    <p class="description"><?php _e('Select your brand\'s primary color. This will be used for AI-generated featured images.', 'aiopms'); ?></p>
+    <input type="color" name="artitechcore_brand_color" value="<?php echo esc_attr($brand_color); ?>" class="regular-text">
+    <p class="description"><?php _e('Select your brand\'s primary color. This will be used for AI-generated featured images.', 'artitechcore'); ?></p>
     <?php
 }
 
 // Sitemap URL field callback
-function aiopms_sitemap_url_callback() {
-    $sitemap_url = get_option('aiopms_sitemap_url', '');
+function artitechcore_sitemap_url_callback() {
+    $sitemap_url = get_option('artitechcore_sitemap_url', '');
     ?>
-    <input type="url" name="aiopms_sitemap_url" value="<?php echo esc_attr($sitemap_url); ?>" class="regular-text" placeholder="https://yoursite.com/sitemap.xml">
-    <p class="description"><?php esc_html_e('Enter the URL of your sitemap page. This will be used in the universal bottom menu.', 'aiopms'); ?></p>
+    <input type="url" name="artitechcore_sitemap_url" value="<?php echo esc_attr($sitemap_url); ?>" class="regular-text" placeholder="https://yoursite.com/sitemap.xml">
+    <p class="description"><?php esc_html_e('Enter the URL of your sitemap page. This will be used in the universal bottom menu.', 'artitechcore'); ?></p>
     <?php
 }
 
 // Schema settings section callback
-function aiopms_schema_settings_section_callback() {
-    echo '<p>' . esc_html__('Configure schema.org markup generation settings for your pages.', 'aiopms') . '</p>';
+function artitechcore_schema_settings_section_callback() {
+    echo '<p>' . esc_html__('Configure schema.org markup generation settings for your pages.', 'artitechcore') . '</p>';
 }
 
 // Auto Schema Generation field callback
-function aiopms_auto_schema_generation_callback() {
-    $auto_generate = get_option('aiopms_auto_schema_generation', true);
+function artitechcore_auto_schema_generation_callback() {
+    $auto_generate = get_option('artitechcore_auto_schema_generation', true);
     ?>
     <label>
-        <input type="checkbox" name="aiopms_auto_schema_generation" value="1" <?php checked($auto_generate, true); ?>>
-        <?php esc_html_e('Automatically generate schema markup when pages are created or updated', 'aiopms'); ?>
+        <input type="checkbox" name="artitechcore_auto_schema_generation" value="1" <?php checked($auto_generate, true); ?>>
+        <?php esc_html_e('Automatically generate schema markup when pages are created or updated', 'artitechcore'); ?>
     </label>
-    <p class="description"><?php esc_html_e('When enabled, schema markup will be automatically generated for all pages when they are saved.', 'aiopms'); ?></p>
+    <p class="description"><?php esc_html_e('When enabled, schema markup will be automatically generated for all pages when they are saved.', 'artitechcore'); ?></p>
     <?php
 }
 
 // Business Information Section Callback - with Re-Scan button
-function aiopms_business_settings_section_callback() {
-    $nonce = wp_create_nonce('aiopms_rescan_nonce');
+function artitechcore_business_settings_section_callback() {
+    $nonce = wp_create_nonce('artitechcore_rescan_nonce');
     ?>
-    <p><?php esc_html_e('Your business details are auto-detected from WordPress. This information is used to generate accurate, context-aware schema markup.', 'aiopms'); ?></p>
+    <p><?php esc_html_e('Your business details are auto-detected from WordPress. This information is used to generate accurate, context-aware schema markup.', 'artitechcore'); ?></p>
     <p>
-        <button type="button" id="aiopms-rescan-btn" class="button button-secondary">
-            🔍 <?php esc_html_e('Re-Scan Website', 'aiopms'); ?>
+        <button type="button" id="artitechcore-rescan-btn" class="button button-secondary">
+            🔍 <?php esc_html_e('Re-Scan Website', 'artitechcore'); ?>
         </button>
-        <span id="aiopms-rescan-status" style="margin-left: 10px;"></span>
+        <span id="artitechcore-rescan-status" style="margin-left: 10px;"></span>
     </p>
     <script>
     jQuery(document).ready(function($) {
-        $('#aiopms-rescan-btn').on('click', function() {
+        $('#artitechcore-rescan-btn').on('click', function() {
             var $btn = $(this);
-            var $status = $('#aiopms-rescan-status');
+            var $status = $('#artitechcore-rescan-status');
             
             $btn.prop('disabled', true).text('⏳ Scanning...');
             $status.text('');
@@ -559,30 +559,30 @@ function aiopms_business_settings_section_callback() {
                 url: ajaxurl,
                 type: 'POST',
                 data: {
-                    action: 'aiopms_rescan_business_info',
+                    action: 'artitechcore_rescan_business_info',
                     nonce: '<?php echo esc_js($nonce); ?>'
                 },
                 success: function(response) {
-                    $btn.prop('disabled', false).html('🔍 <?php echo esc_js(__('Re-Scan Website', 'aiopms')); ?>');
+                    $btn.prop('disabled', false).html('🔍 <?php echo esc_js(__('Re-Scan Website', 'artitechcore')); ?>');
                     if (response.success) {
                         $status.html('<span style="color: green;">✓ ' + response.data.message + '</span>');
                         // Update form fields with detected values
                         var data = response.data.data;
-                        $('input[name="aiopms_business_name"]').val(data.name);
-                        $('textarea[name="aiopms_business_description"]').val(data.description);
-                        $('textarea[name="aiopms_business_address"]').val(data.address);
-                        $('input[name="aiopms_business_phone"]').val(data.phone);
-                        $('input[name="aiopms_business_email"]').val(data.email);
-                        $('input[name="aiopms_business_social_facebook"]').val(data.facebook);
-                        $('input[name="aiopms_business_social_twitter"]').val(data.twitter);
-                        $('input[name="aiopms_business_social_linkedin"]').val(data.linkedin);
+                        $('input[name="artitechcore_business_name"]').val(data.name);
+                        $('textarea[name="artitechcore_business_description"]').val(data.description);
+                        $('textarea[name="artitechcore_business_address"]').val(data.address);
+                        $('input[name="artitechcore_business_phone"]').val(data.phone);
+                        $('input[name="artitechcore_business_email"]').val(data.email);
+                        $('input[name="artitechcore_business_social_facebook"]').val(data.facebook);
+                        $('input[name="artitechcore_business_social_twitter"]').val(data.twitter);
+                        $('input[name="artitechcore_business_social_linkedin"]').val(data.linkedin);
                     } else {
                         $status.html('<span style="color: red;">✗ Error: ' + response.data.message + '</span>');
                     }
                 },
                 error: function() {
-                    $btn.prop('disabled', false).html('🔍 <?php echo esc_js(__('Re-Scan Website', 'aiopms')); ?>');
-                    $status.html('<span style="color: red;">✗ <?php echo esc_js(__('Network error. Please try again.', 'aiopms')); ?></span>');
+                    $btn.prop('disabled', false).html('🔍 <?php echo esc_js(__('Re-Scan Website', 'artitechcore')); ?>');
+                    $status.html('<span style="color: red;">✗ <?php echo esc_js(__('Network error. Please try again.', 'artitechcore')); ?></span>');
                 }
             });
         });
@@ -593,59 +593,59 @@ function aiopms_business_settings_section_callback() {
 
 
 // Business Name Callback
-function aiopms_business_name_callback() {
-    $value = get_option('aiopms_business_name', get_bloginfo('name'));
+function artitechcore_business_name_callback() {
+    $value = get_option('artitechcore_business_name', get_bloginfo('name'));
     ?>
-    <input type="text" name="aiopms_business_name" value="<?php echo esc_attr($value); ?>" class="regular-text">
-    <p class="description"><?php esc_html_e('Your official business or organization name.', 'aiopms'); ?></p>
+    <input type="text" name="artitechcore_business_name" value="<?php echo esc_attr($value); ?>" class="regular-text">
+    <p class="description"><?php esc_html_e('Your official business or organization name.', 'artitechcore'); ?></p>
     <?php
 }
 
 // Business Description / Knowledge Callback
-function aiopms_business_description_callback() {
-    $value = get_option('aiopms_business_description', '');
+function artitechcore_business_description_callback() {
+    $value = get_option('artitechcore_business_description', '');
     ?>
-    <textarea name="aiopms_business_description" rows="5" class="large-text"><?php echo esc_textarea($value); ?></textarea>
-    <p class="description"><?php esc_html_e('A detailed description of your business, services, products, and unique value proposition. The AI uses this as a knowledge base to generate more accurate schema.', 'aiopms'); ?></p>
+    <textarea name="artitechcore_business_description" rows="5" class="large-text"><?php echo esc_textarea($value); ?></textarea>
+    <p class="description"><?php esc_html_e('A detailed description of your business, services, products, and unique value proposition. The AI uses this as a knowledge base to generate more accurate schema.', 'artitechcore'); ?></p>
     <?php
 }
 
 // Business Address Callback
-function aiopms_business_address_callback() {
-    $value = get_option('aiopms_business_address', '');
+function artitechcore_business_address_callback() {
+    $value = get_option('artitechcore_business_address', '');
     ?>
-    <textarea name="aiopms_business_address" rows="3" class="large-text" placeholder="123 Business Street, City, State, ZIP"><?php echo esc_textarea($value); ?></textarea>
-    <p class="description"><?php esc_html_e('Your physical business address (used for LocalBusiness schema).', 'aiopms'); ?></p>
+    <textarea name="artitechcore_business_address" rows="3" class="large-text" placeholder="123 Business Street, City, State, ZIP"><?php echo esc_textarea($value); ?></textarea>
+    <p class="description"><?php esc_html_e('Your physical business address (used for LocalBusiness schema).', 'artitechcore'); ?></p>
     <?php
 }
 
 // Business Phone Callback
-function aiopms_business_phone_callback() {
-    $value = get_option('aiopms_business_phone', '');
+function artitechcore_business_phone_callback() {
+    $value = get_option('artitechcore_business_phone', '');
     ?>
-    <input type="tel" name="aiopms_business_phone" value="<?php echo esc_attr($value); ?>" class="regular-text" placeholder="+1-555-123-4567">
-    <p class="description"><?php esc_html_e('Your business phone number.', 'aiopms'); ?></p>
+    <input type="tel" name="artitechcore_business_phone" value="<?php echo esc_attr($value); ?>" class="regular-text" placeholder="+1-555-123-4567">
+    <p class="description"><?php esc_html_e('Your business phone number.', 'artitechcore'); ?></p>
     <?php
 }
 
 // Business Email Callback
-function aiopms_business_email_callback() {
-    $value = get_option('aiopms_business_email', get_option('admin_email'));
+function artitechcore_business_email_callback() {
+    $value = get_option('artitechcore_business_email', get_option('admin_email'));
     ?>
-    <input type="email" name="aiopms_business_email" value="<?php echo esc_attr($value); ?>" class="regular-text">
-    <p class="description"><?php esc_html_e('Your primary business email address.', 'aiopms'); ?></p>
+    <input type="email" name="artitechcore_business_email" value="<?php echo esc_attr($value); ?>" class="regular-text">
+    <p class="description"><?php esc_html_e('Your primary business email address.', 'artitechcore'); ?></p>
     <?php
 }
 
 // Business Social Media Callback
-function aiopms_business_social_callback() {
-    $facebook = get_option('aiopms_business_social_facebook', '');
-    $twitter = get_option('aiopms_business_social_twitter', '');
-    $linkedin = get_option('aiopms_business_social_linkedin', '');
+function artitechcore_business_social_callback() {
+    $facebook = get_option('artitechcore_business_social_facebook', '');
+    $twitter = get_option('artitechcore_business_social_twitter', '');
+    $linkedin = get_option('artitechcore_business_social_linkedin', '');
     ?>
-    <p><label>Facebook: <input type="url" name="aiopms_business_social_facebook" value="<?php echo esc_attr($facebook); ?>" class="regular-text" placeholder="https://facebook.com/yourpage"></label></p>
-    <p><label>Twitter/X: <input type="url" name="aiopms_business_social_twitter" value="<?php echo esc_attr($twitter); ?>" class="regular-text" placeholder="https://twitter.com/yourhandle"></label></p>
-    <p><label>LinkedIn: <input type="url" name="aiopms_business_social_linkedin" value="<?php echo esc_attr($linkedin); ?>" class="regular-text" placeholder="https://linkedin.com/company/yourcompany"></label></p>
-    <p class="description"><?php esc_html_e('Your social media profile links (used in Organization schema).', 'aiopms'); ?></p>
+    <p><label>Facebook: <input type="url" name="artitechcore_business_social_facebook" value="<?php echo esc_attr($facebook); ?>" class="regular-text" placeholder="https://facebook.com/yourpage"></label></p>
+    <p><label>Twitter/X: <input type="url" name="artitechcore_business_social_twitter" value="<?php echo esc_attr($twitter); ?>" class="regular-text" placeholder="https://twitter.com/yourhandle"></label></p>
+    <p><label>LinkedIn: <input type="url" name="artitechcore_business_social_linkedin" value="<?php echo esc_attr($linkedin); ?>" class="regular-text" placeholder="https://linkedin.com/company/yourcompany"></label></p>
+    <p class="description"><?php esc_html_e('Your social media profile links (used in Organization schema).', 'artitechcore'); ?></p>
     <?php
 }

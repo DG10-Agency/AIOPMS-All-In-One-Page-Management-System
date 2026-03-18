@@ -4,11 +4,11 @@ if (!defined('ABSPATH')) {
 }
 
 // Create pages from CSV file
-function aiopms_create_pages_from_csv($file) {
+function artitechcore_create_pages_from_csv($file) {
     try {
         // 1. Validate file upload
         if (!is_uploaded_file($file['tmp_name']) || $file['error'] !== UPLOAD_ERR_OK) {
-            $error_message = aiopms_get_upload_error_message($file['error']);
+            $error_message = artitechcore_get_upload_error_message($file['error']);
             echo '<div class="notice notice-error is-dismissible"><p>' . esc_html($error_message) . '</p></div>';
             return;
         }
@@ -20,7 +20,7 @@ function aiopms_create_pages_from_csv($file) {
             $max_size_mb = round($max_file_size / (1024 * 1024), 2);
             echo '<div class="notice notice-error is-dismissible"><p>' . 
                 sprintf(
-                    esc_html__('File size too large. Your file is %s MB, but the maximum allowed size is %s MB. Please reduce the file size and try again.', 'aiopms'),
+                    esc_html__('File size too large. Your file is %s MB, but the maximum allowed size is %s MB. Please reduce the file size and try again.', 'artitechcore'),
                     $file_size_mb,
                     $max_size_mb
                 ) . '</p></div>';
@@ -30,7 +30,7 @@ function aiopms_create_pages_from_csv($file) {
         // 3. Additional file size validation using filesize()
         $actual_file_size = filesize($file['tmp_name']);
         if ($actual_file_size === false) {
-            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('Unable to determine file size. Please try again.', 'aiopms') . '</p></div>';
+            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('Unable to determine file size. Please try again.', 'artitechcore') . '</p></div>';
             return;
         }
 
@@ -39,7 +39,7 @@ function aiopms_create_pages_from_csv($file) {
             $max_size_mb = round($max_file_size / (1024 * 1024), 2);
             echo '<div class="notice notice-error is-dismissible"><p>' . 
                 sprintf(
-                    esc_html__('File size too large. Your file is %s MB, but the maximum allowed size is %s MB. Please reduce the file size and try again.', 'aiopms'),
+                    esc_html__('File size too large. Your file is %s MB, but the maximum allowed size is %s MB. Please reduce the file size and try again.', 'artitechcore'),
                     $file_size_mb,
                     $max_size_mb
                 ) . '</p></div>';
@@ -48,14 +48,14 @@ function aiopms_create_pages_from_csv($file) {
 
         // 4. Check if file is empty
         if ($actual_file_size === 0) {
-            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('The uploaded file is empty. Please upload a valid CSV file with content.', 'aiopms') . '</p></div>';
+            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('The uploaded file is empty. Please upload a valid CSV file with content.', 'artitechcore') . '</p></div>';
             return;
         }
 
         // 5. Check file type
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
         if ($finfo === false) {
-            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('Unable to verify file type. Please try again.', 'aiopms') . '</p></div>';
+            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('Unable to verify file type. Please try again.', 'artitechcore') . '</p></div>';
             return;
         }
 
@@ -63,7 +63,7 @@ function aiopms_create_pages_from_csv($file) {
         finfo_close($finfo);
         
         if ($mime_type === false) {
-            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('Unable to read file type. Please try again.', 'aiopms') . '</p></div>';
+            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('Unable to read file type. Please try again.', 'artitechcore') . '</p></div>';
             return;
         }
 
@@ -79,7 +79,7 @@ function aiopms_create_pages_from_csv($file) {
         if (!in_array($mime_type, $allowed_mime_types)) {
             echo '<div class="notice notice-error is-dismissible"><p>' . 
                 sprintf(
-                    esc_html__('Invalid file type. Expected CSV file, but received %s. Please upload a valid CSV file.', 'aiopms'),
+                    esc_html__('Invalid file type. Expected CSV file, but received %s. Please upload a valid CSV file.', 'artitechcore'),
                     esc_html($mime_type)
                 ) . '</p></div>';
             return;
@@ -90,15 +90,15 @@ function aiopms_create_pages_from_csv($file) {
         if ($file_extension !== 'csv') {
             echo '<div class="notice notice-error is-dismissible"><p>' . 
                 sprintf(
-                    esc_html__('Invalid file extension. Expected .csv file, but received .%s. Please upload a valid CSV file.', 'aiopms'),
+                    esc_html__('Invalid file extension. Expected .csv file, but received .%s. Please upload a valid CSV file.', 'artitechcore'),
                     esc_html($file_extension)
                 ) . '</p></div>';
             return;
         }
 
     } catch (Exception $e) {
-        echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('An error occurred during file validation. Please try again.', 'aiopms') . '</p></div>';
-        error_log('AIOPMS CSV File Validation Error: ' . $e->getMessage());
+        echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('An error occurred during file validation. Please try again.', 'artitechcore') . '</p></div>';
+        error_log('ArtitechCore CSV File Validation Error: ' . $e->getMessage());
         return;
     }
 
@@ -113,7 +113,7 @@ function aiopms_create_pages_from_csv($file) {
         $header = fgetcsv($handle);
         
         if (!$header) {
-             echo '<div class="notice notice-warning is-dismissible"><p>' . esc_html__('The CSV file is empty or unreadable.', 'aiopms') . '</p></div>';
+             echo '<div class="notice notice-warning is-dismissible"><p>' . esc_html__('The CSV file is empty or unreadable.', 'artitechcore') . '</p></div>';
              fclose($handle);
              return;
         }
@@ -128,7 +128,7 @@ function aiopms_create_pages_from_csv($file) {
         while (($row = fgetcsv($handle)) !== FALSE) {
             $row_count++;
             if ($row_count > 10000) {
-                 echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('Row limit exceeded (10,000). Processing stopped.', 'aiopms') . '</p></div>';
+                 echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('Row limit exceeded (10,000). Processing stopped.', 'artitechcore') . '</p></div>';
                  break;
             }
 
@@ -152,7 +152,7 @@ function aiopms_create_pages_from_csv($file) {
             // Use custom slug if provided, otherwise generate SEO-optimized slug
             $post_name = isset($row_data['slug']) && !empty($row_data['slug']) 
                 ? sanitize_title(wp_unslash($row_data['slug']))
-                : aiopms_generate_seo_slug($post_title);
+                : artitechcore_generate_seo_slug($post_title);
 
             // Determine parent ID
             $parent_id = 0;
@@ -180,56 +180,56 @@ function aiopms_create_pages_from_csv($file) {
                 // Set featured image with SEO metadata
                 if (!empty($featured_image_url)) {
                     $image_title = "Featured Image for " . sanitize_text_field($post_title);
-                    $keywords = aiopms_extract_primary_keywords($post_title);
+                    $keywords = artitechcore_extract_primary_keywords($post_title);
                     $image_alt = "Visual representation of " . $keywords . " concept";
                     $image_description = "Featured image for " . sanitize_text_field($post_title) . " page";
                     
-                    aiopms_set_featured_image($page_id, $featured_image_url, $image_title, $image_alt, $image_description);
+                    artitechcore_set_featured_image($page_id, $featured_image_url, $image_title, $image_alt, $image_description);
                 }
 
                 // Generate Schema Markup (Optimized mode - no AI analysis)
-                if (function_exists('aiopms_generate_schema_markup')) {
-                    aiopms_generate_schema_markup($page_id, false);
+                if (function_exists('artitechcore_generate_schema_markup')) {
+                    artitechcore_generate_schema_markup($page_id, false);
                 }
             }
         }
         fclose($handle);
     } else {
-        echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('An error occurred while reading the CSV file.', 'aiopms') . '</p></div>';
+        echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('An error occurred while reading the CSV file.', 'artitechcore') . '</p></div>';
         return;
     }
 
     if ($created_pages > 0) {
-        echo '<div class="notice notice-success is-dismissible"><p>' . sprintf(esc_html__('%d pages created successfully from the CSV file!', 'aiopms'), absint($created_pages)) . '</p></div>';
+        echo '<div class="notice notice-success is-dismissible"><p>' . sprintf(esc_html__('%d pages created successfully from the CSV file!', 'artitechcore'), absint($created_pages)) . '</p></div>';
     } else {
-        echo '<div class="notice notice-warning is-dismissible"><p>' . esc_html__('No pages were created from the CSV file. Please check the file format and content.', 'aiopms') . '</p></div>';
+        echo '<div class="notice notice-warning is-dismissible"><p>' . esc_html__('No pages were created from the CSV file. Please check the file format and content.', 'artitechcore') . '</p></div>';
     }
 }
 
 // Get user-friendly upload error message
-function aiopms_get_upload_error_message($error_code) {
+function artitechcore_get_upload_error_message($error_code) {
     $error_messages = [
-        UPLOAD_ERR_INI_SIZE => __('File exceeds the maximum upload size allowed by the server configuration.', 'aiopms'),
-        UPLOAD_ERR_FORM_SIZE => __('File exceeds the maximum upload size specified in the form.', 'aiopms'),
-        UPLOAD_ERR_PARTIAL => __('File was only partially uploaded. Please try again.', 'aiopms'),
-        UPLOAD_ERR_NO_FILE => __('No file was uploaded. Please select a file to upload.', 'aiopms'),
-        UPLOAD_ERR_NO_TMP_DIR => __('Missing temporary folder on the server. Please contact the administrator.', 'aiopms'),
-        UPLOAD_ERR_CANT_WRITE => __('Failed to write file to disk. Please try again.', 'aiopms'),
-        UPLOAD_ERR_EXTENSION => __('File upload was stopped by a PHP extension. Please contact the administrator.', 'aiopms'),
+        UPLOAD_ERR_INI_SIZE => __('File exceeds the maximum upload size allowed by the server configuration.', 'artitechcore'),
+        UPLOAD_ERR_FORM_SIZE => __('File exceeds the maximum upload size specified in the form.', 'artitechcore'),
+        UPLOAD_ERR_PARTIAL => __('File was only partially uploaded. Please try again.', 'artitechcore'),
+        UPLOAD_ERR_NO_FILE => __('No file was uploaded. Please select a file to upload.', 'artitechcore'),
+        UPLOAD_ERR_NO_TMP_DIR => __('Missing temporary folder on the server. Please contact the administrator.', 'artitechcore'),
+        UPLOAD_ERR_CANT_WRITE => __('Failed to write file to disk. Please try again.', 'artitechcore'),
+        UPLOAD_ERR_EXTENSION => __('File upload was stopped by a PHP extension. Please contact the administrator.', 'artitechcore'),
     ];
 
-    return isset($error_messages[$error_code]) ? $error_messages[$error_code] : __('Unknown upload error occurred. Please try again.', 'aiopms');
+    return isset($error_messages[$error_code]) ? $error_messages[$error_code] : __('Unknown upload error occurred. Please try again.', 'artitechcore');
 }
 
 // Get maximum allowed file size for display
-function aiopms_get_max_file_size_display() {
+function artitechcore_get_max_file_size_display() {
     $max_file_size = 5 * 1024 * 1024; // 5MB in bytes
     $max_size_mb = round($max_file_size / (1024 * 1024), 2);
-    return sprintf(__('Maximum file size: %s MB', 'aiopms'), $max_size_mb);
+    return sprintf(__('Maximum file size: %s MB', 'artitechcore'), $max_size_mb);
 }
 
 // Validate file size before upload (client-side validation helper)
-function aiopms_validate_file_size_before_upload($file_size) {
+function artitechcore_validate_file_size_before_upload($file_size) {
     $max_file_size = 5 * 1024 * 1024; // 5MB in bytes
     return $file_size <= $max_file_size;
 }

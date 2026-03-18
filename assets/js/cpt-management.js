@@ -1,9 +1,9 @@
 /**
- * AIOPMS Custom Post Type Management JavaScript
+ * ArtitechCore Custom Post Type Management JavaScript
  * Enhanced functionality with AJAX, accessibility, and modern UX
  * 
- * @package AIOPMS
- * @version 3.0
+ * @package ArtitechCore
+ * @version 1.0
  * @author DG10 Agency
  */
 
@@ -11,7 +11,7 @@
     'use strict';
 
     // Global CPT Management object
-    window.AIOPMSCPTManager = {
+    window.ArtitechCoreCPTManager = {
         init: function () {
             this.bindEvents();
             this.initializeComponents();
@@ -33,26 +33,26 @@
             $('#select-all-cpts').on('change', this.handleSelectAll);
 
             // CPT card actions
-            $(document).on('click', '.aiopms-action-btn', this.handleCPTAction);
+            $(document).on('click', '.artitechcore-action-btn', this.handleCPTAction);
 
             // Form submissions
-            $('#aiopms-cpt-form').on('submit', this.handleCPTFormSubmission);
+            $('#artitechcore-cpt-form').on('submit', this.handleCPTFormSubmission);
 
             // Field builder
-            $('.aiopms-add-field-btn').on('click', this.addCustomField);
+            $('.artitechcore-add-field-btn').on('click', this.addCustomField);
             $(document).on('click', '.remove-field-btn', this.removeCustomField);
             $(document).on('change', '.field-type-select', this.handleFieldTypeChange);
 
             // Modal functionality
             $(document).on('click', '[data-modal]', this.openModal);
-            $(document).on('click', '.aiopms-modal-close, .aiopms-modal-overlay', this.closeModal);
+            $(document).on('click', '.artitechcore-modal-close, .artitechcore-modal-overlay', this.closeModal);
 
             // Tab functionality
-            $(document).on('click', '.aiopms-tab', this.switchTab);
+            $(document).on('click', '.artitechcore-tab', this.switchTab);
 
             // Bulk operations
             $('#select-all-bulk').on('change', this.handleSelectAllBulk);
-            $(document).on('change', '.aiopms-cpt-checkbox', this.updateBulkSelection);
+            $(document).on('change', '.artitechcore-cpt-checkbox', this.updateBulkSelection);
             $('#bulk-action-selector').on('change', this.toggleBulkActionButton);
             $('#apply-bulk-action-btn').on('click', this.handleBulkAction);
 
@@ -61,8 +61,8 @@
             $('#cpt-import-file').on('change', this.handleFileSelection);
 
             // Templates
-            $('.aiopms-preview-template').on('click', this.previewTemplate);
-            $('.aiopms-template-form').on('submit', this.handleTemplateCreation);
+            $('.artitechcore-preview-template').on('click', this.previewTemplate);
+            $('.artitechcore-template-form').on('submit', this.handleTemplateCreation);
 
             // Keyboard navigation
             $(document).on('keydown', this.handleKeyboardNavigation);
@@ -94,13 +94,13 @@
         // Search functionality
         handleSearch: function () {
             const searchTerm = $('#cpt-search').val().toLowerCase();
-            const $cards = $('.aiopms-cpt-card');
+            const $cards = $('.artitechcore-cpt-card');
 
             $cards.each(function () {
                 const $card = $(this);
-                const title = $card.find('.aiopms-cpt-title').text().toLowerCase();
-                const slug = $card.find('.aiopms-cpt-slug').text().toLowerCase();
-                const description = $card.find('.aiopms-cpt-description').text().toLowerCase();
+                const title = $card.find('.artitechcore-cpt-title').text().toLowerCase();
+                const slug = $card.find('.artitechcore-cpt-slug').text().toLowerCase();
+                const description = $card.find('.artitechcore-cpt-description').text().toLowerCase();
 
                 const matches = title.includes(searchTerm) ||
                     slug.includes(searchTerm) ||
@@ -116,11 +116,11 @@
         // Filter functionality
         handleFilter: function () {
             const filterValue = $('#cpt-filter-status').val();
-            const $cards = $('.aiopms-cpt-card');
+            const $cards = $('.artitechcore-cpt-card');
 
             $cards.each(function () {
                 const $card = $(this);
-                const isActive = $card.find('.aiopms-status-indicator').hasClass('active');
+                const isActive = $card.find('.artitechcore-status-indicator').hasClass('active');
 
                 let shouldShow = true;
 
@@ -138,28 +138,28 @@
 
         // Refresh CPT list
         refreshCPTList: function () {
-            AIOPMSCPTManager.showLoadingOverlay();
+            ArtitechCoreCPTManager.showLoadingOverlay();
 
             $.ajax({
-                url: aiopms_cpt_data.ajaxurl,
+                url: artitechcore_cpt_data.ajaxurl,
                 type: 'POST',
                 data: {
-                    action: 'aiopms_get_cpt_data',
-                    nonce: aiopms_cpt_data.nonce
+                    action: 'artitechcore_get_cpt_data',
+                    nonce: artitechcore_cpt_data.nonce
                 },
                 success: function (response) {
                     if (response.success) {
-                        AIOPMSCPTManager.updateCPTGrid(response.data);
-                        AIOPMSCPTManager.showNotification('CPT list refreshed successfully', 'success');
+                        ArtitechCoreCPTManager.updateCPTGrid(response.data);
+                        ArtitechCoreCPTManager.showNotification('CPT list refreshed successfully', 'success');
                     } else {
-                        AIOPMSCPTManager.showNotification(response.data || 'Failed to refresh CPT list', 'error');
+                        ArtitechCoreCPTManager.showNotification(response.data || 'Failed to refresh CPT list', 'error');
                     }
                 },
                 error: function () {
-                    AIOPMSCPTManager.showNotification('Network error occurred', 'error');
+                    ArtitechCoreCPTManager.showNotification('Network error occurred', 'error');
                 },
                 complete: function () {
-                    AIOPMSCPTManager.hideLoadingOverlay();
+                    ArtitechCoreCPTManager.hideLoadingOverlay();
                 }
             });
         },
@@ -180,63 +180,78 @@
             }).get();
 
             if (!action || selectedCPTs.length === 0) {
-                AIOPMSCPTManager.showNotification('Please select an action and at least one CPT', 'warning');
+                ArtitechCoreCPTManager.showNotification('Please select an action and at least one CPT', 'warning');
                 return;
             }
 
             // Confirm destructive actions
             if (action === 'delete') {
-                const confirmMessage = `Are you sure you want to delete ${selectedCPTs.length} custom post type(s)? This action cannot be undone.`;
-                if (!confirm(confirmMessage)) {
-                    return;
-                }
+                ArtitechCoreCPTManager.showLoadingOverlay();
+                $.post(artitechcore_cpt_data.ajaxurl, {
+                    action: 'artitechcore_get_cpt_item_count',
+                    post_types: selectedCPTs,
+                    nonce: artitechcore_cpt_data.nonce
+                }, function (response) {
+                    ArtitechCoreCPTManager.hideLoadingOverlay();
+                    const count = response.success ? response.data.count : 0;
+                    const confirmMessage = `Are you sure you want to delete ${selectedCPTs.length} custom post type(s)? This will permanently delete ALL ${count} posts belonging to these types. This action cannot be undone.`;
+                    if (confirm(confirmMessage)) {
+                        ArtitechCoreCPTManager.performBulkAction(action, selectedCPTs);
+                    }
+                }).fail(function () {
+                    ArtitechCoreCPTManager.hideLoadingOverlay();
+                    if (confirm(`Are you sure you want to delete ${selectedCPTs.length} custom post type(s)? This action cannot be undone.`)) {
+                        ArtitechCoreCPTManager.performBulkAction(action, selectedCPTs);
+                    }
+                });
+                return;
             }
 
-            AIOPMSCPTManager.performBulkAction(action, selectedCPTs);
+            ArtitechCoreCPTManager.performBulkAction(action, selectedCPTs);
         },
 
         performBulkAction: function (action, cptList) {
-            AIOPMSCPTManager.showLoadingOverlay();
+            ArtitechCoreCPTManager.showLoadingOverlay();
 
             $.ajax({
-                url: aiopms_cpt_data.ajaxurl,
+                url: artitechcore_cpt_data.ajaxurl,
                 type: 'POST',
                 data: {
-                    action: 'aiopms_bulk_cpt_operations',
+                    action: 'artitechcore_bulk_cpt_operations',
                     bulk_action: action,
                     cpt_ids: cptList,
-                    nonce: aiopms_cpt_data.nonce
+                    nonce: artitechcore_cpt_data.nonce
                 },
                 success: function (response) {
                     if (response.success) {
-                        AIOPMSCPTManager.showNotification(response.data.message, 'success');
+                        ArtitechCoreCPTManager.showNotification(response.data.message, 'success');
 
                         // Show detailed results if available
                         if (response.data.results && response.data.results.length > 0) {
-                            AIOPMSCPTManager.showBulkResults(response.data.results);
+                            ArtitechCoreCPTManager.showBulkResults(response.data.results);
                         }
 
-                        AIOPMSCPTManager.refreshCPTList();
+                        ArtitechCoreCPTManager.refreshCPTList();
                     } else {
-                        AIOPMSCPTManager.showNotification(response.data || 'Bulk operation failed', 'error');
+                        ArtitechCoreCPTManager.showNotification(response.data || 'Bulk operation failed', 'error');
                     }
                 },
                 error: function () {
-                    AIOPMSCPTManager.showNotification('Network error occurred', 'error');
+                    ArtitechCoreCPTManager.showNotification('Network error occurred', 'error');
                 },
                 complete: function () {
-                    AIOPMSCPTManager.hideLoadingOverlay();
+                    ArtitechCoreCPTManager.hideLoadingOverlay();
                     // Reset form
                     $('#bulk-action-select').val('');
                     $('.cpt-checkbox').prop('checked', false);
-                    AIOPMSCPTManager.toggleBulkActionButton();
+                    ArtitechCoreCPTManager.toggleBulkActionButton();
                 }
             });
         },
 
         // Show detailed bulk operation results
         showBulkResults: function (results) {
-            let resultHtml = '<div class="aiopms-bulk-results"><h4>Operation Results:</h4><ul>';
+            let resultHtml = '<div class="artitechcore-bulk-results"><h4>Operation Results:</h4><ul>';
 
             results.forEach(function (result) {
                 const statusClass = result.status === 'success' ? 'success' : 'error';
@@ -245,17 +260,17 @@
 
             resultHtml += '</ul></div>';
 
-            AIOPMSCPTManager.showNotification(resultHtml, 'info');
+            ArtitechCoreCPTManager.showNotification(resultHtml, 'info');
         },
 
         // Get CPT data for editing
         getCPTData: function (postType) {
             return $.ajax({
-                url: aiopms_cpt_data.ajaxurl,
+                url: artitechcore_cpt_data.ajaxurl,
                 type: 'POST',
                 data: {
-                    action: 'aiopms_get_cpt_data',
-                    nonce: aiopms_cpt_data.nonce,
+                    action: 'artitechcore_get_cpt_data',
+                    nonce: artitechcore_cpt_data.nonce,
                     post_type: postType
                 }
             });
@@ -264,7 +279,7 @@
         handleSelectAll: function () {
             const isChecked = $('#select-all-cpts').prop('checked');
             $('.cpt-checkbox:visible').prop('checked', isChecked);
-            AIOPMSCPTManager.toggleBulkActionButton();
+            ArtitechCoreCPTManager.toggleBulkActionButton();
         },
 
         updateBulkSelection: function () {
@@ -276,7 +291,7 @@
                 'indeterminate': totalChecked > 0 && totalChecked < totalVisible
             });
 
-            AIOPMSCPTManager.toggleBulkActionButton();
+            ArtitechCoreCPTManager.toggleBulkActionButton();
         },
 
         // CPT card actions
@@ -289,36 +304,36 @@
 
             switch (action) {
                 case 'edit':
-                    AIOPMSCPTManager.editCPT(cptSlug);
+                    ArtitechCoreCPTManager.editCPT(cptSlug);
                     break;
                 case 'duplicate':
-                    AIOPMSCPTManager.duplicateCPT(cptSlug);
+                    ArtitechCoreCPTManager.duplicateCPT(cptSlug);
                     break;
                 case 'delete':
-                    AIOPMSCPTManager.deleteCPT(cptSlug);
+                    ArtitechCoreCPTManager.deleteCPT(cptSlug);
                     break;
                 case 'toggle-status':
-                    AIOPMSCPTManager.toggleCPTStatus(cptSlug);
+                    ArtitechCoreCPTManager.toggleCPTStatus(cptSlug);
                     break;
             }
         },
 
         editCPT: function (cptSlug) {
             // Get CPT data first, then open edit modal
-            AIOPMSCPTManager.showLoadingOverlay();
+            ArtitechCoreCPTManager.showLoadingOverlay();
 
-            AIOPMSCPTManager.getCPTData(cptSlug).done(function (response) {
-                AIOPMSCPTManager.hideLoadingOverlay();
+            ArtitechCoreCPTManager.getCPTData(cptSlug).done(function (response) {
+                ArtitechCoreCPTManager.hideLoadingOverlay();
 
                 if (response.success) {
                     // Open edit modal with CPT data
-                    AIOPMSCPTManager.openEditModal(response.data);
+                    ArtitechCoreCPTManager.openEditModal(response.data);
                 } else {
-                    AIOPMSCPTManager.showNotification('Failed to load CPT data', 'error');
+                    ArtitechCoreCPTManager.showNotification('Failed to load CPT data', 'error');
                 }
             }).fail(function () {
-                AIOPMSCPTManager.hideLoadingOverlay();
-                AIOPMSCPTManager.showNotification('Network error occurred', 'error');
+                ArtitechCoreCPTManager.hideLoadingOverlay();
+                ArtitechCoreCPTManager.showNotification('Network error occurred', 'error');
             });
         },
 
@@ -326,13 +341,13 @@
         openEditModal: function (cptData) {
             // Create and show edit modal
             const modalHtml = `
-                <div class="aiopms-modal" id="edit-cpt-modal">
-                    <div class="aiopms-modal-content">
-                        <div class="aiopms-modal-header">
+                <div class="artitechcore-modal" id="edit-cpt-modal">
+                    <div class="artitechcore-modal-content">
+                        <div class="artitechcore-modal-header">
                             <h3>Edit Custom Post Type: ${cptData.cpt_data.label}</h3>
-                            <button class="aiopms-modal-close">&times;</button>
+                            <button class="artitechcore-modal-close">&times;</button>
                         </div>
-                        <div class="aiopms-modal-body">
+                        <div class="artitechcore-modal-body">
                             <form id="edit-cpt-form">
                                 <input type="hidden" name="cpt_name" value="${cptData.cpt_data.name}">
                                 <div class="form-group">
@@ -349,8 +364,8 @@
                                 </div>
                             </form>
                         </div>
-                        <div class="aiopms-modal-footer">
-                            <button type="button" class="button button-secondary aiopms-modal-close">Cancel</button>
+                        <div class="artitechcore-modal-footer">
+                            <button type="button" class="button button-secondary artitechcore-modal-close">Cancel</button>
                             <button type="button" class="button button-primary" id="save-cpt-changes">Save Changes</button>
                         </div>
                     </div>
@@ -362,7 +377,7 @@
 
             // Bind save handler
             $('#save-cpt-changes').on('click', function () {
-                AIOPMSCPTManager.saveCPTChanges();
+                ArtitechCoreCPTManager.saveCPTChanges();
             });
         },
 
@@ -370,30 +385,30 @@
         saveCPTChanges: function () {
             const formData = $('#edit-cpt-form').serialize();
 
-            AIOPMSCPTManager.showLoadingOverlay();
+            ArtitechCoreCPTManager.showLoadingOverlay();
 
             $.ajax({
-                url: aiopms_cpt_data.ajaxurl,
+                url: artitechcore_cpt_data.ajaxurl,
                 type: 'POST',
                 data: {
-                    action: 'aiopms_update_cpt_ajax',
-                    nonce: aiopms_cpt_data.nonce,
+                    action: 'artitechcore_update_cpt_ajax',
+                    nonce: artitechcore_cpt_data.nonce,
                     ...formData
                 },
                 success: function (response) {
-                    AIOPMSCPTManager.hideLoadingOverlay();
+                    ArtitechCoreCPTManager.hideLoadingOverlay();
 
                     if (response.success) {
-                        AIOPMSCPTManager.showNotification('CPT updated successfully', 'success');
+                        ArtitechCoreCPTManager.showNotification('CPT updated successfully', 'success');
                         $('#edit-cpt-modal').remove();
-                        AIOPMSCPTManager.refreshCPTList();
+                        ArtitechCoreCPTManager.refreshCPTList();
                     } else {
-                        AIOPMSCPTManager.showNotification(response.data || 'Failed to update CPT', 'error');
+                        ArtitechCoreCPTManager.showNotification(response.data || 'Failed to update CPT', 'error');
                     }
                 },
                 error: function () {
-                    AIOPMSCPTManager.hideLoadingOverlay();
-                    AIOPMSCPTManager.showNotification('Network error occurred', 'error');
+                    ArtitechCoreCPTManager.hideLoadingOverlay();
+                    ArtitechCoreCPTManager.showNotification('Network error occurred', 'error');
                 }
             });
         },
@@ -403,68 +418,108 @@
                 return;
             }
 
-            AIOPMSCPTManager.showLoadingOverlay();
+            ArtitechCoreCPTManager.showLoadingOverlay();
 
             $.ajax({
-                url: aiopms_cpt_data.ajaxurl,
+                url: artitechcore_cpt_data.ajaxurl,
                 type: 'POST',
                 data: {
-                    action: 'aiopms_duplicate_cpt',
+                    action: 'artitechcore_duplicate_cpt',
                     cpt_slug: cptSlug,
-                    nonce: aiopms_cpt_data.nonce
+                    nonce: artitechcore_cpt_data.nonce
                 },
                 success: function (response) {
                     if (response.success) {
-                        AIOPMSCPTManager.showNotification('Custom post type duplicated successfully', 'success');
-                        AIOPMSCPTManager.refreshCPTList();
+                        ArtitechCoreCPTManager.showNotification('Custom post type duplicated successfully', 'success');
+                        ArtitechCoreCPTManager.refreshCPTList();
                     } else {
-                        AIOPMSCPTManager.showNotification(response.data || 'Failed to duplicate CPT', 'error');
+                        ArtitechCoreCPTManager.showNotification(response.data || 'Failed to duplicate CPT', 'error');
                     }
                 },
                 error: function () {
-                    AIOPMSCPTManager.showNotification('Network error occurred', 'error');
+                    ArtitechCoreCPTManager.showNotification('Network error occurred', 'error');
                 },
                 complete: function () {
-                    AIOPMSCPTManager.hideLoadingOverlay();
+                    ArtitechCoreCPTManager.hideLoadingOverlay();
                 }
             });
         },
 
         deleteCPT: function (cptSlug) {
-            const confirmMessage = 'Are you sure you want to delete this custom post type? This action cannot be undone and will affect all posts of this type.';
+            ArtitechCoreCPTManager.showLoadingOverlay();
 
-            if (!confirm(confirmMessage)) {
-                return;
-            }
+            $.post(artitechcore_cpt_data.ajaxurl, {
+                action: 'artitechcore_get_cpt_item_count',
+                post_types: [cptSlug],
+                nonce: artitechcore_cpt_data.nonce
+            }, function (countResponse) {
+                ArtitechCoreCPTManager.hideLoadingOverlay();
+                const count = countResponse.success ? countResponse.data.count : 0;
+                const confirmMessage = `Are you sure you want to delete this custom post type? This will permanently delete ALL ${count} posts of this type. This action cannot be undone.`;
 
-            AIOPMSCPTManager.showLoadingOverlay();
+                if (!confirm(confirmMessage)) {
+                    return;
+                }
 
-            $.ajax({
-                url: aiopms_cpt_data.ajaxurl,
-                type: 'POST',
-                data: {
-                    action: 'aiopms_delete_cpt_ajax',
-                    post_type: cptSlug,
-                    nonce: aiopms_cpt_data.nonce
-                },
-                success: function (response) {
-                    if (response.success) {
-                        AIOPMSCPTManager.showNotification('Custom post type deleted successfully', 'success');
-                        $(`.aiopms-cpt-card[data-cpt="${cptSlug}"]`).fadeOut(300, function () {
-                            $(this).remove();
-                            AIOPMSCPTManager.updateResultsCount();
-                        });
-                    } else {
-                        // Extract message from WP_Error if applicable
-                        const message = response.data && response.data.message ? response.data.message : (response.data || 'Failed to delete CPT');
-                        AIOPMSCPTManager.showNotification(message, 'error');
+                ArtitechCoreCPTManager.showLoadingOverlay();
+
+                $.ajax({
+                    url: artitechcore_cpt_data.ajaxurl,
+                    type: 'POST',
+                    data: {
+                        action: 'artitechcore_delete_cpt_ajax',
+                        post_type: cptSlug,
+                        nonce: artitechcore_cpt_data.nonce
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            ArtitechCoreCPTManager.showNotification('Custom post type deleted successfully', 'success');
+                            $(`.artitechcore-cpt-card[data-cpt="${cptSlug}"]`).fadeOut(300, function () {
+                                $(this).remove();
+                                ArtitechCoreCPTManager.updateResultsCount();
+                            });
+                        } else {
+                            // Extract message from WP_Error if applicable
+                            const message = response.data && response.data.message ? response.data.message : (response.data || 'Failed to delete CPT');
+                            ArtitechCoreCPTManager.showNotification(message, 'error');
+                        }
+                    },
+                    error: function () {
+                        ArtitechCoreCPTManager.showNotification('Network error occurred', 'error');
+                    },
+                    complete: function () {
+                        ArtitechCoreCPTManager.hideLoadingOverlay();
                     }
-                },
-                error: function () {
-                    AIOPMSCPTManager.showNotification('Network error occurred', 'error');
-                },
-                complete: function () {
-                    AIOPMSCPTManager.hideLoadingOverlay();
+                });
+            }).fail(function () {
+                ArtitechCoreCPTManager.hideLoadingOverlay();
+                if (confirm('Are you sure you want to delete this custom post type? This action cannot be undone.')) {
+                    // Fallback to original delete without count
+                    ArtitechCoreCPTManager.showLoadingOverlay();
+                    $.ajax({
+                        url: artitechcore_cpt_data.ajaxurl,
+                        type: 'POST',
+                        data: {
+                            action: 'artitechcore_delete_cpt_ajax',
+                            post_type: cptSlug,
+                            nonce: artitechcore_cpt_data.nonce
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                ArtitechCoreCPTManager.showNotification('Custom post type deleted successfully', 'success');
+                                $(`.artitechcore-cpt-card[data-cpt="${cptSlug}"]`).fadeOut(300, function () {
+                                    $(this).remove();
+                                    ArtitechCoreCPTManager.updateResultsCount();
+                                });
+                            } else {
+                                const message = response.data && response.data.message ? response.data.message : (response.data || 'Failed to delete CPT');
+                                ArtitechCoreCPTManager.showNotification(message, 'error');
+                            }
+                        },
+                        complete: function () {
+                            ArtitechCoreCPTManager.hideLoadingOverlay();
+                        }
+                    });
                 }
             });
         },
@@ -475,39 +530,39 @@
 
             const $form = $(this);
             const formData = new FormData(this);
-            formData.append('action', 'aiopms_create_cpt_ajax');
-            formData.append('nonce', aiopms_cpt_data.nonce);
+            formData.append('action', 'artitechcore_create_cpt_ajax');
+            formData.append('nonce', artitechcore_cpt_data.nonce);
 
             // Validate form
-            if (!AIOPMSCPTManager.validateCPTForm($form)) {
+            if (!ArtitechCoreCPTManager.validateCPTForm($form)) {
                 return;
             }
 
-            AIOPMSCPTManager.showLoadingOverlay();
+            ArtitechCoreCPTManager.showLoadingOverlay();
 
             $.ajax({
-                url: aiopms_cpt_data.ajaxurl,
+                url: artitechcore_cpt_data.ajaxurl,
                 type: 'POST',
                 data: formData,
                 processData: false,
                 contentType: false,
                 success: function (response) {
                     if (response.success) {
-                        AIOPMSCPTManager.showNotification('Custom post type created successfully!', 'success');
+                        ArtitechCoreCPTManager.showNotification('Custom post type created successfully!', 'success');
                         $form[0].reset();
-                        AIOPMSCPTManager.refreshCPTList();
+                        ArtitechCoreCPTManager.refreshCPTList();
 
                         // Switch to list tab
-                        $('.aiopms-tab[data-tab="list"]').click();
+                        $('.artitechcore-tab[data-tab="list"]').click();
                     } else {
-                        AIOPMSCPTManager.showNotification(response.data || 'Failed to create CPT', 'error');
+                        ArtitechCoreCPTManager.showNotification(response.data || 'Failed to create CPT', 'error');
                     }
                 },
                 error: function () {
-                    AIOPMSCPTManager.showNotification('Network error occurred', 'error');
+                    ArtitechCoreCPTManager.showNotification('Network error occurred', 'error');
                 },
                 complete: function () {
-                    AIOPMSCPTManager.hideLoadingOverlay();
+                    ArtitechCoreCPTManager.hideLoadingOverlay();
                 }
             });
         },
@@ -518,11 +573,11 @@
             const requiredFields = $form.find('[required]');
 
             // Clear previous errors
-            $('.aiopms-field-validation').hide().removeClass('error success');
+            $('.artitechcore-field-validation').hide().removeClass('error success');
 
             requiredFields.each(function () {
                 const $field = $(this);
-                const $validation = $field.closest('.aiopms-form-group').find('.aiopms-field-validation');
+                const $validation = $field.closest('.artitechcore-form-group').find('.artitechcore-field-validation');
 
                 if (!$field.val().trim()) {
                     $validation.addClass('error').text('This field is required').show();
@@ -536,7 +591,7 @@
             const cptName = $('#cpt_name').val();
             if (cptName) {
                 const nameRegex = /^[a-z_][a-z0-9_]*$/;
-                const $nameValidation = $('#cpt_name').closest('.aiopms-form-group').find('.aiopms-field-validation');
+                const $nameValidation = $('#cpt_name').closest('.artitechcore-form-group').find('.artitechcore-field-validation');
 
                 if (!nameRegex.test(cptName)) {
                     $nameValidation.addClass('error').text('Post type name must contain only lowercase letters, numbers, and underscores').show();
@@ -557,14 +612,14 @@
             e.preventDefault();
 
             const fieldIndex = $('.custom-field-row').length;
-            const fieldTemplate = AIOPMSCPTManager.getFieldTemplate(fieldIndex);
+            const fieldTemplate = ArtitechCoreCPTManager.getFieldTemplate(fieldIndex);
 
             $('#custom-fields-container').append(fieldTemplate);
 
             // Focus on the new field name input
             $(`#custom_field_${fieldIndex}_name`).focus();
 
-            AIOPMSCPTManager.announceToScreenReader('New custom field added');
+            ArtitechCoreCPTManager.announceToScreenReader('New custom field added');
         },
 
         removeCustomField: function (e) {
@@ -576,7 +631,7 @@
             if (confirm(`Are you sure you want to remove the "${fieldName}" field?`)) {
                 $fieldRow.fadeOut(300, function () {
                     $(this).remove();
-                    AIOPMSCPTManager.announceToScreenReader('Custom field removed');
+                    ArtitechCoreCPTManager.announceToScreenReader('Custom field removed');
                 });
             }
         },
@@ -584,30 +639,30 @@
         getFieldTemplate: function (index) {
             return `
                 <div class="custom-field-row" data-field-index="${index}">
-                    <div class="aiopms-field-controls">
-                        <div class="aiopms-form-group">
-                            <label for="custom_field_${index}_name" class="aiopms-form-label">Field Name</label>
+                    <div class="artitechcore-field-controls">
+                        <div class="artitechcore-form-group">
+                            <label for="custom_field_${index}_name" class="artitechcore-form-label">Field Name</label>
                             <input type="text" 
                                    id="custom_field_${index}_name"
                                    name="custom_fields[${index}][name]" 
-                                   class="aiopms-form-input field-name-input" 
+                                   class="artitechcore-form-input field-name-input" 
                                    placeholder="field_name"
                                    required>
                         </div>
-                        <div class="aiopms-form-group">
-                            <label for="custom_field_${index}_label" class="aiopms-form-label">Field Label</label>
+                        <div class="artitechcore-form-group">
+                            <label for="custom_field_${index}_label" class="artitechcore-form-label">Field Label</label>
                             <input type="text" 
                                    id="custom_field_${index}_label"
                                    name="custom_fields[${index}][label]" 
-                                   class="aiopms-form-input" 
+                                   class="artitechcore-form-input" 
                                    placeholder="Field Label"
                                    required>
                         </div>
-                        <div class="aiopms-form-group">
-                            <label for="custom_field_${index}_type" class="aiopms-form-label">Field Type</label>
+                        <div class="artitechcore-form-group">
+                            <label for="custom_field_${index}_type" class="artitechcore-form-label">Field Type</label>
                             <select id="custom_field_${index}_type"
                                     name="custom_fields[${index}][type]" 
-                                    class="aiopms-form-select field-type-select">
+                                    class="artitechcore-form-select field-type-select">
                                 <option value="text">Text</option>
                                 <option value="textarea">Textarea</option>
                                 <option value="number">Number</option>
@@ -618,15 +673,15 @@
                                 <option value="checkbox">Checkbox</option>
                             </select>
                         </div>
-                        <div class="aiopms-form-group">
-                            <label for="custom_field_${index}_description" class="aiopms-form-label">Description</label>
+                        <div class="artitechcore-form-group">
+                            <label for="custom_field_${index}_description" class="artitechcore-form-label">Description</label>
                             <input type="text" 
                                    id="custom_field_${index}_description"
                                    name="custom_fields[${index}][description]" 
-                                   class="aiopms-form-input" 
+                                   class="artitechcore-form-input" 
                                    placeholder="Field description">
                         </div>
-                        <div class="aiopms-form-group">
+                        <div class="artitechcore-form-group">
                             <label>
                                 <input type="checkbox" 
                                        name="custom_fields[${index}][required]" 
@@ -634,8 +689,8 @@
                                 Required
                             </label>
                         </div>
-                        <div class="aiopms-form-group">
-                            <button type="button" class="aiopms-btn aiopms-btn-danger remove-field-btn">
+                        <div class="artitechcore-form-group">
+                            <button type="button" class="artitechcore-btn artitechcore-btn-danger remove-field-btn">
                                 <span class="dashicons dashicons-trash"></span>
                                 Remove
                             </button>
@@ -654,13 +709,13 @@
 
             if (fieldType === 'select') {
                 $optionsContainer.html(`
-                    <div class="aiopms-form-group">
-                        <label class="aiopms-form-label">Options (comma-separated)</label>
+                    <div class="artitechcore-form-group">
+                        <label class="artitechcore-form-label">Options (comma-separated)</label>
                         <input type="text" 
                                name="custom_fields[${$fieldRow.data('field-index')}][options]" 
-                               class="aiopms-form-input" 
+                               class="artitechcore-form-input" 
                                placeholder="Option 1, Option 2, Option 3">
-                        <div class="aiopms-form-help">Enter options separated by commas</div>
+                        <div class="artitechcore-form-help">Enter options separated by commas</div>
                     </div>
                 `).show();
             } else {
@@ -680,13 +735,13 @@
                 $modal.find('[tabindex], input, button, select, textarea').first().focus();
 
                 // Trap focus within modal
-                AIOPMSCPTManager.trapFocus($modal);
+                ArtitechCoreCPTManager.trapFocus($modal);
             }
         },
 
         closeModal: function (e) {
-            if (e.target === this || $(e.target).hasClass('aiopms-modal-close')) {
-                $(this).closest('.aiopms-modal-overlay').fadeOut(200);
+            if (e.target === this || $(e.target).hasClass('artitechcore-modal-close')) {
+                $(this).closest('.artitechcore-modal-overlay').fadeOut(200);
             }
         },
 
@@ -707,7 +762,7 @@
                 }
 
                 if (e.key === 'Escape') {
-                    AIOPMSCPTManager.closeModal.call($modal[0], e);
+                    ArtitechCoreCPTManager.closeModal.call($modal[0], e);
                 }
             });
 
@@ -724,11 +779,11 @@
             const tabId = $tab.data('tab');
 
             // Update active tab
-            $('.aiopms-tab').removeClass('active');
+            $('.artitechcore-tab').removeClass('active');
             $tab.addClass('active');
 
             // Update tab content
-            $('.aiopms-tab-content').removeClass('active');
+            $('.artitechcore-tab-content').removeClass('active');
             $(`#tab-${tabId}`).addClass('active');
 
             // Update URL without reload
@@ -737,7 +792,7 @@
             window.history.replaceState({}, '', url);
 
             // Announce tab change
-            AIOPMSCPTManager.announceToScreenReader(`Switched to ${$tab.text()} tab`);
+            ArtitechCoreCPTManager.announceToScreenReader(`Switched to ${$tab.text()} tab`);
         },
 
         // Keyboard navigation
@@ -745,16 +800,16 @@
             // Handle Escape key globally
             if (e.key === 'Escape') {
                 // Close any open modals
-                $('.aiopms-modal-overlay:visible').fadeOut(200);
+                $('.artitechcore-modal-overlay:visible').fadeOut(200);
             }
         },
 
         setupKeyboardNavigation: function () {
             // Add keyboard support for card actions
-            $('.aiopms-cpt-card').attr('tabindex', '0').on('keydown', function (e) {
+            $('.artitechcore-cpt-card').attr('tabindex', '0').on('keydown', function (e) {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    $(this).find('.aiopms-cpt-title a')[0].click();
+                    $(this).find('.artitechcore-cpt-title a')[0].click();
                 }
             });
         },
@@ -769,14 +824,14 @@
             };
 
             const $notification = $(`
-                <div class="aiopms-message ${type}" role="alert" aria-live="polite">
-                    <span class="aiopms-message-icon">${iconMap[type] || iconMap.info}</span>
-                    <span class="aiopms-message-text">${message}</span>
-                    <button class="aiopms-message-close" aria-label="Close notification">&times;</button>
+                <div class="artitechcore-message ${type}" role="alert" aria-live="polite">
+                    <span class="artitechcore-message-icon">${iconMap[type] || iconMap.info}</span>
+                    <span class="artitechcore-message-text">${message}</span>
+                    <button class="artitechcore-message-close" aria-label="Close notification">&times;</button>
                 </div>
             `);
 
-            $('#aiopms-messages').prepend($notification);
+            $('#artitechcore-messages').prepend($notification);
 
             // Auto-remove after duration
             setTimeout(() => {
@@ -786,7 +841,7 @@
             }, duration);
 
             // Manual close
-            $notification.find('.aiopms-message-close').on('click', function () {
+            $notification.find('.artitechcore-message-close').on('click', function () {
                 $notification.fadeOut(300, function () {
                     $(this).remove();
                 });
@@ -797,16 +852,16 @@
 
         // Loading states
         showLoadingOverlay: function () {
-            $('#aiopms-loading-overlay').show();
+            $('#artitechcore-loading-overlay').show();
         },
 
         hideLoadingOverlay: function () {
-            $('#aiopms-loading-overlay').hide();
+            $('#artitechcore-loading-overlay').hide();
         },
 
         setupLoadingStates: function () {
             // Add loading states to buttons
-            $(document).on('click', '.aiopms-btn[data-loading-text]', function () {
+            $(document).on('click', '.artitechcore-btn[data-loading-text]', function () {
                 const $btn = $(this);
                 const originalText = $btn.html();
                 const loadingText = $btn.data('loading-text');
@@ -852,8 +907,8 @@
         },
 
         announceSearchResults: function (searchTerm) {
-            const visibleCount = $('.aiopms-cpt-card:visible').length;
-            const totalCount = $('.aiopms-cpt-card').length;
+            const visibleCount = $('.artitechcore-cpt-card:visible').length;
+            const totalCount = $('.artitechcore-cpt-card').length;
 
             let message;
             if (searchTerm) {
@@ -879,13 +934,13 @@
         },
 
         updateResultsCount: function () {
-            const visibleCount = $('.aiopms-cpt-card:visible').length;
-            const totalCount = $('.aiopms-cpt-card').length;
+            const visibleCount = $('.artitechcore-cpt-card:visible').length;
+            const totalCount = $('.artitechcore-cpt-card').length;
 
             let $counter = $('#results-counter');
             if (!$counter.length) {
                 $counter = $('<div id="results-counter" class="results-counter"></div>');
-                $('.aiopms-cpt-list-header').append($counter);
+                $('.artitechcore-cpt-list-header').append($counter);
             }
 
             if (visibleCount === totalCount) {
@@ -927,13 +982,13 @@
                 const validationType = $field.data('validate');
 
                 // Perform validation based on type
-                AIOPMSCPTManager.validateField($field, validationType);
+                ArtitechCoreCPTManager.validateField($field, validationType);
             });
         },
 
         validateField: function ($field, type) {
             const value = $field.val();
-            const $validation = $field.closest('.aiopms-form-group').find('.aiopms-field-validation');
+            const $validation = $field.closest('.artitechcore-form-group').find('.artitechcore-field-validation');
 
             let isValid = true;
             let message = '';
@@ -964,17 +1019,17 @@
 
         initializeNotifications: function () {
             // Initialize notification system
-            if (!$('#aiopms-messages').length) {
-                $('.dg10-card-body').prepend('<div id="aiopms-messages" class="aiopms-messages"></div>');
+            if (!$('#artitechcore-messages').length) {
+                $('.dg10-card-body').prepend('<div id="artitechcore-messages" class="artitechcore-messages"></div>');
             }
         },
 
         autoSave: function () {
             // Auto-save functionality for form data
-            const formData = $('#aiopms-cpt-form').serialize();
+            const formData = $('#artitechcore-cpt-form').serialize();
 
             // Save to localStorage as backup
-            localStorage.setItem('aiopms_cpt_draft', formData);
+            localStorage.setItem('artitechcore_cpt_draft', formData);
 
             // Show subtle indication of auto-save
             const $indicator = $('#auto-save-indicator');
@@ -987,13 +1042,13 @@
 
         handleSelectAllBulk: function () {
             const isChecked = $('#select-all-bulk').prop('checked');
-            $('.aiopms-cpt-checkbox').prop('checked', isChecked);
+            $('.artitechcore-cpt-checkbox').prop('checked', isChecked);
             this.updateBulkSelection();
         },
 
         updateBulkSelection: function () {
-            const selectedCount = $('.aiopms-cpt-checkbox:checked').length;
-            const totalCount = $('.aiopms-cpt-checkbox').length;
+            const selectedCount = $('.artitechcore-cpt-checkbox:checked').length;
+            const totalCount = $('.artitechcore-cpt-checkbox').length;
 
             $('#selected-count').text(selectedCount);
             $('#select-all-bulk').prop('checked', selectedCount === totalCount);
@@ -1002,7 +1057,7 @@
         },
 
         toggleBulkActionButton: function () {
-            const hasSelection = $('.aiopms-cpt-checkbox:checked').length > 0;
+            const hasSelection = $('.artitechcore-cpt-checkbox:checked').length > 0;
             const hasAction = $('#bulk-action-selector').val() !== '';
 
             $('#apply-bulk-action-btn').prop('disabled', !hasSelection || !hasAction);
@@ -1012,7 +1067,7 @@
             e.preventDefault();
 
             const action = $('#bulk-action-selector').val();
-            const selectedCPTs = $('.aiopms-cpt-checkbox:checked').map(function () {
+            const selectedCPTs = $('.artitechcore-cpt-checkbox:checked').map(function () {
                 return $(this).val();
             }).get();
 
@@ -1028,11 +1083,11 @@
             this.showLoadingOverlay();
 
             $.ajax({
-                url: aiopms_cpt_data.ajaxurl,
+                url: artitechcore_cpt_data.ajaxurl,
                 type: 'POST',
                 data: {
-                    action: 'aiopms_bulk_cpt_operations',
-                    nonce: aiopms_cpt_data.nonce,
+                    action: 'artitechcore_bulk_cpt_operations',
+                    nonce: artitechcore_cpt_data.nonce,
                     bulk_action: action,
                     cpt_ids: selectedCPTs
                 },
@@ -1054,7 +1109,7 @@
         },
 
         showBulkResults: function (results) {
-            let resultHtml = '<div class="aiopms-bulk-results"><h4>Operation Results:</h4><ul>';
+            let resultHtml = '<div class="artitechcore-bulk-results"><h4>Operation Results:</h4><ul>';
 
             results.forEach(function (result) {
                 const statusClass = result.status === 'success' ? 'success' : 'error';
@@ -1081,7 +1136,7 @@
         handleFileSelection: function () {
             const file = this.files[0];
             if (file) {
-                const $label = $(this).closest('.aiopms-upload-label');
+                const $label = $(this).closest('.artitechcore-upload-label');
                 $label.find('.upload-text').text(file.name);
                 $label.addClass('file-selected');
             }
@@ -1093,7 +1148,7 @@
             e.preventDefault();
 
             const templateId = $(this).data('template');
-            const $card = $(this).closest('.aiopms-template-card');
+            const $card = $(this).closest('.artitechcore-template-card');
 
             // Get template data (this would normally come from an AJAX call)
             const templateData = this.getTemplateData(templateId);
@@ -1117,18 +1172,18 @@
 
         showTemplatePreview: function (templateData) {
             const modalHtml = `
-                <div class="aiopms-modal" id="template-preview-modal">
-                    <div class="aiopms-modal-content aiopms-modal-large">
-                        <div class="aiopms-modal-header">
+                <div class="artitechcore-modal" id="template-preview-modal">
+                    <div class="artitechcore-modal-content artitechcore-modal-large">
+                        <div class="artitechcore-modal-header">
                             <h3>Template Preview: ${templateData.name}</h3>
-                            <button class="aiopms-modal-close">&times;</button>
+                            <button class="artitechcore-modal-close">&times;</button>
                         </div>
-                        <div class="aiopms-modal-body">
+                        <div class="artitechcore-modal-body">
                             <p>${templateData.description}</p>
                             <!-- Template preview content would go here -->
                         </div>
-                        <div class="aiopms-modal-footer">
-                            <button type="button" class="button button-secondary aiopms-modal-close">Close</button>
+                        <div class="artitechcore-modal-footer">
+                            <button type="button" class="button button-secondary artitechcore-modal-close">Close</button>
                             <button type="button" class="button button-primary" data-template="${templateData.id}">Create CPT</button>
                         </div>
                     </div>
@@ -1139,7 +1194,7 @@
             $('#template-preview-modal').show();
 
             // Bind close handlers
-            $('.aiopms-modal-close').on('click', function () {
+            $('.artitechcore-modal-close').on('click', function () {
                 $('#template-preview-modal').remove();
             });
         },
@@ -1158,12 +1213,12 @@
     // Initialize when document is ready
     $(document).ready(function () {
         // Only initialize on CPT management pages
-        if ($('#aiopms-cpt-management').length) {
-            AIOPMSCPTManager.init();
+        if ($('#artitechcore-cpt-management').length) {
+            ArtitechCoreCPTManager.init();
         }
     });
 
     // Make globally available
-    window.AIOPMSCPTManager = AIOPMSCPTManager;
+    window.ArtitechCoreCPTManager = ArtitechCoreCPTManager;
 
 })(jQuery);

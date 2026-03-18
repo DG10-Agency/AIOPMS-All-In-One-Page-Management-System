@@ -4,66 +4,66 @@ if (!defined('ABSPATH')) {
 }
 
 // Register AJAX handlers
-add_action('wp_ajax_aiopms_ai_generate_suggestions', 'aiopms_handle_ai_generate_suggestions_ajax');
-add_action('wp_ajax_aiopms_ai_create_content', 'aiopms_handle_ai_create_content_ajax');
+add_action('wp_ajax_artitechcore_ai_generate_suggestions', 'artitechcore_handle_ai_generate_suggestions_ajax');
+add_action('wp_ajax_artitechcore_ai_create_content', 'artitechcore_handle_ai_create_content_ajax');
 
 /**
  * AI generation tab content - Modernized with AJAX support
  * 
- * @since 3.0
+ * @since 1.0
  */
-function aiopms_ai_generation_tab() {
+function artitechcore_ai_generation_tab() {
     ?>
-    <div class="aiopms-ai-tab dg10-form-container">
-        <div class="aiopms-tab-header">
-            <h3>🤖 <?php esc_html_e('AI Page & Ecosystem Generator', 'aiopms'); ?></h3>
-            <p><?php esc_html_e('Our advanced AI analyzes your business mission to suggest a complete website architecture, including pages and custom post types.', 'aiopms'); ?></p>
+    <div class="artitechcore-ai-tab dg10-form-container">
+        <div class="artitechcore-tab-header">
+            <h3>🤖 <?php esc_html_e('AI Page & Ecosystem Generator', 'artitechcore'); ?></h3>
+            <p><?php esc_html_e('Our advanced AI analyzes your business mission to suggest a complete website architecture, including pages and custom post types.', 'artitechcore'); ?></p>
         </div>
 
-        <form id="aiopms-ai-request-form" class="dg10-form" method="post" enctype="multipart/form-data">
-            <?php wp_nonce_field('aiopms_ai_ajax', 'nonce'); ?>
+        <form id="artitechcore-ai-request-form" class="dg10-form" method="post" enctype="multipart/form-data">
+            <?php wp_nonce_field('artitechcore_ai_ajax', 'nonce'); ?>
             
             <div class="dg10-form-section">
                 <div class="dg10-form-group">
-                    <label for="aiopms_business_type" class="dg10-form-label"><?php esc_html_e('Business Type', 'aiopms'); ?></label>
-                    <input type="text" name="aiopms_business_type" id="aiopms_business_type" class="dg10-form-input" 
-                           placeholder="<?php esc_attr_e('e.g., Digital Agency, Dental Clinic, Law Firm', 'aiopms'); ?>" required>
-                    <div class="aiopms-field-validation"></div>
+                    <label for="artitechcore_business_type" class="dg10-form-label"><?php esc_html_e('Business Type', 'artitechcore'); ?></label>
+                    <input type="text" name="artitechcore_business_type" id="artitechcore_business_type" class="dg10-form-input" 
+                           placeholder="<?php esc_attr_e('e.g., Digital Agency, Dental Clinic, Law Firm', 'artitechcore'); ?>" required>
+                    <div class="artitechcore-field-validation"></div>
                 </div>
 
                 <div class="dg10-form-group">
-                    <label for="aiopms_business_details" class="dg10-form-label"><?php esc_html_e('Mission & Details', 'aiopms'); ?></label>
-                    <textarea name="aiopms_business_details" id="aiopms_business_details" rows="4" class="dg10-form-textarea" 
-                              placeholder="<?php esc_attr_e('Briefly describe what your business does and what makes you unique...', 'aiopms'); ?>" required></textarea>
+                    <label for="artitechcore_business_details" class="dg10-form-label"><?php esc_html_e('Mission & Details', 'artitechcore'); ?></label>
+                    <textarea name="artitechcore_business_details" id="artitechcore_business_details" rows="4" class="dg10-form-textarea" 
+                              placeholder="<?php esc_attr_e('Briefly describe what your business does and what makes you unique...', 'artitechcore'); ?>" required></textarea>
                 </div>
 
                 <div class="dg10-form-grid" style="grid-template-columns: 1fr 1fr;">
                     <div class="dg10-form-group">
-                        <label for="aiopms_seo_keywords" class="dg10-form-label"><?php esc_html_e('Primary SEO Keywords', 'aiopms'); ?></label>
-                        <input type="text" name="aiopms_seo_keywords" id="aiopms_seo_keywords" class="dg10-form-input" 
-                               placeholder="<?php esc_attr_e('e.g., low-cost dentistry, web design London', 'aiopms'); ?>">
-                        <p class="dg10-form-help"><?php esc_html_e('Comma-separated list.', 'aiopms'); ?></p>
+                        <label for="artitechcore_seo_keywords" class="dg10-form-label"><?php esc_html_e('Primary SEO Keywords', 'artitechcore'); ?></label>
+                        <input type="text" name="artitechcore_seo_keywords" id="artitechcore_seo_keywords" class="dg10-form-input" 
+                               placeholder="<?php esc_attr_e('e.g., low-cost dentistry, web design London', 'artitechcore'); ?>">
+                        <p class="dg10-form-help"><?php esc_html_e('Comma-separated list.', 'artitechcore'); ?></p>
                     </div>
 
                     <div class="dg10-form-group">
-                        <label for="aiopms_target_audience" class="dg10-form-label"><?php esc_html_e('Target Audience', 'aiopms'); ?></label>
-                        <input type="text" name="aiopms_target_audience" id="aiopms_target_audience" class="dg10-form-input" 
-                               placeholder="<?php esc_attr_e('e.g., local businesses in Miami, pet owners', 'aiopms'); ?>">
+                        <label for="artitechcore_target_audience" class="dg10-form-label"><?php esc_html_e('Target Audience', 'artitechcore'); ?></label>
+                        <input type="text" name="artitechcore_target_audience" id="artitechcore_target_audience" class="dg10-form-input" 
+                               placeholder="<?php esc_attr_e('e.g., local businesses in Miami, pet owners', 'artitechcore'); ?>">
                     </div>
                 </div>
 
                 <div class="dg10-form-group">
-                    <label for="aiopms_keywords_csv" class="dg10-form-label"><?php esc_html_e('Bulk Keywords Upload (CSV)', 'aiopms'); ?></label>
-                    <input type="file" name="aiopms_keywords_csv" id="aiopms_keywords_csv" class="dg10-form-input" accept=".csv">
-                    <p class="dg10-form-help"><?php esc_html_e('Upload a CSV file for deep content analysis.', 'aiopms'); ?></p>
+                    <label for="artitechcore_keywords_csv" class="dg10-form-label"><?php esc_html_e('Bulk Keywords Upload (CSV)', 'artitechcore'); ?></label>
+                    <input type="file" name="artitechcore_keywords_csv" id="artitechcore_keywords_csv" class="dg10-form-input" accept=".csv">
+                    <p class="dg10-form-help"><?php esc_html_e('Upload a CSV file for deep content analysis.', 'artitechcore'); ?></p>
                 </div>
 
                 <div class="dg10-form-group">
-                    <label class="dg10-checkbox-label aiopms-advanced-toggle">
-                        <input type="checkbox" name="aiopms_advanced_mode" id="aiopms_advanced_mode" value="1" checked>
+                    <label class="dg10-checkbox-label artitechcore-advanced-toggle">
+                        <input type="checkbox" name="artitechcore_advanced_mode" id="artitechcore_advanced_mode" value="1" checked>
                         <span>
-                            <strong><?php esc_html_e('Advanced Mode', 'aiopms'); ?></strong> - 
-                            <?php esc_html_e('Generate custom post types (CPTs) and dynamic fields specialized for your niche.', 'aiopms'); ?>
+                            <strong><?php esc_html_e('Advanced Mode', 'artitechcore'); ?></strong> - 
+                            <?php esc_html_e('Generate custom post types (CPTs) and dynamic fields specialized for your niche.', 'artitechcore'); ?>
                         </span>
                     </label>
                 </div>
@@ -72,12 +72,12 @@ function aiopms_ai_generation_tab() {
             <div class="dg10-form-actions">
                 <button type="submit" class="dg10-btn dg10-btn-primary">
                     <span class="nav-icon">✨</span>
-                    <?php esc_html_e('Generate Page Suggestions', 'aiopms'); ?>
+                    <?php esc_html_e('Generate Page Suggestions', 'artitechcore'); ?>
                 </button>
             </div>
         </form>
 
-        <div id="aiopms-ai-results" class="aiopms-results-container">
+        <div id="artitechcore-ai-results" class="artitechcore-results-container">
             <!-- Results will be loaded here via AJAX -->
         </div>
     </div>
@@ -87,30 +87,30 @@ function aiopms_ai_generation_tab() {
 /**
  * Handle AI suggestion generation AJAX request
  * 
- * @since 3.0
+ * @since 1.0
  */
-function aiopms_handle_ai_generate_suggestions_ajax() {
+function artitechcore_handle_ai_generate_suggestions_ajax() {
     // Verify nonce
-    if (!wp_verify_nonce(isset($_POST['nonce']) ? $_POST['nonce'] : '', 'aiopms_ai_ajax')) {
-        wp_send_json_error(array('message' => __('Security check failed. Please refresh the page and try again.', 'aiopms')));
+    if (!wp_verify_nonce(isset($_POST['nonce']) ? $_POST['nonce'] : '', 'artitechcore_ai_ajax')) {
+        wp_send_json_error(array('message' => __('Security check failed. Please refresh the page and try again.', 'artitechcore')));
         return;
     }
     
     if (!current_user_can('manage_options')) {
-        wp_send_json_error(array('message' => __('Insufficient permissions.', 'aiopms')));
+        wp_send_json_error(array('message' => __('Insufficient permissions.', 'artitechcore')));
         return;
     }
 
-    $business_type = isset($_POST['aiopms_business_type']) ? sanitize_text_field(wp_unslash($_POST['aiopms_business_type'])) : '';
-    $business_details = isset($_POST['aiopms_business_details']) ? sanitize_textarea_field(wp_unslash($_POST['aiopms_business_details'])) : '';
-    $seo_keywords = isset($_POST['aiopms_seo_keywords']) ? sanitize_text_field(wp_unslash($_POST['aiopms_seo_keywords'])) : '';
-    $target_audience = isset($_POST['aiopms_target_audience']) ? sanitize_text_field(wp_unslash($_POST['aiopms_target_audience'])) : '';
-    $advanced_mode = isset($_POST['aiopms_advanced_mode']) && $_POST['aiopms_advanced_mode'] == '1';
+    $business_type = isset($_POST['artitechcore_business_type']) ? sanitize_text_field(wp_unslash($_POST['artitechcore_business_type'])) : '';
+    $business_details = isset($_POST['artitechcore_business_details']) ? sanitize_textarea_field(wp_unslash($_POST['artitechcore_business_details'])) : '';
+    $seo_keywords = isset($_POST['artitechcore_seo_keywords']) ? sanitize_text_field(wp_unslash($_POST['artitechcore_seo_keywords'])) : '';
+    $target_audience = isset($_POST['artitechcore_target_audience']) ? sanitize_text_field(wp_unslash($_POST['artitechcore_target_audience'])) : '';
+    $advanced_mode = isset($_POST['artitechcore_advanced_mode']) && $_POST['artitechcore_advanced_mode'] == '1';
     
     // Combine keywords with CSV if uploaded
     $csv_keywords = '';
-    if (isset($_FILES['aiopms_keywords_csv']) && !empty($_FILES['aiopms_keywords_csv']['tmp_name'])) {
-        $csv_keywords = abpcwa_process_keywords_csv($_FILES['aiopms_keywords_csv']);
+    if (isset($_FILES['artitechcore_keywords_csv']) && !empty($_FILES['artitechcore_keywords_csv']['tmp_name'])) {
+        $csv_keywords = artitechcore_process_keywords_csv($_FILES['artitechcore_keywords_csv']);
     }
     
     $all_keywords = trim($seo_keywords);
@@ -120,14 +120,14 @@ function aiopms_handle_ai_generate_suggestions_ajax() {
 
     ob_start();
     if ($advanced_mode) {
-        aiopms_generate_advanced_content_with_ai($business_type, $business_details, $all_keywords, $target_audience);
+        artitechcore_generate_advanced_content_with_ai($business_type, $business_details, $all_keywords, $target_audience);
     } else {
-        abpcwa_generate_pages_with_ai($business_type, $business_details, $all_keywords, $target_audience);
+        artitechcore_generate_pages_with_ai($business_type, $business_details, $all_keywords, $target_audience);
     }
     $html = ob_get_clean();
     
     if (empty($html) || strpos($html, 'notice-error') !== false) {
-        wp_send_json_error(array('html' => $html, 'message' => __('AI generation failed.', 'aiopms')));
+        wp_send_json_error(array('html' => $html, 'message' => __('AI generation failed.', 'artitechcore')));
     }
 
     wp_send_json_success(array('html' => $html));
@@ -136,50 +136,50 @@ function aiopms_handle_ai_generate_suggestions_ajax() {
 /**
  * Handle content creation AJAX request
  * 
- * @since 3.0
+ * @since 1.0
  */
-function aiopms_handle_ai_create_content_ajax() {
+function artitechcore_handle_ai_create_content_ajax() {
     // Check nonce
-    if (!wp_verify_nonce(isset($_POST['nonce']) ? $_POST['nonce'] : '', 'aiopms_ai_ajax')) {
-        wp_send_json_error(array('message' => __('Security check failed. Please refresh the page and try again.', 'aiopms')));
+    if (!wp_verify_nonce(isset($_POST['nonce']) ? $_POST['nonce'] : '', 'artitechcore_ai_ajax')) {
+        wp_send_json_error(array('message' => __('Security check failed. Please refresh the page and try again.', 'artitechcore')));
         return;
     }
     
     if (!current_user_can('manage_options')) {
-        wp_send_json_error(array('message' => __('Insufficient permissions.', 'aiopms')));
+        wp_send_json_error(array('message' => __('Insufficient permissions.', 'artitechcore')));
         return;
     }
 
-    $generate_images = isset($_POST['aiopms_generate_images']) && $_POST['aiopms_generate_images'] == '1';
+    $generate_images = isset($_POST['artitechcore_generate_images']) && $_POST['artitechcore_generate_images'] == '1';
     $message = '';
 
-    if (isset($_POST['aiopms_selected_pages'])) {
-        $selected_pages = array_map('wp_unslash', $_POST['aiopms_selected_pages']);
+    if (isset($_POST['artitechcore_selected_pages'])) {
+        $selected_pages = array_map('wp_unslash', $_POST['artitechcore_selected_pages']);
         
         // Handle both simple and advanced page creation
         if (isset($_POST['action_type']) && $_POST['action_type'] === 'advanced') {
-            $selected_cpts = isset($_POST['aiopms_selected_cpts']) ? array_map('wp_unslash', $_POST['aiopms_selected_cpts']) : array();
+            $selected_cpts = isset($_POST['artitechcore_selected_cpts']) ? array_map('wp_unslash', $_POST['artitechcore_selected_cpts']) : array();
             
             // Pass data directly - validation happens inside the function
-            aiopms_create_advanced_content($selected_pages, $selected_cpts, $generate_images);
-            $message = sprintf(__('Successfully created %d pages and %d custom post types.', 'aiopms'), count($selected_pages), count($selected_cpts));
+            artitechcore_create_advanced_content($selected_pages, $selected_cpts, $generate_images);
+            $message = sprintf(__('Successfully created %d pages and %d custom post types.', 'artitechcore'), count($selected_pages), count($selected_cpts));
         } else {
-            abpcwa_create_suggested_pages($selected_pages, $generate_images);
-            $message = sprintf(__('Successfully created %d pages.', 'aiopms'), count($selected_pages));
+            artitechcore_create_suggested_pages($selected_pages, $generate_images);
+            $message = sprintf(__('Successfully created %d pages.', 'artitechcore'), count($selected_pages));
         }
     } else {
-        wp_send_json_error(array('message' => __('No content selected for creation.', 'aiopms')));
+        wp_send_json_error(array('message' => __('No content selected for creation.', 'artitechcore')));
     }
 
     wp_send_json_success(array('message' => $message));
 }
 
 // Generate pages with AI
-function abpcwa_generate_pages_with_ai($business_type, $business_details, $seo_keywords = '', $target_audience = '') {
+function artitechcore_generate_pages_with_ai($business_type, $business_details, $seo_keywords = '', $target_audience = '') {
     try {
         // Input validation
         if (empty($business_type) || empty($business_details)) {
-            echo '<div class="notice notice-error"><p>' . esc_html__('Business type and details are required for AI generation.', 'aiopms') . '</p></div>';
+            echo '<div class="notice notice-error"><p>' . esc_html__('Business type and details are required for AI generation.', 'artitechcore') . '</p></div>';
             return;
         }
 
@@ -191,32 +191,32 @@ function abpcwa_generate_pages_with_ai($business_type, $business_details, $seo_k
 
         // Validate input lengths
         if (strlen($business_type) > 100) {
-            echo '<div class="notice notice-error"><p>' . esc_html__('Business type must be 100 characters or less.', 'aiopms') . '</p></div>';
+            echo '<div class="notice notice-error"><p>' . esc_html__('Business type must be 100 characters or less.', 'artitechcore') . '</p></div>';
             return;
         }
 
         if (strlen($business_details) > 1000) {
-            echo '<div class="notice notice-error"><p>' . esc_html__('Business details must be 1000 characters or less.', 'aiopms') . '</p></div>';
+            echo '<div class="notice notice-error"><p>' . esc_html__('Business details must be 1000 characters or less.', 'artitechcore') . '</p></div>';
             return;
         }
 
-        $provider = get_option('aiopms_ai_provider', 'openai');
-        $api_key = get_option('aiopms_' . $provider . '_api_key');
+        $provider = get_option('artitechcore_ai_provider', 'openai');
+        $api_key = get_option('artitechcore_' . $provider . '_api_key');
 
         if (empty($api_key)) {
-            echo '<div class="notice notice-error"><p>' . esc_html(sprintf(__('Please enter your %s API key in the Settings tab.', 'aiopms'), ucfirst($provider))) . '</p></div>';
+            echo '<div class="notice notice-error"><p>' . esc_html(sprintf(__('Please enter your %s API key in the Settings tab.', 'artitechcore'), ucfirst($provider))) . '</p></div>';
             return;
         }
 
         // Validate API key format
-        if (!aiopms_validate_api_key($api_key, $provider)) {
-            echo '<div class="notice notice-error"><p>' . esc_html(sprintf(__('Invalid %s API key format. Please check your API key.', 'aiopms'), ucfirst($provider))) . '</p></div>';
+        if (!artitechcore_validate_api_key($api_key, $provider)) {
+            echo '<div class="notice notice-error"><p>' . esc_html(sprintf(__('Invalid %s API key format. Please check your API key.', 'artitechcore'), ucfirst($provider))) . '</p></div>';
             return;
         }
 
         // Rate limiting check
-        if (!aiopms_check_ai_rate_limit($provider)) {
-            echo '<div class="notice notice-error"><p>' . esc_html__('Too many AI requests. Please wait a moment before trying again.', 'aiopms') . '</p></div>';
+        if (!artitechcore_check_ai_rate_limit($provider)) {
+            echo '<div class="notice notice-error"><p>' . esc_html__('Too many AI requests. Please wait a moment before trying again.', 'artitechcore') . '</p></div>';
             return;
         }
 
@@ -226,32 +226,32 @@ function abpcwa_generate_pages_with_ai($business_type, $business_details, $seo_k
         
         switch ($provider) {
             case 'openai':
-                $suggested_pages = abpcwa_get_openai_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key);
+                $suggested_pages = artitechcore_get_openai_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key);
                 break;
             case 'gemini':
-                $suggested_pages = abpcwa_get_gemini_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key);
+                $suggested_pages = artitechcore_get_gemini_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key);
                 break;
             case 'deepseek':
-                $suggested_pages = abpcwa_get_deepseek_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key);
+                $suggested_pages = artitechcore_get_deepseek_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key);
                 break;
             default:
-                echo '<div class="notice notice-error"><p>' . esc_html__('Invalid AI provider selected.', 'aiopms') . '</p></div>';
+                echo '<div class="notice notice-error"><p>' . esc_html__('Invalid AI provider selected.', 'artitechcore') . '</p></div>';
                 return;
         }
 
         if (empty($suggested_pages)) {
-            echo '<div class="notice notice-warning"><p>' . esc_html__('Could not generate page suggestions. Please check your API key and try again.', 'aiopms') . '</p></div>';
+            echo '<div class="notice notice-warning"><p>' . esc_html__('Could not generate page suggestions. Please check your API key and try again.', 'artitechcore') . '</p></div>';
             return;
         }
 
         // Log successful generation
-        aiopms_log_ai_generation('page_suggestions', $provider, true, count($suggested_pages));
+        artitechcore_log_ai_generation('page_suggestions', $provider, true, count($suggested_pages));
 
     } catch (Exception $e) {
         // Log error
-        aiopms_log_ai_generation('page_suggestions', $provider ?? 'unknown', false, 0, $e->getMessage());
-        echo '<div class="notice notice-error"><p>' . esc_html__('An error occurred during AI generation. Please try again.', 'aiopms') . '</p></div>';
-        error_log('AIOPMS AI Generation Error: ' . $e->getMessage());
+        artitechcore_log_ai_generation('page_suggestions', $provider ?? 'unknown', false, 0, $e->getMessage());
+        echo '<div class="notice notice-error"><p>' . esc_html__('An error occurred during AI generation. Please try again.', 'artitechcore') . '</p></div>';
+        error_log('ArtitechCore AI Generation Error: ' . $e->getMessage());
         return;
     }
 
@@ -260,18 +260,18 @@ function abpcwa_generate_pages_with_ai($business_type, $business_details, $seo_k
         return stripos($page_line, 'Privacy Policy') === false;
     });
 
-    echo '<div class="aiopms-suggestions-results">';
-    echo '<h3>✨ ' . esc_html__('Suggested Pages:', 'aiopms') . '</h3>';
-    echo '<form id="aiopms-ai-creation-form" method="post" action="">';
-    wp_nonce_field('aiopms_create_suggested_pages', 'nonce');
+    echo '<div class="artitechcore-suggestions-results">';
+    echo '<h3>✨ ' . esc_html__('Suggested Pages:', 'artitechcore') . '</h3>';
+    echo '<form id="artitechcore-ai-creation-form" method="post" action="">';
+    wp_nonce_field('artitechcore_create_suggested_pages', 'nonce');
     echo '<input type="hidden" name="action_type" value="simple">';
     
     echo '<table class="dg10-table">';
     echo '<thead>';
     echo '<tr>';
     echo '<th width="40px"><input type="checkbox" id="select-all-pages" checked></th>';
-    echo '<th>' . esc_html__('Page Title', 'aiopms') . '</th>';
-    echo '<th>' . esc_html__('Meta Description', 'aiopms') . '</th>';
+    echo '<th>' . esc_html__('Page Title', 'artitechcore') . '</th>';
+    echo '<th>' . esc_html__('Meta Description', 'artitechcore') . '</th>';
     echo '</tr>';
     echo '</thead>';
     echo '<tbody>';
@@ -294,7 +294,7 @@ function abpcwa_generate_pages_with_ai($business_type, $business_details, $seo_k
         $display_title = trim($display_title);
         
         echo '<tr>';
-        echo '<td><input type="checkbox" name="aiopms_selected_pages[]" value="' . esc_attr($page_line) . '" class="aiopms-page-checkbox" checked></td>';
+        echo '<td><input type="checkbox" name="artitechcore_selected_pages[]" value="' . esc_attr($page_line) . '" class="artitechcore-page-checkbox" checked></td>';
         echo '<td>';
         if ($depth > 0) {
             echo str_repeat('<span class="dg10-indent"></span>', $depth);
@@ -309,38 +309,38 @@ function abpcwa_generate_pages_with_ai($business_type, $business_details, $seo_k
     echo '</tbody>';
     echo '</table>';
     
-    $provider = get_option('aiopms_ai_provider', 'openai');
+    $provider = get_option('artitechcore_ai_provider', 'openai');
     $is_deepseek = $provider === 'deepseek';
     
-    echo '<div class="aiopms-options dg10-card" style="margin-top: 24px; padding: 20px;">';
+    echo '<div class="artitechcore-options dg10-card" style="margin-top: 24px; padding: 20px;">';
     echo '<label class="dg10-checkbox-label">';
-    echo '<input type="checkbox" name="aiopms_generate_images" id="aiopms_generate_images" value="1" ' . checked(true, !$is_deepseek, false) . '>';
-    echo '<span>' . esc_html__('Generate premium featured images with AI', 'aiopms') . '</span>';
+    echo '<input type="checkbox" name="artitechcore_generate_images" id="artitechcore_generate_images" value="1" ' . checked(true, !$is_deepseek, false) . '>';
+    echo '<span>' . esc_html__('Generate premium featured images with AI', 'artitechcore') . '</span>';
     echo '</label>';
     
     if ($is_deepseek) {
-        echo '<p class="dg10-form-help dg10-text-danger">' . esc_html__('Note: Image generation is currently not supported with DeepSeek.', 'aiopms') . '</p>';
+        echo '<p class="dg10-form-help dg10-text-danger">' . esc_html__('Note: Image generation is currently not supported with DeepSeek.', 'artitechcore') . '</p>';
     }
     echo '</div>';
     
     echo '<div class="dg10-form-actions" style="margin-top: 24px;">';
     echo '<button type="submit" class="dg10-btn dg10-btn-primary">';
     echo '<span class="nav-icon">🚀</span>';
-    echo esc_html__('Create Selected Pages', 'aiopms');
+    echo esc_html__('Create Selected Pages', 'artitechcore');
     echo '</button>';
     echo '</div>';
 
-    echo '<div class="aiopms-creation-status" style="display: none; margin-top: 20px;"></div>';
+    echo '<div class="artitechcore-creation-status" style="display: none; margin-top: 20px;"></div>';
     echo '</form>';
     echo '</div>';
 }
 
 // Get page suggestions from OpenAI API
-function abpcwa_get_openai_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key) {
+function artitechcore_get_openai_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key) {
     try {
         // Input validation
         if (empty($api_key) || empty($business_type) || empty($business_details)) {
-            throw new Exception(__('Missing required parameters for OpenAI API call.', 'aiopms'));
+            throw new Exception(__('Missing required parameters for OpenAI API call.', 'artitechcore'));
         }
 
         $url = 'https://api.openai.com/v1/chat/completions';
@@ -449,7 +449,7 @@ Focus on creating a complete website architecture that will rank well and conver
         ]);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new Exception(__('Failed to encode request data for OpenAI API.', 'aiopms'));
+            throw new Exception(__('Failed to encode request data for OpenAI API.', 'artitechcore'));
         }
 
         $response = wp_remote_post($url, [
@@ -462,37 +462,37 @@ Focus on creating a complete website architecture that will rank well and conver
         ]);
 
         if (is_wp_error($response)) {
-            throw new Exception(sprintf(__('OpenAI API request failed: %s', 'aiopms'), $response->get_error_message()));
+            throw new Exception(sprintf(__('OpenAI API request failed: %s', 'artitechcore'), $response->get_error_message()));
         }
 
         $response_code = wp_remote_retrieve_response_code($response);
         if ($response_code !== 200) {
             $error_message = wp_remote_retrieve_response_message($response);
-            throw new Exception(sprintf(__('OpenAI API returned error %d: %s', 'aiopms'), $response_code, $error_message));
+            throw new Exception(sprintf(__('OpenAI API returned error %d: %s', 'artitechcore'), $response_code, $error_message));
         }
 
         $response_body = wp_remote_retrieve_body($response);
         if (empty($response_body)) {
-            throw new Exception(__('Empty response received from OpenAI API.', 'aiopms'));
+            throw new Exception(__('Empty response received from OpenAI API.', 'artitechcore'));
         }
 
         $decoded_response = json_decode($response_body, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new Exception(__('Invalid JSON response from OpenAI API.', 'aiopms'));
+            throw new Exception(__('Invalid JSON response from OpenAI API.', 'artitechcore'));
         }
 
         if (isset($decoded_response['error'])) {
-            $error_message = isset($decoded_response['error']['message']) ? $decoded_response['error']['message'] : __('Unknown OpenAI API error.', 'aiopms');
-            throw new Exception(sprintf(__('OpenAI API error: %s', 'aiopms'), $error_message));
+            $error_message = isset($decoded_response['error']['message']) ? $decoded_response['error']['message'] : __('Unknown OpenAI API error.', 'artitechcore');
+            throw new Exception(sprintf(__('OpenAI API error: %s', 'artitechcore'), $error_message));
         }
 
         if (!isset($decoded_response['choices'][0]['message']['content'])) {
-            throw new Exception(__('Unexpected response format from OpenAI API.', 'aiopms'));
+            throw new Exception(__('Unexpected response format from OpenAI API.', 'artitechcore'));
         }
 
         $pages_str = $decoded_response['choices'][0]['message']['content'];
         if (empty($pages_str)) {
-            throw new Exception(__('Empty content received from OpenAI API.', 'aiopms'));
+            throw new Exception(__('Empty content received from OpenAI API.', 'artitechcore'));
         }
 
         $pages = array_map('trim', explode("\n", $pages_str));
@@ -501,23 +501,23 @@ Focus on creating a complete website architecture that will rank well and conver
         });
 
         if (empty($pages)) {
-            throw new Exception(__('No valid page suggestions received from OpenAI API.', 'aiopms'));
+            throw new Exception(__('No valid page suggestions received from OpenAI API.', 'artitechcore'));
         }
 
         return $pages;
 
     } catch (Exception $e) {
-        error_log('AIOPMS OpenAI API Error: ' . $e->getMessage());
+        error_log('ArtitechCore OpenAI API Error: ' . $e->getMessage());
         return [];
     }
 }
 
 // Get page suggestions from Gemini API
-function abpcwa_get_gemini_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key) {
+function artitechcore_get_gemini_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key) {
     try {
         // Input validation
         if (empty($api_key) || empty($business_type) || empty($business_details)) {
-            throw new Exception(__('Missing required parameters for Gemini API call.', 'aiopms'));
+            throw new Exception(__('Missing required parameters for Gemini API call.', 'artitechcore'));
         }
 
         $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' . $api_key;
@@ -623,7 +623,7 @@ Focus on creating a complete website architecture that will rank well and conver
         ]);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new Exception(__('Failed to encode request data for Gemini API.', 'aiopms'));
+            throw new Exception(__('Failed to encode request data for Gemini API.', 'artitechcore'));
         }
 
         $response = wp_remote_post($url, [
@@ -633,37 +633,37 @@ Focus on creating a complete website architecture that will rank well and conver
         ]);
 
         if (is_wp_error($response)) {
-            throw new Exception(sprintf(__('Gemini API request failed: %s', 'aiopms'), $response->get_error_message()));
+            throw new Exception(sprintf(__('Gemini API request failed: %s', 'artitechcore'), $response->get_error_message()));
         }
 
         $response_code = wp_remote_retrieve_response_code($response);
         if ($response_code !== 200) {
             $error_message = wp_remote_retrieve_response_message($response);
-            throw new Exception(sprintf(__('Gemini API returned error %d: %s', 'aiopms'), $response_code, $error_message));
+            throw new Exception(sprintf(__('Gemini API returned error %d: %s', 'artitechcore'), $response_code, $error_message));
         }
 
         $response_body = wp_remote_retrieve_body($response);
         if (empty($response_body)) {
-            throw new Exception(__('Empty response received from Gemini API.', 'aiopms'));
+            throw new Exception(__('Empty response received from Gemini API.', 'artitechcore'));
         }
 
         $decoded_response = json_decode($response_body, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new Exception(__('Invalid JSON response from Gemini API.', 'aiopms'));
+            throw new Exception(__('Invalid JSON response from Gemini API.', 'artitechcore'));
         }
 
         if (isset($decoded_response['error'])) {
-            $error_message = isset($decoded_response['error']['message']) ? $decoded_response['error']['message'] : __('Unknown Gemini API error.', 'aiopms');
-            throw new Exception(sprintf(__('Gemini API error: %s', 'aiopms'), $error_message));
+            $error_message = isset($decoded_response['error']['message']) ? $decoded_response['error']['message'] : __('Unknown Gemini API error.', 'artitechcore');
+            throw new Exception(sprintf(__('Gemini API error: %s', 'artitechcore'), $error_message));
         }
 
         if (!isset($decoded_response['candidates'][0]['content']['parts'][0]['text'])) {
-            throw new Exception(__('Unexpected response format from Gemini API.', 'aiopms'));
+            throw new Exception(__('Unexpected response format from Gemini API.', 'artitechcore'));
         }
 
         $pages_str = $decoded_response['candidates'][0]['content']['parts'][0]['text'];
         if (empty($pages_str)) {
-            throw new Exception(__('Empty content received from Gemini API.', 'aiopms'));
+            throw new Exception(__('Empty content received from Gemini API.', 'artitechcore'));
         }
 
         $pages = array_map('trim', explode("\n", $pages_str));
@@ -672,23 +672,23 @@ Focus on creating a complete website architecture that will rank well and conver
         });
 
         if (empty($pages)) {
-            throw new Exception(__('No valid page suggestions received from Gemini API.', 'aiopms'));
+            throw new Exception(__('No valid page suggestions received from Gemini API.', 'artitechcore'));
         }
 
         return $pages;
 
     } catch (Exception $e) {
-        error_log('AIOPMS Gemini API Error: ' . $e->getMessage());
+        error_log('ArtitechCore Gemini API Error: ' . $e->getMessage());
         return [];
     }
 }
 
 // Get page suggestions from DeepSeek API
-function abpcwa_get_deepseek_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key) {
+function artitechcore_get_deepseek_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key) {
     try {
         // Input validation
         if (empty($api_key) || empty($business_type) || empty($business_details)) {
-            throw new Exception(__('Missing required parameters for DeepSeek API call.', 'aiopms'));
+            throw new Exception(__('Missing required parameters for DeepSeek API call.', 'artitechcore'));
         }
 
         $url = 'https://api.deepseek.com/v1/chat/completions';
@@ -797,7 +797,7 @@ Focus on creating a complete website architecture that will rank well and conver
         ]);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new Exception(__('Failed to encode request data for DeepSeek API.', 'aiopms'));
+            throw new Exception(__('Failed to encode request data for DeepSeek API.', 'artitechcore'));
         }
 
         $response = wp_remote_post($url, [
@@ -810,37 +810,37 @@ Focus on creating a complete website architecture that will rank well and conver
         ]);
 
         if (is_wp_error($response)) {
-            throw new Exception(sprintf(__('DeepSeek API request failed: %s', 'aiopms'), $response->get_error_message()));
+            throw new Exception(sprintf(__('DeepSeek API request failed: %s', 'artitechcore'), $response->get_error_message()));
         }
 
         $response_code = wp_remote_retrieve_response_code($response);
         if ($response_code !== 200) {
             $error_message = wp_remote_retrieve_response_message($response);
-            throw new Exception(sprintf(__('DeepSeek API returned error %d: %s', 'aiopms'), $response_code, $error_message));
+            throw new Exception(sprintf(__('DeepSeek API returned error %d: %s', 'artitechcore'), $response_code, $error_message));
         }
 
         $response_body = wp_remote_retrieve_body($response);
         if (empty($response_body)) {
-            throw new Exception(__('Empty response received from DeepSeek API.', 'aiopms'));
+            throw new Exception(__('Empty response received from DeepSeek API.', 'artitechcore'));
         }
 
         $decoded_response = json_decode($response_body, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new Exception(__('Invalid JSON response from DeepSeek API.', 'aiopms'));
+            throw new Exception(__('Invalid JSON response from DeepSeek API.', 'artitechcore'));
         }
 
         if (isset($decoded_response['error'])) {
-            $error_message = isset($decoded_response['error']['message']) ? $decoded_response['error']['message'] : __('Unknown DeepSeek API error.', 'aiopms');
-            throw new Exception(sprintf(__('DeepSeek API error: %s', 'aiopms'), $error_message));
+            $error_message = isset($decoded_response['error']['message']) ? $decoded_response['error']['message'] : __('Unknown DeepSeek API error.', 'artitechcore');
+            throw new Exception(sprintf(__('DeepSeek API error: %s', 'artitechcore'), $error_message));
         }
 
         if (!isset($decoded_response['choices'][0]['message']['content'])) {
-            throw new Exception(__('Unexpected response format from DeepSeek API.', 'aiopms'));
+            throw new Exception(__('Unexpected response format from DeepSeek API.', 'artitechcore'));
         }
 
         $pages_str = $decoded_response['choices'][0]['message']['content'];
         if (empty($pages_str)) {
-            throw new Exception(__('Empty content received from DeepSeek API.', 'aiopms'));
+            throw new Exception(__('Empty content received from DeepSeek API.', 'artitechcore'));
         }
 
         $pages = array_map('trim', explode("\n", $pages_str));
@@ -849,23 +849,23 @@ Focus on creating a complete website architecture that will rank well and conver
         });
 
         if (empty($pages)) {
-            throw new Exception(__('No valid page suggestions received from DeepSeek API.', 'aiopms'));
+            throw new Exception(__('No valid page suggestions received from DeepSeek API.', 'artitechcore'));
         }
 
         return $pages;
 
     } catch (Exception $e) {
-        error_log('AIOPMS DeepSeek API Error: ' . $e->getMessage());
+        error_log('ArtitechCore DeepSeek API Error: ' . $e->getMessage());
         return [];
     }
 }
 
 // Create suggested pages
-function abpcwa_create_suggested_pages($pages, $generate_images = false) {
+function artitechcore_create_suggested_pages($pages, $generate_images = false) {
     try {
         // Input validation
         if (empty($pages) || !is_array($pages)) {
-            echo '<div class="notice notice-error"><p>' . esc_html__('No pages provided for creation.', 'aiopms') . '</p></div>';
+            echo '<div class="notice notice-error"><p>' . esc_html__('No pages provided for creation.', 'artitechcore') . '</p></div>';
             return;
         }
 
@@ -888,7 +888,7 @@ function abpcwa_create_suggested_pages($pages, $generate_images = false) {
 
                 // Validate page title
                 if (empty($page_title)) {
-                    $errors[] = __('Empty page title found, skipping.', 'aiopms');
+                    $errors[] = __('Empty page title found, skipping.', 'artitechcore');
                     continue;
                 }
 
@@ -901,7 +901,7 @@ function abpcwa_create_suggested_pages($pages, $generate_images = false) {
 
                 // Validate title length
                 if (strlen($page_title) > 200) {
-                    $errors[] = sprintf(__('Page title too long (over 200 characters): %s', 'aiopms'), substr($page_title, 0, 50) . '...');
+                    $errors[] = sprintf(__('Page title too long (over 200 characters): %s', 'artitechcore'), substr($page_title, 0, 50) . '...');
                     continue;
                 }
 
@@ -909,12 +909,12 @@ function abpcwa_create_suggested_pages($pages, $generate_images = false) {
 
                 // Validate parent exists if specified
                 if ($parent_id > 0 && !get_post($parent_id)) {
-                    $errors[] = sprintf(__('Parent page not found for: %s', 'aiopms'), $page_title);
+                    $errors[] = sprintf(__('Parent page not found for: %s', 'artitechcore'), $page_title);
                     $parent_id = 0; // Reset to root level
                 }
 
                 // Generate SEO-optimized slug
-                $post_name = aiopms_generate_seo_slug($page_title);
+                $post_name = artitechcore_generate_seo_slug($page_title);
                 
                 $new_page = array(
                     'post_title'   => $page_title,
@@ -934,19 +934,19 @@ function abpcwa_create_suggested_pages($pages, $generate_images = false) {
                     // Generate and set featured image if enabled
                     if ($generate_images) {
                         try {
-                            abpcwa_generate_and_set_featured_image($page_id, $page_title);
+                            artitechcore_generate_and_set_featured_image($page_id, $page_title);
                         } catch (Exception $e) {
-                            $errors[] = sprintf(__('Failed to generate image for "%s": %s', 'aiopms'), $page_title, $e->getMessage());
+                            $errors[] = sprintf(__('Failed to generate image for "%s": %s', 'artitechcore'), $page_title, $e->getMessage());
                         }
                     }
                     
                     // Generate schema markup for the new page
-                    $auto_generate = get_option('aiopms_auto_schema_generation', true);
+                    $auto_generate = get_option('artitechcore_auto_schema_generation', true);
                     if ($auto_generate) {
                         try {
-                            aiopms_generate_schema_markup($page_id);
+                            artitechcore_generate_schema_markup($page_id);
                         } catch (Exception $e) {
-                            $errors[] = sprintf(__('Failed to generate schema for "%s": %s', 'aiopms'), $page_title, $e->getMessage());
+                            $errors[] = sprintf(__('Failed to generate schema for "%s": %s', 'artitechcore'), $page_title, $e->getMessage());
                         }
                     }
                     
@@ -954,82 +954,82 @@ function abpcwa_create_suggested_pages($pages, $generate_images = false) {
                     $parent_id_stack = array_slice($parent_id_stack, 0, $depth + 1);
                 } else {
                     $failed_count++;
-                    $error_message = is_wp_error($page_id) ? $page_id->get_error_message() : __('Unknown error', 'aiopms');
-                    $errors[] = sprintf(__('Failed to create page "%s": %s', 'aiopms'), $page_title, $error_message);
+                    $error_message = is_wp_error($page_id) ? $page_id->get_error_message() : __('Unknown error', 'artitechcore');
+                    $errors[] = sprintf(__('Failed to create page "%s": %s', 'artitechcore'), $page_title, $error_message);
                 }
 
             } catch (Exception $e) {
                 $failed_count++;
-                $errors[] = sprintf(__('Error processing page "%s": %s', 'aiopms'), $page_line, $e->getMessage());
+                $errors[] = sprintf(__('Error processing page "%s": %s', 'artitechcore'), $page_line, $e->getMessage());
             }
         }
 
         // Display results
         if ($created_count > 0) {
             $message = sprintf(
-                __('%d pages created successfully as drafts.', 'aiopms'),
+                __('%d pages created successfully as drafts.', 'artitechcore'),
                 absint($created_count)
             );
             if ($generate_images) {
-                $message .= ' ' . __('Featured images generated with AI.', 'aiopms');
+                $message .= ' ' . __('Featured images generated with AI.', 'artitechcore');
             }
             echo '<div class="notice notice-success is-dismissible"><p>' . esc_html($message) . '</p></div>';
         }
 
         if ($failed_count > 0) {
-            $error_message = sprintf(__('%d pages failed to create.', 'aiopms'), absint($failed_count));
+            $error_message = sprintf(__('%d pages failed to create.', 'artitechcore'), absint($failed_count));
             echo '<div class="notice notice-warning is-dismissible"><p>' . esc_html($error_message) . '</p></div>';
         }
 
         // Log errors if any
         if (!empty($errors)) {
-            error_log('AIOPMS Page Creation Errors: ' . implode('; ', $errors));
+            error_log('ArtitechCore Page Creation Errors: ' . implode('; ', $errors));
         }
 
         // Log successful creation
-        aiopms_log_ai_generation('page_creation', 'manual', true, $created_count);
+        artitechcore_log_ai_generation('page_creation', 'manual', true, $created_count);
 
     } catch (Exception $e) {
-        echo '<div class="notice notice-error"><p>' . __('An error occurred during page creation. Please try again.', 'aiopms') . '</p></div>';
-        error_log('AIOPMS Page Creation Error: ' . $e->getMessage());
-        aiopms_log_ai_generation('page_creation', 'manual', false, 0, $e->getMessage());
+        echo '<div class="notice notice-error"><p>' . __('An error occurred during page creation. Please try again.', 'artitechcore') . '</p></div>';
+        error_log('ArtitechCore Page Creation Error: ' . $e->getMessage());
+        artitechcore_log_ai_generation('page_creation', 'manual', false, 0, $e->getMessage());
     }
 }
 
 // Generate and set featured image using AI
-function abpcwa_generate_and_set_featured_image($post_id, $page_title) {
+function artitechcore_generate_and_set_featured_image($post_id, $page_title) {
     try {
         // Input validation
         if (empty($post_id) || empty($page_title)) {
-            throw new Exception(__('Missing required parameters for image generation.', 'aiopms'));
+            throw new Exception(__('Missing required parameters for image generation.', 'artitechcore'));
         }
 
         $post_id = absint($post_id);
         if ($post_id <= 0) {
-            throw new Exception(__('Invalid post ID for image generation.', 'aiopms'));
+            throw new Exception(__('Invalid post ID for image generation.', 'artitechcore'));
         }
 
         // Verify post exists
         if (!get_post($post_id)) {
-            throw new Exception(__('Post not found for image generation.', 'aiopms'));
+            throw new Exception(__('Post not found for image generation.', 'artitechcore'));
         }
 
-        $provider = get_option('aiopms_ai_provider', 'openai');
-        $api_key = get_option('aiopms_' . $provider . '_api_key');
-        $brand_color = get_option('aiopms_brand_color', '#4A90E2');
+        $provider = get_option('artitechcore_ai_provider', 'openai');
+        $api_key = get_option('artitechcore_' . $provider . '_api_key');
+        $brand_color = get_option('artitechcore_brand_color', '#4A90E2');
         
         if (empty($api_key)) {
-            throw new Exception(__('API key not configured for image generation.', 'aiopms'));
+            throw new Exception(__('API key not configured for image generation.', 'artitechcore'));
         }
         
         // Skip if provider is DeepSeek (no image generation support)
         if ($provider === 'deepseek') {
-            throw new Exception(__('Image generation not supported with DeepSeek provider.', 'aiopms'));
+            throw new Exception(__('Image generation not supported with DeepSeek provider.', 'artitechcore'));
         }
         
         // Rate limiting check for image generation
-        if (!aiopms_check_ai_rate_limit($provider)) {
-            throw new Exception(__('Too many AI requests. Please wait a moment before trying again.', 'aiopms'));
+        if (!artitechcore_check_ai_rate_limit($provider)) {
+            throw new Exception(__('Too many AI requests. Please wait a moment before trying again.', 'artitechcore'));
         }
         
         // Validate brand color format
@@ -1073,54 +1073,54 @@ Avoid photorealistic images - focus on abstract, brand-aligned graphics that enh
         $image_url = '';
         switch ($provider) {
             case 'openai':
-                $image_url = abpcwa_generate_openai_image($prompt, $api_key);
+                $image_url = artitechcore_generate_openai_image($prompt, $api_key);
                 break;
             case 'gemini':
-                $image_url = abpcwa_generate_gemini_image($prompt, $api_key);
+                $image_url = artitechcore_generate_gemini_image($prompt, $api_key);
                 break;
             default:
-                throw new Exception(__('Unsupported provider for image generation.', 'aiopms'));
+                throw new Exception(__('Unsupported provider for image generation.', 'artitechcore'));
         }
         
         if (empty($image_url)) {
-            throw new Exception(__('Failed to generate image URL from AI provider.', 'aiopms'));
+            throw new Exception(__('Failed to generate image URL from AI provider.', 'artitechcore'));
         }
 
         // Validate image URL
         if (!filter_var($image_url, FILTER_VALIDATE_URL)) {
-            throw new Exception(__('Invalid image URL received from AI provider.', 'aiopms'));
+            throw new Exception(__('Invalid image URL received from AI provider.', 'artitechcore'));
         }
         
         // Generate SEO-optimized image metadata based on page title
         $image_title = "Featured Image for " . sanitize_text_field($page_title);
         
         // Extract primary keywords from page title for alt text
-        $keywords = aiopms_extract_primary_keywords($page_title);
+        $keywords = artitechcore_extract_primary_keywords($page_title);
         $image_alt = "Visual representation of " . $keywords . " concept";
         
         $image_description = "AI-generated featured image showcasing themes related to " . sanitize_text_field($page_title);
         
         // Use the enhanced featured image setting function with metadata
-        $result = aiopms_set_featured_image($post_id, $image_url, $image_title, $image_alt, $image_description);
+        $result = artitechcore_set_featured_image($post_id, $image_url, $image_title, $image_alt, $image_description);
         
         if (!$result) {
-            throw new Exception(__('Failed to set featured image for post.', 'aiopms'));
+            throw new Exception(__('Failed to set featured image for post.', 'artitechcore'));
         }
 
         return true;
         
     } catch (Exception $e) {
-        error_log('AIOPMS Image Generation Error: ' . $e->getMessage());
+        error_log('ArtitechCore Image Generation Error: ' . $e->getMessage());
         return false;
     }
 }
 
 // Generate image using OpenAI DALL-E
-function abpcwa_generate_openai_image($prompt, $api_key) {
+function artitechcore_generate_openai_image($prompt, $api_key) {
     try {
         // Input validation
         if (empty($prompt) || empty($api_key)) {
-            throw new Exception(__('Missing required parameters for OpenAI image generation.', 'aiopms'));
+            throw new Exception(__('Missing required parameters for OpenAI image generation.', 'artitechcore'));
         }
 
         $url = 'https://api.openai.com/v1/images/generations';
@@ -1134,7 +1134,7 @@ function abpcwa_generate_openai_image($prompt, $api_key) {
         ]);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new Exception(__('Failed to encode request data for OpenAI image generation.', 'aiopms'));
+            throw new Exception(__('Failed to encode request data for OpenAI image generation.', 'artitechcore'));
         }
         
         $response = wp_remote_post($url, [
@@ -1147,49 +1147,49 @@ function abpcwa_generate_openai_image($prompt, $api_key) {
         ]);
         
         if (is_wp_error($response)) {
-            throw new Exception(sprintf(__('OpenAI image generation request failed: %s', 'aiopms'), $response->get_error_message()));
+            throw new Exception(sprintf(__('OpenAI image generation request failed: %s', 'artitechcore'), $response->get_error_message()));
         }
 
         $response_code = wp_remote_retrieve_response_code($response);
         if ($response_code !== 200) {
             $error_message = wp_remote_retrieve_response_message($response);
-            throw new Exception(sprintf(__('OpenAI image generation returned error %d: %s', 'aiopms'), $response_code, $error_message));
+            throw new Exception(sprintf(__('OpenAI image generation returned error %d: %s', 'artitechcore'), $response_code, $error_message));
         }
 
         $response_body = wp_remote_retrieve_body($response);
         if (empty($response_body)) {
-            throw new Exception(__('Empty response received from OpenAI image generation.', 'aiopms'));
+            throw new Exception(__('Empty response received from OpenAI image generation.', 'artitechcore'));
         }
 
         $decoded_response = json_decode($response_body, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new Exception(__('Invalid JSON response from OpenAI image generation.', 'aiopms'));
+            throw new Exception(__('Invalid JSON response from OpenAI image generation.', 'artitechcore'));
         }
 
         if (isset($decoded_response['error'])) {
-            $error_message = isset($decoded_response['error']['message']) ? $decoded_response['error']['message'] : __('Unknown OpenAI image generation error.', 'aiopms');
-            throw new Exception(sprintf(__('OpenAI image generation error: %s', 'aiopms'), $error_message));
+            $error_message = isset($decoded_response['error']['message']) ? $decoded_response['error']['message'] : __('Unknown OpenAI image generation error.', 'artitechcore');
+            throw new Exception(sprintf(__('OpenAI image generation error: %s', 'artitechcore'), $error_message));
         }
 
         if (!isset($decoded_response['data'][0]['url'])) {
-            throw new Exception(__('Unexpected response format from OpenAI image generation.', 'aiopms'));
+            throw new Exception(__('Unexpected response format from OpenAI image generation.', 'artitechcore'));
         }
 
         $image_url = $decoded_response['data'][0]['url'];
         if (empty($image_url)) {
-            throw new Exception(__('Empty image URL received from OpenAI.', 'aiopms'));
+            throw new Exception(__('Empty image URL received from OpenAI.', 'artitechcore'));
         }
 
         return $image_url;
         
     } catch (Exception $e) {
-        error_log('AIOPMS OpenAI Image Generation Error: ' . $e->getMessage());
+        error_log('ArtitechCore OpenAI Image Generation Error: ' . $e->getMessage());
         return '';
     }
 }
 
 // Generate image using Google Gemini
-function abpcwa_generate_gemini_image($prompt, $api_key) {
+function artitechcore_generate_gemini_image($prompt, $api_key) {
     // Note: As of current implementation, Gemini doesn't have a direct image generation API like DALL-E
     // This function is a placeholder for future implementation when Gemini releases image generation
     // For now, we'll return empty string to indicate no image generation
@@ -1197,53 +1197,53 @@ function abpcwa_generate_gemini_image($prompt, $api_key) {
 }
 
 // Process keywords from CSV file
-function abpcwa_process_keywords_csv($file) {
+function artitechcore_process_keywords_csv($file) {
     try {
         // Input validation
         if (!isset($file) || !is_array($file)) {
-            throw new Exception(__('Invalid file data provided.', 'aiopms'));
+            throw new Exception(__('Invalid file data provided.', 'artitechcore'));
         }
 
         if (!isset($file['tmp_name']) || empty($file['tmp_name'])) {
-            throw new Exception(__('No temporary file found for CSV processing.', 'aiopms'));
+            throw new Exception(__('No temporary file found for CSV processing.', 'artitechcore'));
         }
 
         // Check for upload errors
         if (isset($file['error']) && $file['error'] !== UPLOAD_ERR_OK) {
             $error_messages = [
-                UPLOAD_ERR_INI_SIZE => __('File exceeds upload_max_filesize directive.', 'aiopms'),
-                UPLOAD_ERR_FORM_SIZE => __('File exceeds MAX_FILE_SIZE directive.', 'aiopms'),
-                UPLOAD_ERR_PARTIAL => __('File was only partially uploaded.', 'aiopms'),
-                UPLOAD_ERR_NO_FILE => __('No file was uploaded.', 'aiopms'),
-                UPLOAD_ERR_NO_TMP_DIR => __('Missing temporary folder.', 'aiopms'),
-                UPLOAD_ERR_CANT_WRITE => __('Failed to write file to disk.', 'aiopms'),
-                UPLOAD_ERR_EXTENSION => __('File upload stopped by extension.', 'aiopms'),
+                UPLOAD_ERR_INI_SIZE => __('File exceeds upload_max_filesize directive.', 'artitechcore'),
+                UPLOAD_ERR_FORM_SIZE => __('File exceeds MAX_FILE_SIZE directive.', 'artitechcore'),
+                UPLOAD_ERR_PARTIAL => __('File was only partially uploaded.', 'artitechcore'),
+                UPLOAD_ERR_NO_FILE => __('No file was uploaded.', 'artitechcore'),
+                UPLOAD_ERR_NO_TMP_DIR => __('Missing temporary folder.', 'artitechcore'),
+                UPLOAD_ERR_CANT_WRITE => __('Failed to write file to disk.', 'artitechcore'),
+                UPLOAD_ERR_EXTENSION => __('File upload stopped by extension.', 'artitechcore'),
             ];
-            $error_message = isset($error_messages[$file['error']]) ? $error_messages[$file['error']] : __('Unknown upload error.', 'aiopms');
+            $error_message = isset($error_messages[$file['error']]) ? $error_messages[$file['error']] : __('Unknown upload error.', 'artitechcore');
             throw new Exception($error_message);
         }
 
         // Validate file type
         $file_extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
         if ($file_extension !== 'csv') {
-            throw new Exception(__('Only CSV files are allowed.', 'aiopms'));
+            throw new Exception(__('Only CSV files are allowed.', 'artitechcore'));
         }
 
         // Check file size (limit to 1MB)
         if ($file['size'] > 1048576) {
-            throw new Exception(__('File size must be less than 1MB.', 'aiopms'));
+            throw new Exception(__('File size must be less than 1MB.', 'artitechcore'));
         }
 
         // Validate file exists and is readable
         if (!file_exists($file['tmp_name']) || !is_readable($file['tmp_name'])) {
-            throw new Exception(__('File is not accessible for reading.', 'aiopms'));
+            throw new Exception(__('File is not accessible for reading.', 'artitechcore'));
         }
         
         $keywords = [];
         $handle = fopen($file['tmp_name'], 'r');
         
         if ($handle === false) {
-            throw new Exception(__('Failed to open CSV file for reading.', 'aiopms'));
+            throw new Exception(__('Failed to open CSV file for reading.', 'artitechcore'));
         }
 
         $line_count = 0;
@@ -1255,7 +1255,7 @@ function abpcwa_process_keywords_csv($file) {
             // Prevent processing too many lines
             if ($line_count > $max_lines) {
                 fclose($handle);
-                throw new Exception(sprintf(__('CSV file has too many lines. Maximum allowed: %d', 'aiopms'), $max_lines));
+                throw new Exception(sprintf(__('CSV file has too many lines. Maximum allowed: %d', 'artitechcore'), $max_lines));
             }
 
             if (!is_array($data)) {
@@ -1287,14 +1287,14 @@ function abpcwa_process_keywords_csv($file) {
         fclose($handle);
         
         if (empty($keywords)) {
-            throw new Exception(__('No valid keywords found in CSV file.', 'aiopms'));
+            throw new Exception(__('No valid keywords found in CSV file.', 'artitechcore'));
         }
         
         // Remove duplicates and empty values
         $keywords = array_unique(array_filter($keywords));
         
         if (empty($keywords)) {
-            throw new Exception(__('No valid keywords remaining after processing.', 'aiopms'));
+            throw new Exception(__('No valid keywords remaining after processing.', 'artitechcore'));
         }
 
         // Limit total keywords to prevent issues
@@ -1305,14 +1305,14 @@ function abpcwa_process_keywords_csv($file) {
         return implode(', ', $keywords);
 
     } catch (Exception $e) {
-        error_log('AIOPMS CSV Processing Error: ' . $e->getMessage());
+        error_log('ArtitechCore CSV Processing Error: ' . $e->getMessage());
         return '';
     }
 }
 
 // Extract primary keywords from page title for SEO optimization
-if (!function_exists('aiopms_extract_primary_keywords')) {
-    function aiopms_extract_primary_keywords($title) {
+if (!function_exists('artitechcore_extract_primary_keywords')) {
+    function artitechcore_extract_primary_keywords($title) {
         try {
             if (empty($title)) {
                 return '';
@@ -1336,15 +1336,15 @@ if (!function_exists('aiopms_extract_primary_keywords')) {
             
             return implode(' ', $keywords) ?: sanitize_text_field($title);
         } catch (Exception $e) {
-            error_log('AIOPMS Keyword Extraction Error: ' . $e->getMessage());
+            error_log('ArtitechCore Keyword Extraction Error: ' . $e->getMessage());
             return sanitize_text_field($title);
         }
     }
 }
 
 // Validate API key format
-if (!function_exists('aiopms_validate_api_key')) {
-    function aiopms_validate_api_key($api_key, $provider) {
+if (!function_exists('artitechcore_validate_api_key')) {
+    function artitechcore_validate_api_key($api_key, $provider) {
         // Simple validation - just check if key exists and has reasonable length
         // Strict format validation often fails with new/varied key formats
         if (empty($api_key)) {
@@ -1358,29 +1358,29 @@ if (!function_exists('aiopms_validate_api_key')) {
 }
 
 // Check AI rate limiting per provider
-if (!function_exists('aiopms_check_ai_rate_limit')) {
-    function aiopms_check_ai_rate_limit($provider = null) {
+if (!function_exists('artitechcore_check_ai_rate_limit')) {
+    function artitechcore_check_ai_rate_limit($provider = null) {
         try {
             // Get current provider if not specified
             if (empty($provider)) {
-                $provider = get_option('aiopms_ai_provider', 'openai');
+                $provider = get_option('artitechcore_ai_provider', 'openai');
             }
             
             // Validate provider
             $valid_providers = ['openai', 'gemini', 'deepseek'];
             if (!in_array($provider, $valid_providers)) {
-                error_log('AIOPMS Rate Limit: Invalid provider specified: ' . $provider);
+                error_log('ArtitechCore Rate Limit: Invalid provider specified: ' . $provider);
                 return true; // Allow on invalid provider to prevent blocking
             }
             
             $user_id = get_current_user_id();
             if (empty($user_id)) {
-                error_log('AIOPMS Rate Limit: No user ID found');
+                error_log('ArtitechCore Rate Limit: No user ID found');
                 return true; // Allow for non-logged-in users (shouldn't happen in admin)
             }
             
             // Create provider-specific rate limit key
-            $rate_limit_key = 'aiopms_ai_rate_limit_' . $provider . '_' . $user_id;
+            $rate_limit_key = 'artitechcore_ai_rate_limit_' . $provider . '_' . $user_id;
             $rate_limit_data = get_transient($rate_limit_key);
             
             $current_time = time();
@@ -1414,7 +1414,7 @@ if (!function_exists('aiopms_check_ai_rate_limit')) {
             if ($rate_limit_data['count'] >= 10) {
                 // Log rate limit exceeded
                 error_log(sprintf(
-                    'AIOPMS Rate Limit Exceeded: User %d, Provider %s, Count %d, Reset in %d seconds',
+                    'ArtitechCore Rate Limit Exceeded: User %d, Provider %s, Count %d, Reset in %d seconds',
                     $user_id,
                     $provider,
                     $rate_limit_data['count'],
@@ -1431,19 +1431,19 @@ if (!function_exists('aiopms_check_ai_rate_limit')) {
             return true;
             
         } catch (Exception $e) {
-            error_log('AIOPMS Rate Limit Check Error: ' . $e->getMessage());
+            error_log('ArtitechCore Rate Limit Check Error: ' . $e->getMessage());
             return true; // Allow on error to prevent blocking users
         }
     }
 }
 
 // Get rate limit status for a specific provider
-if (!function_exists('aiopms_get_rate_limit_status')) {
-    function aiopms_get_rate_limit_status($provider = null) {
+if (!function_exists('artitechcore_get_rate_limit_status')) {
+    function artitechcore_get_rate_limit_status($provider = null) {
         try {
             // Get current provider if not specified
             if (empty($provider)) {
-                $provider = get_option('aiopms_ai_provider', 'openai');
+                $provider = get_option('artitechcore_ai_provider', 'openai');
             }
             
             $user_id = get_current_user_id();
@@ -1451,7 +1451,7 @@ if (!function_exists('aiopms_get_rate_limit_status')) {
                 return null;
             }
             
-            $rate_limit_key = 'aiopms_ai_rate_limit_' . $provider . '_' . $user_id;
+            $rate_limit_key = 'artitechcore_ai_rate_limit_' . $provider . '_' . $user_id;
             $rate_limit_data = get_transient($rate_limit_key);
             
             if ($rate_limit_data === false) {
@@ -1478,22 +1478,22 @@ if (!function_exists('aiopms_get_rate_limit_status')) {
             ];
             
         } catch (Exception $e) {
-            error_log('AIOPMS Rate Limit Status Error: ' . $e->getMessage());
+            error_log('ArtitechCore Rate Limit Status Error: ' . $e->getMessage());
             return null;
         }
     }
 }
 
 // Test rate limiting functionality (for debugging purposes)
-if (!function_exists('aiopms_test_rate_limiting')) {
-    function aiopms_test_rate_limiting($provider = 'openai') {
+if (!function_exists('artitechcore_test_rate_limiting')) {
+    function artitechcore_test_rate_limiting($provider = 'openai') {
         try {
             $results = [];
             
             // Test multiple requests to see rate limiting in action
             for ($i = 1; $i <= 12; $i++) {
-                $allowed = aiopms_check_ai_rate_limit($provider);
-                $status = aiopms_get_rate_limit_status($provider);
+                $allowed = artitechcore_check_ai_rate_limit($provider);
+                $status = artitechcore_get_rate_limit_status($provider);
                 
                 $results[] = [
                     'request' => $i,
@@ -1510,22 +1510,22 @@ if (!function_exists('aiopms_test_rate_limiting')) {
             return $results;
             
         } catch (Exception $e) {
-            error_log('AIOPMS Rate Limit Test Error: ' . $e->getMessage());
+            error_log('ArtitechCore Rate Limit Test Error: ' . $e->getMessage());
             return false;
         }
     }
 }
 
 // Log AI generation activities
-if (!function_exists('aiopms_log_ai_generation')) {
-    function aiopms_log_ai_generation($type, $provider, $success, $count = 0, $error_message = '') {
+if (!function_exists('artitechcore_log_ai_generation')) {
+    function artitechcore_log_ai_generation($type, $provider, $success, $count = 0, $error_message = '') {
         try {
             global $wpdb;
             
             // Log to error log for debugging (this always works)
             $user_id = get_current_user_id();
             $log_message = sprintf(
-                'AIOPMS Generation: Type=%s, Provider=%s, Success=%s, Count=%d, User=%d',
+                'ArtitechCore Generation: Type=%s, Provider=%s, Success=%s, Count=%d, User=%d',
                 $type,
                 $provider,
                 $success ? 'Yes' : 'No',
@@ -1541,7 +1541,7 @@ if (!function_exists('aiopms_log_ai_generation')) {
             
             // Try to insert into custom table - use correct column names from activation schema
             // The table schema uses: page_id, generation_type, ai_provider, tokens_used, success, error_message
-            $table_name = $wpdb->prefix . 'aiopms_generation_logs';
+            $table_name = $wpdb->prefix . 'artitechcore_generation_logs';
             
             // Check if table exists before trying to insert
             $table_exists = $wpdb->get_var($wpdb->prepare(
@@ -1568,7 +1568,7 @@ if (!function_exists('aiopms_log_ai_generation')) {
             
         } catch (Exception $e) {
             // Silently fail - logging errors shouldn't break the main feature
-            error_log('AIOPMS Logging Error: ' . $e->getMessage());
+            error_log('ArtitechCore Logging Error: ' . $e->getMessage());
         }
     }
 }
@@ -1576,14 +1576,14 @@ if (!function_exists('aiopms_log_ai_generation')) {
 // ===== ADVANCED MODE FUNCTIONALITY =====
 
 // Generate advanced content with AI (pages + custom post types)
-function aiopms_generate_advanced_content_with_ai($business_type, $business_details, $seo_keywords = '', $target_audience = '') {
+function artitechcore_generate_advanced_content_with_ai($business_type, $business_details, $seo_keywords = '', $target_audience = '') {
     try {
-        error_log('AIOPMS: Entering aiopms_generate_advanced_content_with_ai');
+        error_log('ArtitechCore: Entering artitechcore_generate_advanced_content_with_ai');
         
         // Input validation
         if (empty($business_type) || empty($business_details)) {
-            error_log('AIOPMS: Input validation failed - empty business_type or business_details');
-            echo '<div class="notice notice-error"><p>' . __('Business type and details are required for advanced AI generation.', 'aiopms') . '</p></div>';
+            error_log('ArtitechCore: Input validation failed - empty business_type or business_details');
+            echo '<div class="notice notice-error"><p>' . __('Business type and details are required for advanced AI generation.', 'artitechcore') . '</p></div>';
             return;
         }
 
@@ -1593,102 +1593,102 @@ function aiopms_generate_advanced_content_with_ai($business_type, $business_deta
         $seo_keywords = sanitize_text_field($seo_keywords);
         $target_audience = sanitize_text_field($target_audience);
         
-        error_log('AIOPMS: Inputs sanitized - business_type: ' . substr($business_type, 0, 50));
+        error_log('ArtitechCore: Inputs sanitized - business_type: ' . substr($business_type, 0, 50));
 
         // Validate input lengths
         if (strlen($business_type) > 100) {
-            echo '<div class="notice notice-error"><p>' . __('Business type must be 100 characters or less.', 'aiopms') . '</p></div>';
+            echo '<div class="notice notice-error"><p>' . __('Business type must be 100 characters or less.', 'artitechcore') . '</p></div>';
             return;
         }
 
         if (strlen($business_details) > 2000) {
-            echo '<div class="notice notice-error"><p>' . __('Business details must be 2000 characters or less.', 'aiopms') . '</p></div>';
+            echo '<div class="notice notice-error"><p>' . __('Business details must be 2000 characters or less.', 'artitechcore') . '</p></div>';
             return;
         }
 
-        $provider = get_option('aiopms_ai_provider', 'openai');
-        $api_key = get_option('aiopms_' . $provider . '_api_key');
+        $provider = get_option('artitechcore_ai_provider', 'openai');
+        $api_key = get_option('artitechcore_' . $provider . '_api_key');
         
-        error_log('AIOPMS: Provider: ' . $provider . ', API key exists: ' . (!empty($api_key) ? 'YES (length: ' . strlen($api_key) . ')' : 'NO'));
+        error_log('ArtitechCore: Provider: ' . $provider . ', API key exists: ' . (!empty($api_key) ? 'YES (length: ' . strlen($api_key) . ')' : 'NO'));
 
         if (empty($api_key)) {
-            error_log('AIOPMS: API key is empty for provider: ' . $provider);
-            echo '<div class="notice notice-error"><p>' . sprintf(__('Please enter your %s API key in the Settings tab.', 'aiopms'), esc_html(ucfirst($provider))) . '</p></div>';
+            error_log('ArtitechCore: API key is empty for provider: ' . $provider);
+            echo '<div class="notice notice-error"><p>' . sprintf(__('Please enter your %s API key in the Settings tab.', 'artitechcore'), esc_html(ucfirst($provider))) . '</p></div>';
             return;
         }
 
         // Validate API key format
-        if (!aiopms_validate_api_key($api_key, $provider)) {
-            error_log('AIOPMS: API key validation failed for provider: ' . $provider);
-            echo '<div class="notice notice-error"><p>' . sprintf(__('Invalid %s API key format. Please check your API key.', 'aiopms'), esc_html(ucfirst($provider))) . '</p></div>';
+        if (!artitechcore_validate_api_key($api_key, $provider)) {
+            error_log('ArtitechCore: API key validation failed for provider: ' . $provider);
+            echo '<div class="notice notice-error"><p>' . sprintf(__('Invalid %s API key format. Please check your API key.', 'artitechcore'), esc_html(ucfirst($provider))) . '</p></div>';
             return;
         }
         
-        error_log('AIOPMS: API key validated successfully');
+        error_log('ArtitechCore: API key validated successfully');
 
         // Rate limiting check
-        if (!aiopms_check_ai_rate_limit($provider)) {
-            error_log('AIOPMS: Rate limit exceeded for provider: ' . $provider);
-            echo '<div class="notice notice-error"><p>' . __('Too many AI requests. Please wait a moment before trying again.', 'aiopms') . '</p></div>';
+        if (!artitechcore_check_ai_rate_limit($provider)) {
+            error_log('ArtitechCore: Rate limit exceeded for provider: ' . $provider);
+            echo '<div class="notice notice-error"><p>' . __('Too many AI requests. Please wait a moment before trying again.', 'artitechcore') . '</p></div>';
             return;
         }
         
-        error_log('AIOPMS: Rate limit check passed, calling AI provider: ' . $provider);
+        error_log('ArtitechCore: Rate limit check passed, calling AI provider: ' . $provider);
 
         // Get advanced content suggestions from AI
         $advanced_suggestions = [];
         switch ($provider) {
             case 'openai':
-                $advanced_suggestions = aiopms_get_openai_advanced_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key);
+                $advanced_suggestions = artitechcore_get_openai_advanced_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key);
                 break;
             case 'gemini':
-                $advanced_suggestions = aiopms_get_gemini_advanced_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key);
+                $advanced_suggestions = artitechcore_get_gemini_advanced_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key);
                 break;
             case 'deepseek':
-                $advanced_suggestions = aiopms_get_deepseek_advanced_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key);
+                $advanced_suggestions = artitechcore_get_deepseek_advanced_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key);
                 break;
             default:
-                error_log('AIOPMS: Invalid AI provider: ' . $provider);
-                echo '<div class="notice notice-error"><p>' . __('Invalid AI provider selected.', 'aiopms') . '</p></div>';
+                error_log('ArtitechCore: Invalid AI provider: ' . $provider);
+                echo '<div class="notice notice-error"><p>' . __('Invalid AI provider selected.', 'artitechcore') . '</p></div>';
                 return;
         }
         
-        error_log('AIOPMS: AI call completed. Response type: ' . gettype($advanced_suggestions) . ', empty: ' . (empty($advanced_suggestions) ? 'YES' : 'NO'));
+        error_log('ArtitechCore: AI call completed. Response type: ' . gettype($advanced_suggestions) . ', empty: ' . (empty($advanced_suggestions) ? 'YES' : 'NO'));
 
         if (empty($advanced_suggestions)) {
-            error_log('AIOPMS: AI returned empty suggestions');
-            echo '<div class="notice notice-warning"><p>' . __('Could not generate advanced content suggestions. Please check your API key and try again.', 'aiopms') . '</p></div>';
+            error_log('ArtitechCore: AI returned empty suggestions');
+            echo '<div class="notice notice-warning"><p>' . __('Could not generate advanced content suggestions. Please check your API key and try again.', 'artitechcore') . '</p></div>';
             return;
         }
 
         // Parse the AI response
-        $parsed_suggestions = aiopms_parse_advanced_ai_response($advanced_suggestions);
+        $parsed_suggestions = artitechcore_parse_advanced_ai_response($advanced_suggestions);
         
         if (empty($parsed_suggestions['pages']) && empty($parsed_suggestions['custom_post_types'])) {
-            echo '<div class="notice notice-warning"><p>' . __('No content suggestions were generated. Please try with more detailed business information.', 'aiopms') . '</p></div>';
+            echo '<div class="notice notice-warning"><p>' . __('No content suggestions were generated. Please try with more detailed business information.', 'artitechcore') . '</p></div>';
             return;
         }
 
         // Log successful generation
         $total_suggestions = count($parsed_suggestions['pages']) + count($parsed_suggestions['custom_post_types']);
-        aiopms_log_ai_generation('advanced_content', $provider, true, $total_suggestions);
+        artitechcore_log_ai_generation('advanced_content', $provider, true, $total_suggestions);
 
         // Display the suggestions
-        aiopms_display_advanced_content_suggestions($parsed_suggestions);
+        artitechcore_display_advanced_content_suggestions($parsed_suggestions);
 
     } catch (Exception $e) {
         // Log error
-        aiopms_log_ai_generation('advanced_content', $provider ?? 'unknown', false, 0, $e->getMessage());
-        echo '<div class="notice notice-error"><p>' . __('An error occurred during advanced AI generation. Please try again.', 'aiopms') . '</p></div>';
-        error_log('AIOPMS Advanced AI Generation Error: ' . $e->getMessage());
+        artitechcore_log_ai_generation('advanced_content', $provider ?? 'unknown', false, 0, $e->getMessage());
+        echo '<div class="notice notice-error"><p>' . __('An error occurred during advanced AI generation. Please try again.', 'artitechcore') . '</p></div>';
+        error_log('ArtitechCore Advanced AI Generation Error: ' . $e->getMessage());
     }
 }
 
 // Get advanced suggestions from OpenAI API
-function aiopms_get_openai_advanced_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key) {
+function artitechcore_get_openai_advanced_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key) {
     $url = 'https://api.openai.com/v1/chat/completions';
     
-    $prompt = aiopms_build_advanced_ai_prompt($business_type, $business_details, $seo_keywords, $target_audience);
+    $prompt = artitechcore_build_advanced_ai_prompt($business_type, $business_details, $seo_keywords, $target_audience);
 
     $body = json_encode([
         'model' => 'gpt-4o-mini', // Optimized for speed (Instant generation)
@@ -1707,7 +1707,7 @@ function aiopms_get_openai_advanced_suggestions($business_type, $business_detail
     ]);
 
     if (is_wp_error($response)) {
-        error_log('AIOPMS OpenAI API Error: ' . $response->get_error_message());
+        error_log('ArtitechCore OpenAI API Error: ' . $response->get_error_message());
         return [];
     }
 
@@ -1720,16 +1720,16 @@ function aiopms_get_openai_advanced_suggestions($business_type, $business_detail
 }
 
 // Get advanced suggestions from Gemini API
-function aiopms_get_gemini_advanced_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key) {
+function artitechcore_get_gemini_advanced_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key) {
     $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' . $api_key;
     
-    $prompt = aiopms_build_advanced_ai_prompt($business_type, $business_details, $seo_keywords, $target_audience);
+    $prompt = artitechcore_build_advanced_ai_prompt($business_type, $business_details, $seo_keywords, $target_audience);
 
     $body = json_encode([
         'contents' => [['parts' => [['text' => $prompt]]]],
     ]);
 
-    error_log('AIOPMS: Making Gemini API request...');
+    error_log('ArtitechCore: Making Gemini API request...');
 
     $response = wp_remote_post($url, [
         'headers' => ['Content-Type' => 'application/json'],
@@ -1738,43 +1738,43 @@ function aiopms_get_gemini_advanced_suggestions($business_type, $business_detail
     ]);
 
     if (is_wp_error($response)) {
-        error_log('AIOPMS Gemini API WP Error: ' . $response->get_error_message());
+        error_log('ArtitechCore Gemini API WP Error: ' . $response->get_error_message());
         return [];
     }
 
     $response_code = wp_remote_retrieve_response_code($response);
-    error_log('AIOPMS: Gemini API HTTP Status: ' . $response_code);
+    error_log('ArtitechCore: Gemini API HTTP Status: ' . $response_code);
 
     if ($response_code !== 200) {
         $response_message = wp_remote_retrieve_response_message($response);
         $response_body_raw = wp_remote_retrieve_body($response);
-        error_log('AIOPMS Gemini API Error (' . $response_code . '): ' . $response_message);
-        error_log('AIOPMS Gemini API Error Body: ' . $response_body_raw);
+        error_log('ArtitechCore Gemini API Error (' . $response_code . '): ' . $response_message);
+        error_log('ArtitechCore Gemini API Error Body: ' . $response_body_raw);
         return [];
     }
 
     $response_body = json_decode(wp_remote_retrieve_body($response), true);
     
     if (isset($response_body['error'])) {
-        error_log('AIOPMS Gemini API Error: ' . json_encode($response_body['error']));
+        error_log('ArtitechCore Gemini API Error: ' . json_encode($response_body['error']));
         return [];
     }
 
     if (isset($response_body['candidates'][0]['content']['parts'][0]['text'])) {
         $text = $response_body['candidates'][0]['content']['parts'][0]['text'];
-        error_log('AIOPMS: Gemini API returned text (' . strlen($text) . ' chars)');
+        error_log('ArtitechCore: Gemini API returned text (' . strlen($text) . ' chars)');
         return $text;
     }
 
-    error_log('AIOPMS: Gemini API response missing expected structure: ' . json_encode(array_keys($response_body ?? [])));
+    error_log('ArtitechCore: Gemini API response missing expected structure: ' . json_encode(array_keys($response_body ?? [])));
     return [];
 }
 
 // Get advanced suggestions from DeepSeek API
-function aiopms_get_deepseek_advanced_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key) {
+function artitechcore_get_deepseek_advanced_suggestions($business_type, $business_details, $seo_keywords, $target_audience, $api_key) {
     $url = 'https://api.deepseek.com/v1/chat/completions';
     
-    $prompt = aiopms_build_advanced_ai_prompt($business_type, $business_details, $seo_keywords, $target_audience);
+    $prompt = artitechcore_build_advanced_ai_prompt($business_type, $business_details, $seo_keywords, $target_audience);
 
     $body = json_encode([
         'model' => 'deepseek-chat',
@@ -1793,7 +1793,7 @@ function aiopms_get_deepseek_advanced_suggestions($business_type, $business_deta
     ]);
 
     if (is_wp_error($response)) {
-        error_log('AIOPMS DeepSeek API Error: ' . $response->get_error_message());
+        error_log('ArtitechCore DeepSeek API Error: ' . $response->get_error_message());
         return [];
     }
 
@@ -1806,7 +1806,7 @@ function aiopms_get_deepseek_advanced_suggestions($business_type, $business_deta
 }
 
 // Build the advanced AI prompt for dynamic business analysis
-function aiopms_build_advanced_ai_prompt($business_type, $business_details, $seo_keywords, $target_audience) {
+function artitechcore_build_advanced_ai_prompt($business_type, $business_details, $seo_keywords, $target_audience) {
     return "## ROLE & CONTEXT
 You are a World-Class Digital Transformation Architect and SEO Expert (Fortune 500 level). Your goal is to architect the perfect, high-performance content ecosystem for a specific business.
 Your output must be PRACTICAL, IMPLEMENTABLE, and focused purely on GROWTH and CONVERSION.
@@ -1894,7 +1894,7 @@ Return purely the JSON object. No markdown fences. No chatter.
 }
 
 // Parse the AI response into structured data
-function aiopms_parse_advanced_ai_response($ai_response) {
+function artitechcore_parse_advanced_ai_response($ai_response) {
     $parsed = [
         'pages' => [],
         'custom_post_types' => [],
@@ -1903,12 +1903,12 @@ function aiopms_parse_advanced_ai_response($ai_response) {
 
     // Handle empty or array response (should be string)
     if (empty($ai_response)) {
-        error_log('AIOPMS: AI response is empty');
+        error_log('ArtitechCore: AI response is empty');
         return $parsed;
     }
 
     if (is_array($ai_response)) {
-        error_log('AIOPMS: AI response is already an array (unexpected)');
+        error_log('ArtitechCore: AI response is already an array (unexpected)');
         return $parsed;
     }
 
@@ -1922,7 +1922,7 @@ function aiopms_parse_advanced_ai_response($ai_response) {
 
     // Log the cleaned response for debugging
     if (defined('WP_DEBUG') && WP_DEBUG) {
-        error_log('AIOPMS: Cleaned AI response (first 500 chars): ' . substr($response_text, 0, 500));
+        error_log('ArtitechCore: Cleaned AI response (first 500 chars): ' . substr($response_text, 0, 500));
     }
 
     // Try to extract JSON from the response
@@ -1930,7 +1930,7 @@ function aiopms_parse_advanced_ai_response($ai_response) {
     $json_end = strrpos($response_text, '}');
     
     if ($json_start === false || $json_end === false) {
-        error_log('AIOPMS: Could not find JSON brackets in AI response');
+        error_log('ArtitechCore: Could not find JSON brackets in AI response');
         return $parsed;
     }
 
@@ -1938,8 +1938,8 @@ function aiopms_parse_advanced_ai_response($ai_response) {
     $data = json_decode($json_string, true);
     
     if (json_last_error() !== JSON_ERROR_NONE) {
-        error_log('AIOPMS: JSON decode error: ' . json_last_error_msg());
-        error_log('AIOPMS: Failed JSON (first 1000 chars): ' . substr($json_string, 0, 1000));
+        error_log('ArtitechCore: JSON decode error: ' . json_last_error_msg());
+        error_log('ArtitechCore: Failed JSON (first 1000 chars): ' . substr($json_string, 0, 1000));
         return $parsed;
     }
 
@@ -1950,7 +1950,7 @@ function aiopms_parse_advanced_ai_response($ai_response) {
         $parsed['business_analysis'] = isset($data['business_analysis']) ? $data['business_analysis'] : [];
         
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('AIOPMS: Parsed ' . count($parsed['pages']) . ' pages and ' . count($parsed['custom_post_types']) . ' CPTs');
+            error_log('ArtitechCore: Parsed ' . count($parsed['pages']) . ' pages and ' . count($parsed['custom_post_types']) . ' CPTs');
         }
     }
 
@@ -1961,51 +1961,51 @@ function aiopms_parse_advanced_ai_response($ai_response) {
 /**
  * Display advanced content suggestions - Modernized
  * 
- * @since 3.0
+ * @since 1.0
  */
-function aiopms_display_advanced_content_suggestions($suggestions) {
-    echo '<div class="aiopms-advanced-suggestions">';
+function artitechcore_display_advanced_content_suggestions($suggestions) {
+    echo '<div class="artitechcore-advanced-suggestions">';
     
     // Display business analysis if available
     if (!empty($suggestions['business_analysis'])) {
-        echo '<div class="aiopms-business-analysis dg10-card">';
-        echo '<h3>📊 ' . esc_html__('Business Intelligence Analysis', 'aiopms') . '</h3>';
+        echo '<div class="artitechcore-business-analysis dg10-card">';
+        echo '<h3>📊 ' . esc_html__('Business Intelligence Analysis', 'artitechcore') . '</h3>';
         echo '<div class="analysis-content">';
         if (isset($suggestions['business_analysis']['business_model'])) {
-            echo '<p><strong>' . esc_html__('Strategic Model:', 'aiopms') . '</strong> ' . esc_html($suggestions['business_analysis']['business_model']) . '</p>';
+            echo '<p><strong>' . esc_html__('Strategic Model:', 'artitechcore') . '</strong> ' . esc_html($suggestions['business_analysis']['business_model']) . '</p>';
         }
         if (isset($suggestions['business_analysis']['content_needs'])) {
-            echo '<p><strong>' . esc_html__('Content Strategy:', 'aiopms') . '</strong> ' . esc_html($suggestions['business_analysis']['content_needs']) . '</p>';
+            echo '<p><strong>' . esc_html__('Content Strategy:', 'artitechcore') . '</strong> ' . esc_html($suggestions['business_analysis']['content_needs']) . '</p>';
         }
         if (isset($suggestions['business_analysis']['target_audience_insights'])) {
-            echo '<p><strong>' . esc_html__('Audience Insights:', 'aiopms') . '</strong> ' . esc_html($suggestions['business_analysis']['target_audience_insights']) . '</p>';
+            echo '<p><strong>' . esc_html__('Audience Insights:', 'artitechcore') . '</strong> ' . esc_html($suggestions['business_analysis']['target_audience_insights']) . '</p>';
         }
         echo '</div>';
         echo '</div>';
     }
 
-    echo '<form id="aiopms-ai-creation-form" method="post" action="">';
-    wp_nonce_field('aiopms_ai_ajax', 'nonce');
+    echo '<form id="artitechcore-ai-creation-form" method="post" action="">';
+    wp_nonce_field('artitechcore_ai_ajax', 'nonce');
     echo '<input type="hidden" name="action_type" value="advanced">';
 
     // Display standard pages
     if (!empty($suggestions['pages'])) {
-        echo '<div class="aiopms-pages-section">';
-        echo '<h3>📄 ' . esc_html__('Core Architecture: Pages', 'aiopms') . '</h3>';
+        echo '<div class="artitechcore-pages-section">';
+        echo '<h3>📄 ' . esc_html__('Core Architecture: Pages', 'artitechcore') . '</h3>';
         echo '<table class="dg10-table">';
         echo '<thead>';
         echo '<tr>';
         echo '<th width="40px"><input type="checkbox" id="select-all-pages" checked></th>';
-        echo '<th>' . esc_html__('Strategic Page', 'aiopms') . '</th>';
-        echo '<th>' . esc_html__('SEO Description', 'aiopms') . '</th>';
-        echo '<th>' . esc_html__('Strategic Reasoning', 'aiopms') . '</th>';
+        echo '<th>' . esc_html__('Strategic Page', 'artitechcore') . '</th>';
+        echo '<th>' . esc_html__('SEO Description', 'artitechcore') . '</th>';
+        echo '<th>' . esc_html__('Strategic Reasoning', 'artitechcore') . '</th>';
         echo '</tr>';
         echo '</thead>';
         echo '<tbody>';
         
         foreach ($suggestions['pages'] as $page) {
             echo '<tr>';
-            echo '<td><input type="checkbox" name="aiopms_selected_pages[]" value="' . esc_attr(json_encode($page)) . '" class="aiopms-page-checkbox" checked></td>';
+            echo '<td><input type="checkbox" name="artitechcore_selected_pages[]" value="' . esc_attr(json_encode($page)) . '" class="artitechcore-page-checkbox" checked></td>';
             echo '<td><strong>' . esc_html($page['title']) . '</strong></td>';
             echo '<td>' . esc_html($page['meta_description']) . '</td>';
             echo '<td><small>' . esc_html($page['reasoning']) . '</small></td>';
@@ -2019,26 +2019,26 @@ function aiopms_display_advanced_content_suggestions($suggestions) {
 
     // Display custom post types
     if (!empty($suggestions['custom_post_types'])) {
-        echo '<div class="aiopms-cpts-section">';
-        echo '<h3>🏗️ ' . esc_html__('Dynamic Ecosystem: Custom Post Types', 'aiopms') . '</h3>';
+        echo '<div class="artitechcore-cpts-section">';
+        echo '<h3>🏗️ ' . esc_html__('Dynamic Ecosystem: Custom Post Types', 'artitechcore') . '</h3>';
         
-        echo '<div class="aiopms-cpt-suggestions-grid">';
+        echo '<div class="artitechcore-cpt-suggestions-grid">';
         foreach ($suggestions['custom_post_types'] as $cpt) {
             echo '<div class="cpt-suggestion dg10-card">';
             echo '<div class="cpt-header">';
             echo '<label class="dg10-checkbox-label">';
-            echo '<input type="checkbox" name="aiopms_selected_cpts[]" value="' . esc_attr(json_encode($cpt)) . '" class="aiopms-cpt-checkbox" checked>';
+            echo '<input type="checkbox" name="artitechcore_selected_cpts[]" value="' . esc_attr(json_encode($cpt)) . '" class="artitechcore-cpt-checkbox" checked>';
             echo '<strong>' . esc_html($cpt['label']) . '</strong> <code class="dg10-slug">' . esc_html($cpt['name']) . '</code>';
             echo '</label>';
             echo '</div>';
             
             echo '<div class="cpt-details">';
             echo '<p class="description">' . esc_html($cpt['description']) . '</p>';
-            echo '<p class="reasoning"><strong>' . esc_html__('Why it works:', 'aiopms') . '</strong> ' . esc_html($cpt['reasoning']) . '</p>';
+            echo '<p class="reasoning"><strong>' . esc_html__('Why it works:', 'artitechcore') . '</strong> ' . esc_html($cpt['reasoning']) . '</p>';
             
             if (!empty($cpt['custom_fields'])) {
                 echo '<div class="custom-fields">';
-                echo '<h4>' . esc_html__('Intelligence Fields:', 'aiopms') . '</h4>';
+                echo '<h4>' . esc_html__('Intelligence Fields:', 'artitechcore') . '</h4>';
                 echo '<ul>';
                 foreach ($cpt['custom_fields'] as $field) {
                     echo '<li>';
@@ -2062,15 +2062,15 @@ function aiopms_display_advanced_content_suggestions($suggestions) {
 
     // Display custom taxonomies
     if (!empty($suggestions['custom_taxonomies'])) {
-        echo '<div class="aiopms-cpts-section" style="margin-top: 30px;">';
-        echo '<h3>🏷️ ' . esc_html__('Taxonomies & Categories', 'aiopms') . '</h3>';
+        echo '<div class="artitechcore-cpts-section" style="margin-top: 30px;">';
+        echo '<h3>🏷️ ' . esc_html__('Taxonomies & Categories', 'artitechcore') . '</h3>';
         
-        echo '<div class="aiopms-cpt-suggestions-grid">';
+        echo '<div class="artitechcore-cpt-suggestions-grid">';
         foreach ($suggestions['custom_taxonomies'] as $tax) {
             echo '<div class="cpt-suggestion dg10-card">';
             echo '<div class="cpt-header">';
             echo '<label class="dg10-checkbox-label">';
-            echo '<input type="checkbox" name="aiopms_selected_taxonomies[]" value="' . esc_attr(json_encode($tax)) . '" class="aiopms-cpt-checkbox" checked>';
+            echo '<input type="checkbox" name="artitechcore_selected_taxonomies[]" value="' . esc_attr(json_encode($tax)) . '" class="artitechcore-cpt-checkbox" checked>';
             echo '<strong>' . esc_html($tax['plural_label']) . '</strong> <code class="dg10-slug">' . esc_html($tax['name']) . '</code>';
             echo '</label>';
             echo '</div>';
@@ -2078,7 +2078,7 @@ function aiopms_display_advanced_content_suggestions($suggestions) {
             echo '<div class="cpt-details">';
             echo '<p class="description">Singular: ' . esc_html($tax['singular_label']) . '</p>';
             if (!empty($tax['post_types'])) {
-                echo '<p class="reasoning"><strong>' . esc_html__('Applies to:', 'aiopms') . '</strong> ' . esc_html(implode(', ', $tax['post_types'])) . '</p>';
+                echo '<p class="reasoning"><strong>' . esc_html__('Applies to:', 'artitechcore') . '</strong> ' . esc_html(implode(', ', $tax['post_types'])) . '</p>';
             }
             echo '</div>';
             echo '</div>';
@@ -2088,53 +2088,53 @@ function aiopms_display_advanced_content_suggestions($suggestions) {
     }
 
     // Add image generation checkbox
-    $provider = get_option('aiopms_ai_provider', 'openai');
+    $provider = get_option('artitechcore_ai_provider', 'openai');
     $is_deepseek = $provider === 'deepseek';
     
-    echo '<div class="aiopms-options dg10-card" style="margin-top: 32px; padding: 24px;">';
+    echo '<div class="artitechcore-options dg10-card" style="margin-top: 32px; padding: 24px;">';
     echo '<label class="dg10-checkbox-label">';
-    echo '<input type="checkbox" name="aiopms_generate_images" id="aiopms_generate_images" value="1" ' . checked(true, !$is_deepseek, false) . '>';
-    echo '<span><strong>' . esc_html__('AI Visual Generation', 'aiopms') . '</strong> - ' . esc_html__('Automatically create premium featured images for each new page.', 'aiopms') . '</span>';
+    echo '<input type="checkbox" name="artitechcore_generate_images" id="artitechcore_generate_images" value="1" ' . checked(true, !$is_deepseek, false) . '>';
+    echo '<span><strong>' . esc_html__('AI Visual Generation', 'artitechcore') . '</strong> - ' . esc_html__('Automatically create premium featured images for each new page.', 'artitechcore') . '</span>';
     echo '</label>';
     
     if ($is_deepseek) {
-        echo '<p class="dg10-form-help dg10-text-danger" style="margin-top: 10px;">' . esc_html__('DeepSeek does not currently support image generation.', 'aiopms') . '</p>';
+        echo '<p class="dg10-form-help dg10-text-danger" style="margin-top: 10px;">' . esc_html__('DeepSeek does not currently support image generation.', 'artitechcore') . '</p>';
     }
     echo '</div>';
 
     echo '<div class="dg10-form-actions" style="margin-top: 32px;">';
     echo '<button type="submit" class="dg10-btn dg10-btn-primary">';
     echo '<span class="nav-icon">🚀</span>';
-    echo esc_html__('Deploy Selected Strategy', 'aiopms');
+    echo esc_html__('Deploy Selected Strategy', 'artitechcore');
     echo '</button>';
     echo '</div>';
 
-    echo '<div class="aiopms-creation-status" style="display: none; margin-top: 24px;"></div>';
+    echo '<div class="artitechcore-creation-status" style="display: none; margin-top: 24px;"></div>';
     echo '</form>';
     echo '</div>';
 }
 
 // Handle creation of advanced content (pages + custom post types)
-if (isset($_POST['action']) && $_POST['action'] == 'create_advanced_content' && isset($_POST['_wpnonce']) && wp_verify_nonce(sanitize_key($_POST['_wpnonce']), 'aiopms_create_advanced_content')) {
-    if (isset($_POST['aiopms_selected_pages']) && is_array($_POST['aiopms_selected_pages'])) {
-        $selected_pages = array_map('sanitize_text_field', wp_unslash($_POST['aiopms_selected_pages']));
-        $selected_cpts = isset($_POST['aiopms_selected_cpts']) ? array_map('sanitize_text_field', wp_unslash($_POST['aiopms_selected_cpts'])) : [];
-        $selected_taxonomies = isset($_POST['aiopms_selected_taxonomies']) ? array_map('sanitize_text_field', wp_unslash($_POST['aiopms_selected_taxonomies'])) : [];
-        $generate_images = isset($_POST['aiopms_generate_images']) && $_POST['aiopms_generate_images'] == '1';
-        aiopms_create_advanced_content($selected_pages, $selected_cpts, $generate_images, $selected_taxonomies);
+if (isset($_POST['action']) && $_POST['action'] == 'create_advanced_content' && isset($_POST['_wpnonce']) && wp_verify_nonce(sanitize_key($_POST['_wpnonce']), 'artitechcore_create_advanced_content')) {
+    if (isset($_POST['artitechcore_selected_pages']) && is_array($_POST['artitechcore_selected_pages'])) {
+        $selected_pages = array_map('sanitize_text_field', wp_unslash($_POST['artitechcore_selected_pages']));
+        $selected_cpts = isset($_POST['artitechcore_selected_cpts']) ? array_map('sanitize_text_field', wp_unslash($_POST['artitechcore_selected_cpts'])) : [];
+        $selected_taxonomies = isset($_POST['artitechcore_selected_taxonomies']) ? array_map('sanitize_text_field', wp_unslash($_POST['artitechcore_selected_taxonomies'])) : [];
+        $generate_images = isset($_POST['artitechcore_generate_images']) && $_POST['artitechcore_generate_images'] == '1';
+        artitechcore_create_advanced_content($selected_pages, $selected_cpts, $generate_images, $selected_taxonomies);
     }
 }
 
 // Create advanced content (pages + custom post types)
-function aiopms_create_advanced_content($pages, $custom_post_types, $generate_images = false, $custom_taxonomies = []) {
+function artitechcore_create_advanced_content($pages, $custom_post_types, $generate_images = false, $custom_taxonomies = []) {
     set_time_limit(0); // Prevent timeouts for complex generation logic
-    error_log('AIOPMS: Starting aiopms_create_advanced_content');
+    error_log('ArtitechCore: Starting artitechcore_create_advanced_content');
     $created_pages = 0;
     $created_cpts = 0;
     $parent_id_stack = [];
 
     // Create standard pages
-    error_log('AIOPMS: Processing ' . count($pages) . ' pages');
+    error_log('ArtitechCore: Processing ' . count($pages) . ' pages');
     foreach ($pages as $index => $page_data) {
         // Handle both JSON strings and already decoded arrays
         if (is_string($page_data)) {
@@ -2143,12 +2143,12 @@ function aiopms_create_advanced_content($pages, $custom_post_types, $generate_im
             $page = $page_data;
         }
         if (!$page || !is_array($page)) {
-            error_log("AIOPMS: Invalid page data at index $index");
+            error_log("ArtitechCore: Invalid page data at index $index");
             continue;
         }
 
         $page_title = $page['title'];
-        error_log("AIOPMS: Creating page: $page_title");
+        error_log("ArtitechCore: Creating page: $page_title");
         
         $meta_description = $page['meta_description'];
         $hierarchy_level = isset($page['hierarchy_level']) ? $page['hierarchy_level'] : 0;
@@ -2156,7 +2156,7 @@ function aiopms_create_advanced_content($pages, $custom_post_types, $generate_im
         $parent_id = ($hierarchy_level > 0 && isset($parent_id_stack[$hierarchy_level - 1])) ? $parent_id_stack[$hierarchy_level - 1] : 0;
 
         // Generate SEO-optimized slug
-        $post_name = aiopms_generate_seo_slug($page_title);
+        $post_name = artitechcore_generate_seo_slug($page_title);
         
         $new_page = array(
             'post_title'   => $page_title,
@@ -2171,33 +2171,33 @@ function aiopms_create_advanced_content($pages, $custom_post_types, $generate_im
 
         if ($page_id) {
             $created_pages++;
-            error_log("AIOPMS: Page created (ID: $page_id)");
+            error_log("ArtitechCore: Page created (ID: $page_id)");
             
             // Generate and set featured image if enabled
             if ($generate_images) {
-                error_log("AIOPMS: Generating image for page $page_id");
-                abpcwa_generate_and_set_featured_image($page_id, $page_title);
+                error_log("ArtitechCore: Generating image for page $page_id");
+                artitechcore_generate_and_set_featured_image($page_id, $page_title);
             }
             
             // Generate schema markup for the new page
-            $auto_generate = get_option('aiopms_auto_schema_generation', true);
+            $auto_generate = get_option('artitechcore_auto_schema_generation', true);
             if ($auto_generate) {
-                error_log("AIOPMS: Generating schema for page $page_id");
+                error_log("ArtitechCore: Generating schema for page $page_id");
                 // Pass false to disable expensive AI analysis during bulk creation
-                aiopms_generate_schema_markup($page_id, false);
+                artitechcore_generate_schema_markup($page_id, false);
             }
             
             $parent_id_stack[$hierarchy_level] = $page_id;
             $parent_id_stack = array_slice($parent_id_stack, 0, $hierarchy_level + 1);
         } else {
-            error_log("AIOPMS: Failed to insert page: $page_title");
+            error_log("ArtitechCore: Failed to insert page: $page_title");
         }
     }
 
     // Create custom taxonomies FIRST (so CPTs can link to them)
     if (!empty($custom_taxonomies)) {
-        error_log('AIOPMS: Processing ' . count($custom_taxonomies) . ' custom taxonomies');
-        $existing_taxonomies = get_option('aiopms_dynamic_taxonomies', array());
+        error_log('ArtitechCore: Processing ' . count($custom_taxonomies) . ' custom taxonomies');
+        $existing_taxonomies = get_option('artitechcore_dynamic_taxonomies', array());
         $updated_taxonomies = false;
 
         foreach ($custom_taxonomies as $index => $tax_data) {
@@ -2223,21 +2223,21 @@ function aiopms_create_advanced_content($pages, $custom_post_types, $generate_im
             $updated_taxonomies = true;
 
             // Register immediately
-            if (function_exists('aiopms_register_dynamic_taxonomy')) {
-                aiopms_register_dynamic_taxonomy($tax);
+            if (function_exists('artitechcore_register_dynamic_taxonomy')) {
+                artitechcore_register_dynamic_taxonomy($tax);
             }
         }
 
         if ($updated_taxonomies) {
-            update_option('aiopms_dynamic_taxonomies', $existing_taxonomies);
+            update_option('artitechcore_dynamic_taxonomies', $existing_taxonomies);
             // Flush rules
-            update_option('aiopms_flush_rewrite_rules', true);
-             error_log("AIOPMS: Taxonomies saved and registered.");
+            update_option('artitechcore_flush_rewrite_rules', true);
+             error_log("ArtitechCore: Taxonomies saved and registered.");
         }
     }
 
     // Create custom post types (linked to taxonomies)
-    error_log('AIOPMS: Processing ' . count($custom_post_types) . ' custom post types');
+    error_log('ArtitechCore: Processing ' . count($custom_post_types) . ' custom post types');
     foreach ($custom_post_types as $index => $cpt_data) {
         // Handle both JSON strings and already decoded arrays
         if (is_string($cpt_data)) {
@@ -2246,27 +2246,27 @@ function aiopms_create_advanced_content($pages, $custom_post_types, $generate_im
             $cpt = $cpt_data;
         }
         if (!$cpt || !is_array($cpt)) {
-            error_log("AIOPMS: Invalid CPT data at index $index");
+            error_log("ArtitechCore: Invalid CPT data at index $index");
             continue;
         }
         
-        error_log("AIOPMS: Registering CPT: " . ($cpt['name'] ?? 'unknown'));
+        error_log("ArtitechCore: Registering CPT: " . ($cpt['name'] ?? 'unknown'));
 
-        if (aiopms_register_dynamic_custom_post_type($cpt)) {
+        if (artitechcore_register_dynamic_custom_post_type($cpt)) {
             $created_cpts++;
-            error_log("AIOPMS: CPT registered successfully");
+            error_log("ArtitechCore: CPT registered successfully");
             
             // Create sample entries if specified
             if (!empty($cpt['sample_entries'])) {
-                error_log("AIOPMS: Creating sample entries for CPT");
-                aiopms_create_sample_cpt_entries($cpt);
+                error_log("ArtitechCore: Creating sample entries for CPT");
+                artitechcore_create_sample_cpt_entries($cpt);
             }
         } else {
-            error_log("AIOPMS: Failed to register CPT");
+            error_log("ArtitechCore: Failed to register CPT");
         }
     }
 
-    error_log("AIOPMS: Finished content creation. Pages: $created_pages, CPTs: $created_cpts");
+    error_log("ArtitechCore: Finished content creation. Pages: $created_pages, CPTs: $created_cpts");
 
     // Display success message
     $message_parts = [];
@@ -2285,17 +2285,17 @@ function aiopms_create_advanced_content($pages, $custom_post_types, $generate_im
     }
 }
 
-// Note: aiopms_register_dynamic_custom_post_type function has been moved to custom-post-type-manager.php
+// Note: artitechcore_register_dynamic_custom_post_type function has been moved to custom-post-type-manager.php
 // This ensures proper integration between AI generation and CPT management
 
-// Note: aiopms_register_custom_fields function has been moved to custom-post-type-manager.php
+// Note: artitechcore_register_custom_fields function has been moved to custom-post-type-manager.php
 // This ensures proper integration and eliminates code duplication
 
 // Note: Custom field rendering has been moved to custom-post-type-manager.php
 // The new implementation includes enhanced security, accessibility, and more field types
 
 // Create sample entries for custom post types
-function aiopms_create_sample_cpt_entries($cpt_data) {
+function artitechcore_create_sample_cpt_entries($cpt_data) {
     $post_type = sanitize_key($cpt_data['name']);
     
     foreach ($cpt_data['sample_entries'] as $entry) {
@@ -2311,7 +2311,7 @@ function aiopms_create_sample_cpt_entries($cpt_data) {
         if ($post_id && !empty($cpt_data['custom_fields'])) {
             // Set sample values for custom fields
             foreach ($cpt_data['custom_fields'] as $field) {
-                $sample_value = aiopms_generate_sample_field_value($field);
+                $sample_value = artitechcore_generate_sample_field_value($field);
                 update_post_meta($post_id, $field['name'], $sample_value);
             }
         }
@@ -2319,7 +2319,7 @@ function aiopms_create_sample_cpt_entries($cpt_data) {
 }
 
 // Generate sample values for custom fields
-function aiopms_generate_sample_field_value($field) {
+function artitechcore_generate_sample_field_value($field) {
     switch ($field['type']) {
         case 'number':
             return rand(1, 100);
@@ -2339,17 +2339,17 @@ function aiopms_generate_sample_field_value($field) {
 /**
  * AJAX Handler for AI Suggestions
  */
-function aiopms_ajax_generate_suggestions() {
+function artitechcore_ajax_generate_suggestions() {
     // Increase execution time for AI operations
     set_time_limit(300);
 
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'aiopms_ai_ajax')) {
-        wp_send_json_error(['message' => __('Security check failed.', 'aiopms')]);
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'artitechcore_ai_ajax')) {
+        wp_send_json_error(['message' => __('Security check failed.', 'artitechcore')]);
     }
     
     if (!current_user_can('manage_options')) {
-        wp_send_json_error(['message' => __('Permission denied.', 'aiopms')]);
+        wp_send_json_error(['message' => __('Permission denied.', 'artitechcore')]);
     }
 
     $business_type = isset($_POST['business_type']) ? sanitize_text_field($_POST['business_type']) : '';
@@ -2358,7 +2358,7 @@ function aiopms_ajax_generate_suggestions() {
     $target_audience = isset($_POST['target_audience']) ? sanitize_text_field($_POST['target_audience']) : '';
 
     ob_start();
-    aiopms_generate_advanced_content_with_ai($business_type, $business_details, $seo_keywords, $target_audience);
+    artitechcore_generate_advanced_content_with_ai($business_type, $business_details, $seo_keywords, $target_audience);
     $html = ob_get_clean();
 
     if (empty($html) || strpos($html, 'notice-error') !== false) {
@@ -2368,6 +2368,5 @@ function aiopms_ajax_generate_suggestions() {
 
     wp_send_json_success(['html' => $html]);
 }
-add_action('wp_ajax_aiopms_ai_generate_suggestions', 'aiopms_ajax_generate_suggestions');
 
-// Note: aiopms_ai_create_content handler is registered at the top of the file as aiopms_handle_ai_create_content_ajax
+// Logic handled by artitechcore_handle_ai_generate_suggestions_ajax at the top

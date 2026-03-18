@@ -1,9 +1,9 @@
 # Copyright (C) 2024 DG10 Agency
-# This file is distributed under the same license as the AIOPMS - All In One Page Management System package.
+# This file is distributed under the same license as the ArtitechCore -  package.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIOPMS - All In One Page Management System 3.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiopms-all-in-one-page-management-system\n"
+"Project-Id-Version: ArtitechCore -  1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/artitechcore-main\n"
 "POT-Creation-Date: 2024-01-15 12:00+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -12,20 +12,20 @@ msgstr ""
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 
-#: aiopms-all-in-one-page-management-system.php:9
-msgid "AIOPMS - Page Management"
+#: artitechcore-for-wordpress.php:9
+msgid "ArtitechCore - Page Management"
 msgstr ""
 
-#: aiopms-all-in-one-page-management-system.php:10
-msgid "AIOPMS"
+#: artitechcore-for-wordpress.php:10
+msgid "ArtitechCore"
 msgstr ""
 
 #: includes/admin-menu.php:9
-msgid "AIOPMS - Page Management"
+msgid "ArtitechCore - Page Management"
 msgstr ""
 
 #: includes/admin-menu.php:10
-msgid "AIOPMS"
+msgid "ArtitechCore"
 msgstr ""
 
 #: includes/admin-menu.php:27
@@ -101,11 +101,11 @@ msgid "Configure plugin options"
 msgstr ""
 
 #: includes/admin-menu.php:79
-msgid "AIOPMS Plugin"
+msgid "ArtitechCore Plugin"
 msgstr ""
 
 #: includes/admin-menu.php:82
-msgid "All In One Page Management System"
+msgid ""
 msgstr ""
 
 #: includes/admin-menu.php:136
@@ -117,7 +117,7 @@ msgid "About us"
 msgstr ""
 
 #: includes/admin-menu.php:140
-msgid "DG10 Agency specializes in creating powerful WordPress and Elementor solutions. We help businesses build custom websites, optimize performance, and implement complex integrations that drive results."
+msgid "We are the ultimate growth ecosystem for visionary entrepreneurs. Leveraging over a decade of expertise, we empower you to Build | Market | Analyze | Automate | Scale with our services,  software products, AI tools & more. We aren’t just an agency; we are your digital infrastructure powerhouse, providing the advanced technology and strategic edge you need to dominate your market.r premium services, elite software products, and high-performance AI tools. We aren’t just an agency; we are your digital infrastructure powerhouse, providing the advanced technology and strategic edge you need to dominate your market."
 msgstr ""
 
 #: includes/admin-menu.php:143
