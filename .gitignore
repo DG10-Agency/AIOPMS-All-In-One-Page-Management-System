@@ -1,6 +1,7 @@
 # WordPress Plugin .gitignore
 
 # Documentation files
+docs/
 # NOTE: Do NOT ignore all *.md in a public repo.
 !README.md
 !LICENSE
