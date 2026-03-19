@@ -364,17 +364,17 @@ function artitechcore_ce_build_prompt($clean_content, $generate_type = 'all') {
                 . $footer;
         case 'cta':
             return $base
-                . "Task: Analyze the following blog post and generate JSON.\n"
-                . "Generate ONLY: 'cta_heading' (a contextual Call To Action heading) and 'cta_description' (1-2 persuasive sentences urging the reader to use our services).\n"
+                . "Task: Analyze the post and generate a HIGHLY CONCISE Call To Action.\n"
+                . "Generate ONLY: 'cta_heading' (A punchy heading, max 7 words) and 'cta_description' (ONE short sentence, max 15 words).\n"
                 . "Return JSON with only the keys 'cta_heading' and 'cta_description'."
                 . $footer;
         default: // 'all'
             return $base
-                . "Task: Analyze the following blog post and generate JSON formatted enhancements.\n"
-                . "1. 'key_takeaways': An array of 3 to 5 very concise, punchy bullet points summarizing the core value.\n"
-                . "2. 'conclusion': A concluding wrap-up paragraph.\n"
-                . "3. 'cta_heading': A highly relevant, contextual Call To Action heading based strictly on the topic discussed.\n"
-                . "4. 'cta_description': A 1-2 sentence persuasive description urging the reader to use our services/products based on the post topic."
+                . "Task: Analyze the blog post and generate JSON formatted enhancements.\n"
+                . "1. 'key_takeaways': 3 to 5 punchy bullet points.\n"
+                . "2. 'conclusion': A short concluding paragraph.\n"
+                . "3. 'cta_heading': A HIGHLY CONCISE CTA heading (max 7 words).\n"
+                . "4. 'cta_description': ONE short, high-conversion sentence (max 15 words)."
                 . $footer;
     }
 }
@@ -481,34 +481,35 @@ function artitechcore_ce_enqueue_frontend_css() {
     if ($enqueued) return;
     $enqueued = true;
 
-    $theme_color = get_option('artitechcore_brand_color', '#b47cfd');
+    $brand_color = get_option('artitechcore_brand_color', '#b47cfd');
     
     $css = "
         .artitechcore-ce-kt {
-            background-color: " . artitechcore_ce_hex_to_rgba($theme_color, 0.05) . ";
-            border-left: 4px solid {$theme_color};
-            padding: 25px 30px;
+            background: #fdfdfd; 
+            border-left: 4px solid " . esc_attr($brand_color) . "; 
+            padding: 20px 25px; 
             margin: 30px 0;
-            border-radius: 4px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            border-radius: 0 8px 8px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            font-family: inherit;
         }
         .artitechcore-ce-kt-title {
-            font-size: 1.3em;
-            font-weight: 700;
             margin-top: 0;
+            color: #121322;
+            font-size: 1.25em;
+            font-weight: 700;
             margin-bottom: 15px;
         }
         .artitechcore-ce-kt ul {
             margin: 0;
             padding-left: 20px;
+            list-style: disc;
         }
         .artitechcore-ce-kt li {
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            line-height: 1.5;
+            color: #444;
         }
-        .artitechcore-ce-kt li:last-child {
-            margin-bottom: 0;
-        }
-
         .artitechcore-ce-conclusion {
             margin: 40px 0 20px 0;
             padding-top: 20px;
@@ -520,116 +521,94 @@ function artitechcore_ce_enqueue_frontend_css() {
         }
 
         .artitechcore-ce-cta-wrapper {
-            background-color: #fff;
-            border: 1px solid #eaeaea;
+            background: #ffffff;
+            border: 2px solid " . esc_attr($brand_color) . ";
+            padding: 25px;
+            margin: 35px 0;
             border-radius: 12px;
-            padding: 35px;
-            margin: 40px 0;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            text-align: left;
             position: relative;
             overflow: hidden;
         }
         .artitechcore-ce-cta-wrapper::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, {$theme_color}, " . artitechcore_ce_adjust_brightness($theme_color, 30) . ");
+            top: 0; left: 0; bottom: 0; width: 6px;
+            background: " . esc_attr($brand_color) . ";
         }
         .artitechcore-ce-cta-head {
-            font-size: 1.8em;
+            font-size: 1.35em;
             font-weight: 800;
-            margin-top: 0;
-            margin-bottom: 15px;
+            margin: 0 0 8px 0;
+            color: #121322;
         }
         .artitechcore-ce-cta-desc {
-            font-size: 1.1em;
-            color: #555;
-            margin-bottom: 25px;
-            line-height: 1.6;
+            font-size: 1.0em;
+            color: #444;
+            margin: 0 0 20px 0;
+            line-height: 1.5;
         }
-        .artitechcore-ce-cta-form-container {
-            max-width: 600px;
-            margin: 0 auto;
+        .artitechcore-ce-native-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: flex-start;
         }
-        .artitechcore-ce-form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-            text-align: left;
+        .artitechcore-ce-form-field {
+            flex: 1;
+            min-width: 180px;
         }
         .artitechcore-ce-form-field.field-message {
-            grid-column: span 2;
+            flex-basis: 100%;
         }
         .artitechcore-ce-form-field input, 
         .artitechcore-ce-form-field textarea {
             width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
+            padding: 10px 14px;
+            border: 1px solid #ccc;
             border-radius: 6px;
-            font-size: 15px;
-            transition: border-color 0.3s;
+            font-size: 14px;
             box-sizing: border-box;
+            background: #fff;
+            color: #121322;
         }
-        .artitechcore-ce-form-field input:focus, 
-        .artitechcore-ce-form-field textarea:focus {
-            border-color: {$theme_color};
+        .artitechcore-ce-form-field input:focus {
+            border-color: " . esc_attr($brand_color) . ";
+            box-shadow: 0 0 0 3px " . artitechcore_ce_hex_to_rgba($brand_color, 0.1) . ";
             outline: none;
-            box-shadow: 0 0 0 3px " . artitechcore_ce_hex_to_rgba($theme_color, 0.1) . ";
         }
         .artitechcore-ce-submit-btn {
-            background-color: {$theme_color};
+            background-color: " . esc_attr($brand_color) . ";
             color: #fff;
             border: none;
-            padding: 15px 40px;
-            border-radius: 30px;
-            font-size: 16px;
+            padding: 11px 25px;
+            border-radius: 6px;
+            font-size: 14px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px " . artitechcore_ce_hex_to_rgba($theme_color, 0.3) . ";
+            transition: all 0.2s;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px " . artitechcore_ce_hex_to_rgba($brand_color, 0.2) . ";
         }
         .artitechcore-ce-submit-btn:hover {
-            background-color: " . artitechcore_ce_adjust_brightness($theme_color, -10) . ";
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px " . artitechcore_ce_hex_to_rgba($theme_color, 0.4) . ";
-        }
-        .artitechcore-ce-submit-btn:active {
-            transform: translateY(0);
-        }
-        .artitechcore-ce-submit-btn.loading {
-            opacity: 0.7;
-            cursor: not-allowed;
-            filter: grayscale(0.5);
+            filter: brightness(0.9);
+            transform: translateY(-1px);
         }
         .artitechcore-ce-form-response {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 8px;
-            font-weight: 500;
-            font-size: 14px;
+            flex-basis: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
         }
-        .artitechcore-ce-form-response.success {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-            border: 1px solid #c8e6c9;
-        }
-        .artitechcore-ce-form-response.error {
-            background-color: #ffebee;
-            color: #c62828;
-            border: 1px solid #ffcdd2;
-        }
+        .artitechcore-ce-form-response.success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+        .artitechcore-ce-form-response.error { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
         @media (max-width: 600px) {
-            .artitechcore-ce-form-grid {
-                grid-template-columns: 1fr;
-            }
-            .artitechcore-ce-form-field.field-message {
-                grid-column: span 1;
-            }
+            .artitechcore-ce-native-form { flex-direction: column; }
+            .artitechcore-ce-form-field { width: 100%; flex: none; }
+            .artitechcore-ce-submit-btn { width: 100%; }
         }
     ";
     
@@ -704,45 +683,39 @@ function artitechcore_ce_inject_content($content) {
         $enhanced_content = $kt_html . "\n" . $enhanced_content;
     }
 
-    // 2. Build Smart CTA
-    $cta_html = '';
-    $cta_mode = get_option('artitechcore_ce_cta_mode', 'shortcode');
-    
+    // 3. Inject CTA (Fixed #14: Every 3 H2s Algorithm)
     if ($has_cta) {
-        $cta_form_html = '';
-        if ($cta_mode === 'native') {
-            $cta_form_html = artitechcore_ce_render_native_form($post_id);
-        } elseif (!empty($shortcode)) {
-            $cta_form_html = do_shortcode($shortcode);
-        }
+        $cta_mode = get_option('artitechcore_ce_cta_mode', 'shortcode');
+        $cta_html = '<div class="artitechcore-ce-cta-wrapper">' . 
+                    '<h3 class="artitechcore-ce-cta-head">' . esc_html($cta_head) . '</h3>' .
+                    (!empty($cta_desc) ? '<p class="artitechcore-ce-cta-desc">' . esc_html($cta_desc) . '</p>' : '') .
+                    '<div class="artitechcore-ce-cta-form-container">' . 
+                    ($cta_mode === 'native' ? artitechcore_ce_render_native_form($post_id) : do_shortcode($shortcode)) . 
+                    '</div></div>';
 
-        if (!empty($cta_form_html)) {
-            $cta_html .= '<div class="artitechcore-ce-cta-wrapper">';
-            $cta_html .= '<h3 class="artitechcore-ce-cta-head">' . esc_html($cta_head) . '</h3>';
-            if (!empty($cta_desc)) {
-                $cta_html .= '<p class="artitechcore-ce-cta-desc">' . esc_html($cta_desc) . '</p>';
+        $h2_count = preg_match_all('/<h2[^>]*>.*?<\/h2>/i', $enhanced_content, $matches);
+        if ($h2_count >= 3) {
+            $parts = preg_split('/(<\/h2>)/i', $enhanced_content, -1, PREG_SPLIT_DELIM_CAPTURE);
+            // Insert after every 3rd </h2> (indices 5, 11, 17...)
+            for ($i = 5; $i < count($parts); $i += 6) {
+                if (isset($parts[$i])) {
+                    $parts[$i] .= "\n" . $cta_html;
+                }
             }
-            $cta_html .= '<div class="artitechcore-ce-cta-form-container">' . $cta_form_html . '</div>';
-            $cta_html .= '</div>';
-        }
-    }
-
-    // 3. Inject CTA based on length (FIX #3: proper mid-post insertion)
-    if (!empty($cta_html)) {
-        $word_count = str_word_count(wp_strip_all_tags($content));
-        
-        if ($word_count > 800 && preg_match_all('/<\/p>/i', $enhanced_content, $matches, PREG_OFFSET_CAPTURE)) {
-            $total_closings = count($matches[0]);
-            $mid_index = (int) floor($total_closings / 2);
-            if ($mid_index > 0 && isset($matches[0][$mid_index])) {
-                $insert_pos = $matches[0][$mid_index][1] + strlen($matches[0][$mid_index][0]);
-                $enhanced_content = substr($enhanced_content, 0, $insert_pos) . "\n" . $cta_html . substr($enhanced_content, $insert_pos);
+            $enhanced_content = implode('', $parts);
+        } else {
+            // Fallback for posts with < 3 H2s: inject once in middle or at end
+            $paragraphs = explode('</p>', $enhanced_content);
+            $para_count = count($paragraphs);
+            if ($para_count > 4) {
+                $mid = floor($para_count / 2);
+                if (isset($paragraphs[$mid])) {
+                    $paragraphs[$mid] .= "\n" . $cta_html;
+                }
+                $enhanced_content = implode('</p>', $paragraphs);
             } else {
                 $enhanced_content .= "\n" . $cta_html;
             }
-        } else {
-            // Short post or no paragraphs found, just append
-            $enhanced_content .= "\n" . $cta_html;
         }
     }
 
@@ -1190,20 +1163,18 @@ function artitechcore_ce_render_native_form($post_id) {
         <input type="hidden" name="post_id" value="<?php echo esc_attr($post_id); ?>">
         <input type="hidden" name="action" value="artitechcore_ce_submit_cta">
         
-        <div class="artitechcore-ce-form-grid">
-            <?php foreach ($fields as $field) : 
-                $placeholder = ucfirst($field);
-                $type = ($field === 'email') ? 'email' : (($field === 'phone') ? 'tel' : 'text');
-            ?>
-                <div class="artitechcore-ce-form-field field-<?php echo esc_attr($field); ?>">
-                    <?php if ($field === 'message') : ?>
-                        <textarea name="<?php echo esc_attr($field); ?>" placeholder="<?php echo esc_attr($placeholder); ?>" required rows="4"></textarea>
-                    <?php else : ?>
-                        <input type="<?php echo esc_attr($type); ?>" name="<?php echo esc_attr($field); ?>" placeholder="<?php echo esc_attr($placeholder); ?>" required>
-                    <?php endif; ?>
-                </div>
-            <?php endforeach; ?>
-        </div>
+        <?php foreach ($fields as $field) : 
+            $placeholder = ucfirst($field);
+            $type = ($field === 'email') ? 'email' : (($field === 'phone') ? 'tel' : 'text');
+        ?>
+            <div class="artitechcore-ce-form-field field-<?php echo esc_attr($field); ?>">
+                <?php if ($field === 'message') : ?>
+                    <textarea name="<?php echo esc_attr($field); ?>" placeholder="<?php echo esc_attr($placeholder); ?>" required rows="1"></textarea>
+                <?php else : ?>
+                    <input type="<?php echo esc_attr($type); ?>" name="<?php echo esc_attr($field); ?>" placeholder="<?php echo esc_attr($placeholder); ?>" required>
+                <?php endif; ?>
+            </div>
+        <?php endforeach; ?>
         
         <button type="submit" class="artitechcore-ce-submit-btn"><?php echo esc_html($btn_text); ?></button>
         <div class="artitechcore-ce-form-response"></div>

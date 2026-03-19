@@ -1,4 +1,4 @@
-=== ArtitechCore -  ===
+=== ArtitechCore WP ===
 Contributors: dg10agency
 Tags: pages, schema markup, bulk creation, ai content, seo generator, menu generator, openai, gemini, hierarchy
 Requires at least: 5.6
@@ -23,6 +23,7 @@ With ArtitechCore, you don't just "write pages"—you architect entire business 
 *   **📊 Pro Schema Management Suite** - A dedicated dashboard to monitor your SEO coverage. Generate, edit, and bulk-manage JSON-LD schema (FAQ, Product, LocalBusiness, etc.) with a live code editor and export your entire schema set to CSV.
 *   **📂 Intelligent CSV Bulk Import** - Deploy hundreds of SEO-optimized pages in seconds. Supports robust validation, parent-child relationships, and metadata mapping.
 *   **🍔 Smart Menu Generator** - Instantly build navigation, service, and footer menus based on your site's hierarchy. Automatically organizes your content for best UX.
+*   **✨ AI Content Enhancer & Conversion Booster** - Transform standard posts into high-converting articles. Automatically generate Key Takeaways (TL;DR), Smart Conclusions, and intelligent Call-to-Actions (CTAs) that adapt to your brand color.
 *   **🎨 Premium DG10 Agency Design** - A glassmorphic, modern admin interface built for usability. High contrast, mobile-responsive, and visually stunning.
 *   **⚡ High Performance Infrastructure** - Built with efficiency in mind. Sequential batch processing for bulk actions and optimized SQL counts to keep your dashboard lightning fast.
 *   **♿ Full Accessibility** - 100% WCAG 2.1 AA compliant. Proper ARIA labels, focus management, and keyboard-first navigation are standard.
@@ -51,6 +52,12 @@ Yes. All schema is generated as JSON-LD and inserted into the `<head>` of your w
 = Is my API Key secure? =
 Yes, your API keys are stored securely in your WordPress database and are only used for direct server-to-server communication with the AI provider.
 
+= How does the AI Content Enhancer improve SEO? =
+By generating **Key Takeaways** at the top of the post, you capture search intent faster and improve "Dwell Time." The **Smart Conclusion** ensures a clean semantic structure, following SEO best practices for article endings.
+
+= Can I keep my AI enhancements if I deactivate the plugin? =
+Yes. In the Content Enhancer settings, you can enable "Persistence." When the plugin is deactivated or uninstalled, a lightweight "bridge" is created in your `mu-plugins` folder to ensure your Key Takeaways, Conclusions, and CTAs continue to display perfectly.
+
 == Screenshots ==
 
 1. **Branded Dashboard** - The central hub for all business management.
@@ -61,8 +68,16 @@ Yes, your API keys are stored securely in your WordPress database and are only u
 
 == Changelog ==
 
+= 1.1.0 =
+* **NEW**: AI Content Enhancer (Conversion Booster).
+* **NEW**: Key Takeaways (TL;DR) auto-generation.
+* **NEW**: Smart Conclusion generator.
+* **NEW**: Native CTA System for high-conversion lead generation.
+* **NEW**: Unified Persistence Bridge (mu-plugins) for deactivation safety.
+* Refined brand color integration across the entire UI.
+
 = 1.0 =
-* Initial release of the .
+* Initial release.
 * Full AI content and schema generation suite.
 * DG10 Agency design system implementation.
 

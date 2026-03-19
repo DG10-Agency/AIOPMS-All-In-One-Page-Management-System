@@ -3,7 +3,7 @@
  * Plugin Name: ArtitechCore WP
  * Plugin URI: https://github.com/DG10-Agency/ArtitechCore-WP
  * Description: The core engine for Artitech WP ecosystem, providing AI-powered page generation, hierarchy management, and structural organization.
- * Version: 1.0
+ * Version: 1.1.0
  * Requires at least: 5.6
  * Tested up to: 6.9.4
  * Requires PHP: 7.4
@@ -16,7 +16,7 @@
  * Network: false
  * 
  * @package ArtitechCore
- * @version 1.0
+ * @version 1.1.0
  * @author DG10 Agency
  * @license GPL-2.0+
  */
@@ -244,31 +244,30 @@ function artitechcore_create_persistence_bridge($persist_schema, $persist_ce) {
             $theme_color = '#b47cfd';
         }
 
-        // Pre-convert theme color to rgba for KT background
+        // Pre-convert theme color to rgba for shadows
         $r = hexdec(substr($theme_color, 1, 2));
         $g = hexdec(substr($theme_color, 3, 2));
         $b = hexdec(substr($theme_color, 5, 2));
-        $rgba = "rgba($r,$g,$b,0.05)";
+        $rgba_shadow = "rgba($r,$g,$b,0.15)";
 
-        // Generate hardcoded CE CSS
-        $css_block  = "    .artitechcore-ce-kt { background-color: {$rgba}; border-left: 4px solid {$theme_color}; padding: 25px 30px; margin: 30px 0; border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }\n";
-        $css_block .= "    .artitechcore-ce-kt-title { font-size: 1.3em; font-weight: 700; margin-top: 0; margin-bottom: 15px; }\n";
-        $css_block .= "    .artitechcore-ce-kt ul { margin: 0; padding-left: 20px; }\n";
-        $css_block .= "    .artitechcore-ce-kt li { margin-bottom: 10px; }\n";
-        $css_block .= "    .artitechcore-ce-conclusion { margin: 40px 0 20px 0; padding-top: 20px; border-top: 1px solid #eee; }\n";
-        $css_block .= "    .artitechcore-ce-conclusion h3 { font-size: 1.5em; margin-bottom: 15px; }\n";
-        $css_block .= "    .artitechcore-ce-cta-wrapper { background-color: #fff; border: 1px solid #eaeaea; border-radius: 12px; padding: 35px; margin: 40px 0; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.04); position: relative; overflow: hidden; }\n";
-        $css_block .= "    .artitechcore-ce-cta-head { font-size: 1.8em; font-weight: 800; margin-top: 0; margin-bottom: 15px; }\n";
-        $css_block .= "    .artitechcore-ce-cta-desc { font-size: 1.1em; color: #555; margin-bottom: 25px; line-height: 1.6; }\n";
-        $css_block .= "    .artitechcore-ce-cta-form-container { max-width: 600px; margin: 0 auto; }\n";
-        $css_block .= "    .artitechcore-ce-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; text-align: left; }\n";
-        $css_block .= "    .artitechcore-ce-form-field.field-message { grid-column: span 2; }\n";
-        $css_block .= "    .artitechcore-ce-form-field input, .artitechcore-ce-form-field textarea { width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 6px; font-size: 15px; box-sizing: border-box; }\n";
-        $css_block .= "    .artitechcore-ce-submit-btn { background-color: {$theme_color}; color: #fff; border: none; padding: 15px 40px; border-radius: 30px; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px {$rgba}; }\n";
-        $css_block .= "    .artitechcore-ce-form-response { margin-top: 20px; padding: 15px; border-radius: 8px; font-size: 14px; }\n";
-        $css_block .= "    .artitechcore-ce-form-response.success { background-color: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }\n";
-        $css_block .= "    .artitechcore-ce-form-response.error { background-color: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }\n";
-        $css_block .= "    @media (max-width: 600px) { .artitechcore-ce-form-grid { grid-template-columns: 1fr; } .artitechcore-ce-form-field.field-message { grid-column: span 1; } }\n";
+        // Generate hardcoded CE CSS (NEW: Compact & Horizontal)
+        $css_block  = "    .artitechcore-ce-kt { background: #fdfdfd; border-left: 4px solid {$theme_color}; padding: 20px 25px; margin: 30px 0; border-radius: 0 8px 8px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }\n";
+        $css_block .= "    .artitechcore-ce-kt-title { margin-top:0; color:#121322; font-size:1.25em; font-weight:700; margin-bottom:15px; }\n";
+        $css_block .= "    .artitechcore-ce-kt ul { margin:0; padding-left:20px; list-style:disc; }\n";
+        $css_block .= "    .artitechcore-ce-kt li { margin-bottom:8px; line-height:1.5; color:#444; }\n";
+        $css_block .= "    .artitechcore-ce-cta-wrapper { background:#ffffff; border:2px solid {$theme_color}; padding:25px; margin:35px 0; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.05); text-align:left; position:relative; overflow:hidden; }\n";
+        $css_block .= "    .artitechcore-ce-cta-wrapper::before { content:''; position:absolute; top:0; left:0; bottom:0; width:6px; background:{$theme_color}; }\n";
+        $css_block .= "    .artitechcore-ce-cta-head { font-size:1.35em; font-weight:800; margin:0 0 8px 0; color:#121322; }\n";
+        $css_block .= "    .artitechcore-ce-cta-desc { font-size:1.0em; color:#555; margin:0 0 20px 0; line-height:1.5; }\n";
+        $css_block .= "    .artitechcore-ce-native-form { display:flex; flex-wrap:wrap; gap:12px; align-items:flex-start; }\n";
+        $css_block .= "    .artitechcore-ce-form-field { flex:1; min-width:180px; }\n";
+        $css_block .= "    .artitechcore-ce-form-field.field-message { flex-basis:100%; }\n";
+        $css_block .= "    .artitechcore-ce-form-field input, .artitechcore-ce-form-field textarea { width:100%; padding:10px 14px; border:1px solid #ccc; border-radius:6px; font-size:14px; box-sizing:border-box; background:#fff; }\n";
+        $css_block .= "    .artitechcore-ce-submit-btn { background-color:{$theme_color}; color:#fff; border:none; padding:11px 25px; border-radius:6px; font-size:14px; font-weight:700; cursor:pointer; transition:all 0.2s; white-space:nowrap; box-shadow:0 4px 12px {$rgba_shadow}; }\n";
+        $css_block .= "    .artitechcore-ce-form-response { flex-basis:100%; padding:10px; border-radius:6px; font-size:13px; margin-top:5px; display:none; }\n";
+        $css_block .= "    .artitechcore-ce-form-response.success { background:#e8f5e9; color:#2e7d32; border:1px solid #c8e6c9; }\n";
+        $css_block .= "    .artitechcore-ce-form-response.error { background:#ffebee; color:#c62828; border:1px solid #ffcdd2; }\n";
+        $css_block .= "    @media (max-width: 600px) { .artitechcore-ce-native-form { flex-direction:column; } .artitechcore-ce-form-field { width:100%; flex:none; } .artitechcore-ce-submit-btn { width:100%; } }\n";
 
         // FIX #5: CSS is now a static variable echoed inside the_content filter, not on every page
         // We write the CSS as a heredoc constant so it's only echoed when content is injected
@@ -312,33 +311,38 @@ function artitechcore_create_persistence_bridge($persist_schema, $persist_ce) {
                 $bridge_code .= "        \$cta_html .= wp_nonce_field('artitechcore_ce_submit_cta', '_ce_nonce', true, false);\n";
                 $bridge_code .= "        \$cta_html .= '<input type=\"hidden\" name=\"post_id\" value=\"' . esc_attr(\$post_id) . '\">';\n";
                 $bridge_code .= "        \$cta_html .= '<input type=\"hidden\" name=\"action\" value=\"artitechcore_ce_submit_cta\">';\n";
-                $bridge_code .= "        \$cta_html .= '<div class=\"artitechcore-ce-form-grid\">';\n";
                 $bridge_code .= "        foreach (\$fields as \$field) {\n";
                 $bridge_code .= "            \$placeholder = ucfirst(\$field);\n";
                 $bridge_code .= "            \$type = (\$field === 'email') ? 'email' : ((\$field === 'phone') ? 'tel' : 'text');\n";
                 $bridge_code .= "            \$cta_html .= '<div class=\"artitechcore-ce-form-field field-' . esc_attr(\$field) . '\">';\n";
-                $bridge_code .= "            if (\$field === 'message') \$cta_html .= '<textarea name=\"' . esc_attr(\$field) . '\" placeholder=\"' . esc_attr(\$placeholder) . '\" required rows=\"4\"></textarea>';\n";
+                $bridge_code .= "            if (\$field === 'message') \$cta_html .= '<textarea name=\"' . esc_attr(\$field) . '\" placeholder=\"' . esc_attr(\$placeholder) . '\" required rows=\"1\"></textarea>';\n";
                 $bridge_code .= "            else \$cta_html .= '<input type=\"' . esc_attr(\$type) . '\" name=\"' . esc_attr(\$field) . '\" placeholder=\"' . esc_attr(\$placeholder) . '\" required>';\n";
                 $bridge_code .= "            \$cta_html .= '</div>';\n";
                 $bridge_code .= "        }\n";
-                $bridge_code .= "        \$cta_html .= '</div><button type=\"submit\" class=\"artitechcore-ce-submit-btn\">' . esc_html(" . var_export($cta_native_button, true) . ") . '</button><div class=\"artitechcore-ce-form-response\"></div></form>';\n";
+                $bridge_code .= "        \$cta_html .= '<button type=\"submit\" class=\"artitechcore-ce-submit-btn\">' . esc_html(" . var_export($cta_native_button, true) . ") . '</button><div class=\"artitechcore-ce-form-response\"></div></form>';\n";
                 $bridge_code .= "        \$cta_html .= '<script>jQuery(document).ready(function($){ $(\"#ce-bridge-form-' . esc_js(\$post_id) . '\").on(\"submit\",function(e){ e.preventDefault(); var \$f=\$(this), \$r=\$f.find(\".artitechcore-ce-form-response\"), \$b=\$f.find(\".artitechcore-ce-submit-btn\"); \$b.prop(\"disabled\",true).addClass(\"loading\"); \$r.hide(); $.post(\"' . admin_url('admin-ajax.php') . '\",\$f.serialize(),function(res){ if(res.success){ \$r.removeClass(\"error\").addClass(\"success\").text(res.data).fadeIn(); \$f[0].reset(); }else{ \$r.removeClass(\"success\").addClass(\"error\").text(res.data).fadeIn(); } \$b.prop(\"disabled\",false).removeClass(\"loading\"); }); }); });</script>';\n";
             } else {
                 $bridge_code .= "        \$cta_html .= do_shortcode('" . addslashes(wp_kses_post($cta_shortcode)) . "');\n";
             }
 
             $bridge_code .= "        \$cta_html .= '</div></div>';\n";
-            $bridge_code .= "        \$wc = str_word_count(wp_strip_all_tags(\$content));\n";
-            $bridge_code .= "        if (\$wc > 800 && preg_match_all('/<\/p>/i', \$enhanced_content, \$matches, PREG_OFFSET_CAPTURE)) {\n";
-            $bridge_code .= "            \$mid = (int) floor(count(\$matches[0]) / 2);\n";
-            $bridge_code .= "            if (\$mid > 0 && isset(\$matches[0][\$mid])) {\n";
-            $bridge_code .= "                \$pos = \$matches[0][\$mid][1] + strlen(\$matches[0][\$mid][0]);\n";
-            $bridge_code .= "                \$enhanced_content = substr(\$enhanced_content, 0, \$pos) . \"\\n\" . \$cta_html . substr(\$enhanced_content, \$pos);\n";
+            $bridge_code .= "        \$h2_count = preg_match_all('/<h2[^>]*>.*?<\/h2>/i', \$enhanced_content, \$matches);\n";
+            $bridge_code .= "        if (\$h2_count >= 3) {\n";
+            $bridge_code .= "            \$parts = preg_split('/(<\/h2>)/i', \$enhanced_content, -1, PREG_SPLIT_DELIM_CAPTURE);\n";
+            $bridge_code .= "            for (\$i = 5; \$i < count(\$parts); \$i += 6) {\n";
+            $bridge_code .= "                if (isset(\$parts[\$i])) \$parts[\$i] .= \"\\n\" . \$cta_html;\n";
+            $bridge_code .= "            }\n";
+            $bridge_code .= "            \$enhanced_content = implode('', \$parts);\n";
+            $bridge_code .= "        } else {\n";
+            $bridge_code .= "            \$paragraphs = explode('</p>', \$enhanced_content);\n";
+            $bridge_code .= "            \$para_count = count(\$paragraphs);\n";
+            $bridge_code .= "            if (\$para_count > 4) {\n";
+            $bridge_code .= "                \$mid = floor(\$para_count / 2);\n";
+            $bridge_code .= "                if (isset(\$paragraphs[\$mid])) \$paragraphs[\$mid] .= \"\\n\" . \$cta_html;\n";
+            $bridge_code .= "                \$enhanced_content = implode('</p>', \$paragraphs);\n";
             $bridge_code .= "            } else {\n";
             $bridge_code .= "                \$enhanced_content .= \"\\n\" . \$cta_html;\n";
             $bridge_code .= "            }\n";
-            $bridge_code .= "        } else {\n";
-            $bridge_code .= "            \$enhanced_content .= \"\\n\" . \$cta_html;\n";
             $bridge_code .= "        }\n";
             $bridge_code .= "    }\n";
         }
