@@ -90,6 +90,15 @@ function artitechcore_add_admin_menu() {
 
     add_submenu_page(
         'artitechcore-main',
+        __('Content Enhancer', 'artitechcore'),
+        __('Content Enhancer', 'artitechcore'),
+        'manage_options',
+        'artitechcore-content-enhancer',
+        'artitechcore_admin_page'
+    );
+
+    add_submenu_page(
+        'artitechcore-main',
         __('Settings', 'artitechcore'),
         __('Settings', 'artitechcore'),
         'manage_options',
@@ -127,6 +136,9 @@ function artitechcore_admin_page() {
                 break;
             case 'artitechcore-cpt-management':
                 $active_tab = 'cpt';
+                break;
+            case 'artitechcore-content-enhancer':
+                $active_tab = 'enhancer';
                 break;
             case 'artitechcore-settings':
                 $active_tab = 'settings';
@@ -178,6 +190,11 @@ function artitechcore_admin_page() {
             'title' => __('Custom Post Types', 'artitechcore'),
             'icon' => '',
             'description' => __('Create and manage custom post types and fields', 'artitechcore')
+        ),
+        'enhancer' => array(
+            'title' => __('Content Enhancer', 'artitechcore'),
+            'icon' => '',
+            'description' => __('Bulk generate AI Key Takeaways and CTAs', 'artitechcore')
         ),
         'settings' => array(
             'title' => __('Settings', 'artitechcore'),
@@ -272,6 +289,10 @@ function artitechcore_admin_page() {
                 artitechcore_cpt_templates_tab();
             } else {
                 echo '<div class="notice notice-warning"><p>' . esc_html__('Templates functionality is part of the CPT Manager. Please access it via the Custom Post Types tab.', 'artitechcore') . '</p></div>';
+            }
+        } elseif ($active_tab == 'enhancer') {
+            if (function_exists('artitechcore_content_enhancer_tab')) {
+                artitechcore_content_enhancer_tab();
             }
         } elseif ($active_tab == 'settings') {
             artitechcore_settings_tab();

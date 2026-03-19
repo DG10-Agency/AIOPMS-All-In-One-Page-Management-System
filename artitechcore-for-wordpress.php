@@ -105,18 +105,23 @@ function artitechcore_uninstall() {
         return;
     }
 
-    // Check if we should persist schema
-    $persist = get_option('artitechcore_persist_on_uninstall', 0);
+    // Check what we should persist
+    $persist_schema = get_option('artitechcore_persist_on_uninstall', 0);
+    $persist_ce = get_option('artitechcore_ce_persist_features', []);
+    if (!is_array($persist_ce)) $persist_ce = [];
     
-    if ($persist) {
-        // Create MU-Plugin bridge to keep schema functional
-        artitechcore_create_persistence_bridge();
-        
-        // Remove 'artitechcore_persist_on_uninstall' from the list of options to remove 
-        // if you want to keep the setting record, but usually we just keep the data.
+    $mu_dir = defined('WPMU_PLUGIN_DIR') ? WPMU_PLUGIN_DIR : (ABSPATH . 'wp-content/mu-plugins');
+    
+    if ($persist_schema || !empty($persist_ce)) {
+        // Create MU-Plugin bridge to keep features functional
+        artitechcore_create_persistence_bridge($persist_schema, $persist_ce);
+    } else {
+        // FIX #6: Clean up any old bridge files from prior installs
+        @unlink($mu_dir . '/artitechcore-schema-bridge.php');
+        @unlink($mu_dir . '/artitechcore-persistence-bridge.php');
     }
 
-    // Remove all plugin options
+    // Remove all plugin options (FIX #3: always include persist_on_uninstall)
     $options_to_remove = array(
         'artitechcore_version',
         'artitechcore_ai_provider',
@@ -139,13 +144,20 @@ function artitechcore_uninstall() {
         'artitechcore_plugin_activated',
         'artitechcore_plugin_deactivated',
         'artitechcore_deactivation_date',
-        // 'artitechcore_persist_on_uninstall' // Keep this if we are persisting? No, let's remove it but keep the bridge.
+        'artitechcore_ce_enabled',
+        'artitechcore_ce_post_types',
+        'artitechcore_ce_kt_heading',
+        'artitechcore_ce_conclusion_heading',
+        'artitechcore_ce_cta_shortcode',
+        'artitechcore_ce_cta_mode',
+        'artitechcore_ce_cta_native_fields',
+        'artitechcore_ce_cta_native_email',
+        'artitechcore_ce_cta_native_button',
+        'artitechcore_ce_persist_features',
+        'artitechcore_persist_on_uninstall',
     );
     
-    if ($persist) {
-        // If persisting, we skip removing the business info options because the schema bridge might need them 
-        // (though currently it uses baked postmeta).
-    } else {
+    if (!$persist_schema) {
         $options_to_remove[] = 'artitechcore_business_name';
         $options_to_remove[] = 'artitechcore_business_description';
         $options_to_remove[] = 'artitechcore_business_address';
@@ -154,7 +166,6 @@ function artitechcore_uninstall() {
         $options_to_remove[] = 'artitechcore_business_social_facebook';
         $options_to_remove[] = 'artitechcore_business_social_twitter';
         $options_to_remove[] = 'artitechcore_business_social_linkedin';
-        $options_to_remove[] = 'artitechcore_persist_on_uninstall';
         
         // Remove custom database tables ONLY if not persisting
         artitechcore_drop_database_tables();
@@ -168,13 +179,13 @@ function artitechcore_uninstall() {
     wp_cache_flush();
     
     // Log uninstall
-    error_log('ArtitechCore Plugin Uninstalled' . ($persist ? ' - Schema persisted via Bridge' : ' - All data removed'));
+    error_log('ArtitechCore Plugin Uninstalled');
 }
 
 /**
- * Creates a small MU-Plugin to keep schema functional after uninstallation
+ * Creates a small MU-Plugin to keep schema/CE functional after uninstallation
  */
-function artitechcore_create_persistence_bridge() {
+function artitechcore_create_persistence_bridge($persist_schema, $persist_ce) {
     $mu_dir = WPMU_PLUGIN_DIR;
     if (!is_dir($mu_dir)) {
         if (!wp_is_writable(dirname($mu_dir)) || !@mkdir($mu_dir, 0755, true)) {
@@ -188,50 +199,191 @@ function artitechcore_create_persistence_bridge() {
         return false;
     }
 
-    $bridge_code = "<?php
-/**
- * Plugin Name: ArtitechCore Schema Bridge
- * Description: Automatically created by ArtitechCore to keep your SEO schemas functional after plugin removal.
- * Version: 1.1
- * Author: ArtitechCore
- */
+    $bridge_code = "<?php\n";
+    $bridge_code .= "/**\n";
+    $bridge_code .= " * Plugin Name: ArtitechCore Persistence Bridge\n";
+    $bridge_code .= " * Description: Automatically created by ArtitechCore to keep your SEO schemas and/or AI Enhancements functional after plugin removal.\n";
+    $bridge_code .= " * Version: 1.2\n";
+    $bridge_code .= " * Author: ArtitechCore\n";
+    $bridge_code .= " */\n\n";
+    $bridge_code .= "if (!defined('ABSPATH')) exit;\n\n";
 
-if (!defined('ABSPATH')) exit;
-
-/**
- * Production-ready schema output bridge
- */
-add_action('wp_head', function() {
-    \$post_id = null;
-    
-    if (is_singular()) {
-        \$post_id = get_the_ID();
-    } elseif (is_front_page()) {
-        \$post_id = get_option('page_on_front');
+    if ($persist_schema) {
+        $bridge_code .= "/** Schema Injection */\n";
+        $bridge_code .= "add_action('wp_head', function() {\n";
+        $bridge_code .= "    \$post_id = null;\n";
+        $bridge_code .= "    if (is_singular()) \$post_id = get_the_ID();\n";
+        $bridge_code .= "    elseif (is_front_page()) \$post_id = get_option('page_on_front');\n";
+        $bridge_code .= "    if (!\$post_id) return;\n";
+        $bridge_code .= "    \$schema_raw = get_post_meta(\$post_id, '_artitechcore_schema_data', true);\n";
+        $bridge_code .= "    if (empty(\$schema_raw)) return;\n";
+        $bridge_code .= "    \$schema_array = is_array(\$schema_raw) ? \$schema_raw : json_decode(\$schema_raw, true);\n";
+        $bridge_code .= "    if (is_array(\$schema_array) && !empty(\$schema_array)) {\n";
+        $bridge_code .= "        \$json_output = wp_json_encode(\$schema_array);\n";
+        $bridge_code .= "        if (\$json_output) {\n";
+        $bridge_code .= "            echo \"\\n<!-- ArtitechCore Schema Bridge -->\\n\";\n";
+        $bridge_code .= "            echo '<script type=\"application/ld+json\" class=\"artitech-schema-bridge\">' . \$json_output . \"</script>\\n\";\n";
+        $bridge_code .= "        }\n";
+        $bridge_code .= "    }\n";
+        $bridge_code .= "}, 30);\n\n";
     }
-    
-    if (!\$post_id) return;
-    
-    \$schema_raw = get_post_meta(\$post_id, '_artitechcore_schema_data', true);
-    if (empty(\$schema_raw)) return;
 
-    // Production Hardening: Verify data structure before output
-    // This prevents broken JSON or script injection from corrupt metadata
-    \$schema_array = is_array(\$schema_raw) ? \$schema_raw : json_decode(\$schema_raw, true);
-    
-    if (is_array(\$schema_array) && !empty(\$schema_array)) {
-        // Filter out non-schema fields if any, and re-encode safely
-        \$json_output = wp_json_encode(\$schema_array);
+    if (!empty($persist_ce)) {
+        // Fetch global options before they are deleted to hardcode them into the bridge
+        $theme_color = get_option('artitechcore_brand_color', '#b47cfd');
+        $kt_head = get_option('artitechcore_ce_kt_heading', 'Key Takeaways');
+        $conc_head = get_option('artitechcore_ce_conclusion_heading', 'Conclusion');
+        $cta_mode = get_option('artitechcore_ce_cta_mode', 'shortcode');
+        $cta_shortcode = get_option('artitechcore_ce_cta_shortcode', '');
+        $cta_native_fields = get_option('artitechcore_ce_cta_native_fields', ['name', 'email', 'message']);
+        $cta_native_email = get_option('artitechcore_ce_cta_native_email', get_option('admin_email'));
+        $cta_native_button = get_option('artitechcore_ce_cta_native_button', 'Send Message');
+
+        // FIX #2: Validate hex color with regex fallback
+        if (!preg_match('/^#[0-9a-fA-F]{6}$/', $theme_color)) {
+            $theme_color = '#b47cfd';
+        }
+
+        // Pre-convert theme color to rgba for KT background
+        $r = hexdec(substr($theme_color, 1, 2));
+        $g = hexdec(substr($theme_color, 3, 2));
+        $b = hexdec(substr($theme_color, 5, 2));
+        $rgba = "rgba($r,$g,$b,0.05)";
+
+        // Generate hardcoded CE CSS
+        $css_block  = "    .artitechcore-ce-kt { background-color: {$rgba}; border-left: 4px solid {$theme_color}; padding: 25px 30px; margin: 30px 0; border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }\n";
+        $css_block .= "    .artitechcore-ce-kt-title { font-size: 1.3em; font-weight: 700; margin-top: 0; margin-bottom: 15px; }\n";
+        $css_block .= "    .artitechcore-ce-kt ul { margin: 0; padding-left: 20px; }\n";
+        $css_block .= "    .artitechcore-ce-kt li { margin-bottom: 10px; }\n";
+        $css_block .= "    .artitechcore-ce-conclusion { margin: 40px 0 20px 0; padding-top: 20px; border-top: 1px solid #eee; }\n";
+        $css_block .= "    .artitechcore-ce-conclusion h3 { font-size: 1.5em; margin-bottom: 15px; }\n";
+        $css_block .= "    .artitechcore-ce-cta-wrapper { background-color: #fff; border: 1px solid #eaeaea; border-radius: 12px; padding: 35px; margin: 40px 0; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.04); position: relative; overflow: hidden; }\n";
+        $css_block .= "    .artitechcore-ce-cta-head { font-size: 1.8em; font-weight: 800; margin-top: 0; margin-bottom: 15px; }\n";
+        $css_block .= "    .artitechcore-ce-cta-desc { font-size: 1.1em; color: #555; margin-bottom: 25px; line-height: 1.6; }\n";
+        $css_block .= "    .artitechcore-ce-cta-form-container { max-width: 600px; margin: 0 auto; }\n";
+        $css_block .= "    .artitechcore-ce-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; text-align: left; }\n";
+        $css_block .= "    .artitechcore-ce-form-field.field-message { grid-column: span 2; }\n";
+        $css_block .= "    .artitechcore-ce-form-field input, .artitechcore-ce-form-field textarea { width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 6px; font-size: 15px; box-sizing: border-box; }\n";
+        $css_block .= "    .artitechcore-ce-submit-btn { background-color: {$theme_color}; color: #fff; border: none; padding: 15px 40px; border-radius: 30px; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px {$rgba}; }\n";
+        $css_block .= "    .artitechcore-ce-form-response { margin-top: 20px; padding: 15px; border-radius: 8px; font-size: 14px; }\n";
+        $css_block .= "    .artitechcore-ce-form-response.success { background-color: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }\n";
+        $css_block .= "    .artitechcore-ce-form-response.error { background-color: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }\n";
+        $css_block .= "    @media (max-width: 600px) { .artitechcore-ce-form-grid { grid-template-columns: 1fr; } .artitechcore-ce-form-field.field-message { grid-column: span 1; } }\n";
+
+        // FIX #5: CSS is now a static variable echoed inside the_content filter, not on every page
+        // We write the CSS as a heredoc constant so it's only echoed when content is injected
+        $bridge_code .= "/** Content Enhancer CSS (loaded only when enhancements exist) */\n";
+        $bridge_code .= "define('ARTITECHCORE_BRIDGE_CSS', '<style>\n" . $css_block . "</style>');\n\n";
+
+        // Generate content filter (FIX #7: use priority 99 to match original plugin)
+        $bridge_code .= "/** Content Enhancer Injection */\n";
+        $bridge_code .= "add_filter('the_content', function(\$content) {\n";
+        $bridge_code .= "    if (!is_singular() || !in_the_loop() || !is_main_query()) return \$content;\n";
+        $bridge_code .= "    \$post_id = get_the_ID();\n";
+        $bridge_code .= "    \$enhanced_content = \$content;\n";
+        $bridge_code .= "    \$_has_ce = false;\n";
         
-        if (\$json_output) {
-            echo \"\\n<!-- ArtitechCore Schema Bridge (Production Optimized) -->\\n\";
-            echo '<script type=\"application/ld+json\" class=\"artitech-schema-bridge\">' . \$json_output . \"</script>\\n\";
+        if (in_array('key_takeaways', $persist_ce)) {
+            // FIX #1: Use strpos+substr instead of preg_replace to avoid backreference corruption
+            $bridge_code .= "    \$kt = get_post_meta(\$post_id, '_artitechcore_ce_key_takeaways', true);\n";
+            $bridge_code .= "    if (!empty(\$kt) && is_array(\$kt)) {\n";
+            $bridge_code .= "        \$_has_ce = true;\n";
+            $bridge_code .= "        \$kt_html = '<div class=\"artitechcore-ce-kt\"><h3 class=\"artitechcore-ce-kt-title\">" . esc_html($kt_head) . "</h3><ul>';\n";
+            $bridge_code .= "        foreach (\$kt as \$point) \$kt_html .= '<li>' . esc_html(\$point) . '</li>';\n";
+            $bridge_code .= "        \$kt_html .= '</ul></div>';\n";
+            $bridge_code .= "        \$enhanced_content = \$kt_html . \"\\n\" . \$enhanced_content;\n";
+            $bridge_code .= "    }\n";
+        }
+
+        if (in_array('cta', $persist_ce) && ($cta_mode === 'native' || !empty($cta_shortcode))) {
+            $bridge_code .= "    \$cta_head = get_post_meta(\$post_id, '_artitechcore_ce_cta_heading', true);\n";
+            $bridge_code .= "    \$cta_desc = get_post_meta(\$post_id, '_artitechcore_ce_cta_desc', true);\n";
+            $bridge_code .= "    if (!empty(\$cta_head)) {\n";
+            $bridge_code .= "        \$_has_ce = true;\n";
+            $bridge_code .= "        \$cta_html = '<div class=\"artitechcore-ce-cta-wrapper\">'; \n";
+            $bridge_code .= "        \$cta_html .= '<h3 class=\"artitechcore-ce-cta-head\">' . esc_html(\$cta_head) . '</h3>';\n";
+            $bridge_code .= "        if (!empty(\$cta_desc)) \$cta_html .= '<p class=\"artitechcore-ce-cta-desc\">' . esc_html(\$cta_desc) . '</p>';\n";
+            $bridge_code .= "        \$cta_html .= '<div class=\"artitechcore-ce-cta-form-container\">';\n";
+
+            if ($cta_mode === 'native') {
+                $fields_export = var_export($cta_native_fields, true);
+                $bridge_code .= "        \$fields = " . $fields_export . ";\n";
+                $bridge_code .= "        \$cta_html .= '<form class=\"artitechcore-ce-native-form\" id=\"ce-bridge-form-' . esc_attr(\$post_id) . '\">';\n";
+                $bridge_code .= "        \$cta_html .= wp_nonce_field('artitechcore_ce_submit_cta', '_ce_nonce', true, false);\n";
+                $bridge_code .= "        \$cta_html .= '<input type=\"hidden\" name=\"post_id\" value=\"' . esc_attr(\$post_id) . '\">';\n";
+                $bridge_code .= "        \$cta_html .= '<input type=\"hidden\" name=\"action\" value=\"artitechcore_ce_submit_cta\">';\n";
+                $bridge_code .= "        \$cta_html .= '<div class=\"artitechcore-ce-form-grid\">';\n";
+                $bridge_code .= "        foreach (\$fields as \$field) {\n";
+                $bridge_code .= "            \$placeholder = ucfirst(\$field);\n";
+                $bridge_code .= "            \$type = (\$field === 'email') ? 'email' : ((\$field === 'phone') ? 'tel' : 'text');\n";
+                $bridge_code .= "            \$cta_html .= '<div class=\"artitechcore-ce-form-field field-' . esc_attr(\$field) . '\">';\n";
+                $bridge_code .= "            if (\$field === 'message') \$cta_html .= '<textarea name=\"' . esc_attr(\$field) . '\" placeholder=\"' . esc_attr(\$placeholder) . '\" required rows=\"4\"></textarea>';\n";
+                $bridge_code .= "            else \$cta_html .= '<input type=\"' . esc_attr(\$type) . '\" name=\"' . esc_attr(\$field) . '\" placeholder=\"' . esc_attr(\$placeholder) . '\" required>';\n";
+                $bridge_code .= "            \$cta_html .= '</div>';\n";
+                $bridge_code .= "        }\n";
+                $bridge_code .= "        \$cta_html .= '</div><button type=\"submit\" class=\"artitechcore-ce-submit-btn\">' . esc_html(" . var_export($cta_native_button, true) . ") . '</button><div class=\"artitechcore-ce-form-response\"></div></form>';\n";
+                $bridge_code .= "        \$cta_html .= '<script>jQuery(document).ready(function($){ $(\"#ce-bridge-form-' . esc_js(\$post_id) . '\").on(\"submit\",function(e){ e.preventDefault(); var \$f=\$(this), \$r=\$f.find(\".artitechcore-ce-form-response\"), \$b=\$f.find(\".artitechcore-ce-submit-btn\"); \$b.prop(\"disabled\",true).addClass(\"loading\"); \$r.hide(); $.post(\"' . admin_url('admin-ajax.php') . '\",\$f.serialize(),function(res){ if(res.success){ \$r.removeClass(\"error\").addClass(\"success\").text(res.data).fadeIn(); \$f[0].reset(); }else{ \$r.removeClass(\"success\").addClass(\"error\").text(res.data).fadeIn(); } \$b.prop(\"disabled\",false).removeClass(\"loading\"); }); }); });</script>';\n";
+            } else {
+                $bridge_code .= "        \$cta_html .= do_shortcode('" . addslashes(wp_kses_post($cta_shortcode)) . "');\n";
+            }
+
+            $bridge_code .= "        \$cta_html .= '</div></div>';\n";
+            $bridge_code .= "        \$wc = str_word_count(wp_strip_all_tags(\$content));\n";
+            $bridge_code .= "        if (\$wc > 800 && preg_match_all('/<\/p>/i', \$enhanced_content, \$matches, PREG_OFFSET_CAPTURE)) {\n";
+            $bridge_code .= "            \$mid = (int) floor(count(\$matches[0]) / 2);\n";
+            $bridge_code .= "            if (\$mid > 0 && isset(\$matches[0][\$mid])) {\n";
+            $bridge_code .= "                \$pos = \$matches[0][\$mid][1] + strlen(\$matches[0][\$mid][0]);\n";
+            $bridge_code .= "                \$enhanced_content = substr(\$enhanced_content, 0, \$pos) . \"\\n\" . \$cta_html . substr(\$enhanced_content, \$pos);\n";
+            $bridge_code .= "            } else {\n";
+            $bridge_code .= "                \$enhanced_content .= \"\\n\" . \$cta_html;\n";
+            $bridge_code .= "            }\n";
+            $bridge_code .= "        } else {\n";
+            $bridge_code .= "            \$enhanced_content .= \"\\n\" . \$cta_html;\n";
+            $bridge_code .= "        }\n";
+            $bridge_code .= "    }\n";
+        }
+
+        if (in_array('conclusion', $persist_ce)) {
+            $bridge_code .= "    \$conc = get_post_meta(\$post_id, '_artitechcore_ce_conclusion', true);\n";
+            $bridge_code .= "    if (!empty(\$conc)) {\n";
+            $bridge_code .= "        \$_has_ce = true;\n";
+            $bridge_code .= "        \$enhanced_content .= '<div class=\"artitechcore-ce-conclusion\"><h3 class=\"artitechcore-ce-conclusion-title\">" . esc_html($conc_head) . "</h3>';\n";
+            $bridge_code .= "        \$enhanced_content .= '<p>' . nl2br(esc_html(\$conc)) . '</p></div>';\n";
+            $bridge_code .= "    }\n";
+        }
+
+        $bridge_code .= "    if (\$_has_ce) \$enhanced_content = ARTITECHCORE_BRIDGE_CSS . \"\\n\" . \$enhanced_content;\n";
+        $bridge_code .= "    return \$enhanced_content;\n";
+        $bridge_code .= "}, 99);\n\n";
+
+        if (in_array('cta', $persist_ce) && $cta_mode === 'native') {
+            $bridge_code .= "add_action('wp_ajax_artitechcore_ce_submit_cta', 'artitechcore_bridge_cta_handler');\n";
+            $bridge_code .= "add_action('wp_ajax_nopriv_artitechcore_ce_submit_cta', 'artitechcore_bridge_cta_handler');\n\n";
+            $bridge_code .= "function artitechcore_bridge_cta_handler() {\n";
+            $bridge_code .= "    check_ajax_referer('artitechcore_ce_submit_cta', '_ce_nonce');\n";
+            $bridge_code .= "    \$ip = \$_SERVER['REMOTE_ADDR'];\n";
+            $bridge_code .= "    \$transient_key = 'ce_cta_limit_' . md5(\$ip);\n";
+            $bridge_code .= "    if (get_transient(\$transient_key)) wp_send_json_error('Please wait a few seconds before submitting again.');\n";
+            $bridge_code .= "    set_transient(\$transient_key, 1, 5);\n\n";
+            $bridge_code .= "    \$post_id = isset(\$_POST['post_id']) ? absint(\$_POST['post_id']) : 0;\n";
+            $bridge_code .= "    \$to = " . var_export($cta_native_email, true) . ";\n";
+            $bridge_code .= "    \$subject = '[Lead] CTA Submission: ' . get_the_title(\$post_id);\n";
+            $bridge_code .= "    \$body = \"New CTA Lead\\n\\nURL: \" . get_permalink(\$post_id) . \"\\n\\n\";\n";
+            $bridge_code .= "    foreach (['name','email','phone','message'] as \$f) {\n";
+            $bridge_code .= "        if (isset(\$_POST[\$f])) {\n";
+            $bridge_code .= "            \$val = (\$f === 'message') ? sanitize_textarea_field(\$_POST[\$f]) : sanitize_text_field(\$_POST[\$f]);\n";
+            $bridge_code .= "            \$body .= strtoupper(\$f) . ': ' . \$val . \"\\n\";\n";
+            $bridge_code .= "        }\n";
+            $bridge_code .= "    }\n";
+            $bridge_code .= "    wp_mail(\$to, \$subject, \$body);\n";
+            $bridge_code .= "    wp_send_json_success('Thank you! Your submission has been received.');\n";
+            $bridge_code .= "}\n";
         }
     }
-}, 30);
-";
 
-    return @file_put_contents($mu_dir . '/artitechcore-schema-bridge.php', $bridge_code);
+    // Replace the old schema bridge with the new unified bridge
+    @unlink($mu_dir . '/artitechcore-schema-bridge.php');
+    return @file_put_contents($mu_dir . '/artitechcore-persistence-bridge.php', $bridge_code);
 }
 
 /**
@@ -327,6 +479,7 @@ require_once ArtitechCore_PLUGIN_PATH . 'includes/hierarchy-manager.php';
 require_once ArtitechCore_PLUGIN_PATH . 'includes/menu-generator.php';
 require_once ArtitechCore_PLUGIN_PATH . 'includes/schema-generator.php';
 require_once ArtitechCore_PLUGIN_PATH . 'includes/keyword-analyzer.php';
+require_once ArtitechCore_PLUGIN_PATH . 'includes/content-enhancer.php';
 
 // Output schema markup in wp_head is now handled in includes/schema-generator.php
 

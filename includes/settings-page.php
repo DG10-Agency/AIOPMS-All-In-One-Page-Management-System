@@ -350,6 +350,18 @@ function artitechcore_register_settings() {
     register_setting('artitechcore_settings_group', 'artitechcore_auto_schema_generation', 'absint');
     register_setting('artitechcore_settings_group', 'artitechcore_persist_on_uninstall', 'absint');
     
+    // Content Enhancer Settings
+    register_setting('artitechcore_settings_group', 'artitechcore_ce_enabled', 'absint');
+    register_setting('artitechcore_settings_group', 'artitechcore_ce_post_types', 'artitechcore_sanitize_array');
+    register_setting('artitechcore_settings_group', 'artitechcore_ce_persist_features', 'artitechcore_sanitize_array');
+    register_setting('artitechcore_settings_group', 'artitechcore_ce_kt_heading', 'sanitize_text_field');
+    register_setting('artitechcore_settings_group', 'artitechcore_ce_conclusion_heading', 'sanitize_text_field');
+    register_setting('artitechcore_settings_group', 'artitechcore_ce_cta_mode', 'sanitize_key');
+    register_setting('artitechcore_settings_group', 'artitechcore_ce_cta_shortcode', 'wp_kses_post');
+    register_setting('artitechcore_settings_group', 'artitechcore_ce_cta_native_fields', 'artitechcore_sanitize_array');
+    register_setting('artitechcore_settings_group', 'artitechcore_ce_cta_native_email', 'sanitize_email');
+    register_setting('artitechcore_settings_group', 'artitechcore_ce_cta_native_button', 'sanitize_text_field');
+
     // Business Information Settings
     register_setting('artitechcore_settings_group', 'artitechcore_business_name', 'sanitize_text_field');
     register_setting('artitechcore_settings_group', 'artitechcore_business_description', 'sanitize_textarea_field');
@@ -470,8 +482,30 @@ function artitechcore_settings_init() {
     add_settings_field('artitechcore_business_phone', __('Phone Number', 'artitechcore'), 'artitechcore_business_phone_callback', 'artitechcore-main', 'artitechcore_business_settings_section');
     add_settings_field('artitechcore_business_email', __('Email Address', 'artitechcore'), 'artitechcore_business_email_callback', 'artitechcore-main', 'artitechcore_business_settings_section');
     add_settings_field('artitechcore_business_social', __('Social Media Links', 'artitechcore'), 'artitechcore_business_social_callback', 'artitechcore-main', 'artitechcore_business_settings_section');
+
+    // Content Enhancer Section
+    add_settings_section(
+        'artitechcore_ce_settings_section',
+        __('AI Content Enhancer & CTA', 'artitechcore'),
+        'artitechcore_ce_settings_section_callback',
+        'artitechcore-main'
+    );
+
+    add_settings_field('artitechcore_ce_enabled', __('Enable Content Enhancer', 'artitechcore'), 'artitechcore_ce_enabled_callback', 'artitechcore-main', 'artitechcore_ce_settings_section');
+    add_settings_field('artitechcore_ce_post_types', __('Supported Post Types', 'artitechcore'), 'artitechcore_ce_post_types_callback', 'artitechcore-main', 'artitechcore_ce_settings_section');
+    add_settings_field('artitechcore_ce_persist_features', __('Persist Features on Uninstall', 'artitechcore'), 'artitechcore_ce_persist_features_callback', 'artitechcore-main', 'artitechcore_ce_settings_section');
+    add_settings_field('artitechcore_ce_kt_heading', __('Key Takeaways Heading', 'artitechcore'), 'artitechcore_ce_kt_heading_callback', 'artitechcore-main', 'artitechcore_ce_settings_section');
+    add_settings_field('artitechcore_ce_conclusion_heading', __('Conclusion Heading', 'artitechcore'), 'artitechcore_ce_conclusion_heading_callback', 'artitechcore-main', 'artitechcore_ce_settings_section');
+    add_settings_field('artitechcore_ce_cta_mode', __('CTA Form Mode', 'artitechcore'), 'artitechcore_ce_cta_mode_callback', 'artitechcore-main', 'artitechcore_ce_settings_section');
+    add_settings_field('artitechcore_ce_cta_shortcode', __('Global CTA Shortcode', 'artitechcore'), 'artitechcore_ce_cta_shortcode_callback', 'artitechcore-main', 'artitechcore_ce_settings_section');
+    add_settings_field('artitechcore_ce_cta_native', __('Native CTA Configuration', 'artitechcore'), 'artitechcore_ce_cta_native_callback', 'artitechcore-main', 'artitechcore_ce_settings_section');
 }
 add_action('admin_init', 'artitechcore_settings_init');
+
+// Array Sanitizer
+function artitechcore_sanitize_array($input) {
+    return is_array($input) ? array_map('sanitize_text_field', $input) : [];
+}
 
 // Section callback
 function artitechcore_settings_section_callback() {
@@ -668,5 +702,135 @@ function artitechcore_business_social_callback() {
     <p><label>Twitter/X: <input type="url" name="artitechcore_business_social_twitter" value="<?php echo esc_attr($twitter); ?>" class="regular-text" placeholder="https://twitter.com/yourhandle"></label></p>
     <p><label>LinkedIn: <input type="url" name="artitechcore_business_social_linkedin" value="<?php echo esc_attr($linkedin); ?>" class="regular-text" placeholder="https://linkedin.com/company/yourcompany"></label></p>
     <p class="description"><?php esc_html_e('Your social media profile links (used in Organization schema).', 'artitechcore'); ?></p>
+    <?php
+}
+
+// Content Enhancer Callbacks
+function artitechcore_ce_settings_section_callback() {
+    echo '<p>' . esc_html__('Configure the AI Content Enhancer to automatically inject SEO Key Takeaways, Conclusions, and smart CTAs into your posts.', 'artitechcore') . '</p>';
+}
+
+function artitechcore_ce_enabled_callback() {
+    $enabled = get_option('artitechcore_ce_enabled', 0);
+    ?>
+    <input type="hidden" name="artitechcore_ce_enabled" value="0">
+    <label>
+        <input type="checkbox" name="artitechcore_ce_enabled" value="1" <?php checked($enabled, 1); ?>>
+        <?php esc_html_e('Enable AI Content Enhancer features and Meta Box', 'artitechcore'); ?>
+    </label>
+    <?php
+}
+
+function artitechcore_ce_post_types_callback() {
+    $selected = get_option('artitechcore_ce_post_types', ['post']);
+    $post_types = get_post_types(['public' => true], 'objects');
+    
+    foreach ($post_types as $pt) {
+        if ($pt->name === 'attachment') continue;
+        $checked = in_array($pt->name, $selected) ? 'checked' : '';
+        echo '<label style="margin-right:15px;"><input type="checkbox" name="artitechcore_ce_post_types[]" value="' . esc_attr($pt->name) . '" ' . $checked . '> ' . esc_html($pt->label) . '</label>';
+    }
+}
+
+function artitechcore_ce_persist_features_callback() {
+    $selected = get_option('artitechcore_ce_persist_features', []);
+    if (!is_array($selected)) $selected = [];
+    
+    $features = [
+        'key_takeaways' => 'Key Takeaways',
+        'conclusion' => 'Conclusion',
+        'cta' => 'Call to Action (CTA)'
+    ];
+    
+    foreach ($features as $key => $label) {
+        $checked = in_array($key, $selected) ? 'checked' : '';
+        echo '<label style="margin-right:15px;"><input type="checkbox" name="artitechcore_ce_persist_features[]" value="' . esc_attr($key) . '" ' . $checked . '> ' . esc_html($label) . '</label>';
+    }
+    echo '<p class="description">' . esc_html__('Select which AI enhancements should remain visible on your posts even after the plugin is deleted (uninstalled). Note: Deactivating the plugin will temporarily hide all enhancements until reactivated.', 'artitechcore') . '</p>';
+}
+
+function artitechcore_ce_kt_heading_callback() {
+    $val = get_option('artitechcore_ce_kt_heading', 'Key Takeaways');
+    echo '<input type="text" name="artitechcore_ce_kt_heading" value="' . esc_attr($val) . '" class="regular-text">';
+}
+
+function artitechcore_ce_conclusion_heading_callback() {
+    $val = get_option('artitechcore_ce_conclusion_heading', 'Conclusion');
+    echo '<input type="text" name="artitechcore_ce_conclusion_heading" value="' . esc_attr($val) . '" class="regular-text">';
+}
+
+function artitechcore_ce_cta_mode_callback() {
+    $mode = get_option('artitechcore_ce_cta_mode', 'shortcode');
+    ?>
+    <select name="artitechcore_ce_cta_mode" id="artitechcore_ce_cta_mode">
+        <option value="shortcode" <?php selected($mode, 'shortcode'); ?>><?php _e('Shortcode Mode (Use Elementor, CF7, etc.)', 'artitechcore'); ?></option>
+        <option value="native" <?php selected($mode, 'native'); ?>><?php _e('Native Mode (Built-in AJAX Form)', 'artitechcore'); ?></option>
+    </select>
+    <p class="description"><?php _e('Choose how the CTA form is rendered. Native mode is recommended if Elementor forms are not loading correctly.', 'artitechcore'); ?></p>
+    <script>
+    jQuery(document).ready(function($) {
+        function toggleCtaFields() {
+            var mode = $('#artitechcore_ce_cta_mode').val();
+            if (mode === 'native') {
+                $('.artitechcore-cta-shortcode-row').hide();
+                $('.artitechcore-cta-native-row').show();
+            } else {
+                $('.artitechcore-cta-shortcode-row').show();
+                $('.artitechcore-cta-native-row').hide();
+            }
+        }
+        $('#artitechcore_ce_cta_mode').on('change', toggleCtaFields);
+        toggleCtaFields();
+        
+        // Add classes to rows for toggling
+        $('#artitechcore_ce_cta_shortcode').closest('tr').addClass('artitechcore-cta-shortcode-row');
+        $('[name="artitechcore_ce_cta_native_email"]').closest('tr').addClass('artitechcore-cta-native-row');
+        // The native configuration field itself is in the next row usually
+        $('[name="artitechcore_ce_cta_native_button"]').closest('tr').addClass('artitechcore-cta-native-row');
+        $('.artitechcore-native-cta-config').closest('tr').addClass('artitechcore-cta-native-row');
+    });
+    </script>
+    <?php
+}
+
+function artitechcore_ce_cta_shortcode_callback() {
+    $val = get_option('artitechcore_ce_cta_shortcode', '');
+    ?>
+    <textarea name="artitechcore_ce_cta_shortcode" id="artitechcore_ce_cta_shortcode" rows="3" class="large-text" placeholder="[contact-form-7 id=&quot;1234&quot;]"><?php echo esc_textarea($val); ?></textarea>
+    <p class="description"><?php esc_html_e('Enter the shortcode for your lead grabber form. The AI will generate a contextual heading and description above it.', 'artitechcore'); ?></p>
+    <?php
+}
+
+function artitechcore_ce_cta_native_callback() {
+    $fields = get_option('artitechcore_ce_cta_native_fields', ['name', 'email', 'message']);
+    $email  = get_option('artitechcore_ce_cta_native_email', get_option('admin_email'));
+    $btn    = get_option('artitechcore_ce_cta_native_button', 'Send Message');
+    
+    $available_fields = [
+        'name'    => 'Name',
+        'email'   => 'Email',
+        'phone'   => 'Phone Number',
+        'message' => 'Message'
+    ];
+    ?>
+    <div class="artitechcore-native-cta-config">
+        <label><strong><?php _e('Form Fields:', 'artitechcore'); ?></strong></label><br>
+        <?php foreach ($available_fields as $key => $label) : ?>
+            <label style="margin-right:15px;">
+                <input type="checkbox" name="artitechcore_ce_cta_native_fields[]" value="<?php echo esc_attr($key); ?>" <?php checked(in_array($key, $fields)); ?>> 
+                <?php echo esc_html($label); ?>
+            </label>
+        <?php endforeach; ?>
+        
+        <div style="margin-top:15px;">
+            <label><strong><?php _e('Recipient Email:', 'artitechcore'); ?></strong></label><br>
+            <input type="email" name="artitechcore_ce_cta_native_email" value="<?php echo esc_attr($email); ?>" class="regular-text">
+        </div>
+        
+        <div style="margin-top:15px;">
+            <label><strong><?php _e('Submit Button Text:', 'artitechcore'); ?></strong></label><br>
+            <input type="text" name="artitechcore_ce_cta_native_button" value="<?php echo esc_attr($btn); ?>" class="regular-text">
+        </div>
+    </div>
     <?php
 }
