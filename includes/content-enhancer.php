@@ -483,7 +483,15 @@ function artitechcore_ce_enqueue_frontend_css() {
 
     $brand_color = get_option('artitechcore_brand_color', '#b47cfd');
     
+    $r = hexdec(substr($brand_color, 1, 2));
+    $g = hexdec(substr($brand_color, 3, 2));
+    $b = hexdec(substr($brand_color, 5, 2));
+
     $css = "
+        :root {
+            --artitechcore-brand: " . esc_attr($brand_color) . ";
+            --brand-rgb: $r, $g, $b;
+        }
         .artitechcore-ce-kt {
             background: #fdfdfd; 
             border-left: 4px solid " . esc_attr($brand_color) . "; 
@@ -579,8 +587,8 @@ function artitechcore_ce_enqueue_frontend_css() {
             outline: none;
         }
         .artitechcore-ce-submit-btn {
-            background-color: " . esc_attr($brand_color) . ";
-            color: #fff;
+            background-color: var(--artitechcore-brand, #b47cfd);
+            color: #ffffff !important;
             border: none;
             padding: 11px 25px;
             border-radius: 6px;
@@ -589,11 +597,42 @@ function artitechcore_ce_enqueue_frontend_css() {
             cursor: pointer;
             transition: all 0.2s;
             white-space: nowrap;
-            box-shadow: 0 4px 12px " . artitechcore_ce_hex_to_rgba($brand_color, 0.2) . ";
+            box-shadow: 0 4px 12px rgba(var(--brand-rgb), 0.15);
+            -webkit-appearance: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
         }
         .artitechcore-ce-submit-btn:hover {
-            filter: brightness(0.9);
+            filter: brightness(1.1);
             transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(var(--brand-rgb), 0.2);
+        }
+        .artitechcore-ce-submit-btn:active {
+            transform: translateY(0);
+        }
+        .artitechcore-ce-submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            filter: grayscale(0.3);
+        }
+        .artitechcore-ce-submit-btn.loading {
+            position: relative;
+            color: transparent !important;
+        }
+        .artitechcore-ce-submit-btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #fff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: ce-spinner 0.6s linear infinite;
+        }
+        @keyframes ce-spinner {
+            to { transform: rotate(360deg); }
         }
         .artitechcore-ce-form-response {
             flex-basis: 100%;

@@ -263,7 +263,12 @@ function artitechcore_create_persistence_bridge($persist_schema, $persist_ce) {
         $css_block .= "    .artitechcore-ce-form-field { flex:1; min-width:180px; }\n";
         $css_block .= "    .artitechcore-ce-form-field.field-message { flex-basis:100%; }\n";
         $css_block .= "    .artitechcore-ce-form-field input, .artitechcore-ce-form-field textarea { width:100%; padding:10px 14px; border:1px solid #ccc; border-radius:6px; font-size:14px; box-sizing:border-box; background:#fff; }\n";
-        $css_block .= "    .artitechcore-ce-submit-btn { background-color:{$theme_color}; color:#fff; border:none; padding:11px 25px; border-radius:6px; font-size:14px; font-weight:700; cursor:pointer; transition:all 0.2s; white-space:nowrap; box-shadow:0 4px 12px {$rgba_shadow}; }\n";
+        $css_block .= "    .artitechcore-ce-submit-btn { background-color:{$theme_color}; color:#ffffff !important; border:none; padding:11px 25px; border-radius:6px; font-size:14px; font-weight:700; cursor:pointer; transition:all 0.2s; white-space:nowrap; box-shadow:0 4px 12px {$rgba_shadow}; display:inline-flex; align-items:center; justify-content:center; min-height:42px; }\n";
+        $css_block .= "    .artitechcore-ce-submit-btn:hover { filter:brightness(1.1); transform:translateY(-1px); box-shadow:0 6px 15px {$rgba_shadow}; }\n";
+        $css_block .= "    .artitechcore-ce-submit-btn:disabled { opacity:0.7; cursor:not-allowed; }\n";
+        $css_block .= "    .artitechcore-ce-submit-btn.loading { position:relative; color:transparent !important; }\n";
+        $css_block .= "    .artitechcore-ce-submit-btn.loading::after { content:''; position:absolute; width:16px; height:16px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; animation:ce-spinner 0.6s linear infinite; }\n";
+        $css_block .= "    @keyframes ce-spinner { to { transform:rotate(360deg); } }\n";
         $css_block .= "    .artitechcore-ce-form-response { flex-basis:100%; padding:10px; border-radius:6px; font-size:13px; margin-top:5px; display:none; }\n";
         $css_block .= "    .artitechcore-ce-form-response.success { background:#e8f5e9; color:#2e7d32; border:1px solid #c8e6c9; }\n";
         $css_block .= "    .artitechcore-ce-form-response.error { background:#ffebee; color:#c62828; border:1px solid #ffcdd2; }\n";
