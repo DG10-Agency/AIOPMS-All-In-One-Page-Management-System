@@ -348,6 +348,7 @@ function artitechcore_register_settings() {
     register_setting('artitechcore_settings_group', 'artitechcore_brand_color', 'sanitize_hex_color');
     register_setting('artitechcore_settings_group', 'artitechcore_sitemap_url', 'esc_url_raw');
     register_setting('artitechcore_settings_group', 'artitechcore_auto_schema_generation', 'absint');
+    register_setting('artitechcore_settings_group', 'artitechcore_persist_on_uninstall', 'absint');
     
     // Business Information Settings
     register_setting('artitechcore_settings_group', 'artitechcore_business_name', 'sanitize_text_field');
@@ -446,6 +447,14 @@ function artitechcore_settings_init() {
         'artitechcore-main',
         'artitechcore_schema_settings_section'
     );
+    
+    add_settings_field(
+        'artitechcore_persist_on_uninstall',
+        __('Persistence on Uninstall', 'artitechcore'),
+        'artitechcore_persist_on_uninstall_callback',
+        'artitechcore-main',
+        'artitechcore_schema_settings_section'
+    );
 
     // Business Information Section
     add_settings_section(
@@ -532,6 +541,18 @@ function artitechcore_auto_schema_generation_callback() {
         <?php esc_html_e('Automatically generate schema markup when pages are created or updated', 'artitechcore'); ?>
     </label>
     <p class="description"><?php esc_html_e('When enabled, schema markup will be automatically generated for all pages when they are saved.', 'artitechcore'); ?></p>
+    <?php
+}
+
+// Persistence on Uninstall field callback
+function artitechcore_persist_on_uninstall_callback() {
+    $persist = get_option('artitechcore_persist_on_uninstall', 0);
+    ?>
+    <label>
+        <input type="checkbox" name="artitechcore_persist_on_uninstall" value="1" <?php checked($persist, true); ?>>
+        <strong><?php esc_html_e('Keep Schema functional after plugin removal', 'artitechcore'); ?></strong>
+    </label>
+    <p class="description"><?php esc_html_e('If enabled, a tiny bridge file will be created in wp-content/mu-plugins/ to ensure your schemas continue to work even if you delete this plugin.', 'artitechcore'); ?></p>
     <?php
 }
 

@@ -104,7 +104,18 @@ function artitechcore_uninstall() {
     if (!current_user_can('delete_plugins')) {
         return;
     }
+
+    // Check if we should persist schema
+    $persist = get_option('artitechcore_persist_on_uninstall', 0);
     
+    if ($persist) {
+        // Create MU-Plugin bridge to keep schema functional
+        artitechcore_create_persistence_bridge();
+        
+        // Remove 'artitechcore_persist_on_uninstall' from the list of options to remove 
+        // if you want to keep the setting record, but usually we just keep the data.
+    }
+
     // Remove all plugin options
     $options_to_remove = array(
         'artitechcore_version',
@@ -127,21 +138,100 @@ function artitechcore_uninstall() {
         'artitechcore_first_activation',
         'artitechcore_plugin_activated',
         'artitechcore_plugin_deactivated',
-        'artitechcore_deactivation_date'
+        'artitechcore_deactivation_date',
+        // 'artitechcore_persist_on_uninstall' // Keep this if we are persisting? No, let's remove it but keep the bridge.
     );
+    
+    if ($persist) {
+        // If persisting, we skip removing the business info options because the schema bridge might need them 
+        // (though currently it uses baked postmeta).
+    } else {
+        $options_to_remove[] = 'artitechcore_business_name';
+        $options_to_remove[] = 'artitechcore_business_description';
+        $options_to_remove[] = 'artitechcore_business_address';
+        $options_to_remove[] = 'artitechcore_business_phone';
+        $options_to_remove[] = 'artitechcore_business_email';
+        $options_to_remove[] = 'artitechcore_business_social_facebook';
+        $options_to_remove[] = 'artitechcore_business_social_twitter';
+        $options_to_remove[] = 'artitechcore_business_social_linkedin';
+        $options_to_remove[] = 'artitechcore_persist_on_uninstall';
+        
+        // Remove custom database tables ONLY if not persisting
+        artitechcore_drop_database_tables();
+    }
     
     foreach ($options_to_remove as $option) {
         delete_option($option);
     }
     
-    // Remove custom database tables
-    artitechcore_drop_database_tables();
-    
     // Clear any cached data
     wp_cache_flush();
     
     // Log uninstall
-    error_log('ArtitechCore Plugin Uninstalled - All data removed');
+    error_log('ArtitechCore Plugin Uninstalled' . ($persist ? ' - Schema persisted via Bridge' : ' - All data removed'));
+}
+
+/**
+ * Creates a small MU-Plugin to keep schema functional after uninstallation
+ */
+function artitechcore_create_persistence_bridge() {
+    $mu_dir = WPMU_PLUGIN_DIR;
+    if (!is_dir($mu_dir)) {
+        if (!wp_is_writable(dirname($mu_dir)) || !@mkdir($mu_dir, 0755, true)) {
+            error_log('ArtitechCore Error: Could not create mu-plugins directory.');
+            return false;
+        }
+    }
+    
+    if (!is_writable($mu_dir)) {
+        error_log('ArtitechCore Error: mu-plugins directory is not writable.');
+        return false;
+    }
+
+    $bridge_code = "<?php
+/**
+ * Plugin Name: ArtitechCore Schema Bridge
+ * Description: Automatically created by ArtitechCore to keep your SEO schemas functional after plugin removal.
+ * Version: 1.1
+ * Author: ArtitechCore
+ */
+
+if (!defined('ABSPATH')) exit;
+
+/**
+ * Production-ready schema output bridge
+ */
+add_action('wp_head', function() {
+    \$post_id = null;
+    
+    if (is_singular()) {
+        \$post_id = get_the_ID();
+    } elseif (is_front_page()) {
+        \$post_id = get_option('page_on_front');
+    }
+    
+    if (!\$post_id) return;
+    
+    \$schema_raw = get_post_meta(\$post_id, '_artitechcore_schema_data', true);
+    if (empty(\$schema_raw)) return;
+
+    // Production Hardening: Verify data structure before output
+    // This prevents broken JSON or script injection from corrupt metadata
+    \$schema_array = is_array(\$schema_raw) ? \$schema_raw : json_decode(\$schema_raw, true);
+    
+    if (is_array(\$schema_array) && !empty(\$schema_array)) {
+        // Filter out non-schema fields if any, and re-encode safely
+        \$json_output = wp_json_encode(\$schema_array);
+        
+        if (\$json_output) {
+            echo \"\\n<!-- ArtitechCore Schema Bridge (Production Optimized) -->\\n\";
+            echo '<script type=\"application/ld+json\" class=\"artitech-schema-bridge\">' . \$json_output . \"</script>\\n\";
+        }
+    }
+}, 30);
+";
+
+    return @file_put_contents($mu_dir . '/artitechcore-schema-bridge.php', $bridge_code);
 }
 
 /**
@@ -247,6 +337,12 @@ function artitechcore_enqueue_assets() {
     
     // Enqueue Consolidated Admin UI CSS
     wp_enqueue_style('artitechcore-admin-ui', ArtitechCore_PLUGIN_URL . 'assets/css/admin-ui.css', array('artitechcore-dg10-brand'), filemtime(ArtitechCore_PLUGIN_PATH . 'assets/css/admin-ui.css'));
+
+    // Enqueue Schema Column Styles (Specific for Pages/Posts lists)
+    $screen = get_current_screen();
+    if ($screen && ($screen->base === 'edit' || $screen->base === 'upload')) {
+        wp_enqueue_style('artitechcore-schema-column', ArtitechCore_PLUGIN_URL . 'assets/css/schema-column.css', array(), filemtime(ArtitechCore_PLUGIN_PATH . 'assets/css/schema-column.css'));
+    }
 
     // Enqueue CPT Management CSS
     wp_enqueue_style('artitechcore-cpt-management', ArtitechCore_PLUGIN_URL . 'assets/css/cpt-management.css', array('artitechcore-admin-ui'), '1.0');

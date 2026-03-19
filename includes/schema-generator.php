@@ -918,6 +918,11 @@ function artitechcore_is_event_page($content, $title) {
 // Generate schema markup for a page
 if (!function_exists('artitechcore_generate_schema_markup')) {
     function artitechcore_generate_schema_markup($post_id, $use_ai = true) {
+        // Production Practice: Validate post exists and is not a revision
+        $post = get_post($post_id);
+        if (!$post || wp_is_post_revision($post)) {
+            return false;
+        }
         $schema_type = artitechcore_detect_schema_type($post_id, $use_ai);
         $permalink = get_permalink($post_id);
         $site_url = home_url();
@@ -2344,13 +2349,37 @@ function artitechcore_schema_management_dashboard() {
 
         if (!empty($target_ids)) {
             $processed = 0;
+            $failed = 0;
+
+            // Increase resources for bulk processing - Production Grade check
+            $time_limit = 600;
+            if (function_exists('set_time_limit') && !in_array('set_time_limit', explode(',', ini_get('disable_functions')))) {
+                @set_time_limit($time_limit);
+            }
+            @ini_set('memory_limit', '512M');
+
+            // Prune logs table periodically (Senior practice: don't let logs grow forever)
+            artitechcore_prune_generation_logs();
+
             foreach ($target_ids as $page_id) {
                 if (!current_user_can('edit_post', $page_id)) {
                     continue;
                 }
-                if ($action === 'generate') {
-                    artitechcore_generate_schema_markup($page_id);
-                    $processed++;
+                if ($action === 'generate' || $action === 'regenerate') {
+                    try {
+                        // Re-increase timeout for each loop iteration to reset the clock if possible
+                        if (function_exists('set_time_limit')) {
+                            @set_time_limit(300);
+                        }
+                        artitechcore_generate_schema_markup($page_id);
+                        $processed++;
+                    } catch (Exception $e) {
+                        error_log('ArtitechCore Bulk Schema Error (Post ' . $page_id . '): ' . $e->getMessage());
+                        $failed++;
+                    } catch (Throwable $t) {
+                        error_log('ArtitechCore Bulk Schema Fatal (Post ' . $page_id . '): ' . $t->getMessage());
+                        $failed++;
+                    }
                 } elseif ($action === 'remove') {
                     artitechcore_remove_schema_from_page($page_id);
                     $processed++;
@@ -2358,8 +2387,9 @@ function artitechcore_schema_management_dashboard() {
             }
             
             $message = sprintf(
-                esc_html__('Processed %d pages successfully!', 'artitechcore'),
-                $processed
+                esc_html__('Processed %d pages successfully! (%d failed)', 'artitechcore'),
+                $processed,
+                $failed
             );
             echo '<div class="notice notice-success is-dismissible"><p>' . esc_html($message) . '</p></div>';
         }
@@ -3160,4 +3190,23 @@ add_action('admin_post_artitechcore_export_schema_csv', 'artitechcore_admin_expo
 function artitechcore_should_skip_auto_schema_generation($post_id) {
     $locked = get_post_meta($post_id, '_artitechcore_schema_locked', true);
     return !empty($locked);
+}
+
+/**
+ * Senior Developer Practice: Prune production logs to prevent database bloat.
+ * Removes logs older than 30 days.
+ */
+function artitechcore_prune_generation_logs() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'artitechcore_generation_logs';
+    
+    // Simple check to see if table exists before pruning
+    if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name)) === $table_name) {
+        $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM $table_name WHERE generation_time < %s",
+                date('Y-m-d H:i:s', strtotime('-30 days'))
+            )
+        );
+    }
 }

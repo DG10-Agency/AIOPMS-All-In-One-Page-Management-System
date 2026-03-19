@@ -12,6 +12,7 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     border: none;
+    color: #ffffff !important; /* Force white for maximum contrast */
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /* Enhanced shadow for better visibility */
     transition: all 0.2s ease;
     position: relative;
@@ -41,62 +42,62 @@
 /* Enhanced schema type colors with gradients */
 .artitechcore-schema-faq {
     background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-    color: #ffffff;
+    color: #ffffff !important;
 }
 
 .artitechcore-schema-blog {
     background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
-    color: #ffffff;
+    color: #ffffff !important;
 }
 
 .artitechcore-schema-article {
     background: linear-gradient(135deg, #B47CFD 0%, #8B5CF6 100%);
-    color: #ffffff;
+    color: #ffffff !important;
 }
 
 .artitechcore-schema-service {
     background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
-    color: #ffffff;
+    color: #ffffff !important;
 }
 
 .artitechcore-schema-product {
     background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-    color: #ffffff;
+    color: #ffffff !important;
 }
 
 .artitechcore-schema-organization {
     background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
-    color: #ffffff;
+    color: #ffffff !important;
 }
 
 .artitechcore-schema-local_business {
     background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%);
-    color: #ffffff;
+    color: #ffffff !important;
 }
 
 .artitechcore-schema-webpage {
     background: linear-gradient(135deg, #6B7280 0%, #4B5563 100%);
-    color: #ffffff;
+    color: #ffffff !important;
 }
 
 .artitechcore-schema-none {
     background: linear-gradient(135deg, #9CA3AF 0%, #6B7280 100%);
-    color: #ffffff;
+    color: #ffffff !important;
 }
 
 .artitechcore-schema-howto {
     background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-    color: #ffffff;
+    color: #ffffff !important;
 }
 
 .artitechcore-schema-review {
     background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
-    color: #ffffff;
+    color: #ffffff !important;
 }
 
 .artitechcore-schema-event {
     background: linear-gradient(135deg, #B47CFD 0%, #8B5CF6 100%);
-    color: #ffffff;
+    color: #ffffff !important;
 }
 
 /* Schema admin page styling */

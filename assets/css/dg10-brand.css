@@ -648,13 +648,7 @@
     background: #FFFFFF;
 }
 
-.dg10-card-body p,
-.dg10-card-body span,
-.dg10-card-body div,
-.dg10-card-body label,
-.dg10-card-body .description {
-    color: #1F2937;
-}
+/* Card body text color is inherited — no tag-level overrides needed */
 
 .dg10-card-footer {
     padding: var(--dg10-spacing-lg);
@@ -2003,34 +1997,11 @@
    SIDEBAR LAYOUT SYSTEM
    ========================================================================== */
 
-.dg10-main-layout {
-    display: grid;
-    grid-template-columns: 1fr 320px;
-    gap: var(--dg10-spacing-xl);
-    max-width: none;
-    /* Full width for desktop */
-    width: 100%;
-    margin: 0;
-    padding: 0 var(--dg10-spacing-lg);
-    /* Add some padding to prevent edge-to-edge */
-}
+/* Layout grid is owned by admin-ui.css — single source of truth */
 
 .dg10-main-content {
     min-width: 0;
-    /* Prevents grid overflow */
     color: #1F2937;
-    /* Dark text for light background */
-}
-
-.dg10-main-content p,
-.dg10-main-content span,
-.dg10-main-content div,
-.dg10-main-content label,
-.dg10-main-content .description,
-.dg10-main-content .form-field,
-.dg10-main-content .field-description {
-    color: #1F2937;
-    /* Dark text for light background */
 }
 
 /* ==========================================================================
@@ -2516,77 +2487,67 @@
 }
 
 /* ==========================================================================
-   BUTTON CONTRAST FIXES
+   TARGETED CONTRAST ENFORCEMENT
+   Replaces nuclear * selectors with component-specific rules.
    ========================================================================== */
 
-/* Force button text to be white for proper contrast */
+/* Primary buttons: white text on gradient backgrounds */
 .dg10-brand .dg10-btn-primary,
-.dg10-brand .dg10-btn-primary *,
-.dg10-brand .dg10-btn-primary .dg10-btn-icon {
-    color: #FFFFFF !important;
-}
-
 .dg10-brand .dg10-btn-primary:hover,
-.dg10-brand .dg10-btn-primary:hover *,
-.dg10-brand .dg10-btn-primary:hover .dg10-btn-icon {
+.dg10-brand .dg10-btn-primary:active,
+.dg10-brand .dg10-btn-primary:focus {
     color: #FFFFFF !important;
 }
 
-/* Force dark section text to be white/light for proper contrast */
+.dg10-brand .dg10-btn-primary .dg10-btn-icon {
+    color: inherit !important;
+}
+
+/* Card headers: white text on dark backgrounds */
 .dg10-brand .dg10-card-header,
-.dg10-brand .dg10-card-header *,
 .dg10-brand .dg10-card-header h1,
 .dg10-brand .dg10-card-header h2,
 .dg10-brand .dg10-card-header h3,
 .dg10-brand .dg10-card-header h4,
 .dg10-brand .dg10-card-header h5,
 .dg10-brand .dg10-card-header h6,
-.dg10-brand .dg10-card-header p {
+.dg10-brand .dg10-card-header p,
+.dg10-brand .dg10-card-header a,
+.dg10-brand .dg10-card-header span {
     color: #FFFFFF !important;
     text-shadow: none !important;
-    /* Enhanced shadows for better definition */
 }
 
-/* Default hero text styling for light backgrounds */
+/* Hero text: lives inside dark card-header, must be white */
 .dg10-brand .dg10-hero-text h1 {
-    color: #1F2937 !important;
-    /* Force dark text for white backgrounds */
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+    background: none !important;
     text-shadow: none !important;
-    /* Remove shadows for clean look on white backgrounds */
 }
 
 .dg10-brand .dg10-hero-description {
-    color: #6B7280 !important;
-    /* Force medium gray text for white backgrounds */
+    color: rgba(255, 255, 255, 0.85) !important;
     text-shadow: none !important;
-    /* Remove shadows for clean look on white backgrounds */
 }
 
-/* Force dark text for all content in main area */
-.dg10-brand .dg10-main-content,
-.dg10-brand .dg10-main-content *,
-.dg10-brand .dg10-card-body,
-.dg10-brand .dg10-card-body *,
-.dg10-brand .dg10-main-content p,
-.dg10-brand .dg10-main-content span,
-.dg10-brand .dg10-main-content div,
-.dg10-brand .dg10-main-content label,
-.dg10-brand .dg10-main-content .description,
-.dg10-brand .dg10-main-content .form-field,
-.dg10-brand .dg10-main-content .field-description {
-    color: #1F2937 !important;
-    /* Force dark text for white backgrounds */
+/* Schema badges: protect white text on gradient backgrounds */
+.artitechcore-schema-badge,
+.dg10-brand .artitechcore-schema-badge,
+.dg10-card-body .artitechcore-schema-badge,
+.dg10-main-content .artitechcore-schema-badge {
+    color: #FFFFFF !important;
 }
 
-/* Specific styling for form elements */
+/* Form elements in main content */
 .dg10-brand .dg10-main-content input[type="text"],
 .dg10-brand .dg10-main-content input[type="email"],
 .dg10-brand .dg10-main-content input[type="password"],
 .dg10-brand .dg10-main-content textarea,
 .dg10-brand .dg10-main-content select {
-    color: #1F2937 !important;
-    background: #ffffff !important;
-    border: 2px solid #9CA3AF !important;
+    color: #1F2937;
+    background: #ffffff;
+    border: 2px solid #9CA3AF;
 }
 
 /* Enhanced dropdown styling for AI provider selection */
@@ -2634,58 +2595,20 @@
     font-style: italic;
 }
 
-/* WordPress admin specific overrides */
-.dg10-brand .wrap,
-.dg10-brand .wrap *,
-.dg10-brand .form-table,
-.dg10-brand .form-table *,
-.dg10-brand .form-table th,
+/* WordPress admin form contrast (targeted — no * selectors) */
+.dg10-brand .form-table th {
+    color: var(--dg10-dark-blue);
+    font-weight: 600;
+}
+
 .dg10-brand .form-table td,
 .dg10-brand .form-table label,
-.dg10-brand .form-table .description,
-.dg10-brand .notice,
-.dg10-brand .notice *,
+.dg10-brand .form-table .description {
+    color: #1F2937;
+}
+
 .dg10-brand .notice p {
-    color: #1F2937 !important;
-}
-
-/* Ensure all text in the main content area is visible */
-.dg10-brand .dg10-main-content .wrap,
-.dg10-brand .dg10-main-content .wrap *,
-.dg10-brand .dg10-main-content .form-table,
-.dg10-brand .dg10-main-content .form-table *,
-.dg10-brand .dg10-main-content .form-table th,
-.dg10-brand .dg10-main-content .form-table td,
-.dg10-brand .dg10-main-content .form-table label,
-.dg10-brand .dg10-main-content .form-table .description {
-    color: #1F2937 !important;
-}
-
-
-
-/* Comprehensive fix for hero section text contrast - remove all text shadows and ensure proper colors */
-.dg10-brand .dg10-hero-text h1,
-.dg10-brand .dg10-hero-text h2,
-.dg10-brand .dg10-hero-text h3,
-.dg10-brand .dg10-hero-text h4,
-.dg10-brand .dg10-hero-text h5,
-.dg10-brand .dg10-hero-text h6,
-.dg10-brand .dg10-hero-description,
-.dg10-brand .dg10-hero-description p,
-.dg10-brand .dg10-hero-description span,
-.dg10-brand .dg10-hero-description div {
-    color: #1F2937 !important;
-    /* Force dark text for white backgrounds */
-    text-shadow: none !important;
-    /* Remove all text shadows for clean look on white backgrounds */
-}
-
-/* Override any inherited text shadows from parent elements */
-.dg10-brand .dg10-hero-content *,
-.dg10-brand .dg10-hero-section *,
-.dg10-brand .dg10-main-content .dg10-hero-text * {
-    text-shadow: none !important;
-    /* Remove all text shadows for clean look on white backgrounds */
+    color: #1F2937;
 }
 
 /* ==========================================================================
