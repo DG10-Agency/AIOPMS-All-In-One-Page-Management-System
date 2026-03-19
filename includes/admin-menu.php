@@ -862,8 +862,37 @@ function artitechcore_keyword_analysis_tab() {
                 </div>
                 
                 <div class="dg10-form-group">
-                    <button type="submit" id="artitechcore-analyze-btn" class="dg10-btn dg10-btn-primary">
-                        <span class="btn-text">🔍 Analyze Keywords</span>
+                    <div class="dg10-toggle-wrapper">
+                        <label class="dg10-toggle">
+                            <input type="checkbox" id="artitechcore_ai_superpowers" name="ai_superpowers" checked>
+                            <span class="dg10-toggle-slider"></span>
+                        </label>
+                        <span class="dg10-toggle-label">
+                            <strong>✨ AI Superpowers</strong> (Default)
+                            <span class="dg10-badge dg10-badge-success">Premium</span>
+                        </span>
+                    </div>
+                    <div class="dg10-form-help">
+                        Uses semantic intelligence to expand your seeds (1:4 ratio), map search intent, and analyze topical coverage instead of just counting words.
+                    </div>
+                </div>
+                
+                <div id="ai-expansion-preview" class="dg10-hidden">
+                    <div class="dg10-alert dg10-alert-info">
+                        <div class="alert-content">
+                            <strong>✨ Expansion Ready:</strong> Review and refine the AI-generated semantic variations below before starting the analysis.
+                        </div>
+                    </div>
+                    <div id="editable-clusters-container" class="dg10-clusters-grid"></div>
+                </div>
+                
+                <div class="dg10-form-group dg10-keyword-actions">
+                    <button type="button" id="artitechcore-expand-btn" class="dg10-btn dg10-btn-secondary">
+                        <span class="btn-text">✨ Expand with AI</span>
+                        <span class="dg10-spinner dg10-hidden"></span>
+                    </button>
+                    <button type="submit" id="artitechcore-analyze-btn" class="dg10-btn dg10-btn-primary btn-disabled" disabled>
+                        <span class="btn-text">📊 Analyze Content</span>
                         <span class="dg10-spinner dg10-hidden"></span>
                     </button>
                 </div>
@@ -893,7 +922,17 @@ function artitechcore_keyword_analysis_tab() {
                         <!-- Summary -->
                         <div id="summary-section" class="analysis-section">
                             <h4>📈 Analysis Summary</h4>
+                            <div id="ai-intent-badge-container" class="dg10-hidden" style="margin-bottom: 15px;"></div>
                             <div id="summary-content"></div>
+                        </div>
+                        
+                        <!-- Topic Cards (AI Mode Only) -->
+                        <div id="topic-cards-section" class="analysis-section dg10-hidden">
+                            <h4>🧩 Topical Coverage (Semantic Groups)</h4>
+                            <div class="dg10-form-help" style="margin-bottom: 20px;">
+                                We've grouped your seed keywords with their AI-suggested variations. "Healthy" groups have 3+ variations present in your content.
+                            </div>
+                            <div id="topic-cards-container" class="topic-cards-grid"></div>
                         </div>
                         
                         <!-- Keywords Table -->

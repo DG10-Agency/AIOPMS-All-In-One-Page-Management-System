@@ -21,6 +21,7 @@ class ArtitechCore_Keyword_Analyzer {
         add_action('wp_ajax_artitechcore_analyze_keywords', array($this, 'analyze_keywords_ajax'));
         add_action('wp_ajax_artitechcore_get_pages', array($this, 'get_pages_ajax'));
         add_action('wp_ajax_artitechcore_export_keyword_analysis', array($this, 'export_analysis_ajax'));
+        add_action('wp_ajax_artitechcore_ai_expand_keywords', array($this, 'ai_expand_keywords_ajax'));
     }
     
     /**
@@ -74,7 +75,28 @@ class ArtitechCore_Keyword_Analyzer {
         
         // Validate and sanitize input data
         $page_id = isset($_POST['page_id']) ? intval($_POST['page_id']) : 0;
-        $keywords_input = isset($_POST['keywords']) ? sanitize_textarea_field($_POST['keywords']) : '';
+        
+        $keywords_raw = isset($_POST['keywords']) ? $_POST['keywords'] : '';
+        $keywords_input = '';
+        
+        if (!empty($keywords_raw)) {
+            if (is_array($keywords_raw)) {
+                // Support both flat array and { clusters: [...] } format
+                $clusters = isset($keywords_raw['clusters']) ? $keywords_raw['clusters'] : $keywords_raw;
+                
+                $keywords_input = array();
+                foreach ((array)$clusters as $cluster) {
+                    if (is_array($cluster)) {
+                        $keywords_input[] = [
+                            'seed' => sanitize_text_field($cluster['seed'] ?? ''),
+                            'variations' => isset($cluster['variations']) ? array_map('sanitize_text_field', (array)$cluster['variations']) : []
+                        ];
+                    }
+                }
+            } else {
+                $keywords_input = sanitize_textarea_field($keywords_raw);
+            }
+        }
         
         // Additional validation
         if (empty($page_id) || $page_id <= 0) {
@@ -97,21 +119,107 @@ class ArtitechCore_Keyword_Analyzer {
         }
         
         try {
-            $analysis = $this->analyze_page_keywords($page_id, $keywords_input);
+            // Support both is_ai and ai_superpowers for backward compatibility during transition
+            $is_ai = (isset($_POST['ai_superpowers']) && $_POST['ai_superpowers'] === 'true') || 
+                     (isset($_POST['is_ai']) && $_POST['is_ai'] === 'true');
+            $intent = isset($_POST['intent']) ? sanitize_text_field($_POST['intent']) : '';
+            $analysis = $this->analyze_page_keywords($page_id, $keywords_input, $is_ai, $intent);
             
             if ($analysis) {
                 // Log successful analysis
-                $this->log_analysis_activity($page_id, $keywords_input, true);
+                $this->log_analysis_activity($page_id, $keywords_input, true, '', $is_ai);
                 wp_send_json_success($analysis);
             } else {
-                $this->log_analysis_activity($page_id, $keywords_input, false, 'Analysis failed');
+                $this->log_analysis_activity($page_id, $keywords_input, false, 'Analysis failed', $is_ai);
                 wp_send_json_error(__('Failed to analyze keywords. Please try again.', 'artitechcore'));
             }
         } catch (Exception $e) {
             // Log error
-            $this->log_analysis_activity($page_id, $keywords_input, false, $e->getMessage());
+            $this->log_analysis_activity($page_id, $keywords_input, false, $e->getMessage(), $isset_ai ?? false);
             wp_send_json_error(__('An error occurred during analysis. Please try again.', 'artitechcore'));
         }
+    }
+    
+    /**
+     * AI Semantic Expansion AJAX Handler
+     */
+    public function ai_expand_keywords_ajax() {
+        // Verify nonce for security
+        if (!check_ajax_referer('artitechcore_keyword_analysis', 'nonce', false)) {
+            wp_send_json_error(__('Security check failed.', 'artitechcore'));
+        }
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(__('Insufficient permissions.', 'artitechcore'));
+        }
+        
+        $keywords_input = isset($_POST['keywords']) ? sanitize_textarea_field($_POST['keywords']) : '';
+        $page_id = isset($_POST['page_id']) ? intval($_POST['page_id']) : 0;
+        
+        if (empty($keywords_input)) {
+            wp_send_json_error(__('Please enter at least one seed keyword.', 'artitechcore'));
+        }
+        
+        // Extract up to 10 seeds
+        $seeds = $this->extract_keywords($keywords_input);
+        if (count($seeds) > 10) {
+            $seeds = array_slice($seeds, 0, 10);
+        }
+        
+        $page = get_post($page_id);
+        $page_title = $page ? $page->post_title : 'Expert Article';
+        
+        // Call AI for expansion (1:4 ratio)
+        $expansion = $this->get_ai_expansion($seeds, $page_title);
+        
+        if (!$expansion) {
+            wp_send_json_error(__('AI expansion failed. Please check your API settings.', 'artitechcore'));
+        }
+        
+        wp_send_json_success($expansion);
+    }
+    
+    /**
+     * Get AI variations for seeds
+     */
+    private function get_ai_expansion($seeds, $page_title) {
+        $provider = get_option('artitechcore_ai_provider', 'openai');
+        $api_key = get_option('artitechcore_' . $provider . '_api_key');
+        
+        if (empty($api_key)) {
+            return false;
+        }
+        
+        $seeds_str = implode(', ', $seeds);
+        $prompt = "You are an SEO expert. For each of the following seed keywords, provided 4 highly relevant semantic variations (synonyms, LSI terms, or related entities) that a professional writer would use naturally in a high-quality article about \"{$page_title}\". 
+        
+        Seed Keywords: {$seeds_str}
+        
+        Return EXACTLY valid JSON in this format:
+        {
+          \"clusters\": [
+            { \"seed\": \"seed keyword\", \"variations\": [\"var1\", \"var2\", \"var3\", \"var4\"] },
+            ...
+          ],
+          \"intent\": \"Informational|Transactional|Navigational\"
+        }
+        
+        Important Guidelines:
+        1. Maximum 10 seeds. Provide exactly 4 variations per seed.
+        2. Semantic Inclusion: Include common singular/plural variations and near-synonyms (e.g., if seed is 'tooth cleaning', variations SHOULD include 'teeth cleaning').
+        3. Intent Consistency: Ensure variations match the topical intent of the seed.
+        4. Return ONLY JSON.";
+        
+        $result = null;
+        if ($provider === 'gemini') {
+            $result = $this->call_gemini_json($prompt, $api_key);
+        } elseif ($provider === 'openai') {
+            $result = $this->call_openai_json($prompt, $api_key);
+        } elseif ($provider === 'deepseek') {
+            $result = $this->call_deepseek_json($prompt, $api_key);
+        }
+        
+        return $result;
     }
     
     /**
@@ -195,19 +303,20 @@ class ArtitechCore_Keyword_Analyzer {
     /**
      * Log analysis activity for security monitoring
      */
-    private function log_analysis_activity($page_id, $keywords, $success, $error_message = '') {
+    private function log_analysis_activity($page_id, $keywords, $success, $error_message = '', $is_ai = false) {
         $user_id = get_current_user_id();
         $user_ip = $this->get_user_ip();
         
         $log_data = array(
             'user_id' => $user_id,
             'page_id' => $page_id,
-            'keywords_count' => count($this->extract_keywords($keywords)),
+            'keywords_count' => is_array($keywords) ? count($keywords) : count($this->extract_keywords($keywords)),
             'success' => $success,
             'error_message' => $error_message,
             'ip_address' => $user_ip,
             'timestamp' => current_time('mysql'),
-            'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field($_SERVER['HTTP_USER_AGENT']) : ''
+            'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field($_SERVER['HTTP_USER_AGENT']) : '',
+            'is_ai' => $is_ai ? 1 : 0
         );
         
         // Log to WordPress error log for security monitoring
@@ -303,7 +412,7 @@ class ArtitechCore_Keyword_Analyzer {
     /**
      * Main keyword analysis function with performance optimizations
      */
-    public function analyze_page_keywords($page_id, $keywords_input) {
+    public function analyze_page_keywords($page_id, $keywords_input, $is_ai = false, $intent = '') {
         // Start memory monitoring
         $start_memory = memory_get_usage();
         
@@ -314,23 +423,40 @@ class ArtitechCore_Keyword_Analyzer {
         }
         
         // Extract and clean keywords
-        $keywords = $this->extract_keywords($keywords_input);
+        if ($is_ai && is_array($keywords_input)) {
+            // keywords_input is already our expanded cluster [{seed, variations}, ...]
+            $clusters = $keywords_input;
+            $all_keywords = array();
+            foreach ($clusters as $c) {
+                $all_keywords[] = $c['seed'];
+                $all_keywords = array_merge($all_keywords, $c['variations']);
+            }
+            $keywords = array_unique($all_keywords);
+        } else {
+            $clusters = array();
+            $keywords = $this->extract_keywords($keywords_input);
+        }
+
         if (empty($keywords)) {
             return false;
         }
         
-        // Limit keywords for performance (max 50 keywords)
-        if (count($keywords) > 50) {
-            $keywords = array_slice($keywords, 0, 50);
+        // Limit keywords for performance (max 100 in AI mode, 50 in normal)
+        $limit = $is_ai ? 100 : 50;
+        if (count($keywords) > $limit) {
+            $keywords = array_slice($keywords, 0, $limit);
         }
         
         // Get page content for analysis with caching
         $content_data = $this->extract_page_content($page);
+        $content_data_normalized = $this->normalize_content_data($content_data);
         
-        // Check content size and warn if too large
+        // Truncate content if extremely large to prevent server hang (30+ years experience safety)
         $content_size = strlen($content_data['full_content']);
-        if ($content_size > 100000) { // 100KB limit
-            error_log('ArtitechCore: Large content detected (' . $content_size . ' bytes) for page ID: ' . $page_id);
+        if ($content_size > 500000) { // 500KB hard limit
+            $content_data['full_content'] = substr($content_data['full_content'], 0, 500000);
+            $content_data['content'] = substr($content_data['content'], 0, 400000);
+            error_log('ArtitechCore: Content truncated for page ID: ' . $page_id);
         }
         
         // Analyze each keyword with progress tracking
@@ -351,7 +477,8 @@ class ArtitechCore_Keyword_Analyzer {
                 }
             }
             
-            $keyword_analysis = $this->analyze_single_keyword_optimized($keyword, $content_data, $total_words, $content_lower, $content_words);
+            // Normalize keyword for smarter matching
+            $keyword_analysis = $this->analyze_single_keyword_optimized($keyword, $content_data, $total_words, $content_lower, $content_words, $content_data_normalized);
             if ($keyword_analysis) {
                 $results[] = $keyword_analysis;
             }
@@ -379,8 +506,43 @@ class ArtitechCore_Keyword_Analyzer {
                 'memory_used' => round($memory_used, 2)
             ),
             'keywords' => $results,
-            'summary' => $this->generate_summary($results, $total_words)
+            'summary' => $this->generate_summary($results, $total_words, $is_ai, $clusters, $intent)
         );
+    }
+
+    /**
+     * Normalize content data for semantic matching
+     */
+    private function normalize_content_data($content_data) {
+        return array(
+            'title' => $this->normalize_term($content_data['title']),
+            'content' => $this->normalize_term($content_data['content']),
+            'meta_description' => $this->normalize_term($content_data['meta_description']),
+            'excerpt' => $this->normalize_term($content_data['excerpt']),
+            'headings' => array_map(array($this, 'normalize_term'), $content_data['headings']),
+            'full_content' => $this->normalize_term($content_data['full_content'])
+        );
+    }
+
+    /**
+     * Basic term normalization for better matching (singularization + suffix strip)
+     */
+    private function normalize_term($term) {
+        $term = strtolower(trim($term));
+        if (empty($term)) return '';
+
+        // Basic lemmatization heuristics (30+ years experience)
+        // 1. Remove plural 's' at end of words (simple version)
+        $term = preg_replace('/(\w+)s\b/i', '$1', $term);
+        // 2. Remove common suffixes for broader matching
+        $term = preg_replace('/(\w+)ing\b/i', '$1', $term);
+        $term = preg_replace('/(\w+)ion\b/i', '$1', $term);
+        $term = preg_replace('/(\w+)ed\b/i', '$1', $term);
+        
+        // 3. Special case for tooth/teeth
+        $term = str_replace('teeth', 'tooth', $term);
+        
+        return $term;
     }
     
     /**
@@ -510,7 +672,7 @@ class ArtitechCore_Keyword_Analyzer {
     /**
      * Optimized single keyword analysis
      */
-    private function analyze_single_keyword_optimized($keyword, $content_data, $total_words, $content_lower, $content_words) {
+    private function analyze_single_keyword_optimized($keyword, $content_data, $total_words, $content_lower, $content_words, $content_data_normalized = null) {
         $keyword_lower = strtolower(trim($keyword));
         if (empty($keyword_lower)) {
             return false;
@@ -529,13 +691,30 @@ class ArtitechCore_Keyword_Analyzer {
         );
         
         $area_counts = array();
+        $is_smart_match = false;
+        
         foreach ($areas as $area_name => $area_content) {
             if (empty($area_content)) continue;
             
             $area_content_lower = strtolower($area_content);
             
-            // Use word boundary matching for better accuracy
+            // Check original matching
             $area_count = $this->count_keyword_occurrences($keyword_lower, $area_content_lower);
+            
+            // Check normalized matching if no exact matches found and we have normalized content
+            if ($area_count === 0 && !empty($content_data_normalized)) {
+                $norm_keyword = $this->normalize_term($keyword_lower);
+                $norm_content = $area_name === 'headings' ? implode(' ', $content_data_normalized['headings']) : $content_data_normalized[$area_name];
+                
+                if (!empty($norm_keyword) && !empty($norm_content)) {
+                    $norm_count = $this->count_keyword_occurrences($norm_keyword, $norm_content);
+                    if ($norm_count > 0) {
+                        $area_count = $norm_count;
+                        $is_smart_match = true;
+                    }
+                }
+            }
+
             $area_counts[$area_name] = $area_count;
             $keyword_count += $area_count;
         }
@@ -562,6 +741,7 @@ class ArtitechCore_Keyword_Analyzer {
             'status' => $status,
             'positions' => $positions,
             'area_counts' => $area_counts,
+            'is_smart_match' => $is_smart_match,
             'context' => $this->get_keyword_context_optimized($keyword_lower, $content_data['content'], 3),
             'relevance_score' => $this->calculate_relevance_score($keyword_lower, $content_data, $keyword_count)
         );
@@ -681,7 +861,7 @@ class ArtitechCore_Keyword_Analyzer {
     /**
      * Generate analysis summary with enhanced metrics
      */
-    private function generate_summary($results, $total_words) {
+    private function generate_summary($results, $total_words, $is_ai = false, $clusters = array(), $intent = '') {
         $total_keywords = count($results);
         $keywords_found = count(array_filter($results, function($r) { return $r['count'] > 0; }));
         $avg_density = $total_keywords > 0 ? array_sum(array_column($results, 'density')) / $total_keywords : 0;
@@ -697,8 +877,10 @@ class ArtitechCore_Keyword_Analyzer {
         $total_relevance_score = 0;
         $keywords_with_relevance = 0;
         
+        $result_map = array();
         foreach ($results as $result) {
             $status_counts[$result['status']]++;
+            $result_map[strtolower($result['keyword'])] = $result;
             
             if (isset($result['relevance_score'])) {
                 $total_relevance_score += $result['relevance_score'];
@@ -706,10 +888,41 @@ class ArtitechCore_Keyword_Analyzer {
             }
         }
         
+        $cluster_results = array();
+        if ($is_ai && !empty($clusters)) {
+            foreach ($clusters as $cluster) {
+                $seed = strtolower($cluster['seed']);
+                $variations = array_map('strtolower', $cluster['variations']);
+                
+                $seed_res = $result_map[$seed] ?? ['count' => 0, 'density' => 0];
+                $group_count = $seed_res['count'];
+                $found_count = ($seed_res['count'] > 0) ? 1 : 0;
+                
+                $variation_data = array();
+                foreach ($variations as $var) {
+                    $var_res = $result_map[$var] ?? ['count' => 0, 'density' => 0];
+                    $group_count += $var_res['count'];
+                    if ($var_res['count'] > 0) $found_count++;
+                    $variation_data[$var] = $var_res['count'];
+                }
+                
+                $coverage = ($found_count / 5) * 100;
+                $cluster_results[] = array(
+                    'seed' => $cluster['seed'],
+                    'total_count' => $group_count,
+                    'coverage_percent' => round($coverage, 1),
+                    'variations_found' => $found_count,
+                    'is_healthy' => $found_count >= 3,
+                    'is_stuffed' => $group_count > 0 && ($seed_res['count'] > ($group_count * 0.7) && $group_count > 5),
+                    'variation_data' => $variation_data
+                );
+            }
+        }
+        
         $avg_relevance = $keywords_with_relevance > 0 ? $total_relevance_score / $keywords_with_relevance : 0;
         
         // Calculate SEO score
-        $seo_score = $this->calculate_seo_score($results, $total_words);
+        $seo_score = $this->calculate_seo_score_topical($results, $total_words, $is_ai, $clusters);
         
         return array(
             'total_keywords' => $total_keywords,
@@ -720,8 +933,81 @@ class ArtitechCore_Keyword_Analyzer {
             'seo_score' => $seo_score,
             'status_distribution' => $status_counts,
             'recommendations' => $this->generate_recommendations($results, $status_counts),
-            'performance_metrics' => $this->get_performance_metrics($results)
+            'performance_metrics' => $this->get_performance_metrics($results),
+            'cluster_results' => $cluster_results,
+            'intent' => $intent
         );
+    }
+    
+    /**
+     * Calculate overall SEO score with Topical Awareness
+     */
+    private function calculate_seo_score_topical($results, $total_words, $is_ai = false, $clusters = array()) {
+        $score = 0;
+        $max_score = 100;
+        
+        if ($is_ai && !empty($clusters)) {
+            // TOPICAL SCORING (For AI Superpowers)
+            $total_clusters = count($clusters);
+            if ($total_clusters === 0) return 0;
+
+            $result_map = array();
+            foreach ($results as $r) {
+                $result_map[strtolower($r['keyword'])] = $r;
+            }
+
+            $clusters_covered = 0;
+            $total_cluster_relevance = 0;
+            $cluster_health_count = 0;
+
+            foreach ($clusters as $cluster) {
+                $seed = strtolower($cluster['seed']);
+                $variations = array_map('strtolower', $cluster['variations']);
+                
+                $seed_res = $result_map[$seed] ?? ['count' => 0, 'relevance_score' => 0, 'density' => 0];
+                $max_relevance = $seed_res['relevance_score'];
+                $is_covered = ($seed_res['count'] > 0);
+                $cluster_density = $seed_res['density'];
+
+                foreach ($variations as $var) {
+                    $var_res = $result_map[$var] ?? ['count' => 0, 'relevance_score' => 0, 'density' => 0];
+                    if ($var_res['count'] > 0) $is_covered = true;
+                    $max_relevance = max($max_relevance, $var_res['relevance_score']);
+                    $cluster_density += $var_res['density'];
+                }
+
+                if ($is_covered) $clusters_covered++;
+                $total_cluster_relevance += $max_relevance;
+                
+                // Cluster health: Good if coverage is found and density is balanced
+                if ($is_covered && $cluster_density >= 0.5 && $cluster_density <= 4.0) {
+                    $cluster_health_count++;
+                }
+            }
+
+            // 1. Cluster Coverage (40 points) - Most important for topical SEO
+            $coverage_score = ($clusters_covered / $total_clusters) * 40;
+            $score += $coverage_score;
+
+            // 2. Topical Relevance (30 points)
+            $avg_cluster_relevance = $total_cluster_relevance / $total_clusters;
+            $relevance_score = ($avg_cluster_relevance / 100) * 30;
+            $score += $relevance_score;
+
+            // 3. Density/Health Balance (20 points)
+            $health_score = ($cluster_health_count / $total_clusters) * 20;
+            $score += $health_score;
+
+            // 4. Word Count bonus (10 points)
+            if ($total_words >= 600) $score += 10;
+            elseif ($total_words >= 300) $score += 7;
+
+        } else {
+            // LEGACY SCORING (For Exact Keyword matching)
+            $score = $this->calculate_seo_score($results, $total_words);
+        }
+
+        return min(round($score), $max_score);
     }
     
     /**
@@ -993,6 +1279,93 @@ class ArtitechCore_Keyword_Analyzer {
         
         echo json_encode($analysis_data, JSON_PRETTY_PRINT);
         exit;
+    }
+
+    /**
+     * AI Provider Callers (Reused from schema generator pattern)
+     */
+    private function call_gemini_json($prompt, $api_key) {
+        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' . $api_key;
+        $response = wp_remote_post($url, [
+            'headers' => ['Content-Type' => 'application/json'],
+            'body' => json_encode([
+                'contents' => [['parts' => [['text' => $prompt]]]],
+                'generationConfig' => ['temperature' => 0.2, 'maxOutputTokens' => 800]
+            ]),
+            'timeout' => 30,
+        ]);
+                if (is_wp_error($response)) {
+            error_log('ArtitechCore Gemini Error: ' . $response->get_error_message());
+            return false;
+        }
+        $status_code = wp_remote_retrieve_response_code($response);
+        if ($status_code !== 200) {
+            error_log('ArtitechCore Gemini HTTP Error: ' . $status_code . ' - ' . wp_remote_retrieve_body($response));
+            return false;
+        }
+
+        $body = json_decode(wp_remote_retrieve_body($response), true);
+        if (isset($body['candidates'][0]['content']['parts'][0]['text'])) {
+            $json_str = trim($body['candidates'][0]['content']['parts'][0]['text']);
+            $json_str = preg_replace('/^```json\s*|\s*```$/i', '', $json_str);
+            return json_decode($json_str, true);
+        }
+        return false;
+    }
+
+    private function call_openai_json($prompt, $api_key) {
+        $response = wp_remote_post('https://api.openai.com/v1/chat/completions', [
+            'headers' => ['Content-Type' => 'application/json', 'Authorization' => 'Bearer ' . $api_key],
+            'body' => json_encode([
+                'model' => 'gpt-4o',
+                'messages' => [['role' => 'user', 'content' => $prompt]],
+                'response_format' => ['type' => 'json_object'],
+                'temperature' => 0.2
+            ]),
+            'timeout' => 30,
+        ]);
+                if (is_wp_error($response)) {
+            error_log('ArtitechCore OpenAI Error: ' . $response->get_error_message());
+            return false;
+        }
+        $status_code = wp_remote_retrieve_response_code($response);
+        if ($status_code !== 200) {
+            error_log('ArtitechCore OpenAI HTTP Error: ' . $status_code . ' - ' . wp_remote_retrieve_body($response));
+            return false;
+        }
+
+        $body = json_decode(wp_remote_retrieve_body($response), true);
+        if (isset($body['choices'][0]['message']['content'])) {
+            return json_decode($body['choices'][0]['message']['content'], true);
+        }
+        return false;
+    }
+
+    private function call_deepseek_json($prompt, $api_key) {
+        $response = wp_remote_post('https://api.deepseek.com/v1/chat/completions', [
+            'headers' => ['Content-Type' => 'application/json', 'Authorization' => 'Bearer ' . $api_key],
+            'body' => json_encode([
+                'model' => 'deepseek-chat',
+                'messages' => [['role' => 'user', 'content' => $prompt]],
+                'temperature' => 0.2
+            ]),
+            'timeout' => 30,
+        ]);
+                if (is_wp_error($response)) {
+            error_log('ArtitechCore DeepSeek Error: ' . $response->get_error_message());
+            return false;
+        }
+        $status_code = wp_remote_retrieve_response_code($response);
+        if ($status_code !== 200) {
+            error_log('ArtitechCore DeepSeek HTTP Error: ' . $status_code . ' - ' . wp_remote_retrieve_body($response));
+            return false;
+        }
+
+        $body = json_decode(wp_remote_retrieve_body($response), true);
+        if (isset($body['choices'][0]['message']['content'])) {
+            return json_decode($body['choices'][0]['message']['content'], true);
+        }
+        return false;
     }
 }
 

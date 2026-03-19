@@ -670,9 +670,11 @@ function artitechcore_ce_enqueue_frontend_css() {
             min-height: 44px;
         }
         .artitechcore-ce-submit-btn:hover {
-            filter: brightness(1.1);
+            background-color: #ffffff !important;
+            color: var(--artitechcore-brand) !important;
+            border: 1px solid var(--artitechcore-brand);
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(var(--artitechcore-brand-rgb), 0.25);
+            box-shadow: 0 8px 25px rgba(var(--artitechcore-brand-rgb), 0.25);
         }
         .artitechcore-ce-submit-btn:active {
             transform: translateY(0);
@@ -681,9 +683,11 @@ function artitechcore_ce_enqueue_frontend_css() {
             opacity: 0.6;
             cursor: not-allowed;
         }
-        .artitechcore-ce-submit-btn.loading {
-            position: relative;
+        .artitechcore-ce-submit-btn.loading,
+        .artitechcore-ce-submit-btn.loading:hover {
+            background-color: var(--artitechcore-brand) !important;
             color: transparent !important;
+            cursor: wait;
         }
         .artitechcore-ce-submit-btn.loading::after {
             content: '';
@@ -785,6 +789,71 @@ function artitechcore_ce_enqueue_frontend_css() {
     wp_add_inline_style('artitechcore-ce-style', $css);
 }
 
+/**
+ * Frontend JS - Robust Vanilla JS handler (Fixed #15)
+ */
+function artitechcore_ce_render_frontend_script() {
+    static $done = false;
+    if ($done) return;
+    $done = true;
+    ?>
+    <script id="artitechcore-ce-js">
+    document.addEventListener('submit', function(e) {
+        if (e.target && e.target.classList.contains('artitechcore-ce-native-form')) {
+            e.preventDefault();
+            const form = e.target;
+            const btn = form.querySelector('.artitechcore-ce-submit-btn');
+            const resp = form.querySelector('.artitechcore-ce-form-response');
+            
+            if (btn.classList.contains('loading')) return;
+
+            btn.disabled = true;
+            btn.classList.add('loading');
+            if (resp) {
+                resp.style.display = 'none';
+                resp.className = 'artitechcore-ce-form-response';
+            }
+            
+            const formData = new FormData(form);
+            
+            fetch("<?php echo admin_url('admin-ajax.php'); ?>", {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(res => {
+                if (res.success) {
+                    if (resp) {
+                        resp.className = 'artitechcore-ce-form-response success';
+                        resp.textContent = res.data;
+                        resp.style.display = 'block';
+                    }
+                    form.reset();
+                } else {
+                    if (resp) {
+                        resp.className = 'artitechcore-ce-form-response error';
+                        resp.textContent = res.data || 'Error occurred';
+                        resp.style.display = 'block';
+                    }
+                }
+            })
+            .catch(() => {
+                if (resp) {
+                    resp.className = 'artitechcore-ce-form-response error';
+                    resp.textContent = 'Connection error. Please try again.';
+                    resp.style.display = 'block';
+                }
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.classList.remove('loading');
+            });
+        }
+    });
+    </script>
+    <?php
+}
+
 // Utility CSS Functions
 function artitechcore_ce_hex_to_rgba($color, $opacity = false) {
     if (empty($color)) return 'rgba(0,0,0,0.05)';
@@ -831,6 +900,7 @@ function artitechcore_ce_inject_content($content) {
 
     // Only enqueue CSS when we actually have content to inject
     artitechcore_ce_enqueue_frontend_css();
+    add_action('wp_footer', 'artitechcore_ce_render_frontend_script');
     
     // Global Options
     $global_kt_head = get_option('artitechcore_ce_kt_heading', 'Key Takeaways');
@@ -1394,7 +1464,7 @@ function artitechcore_ce_render_native_form($post_id) {
     
     ob_start();
     ?>
-    <form class="artitechcore-ce-native-form" id="ce-native-form-<?php echo esc_attr($post_id); ?>">
+    <form class="artitechcore-ce-native-form" id="ce-native-form-<?php echo esc_attr($post_id); ?>" method="post" action="">
         <?php wp_nonce_field('artitechcore_ce_submit_cta', '_ce_nonce'); ?>
         <input type="hidden" name="post_id" value="<?php echo esc_attr($post_id); ?>">
         <input type="hidden" name="action" value="artitechcore_ce_submit_cta">
@@ -1415,32 +1485,6 @@ function artitechcore_ce_render_native_form($post_id) {
         <button type="submit" class="artitechcore-ce-submit-btn"><?php echo esc_html($btn_text); ?></button>
         <div class="artitechcore-ce-form-response"></div>
     </form>
-    <script>
-    jQuery(document).ready(function($) {
-        $("#ce-native-form-<?php echo esc_js($post_id); ?>").on("submit", function(e) {
-            e.preventDefault();
-            var $form = $(this);
-            var $resp = $form.find(".artitechcore-ce-form-response");
-            var $btn = $form.find(".artitechcore-ce-submit-btn");
-            
-            $btn.prop("disabled", true).addClass("loading");
-            $resp.removeClass("error success").hide();
-            
-            $.post("<?php echo admin_url('admin-ajax.php'); ?>", $form.serialize(), function(res) {
-                if (res.success) {
-                    $resp.addClass("success").text(res.data).fadeIn();
-                    $form[0].reset();
-                } else {
-                    $resp.addClass("error").text(res.data).fadeIn();
-                }
-                $btn.prop("disabled", false).removeClass("loading");
-            }).fail(function() {
-                $resp.addClass("error").text("Connection error. Please try again.").fadeIn();
-                $btn.prop("disabled", false).removeClass("loading");
-            });
-        });
-    });
-    </script>
     <?php
     return ob_get_clean();
 }

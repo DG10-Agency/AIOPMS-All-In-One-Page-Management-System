@@ -3,7 +3,7 @@
  * Plugin Name: ArtitechCore WP
  * Plugin URI: https://github.com/DG10-Agency/ArtitechCore-WP
  * Description: The core engine for Artitech WP ecosystem, providing AI-powered page generation, hierarchy management, and structural organization.
- * Version: 1.1.0
+ * Version: 1.1.2
  * Requires at least: 5.6
  * Tested up to: 6.9.4
  * Requires PHP: 7.4
@@ -16,10 +16,12 @@
  * Network: false
  * 
  * @package ArtitechCore
- * @version 1.1.0
+ * @version 1.1.2
  * @author DG10 Agency
  * @license GPL-2.0+
  */
+
+define('ARTITECHCORE_VERSION', '1.1.2');
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -69,11 +71,8 @@ function artitechcore_activate() {
     // Set activation flag
     update_option('artitechcore_plugin_activated', true);
     
-    // Clear any cached data
-    wp_cache_flush();
-    
     // Log activation
-    error_log('ArtitechCore Plugin Activated - Version 1.0');
+    error_log('ArtitechCore Plugin Activated - Version 1.1.1');
 }
 
 /**
@@ -207,6 +206,8 @@ function artitechcore_create_persistence_bridge($persist_schema, $persist_ce) {
     $bridge_code .= " * Author: ArtitechCore\n";
     $bridge_code .= " */\n\n";
     $bridge_code .= "if (!defined('ABSPATH')) exit;\n\n";
+    $bridge_code .= "// Do not run if the main ArtitechCore plugin is active (prevents redeclaration crashes)\n";
+    $bridge_code .= "if (defined('ARTITECHCORE_VERSION')) return;\n\n";
 
     if ($persist_schema) {
         $bridge_code .= "/** Schema Injection */\n";
@@ -281,9 +282,9 @@ function artitechcore_create_persistence_bridge($persist_schema, $persist_ce) {
         $css_block .= "    .artitechcore-ce-form-field input, .artitechcore-ce-form-field textarea { width:100%; padding:12px 14px; border:1px solid rgba({$r},{$g},{$b},0.2); border-radius:8px; font-size:14px; box-sizing:border-box; background:#fff; color:#0f172a; transition:all 0.2s; }\n";
         $css_block .= "    .artitechcore-ce-form-field input:focus, .artitechcore-ce-form-field textarea:focus { border-color:{$theme_color}; box-shadow:0 0 0 3px rgba({$r},{$g},{$b},0.1); outline:none; }\n";
         $css_block .= "    .artitechcore-ce-submit-btn { background-color:{$theme_color}; color:#ffffff !important; border:none; padding:12px 28px; border-radius:8px; font-size:14px; font-weight:800; cursor:pointer; transition:all 0.2s; white-space:nowrap; box-shadow:0 4px 12px rgba({$r},{$g},{$b},0.2); display:inline-flex; align-items:center; justify-content:center; min-height:44px; }\n";
-        $css_block .= "    .artitechcore-ce-submit-btn:hover { filter:brightness(1.1); transform:translateY(-2px); box-shadow:0 8px 20px rgba({$r},{$g},{$b},0.25); }\n";
+        $css_block .= "    .artitechcore-ce-submit-btn:hover { background-color:#ffffff !important; color:{$theme_color} !important; border:1px solid {$theme_color}; transform:translateY(-2px); box-shadow:0 8px 25px rgba({$r},{$g},{$b},0.25); }\n";
         $css_block .= "    .artitechcore-ce-submit-btn:disabled { opacity:0.6; cursor:not-allowed; }\n";
-        $css_block .= "    .artitechcore-ce-submit-btn.loading { position:relative; color:transparent !important; }\n";
+        $css_block .= "    .artitechcore-ce-submit-btn.loading, .artitechcore-ce-submit-btn.loading:hover { background-color:{$theme_color} !important; color:transparent !important; cursor:wait; }\n";
         $css_block .= "    .artitechcore-ce-submit-btn.loading::after { content:''; position:absolute; width:18px; height:18px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; animation:ce-spinner 0.6s linear infinite; }\n";
         $css_block .= "    @keyframes ce-spinner { to { transform:rotate(360deg); } }\n";
         $css_block .= "    .artitechcore-ce-form-response { flex-basis:100%; padding:12px; border-radius:8px; font-size:13px; margin-top:8px; display:none; font-weight:600; }\n";
@@ -337,7 +338,7 @@ function artitechcore_create_persistence_bridge($persist_schema, $persist_ce) {
             if ($cta_mode === 'native') {
                 $fields_export = var_export($cta_native_fields, true);
                 $bridge_code .= "        \$fields = " . $fields_export . ";\n";
-                $bridge_code .= "        \$cta_html .= '<form class=\"artitechcore-ce-native-form\" id=\"ce-bridge-form-' . esc_attr(\$post_id) . '\">';\n";
+                $bridge_code .= "        \$cta_html .= '<form class=\"artitechcore-ce-native-form\" id=\"ce-bridge-form-' . esc_attr(\$post_id) . '\" method=\"post\" action=\"\">';\n";
                 $bridge_code .= "        \$cta_html .= wp_nonce_field('artitechcore_ce_submit_cta', '_ce_nonce', true, false);\n";
                 $bridge_code .= "        \$cta_html .= '<input type=\"hidden\" name=\"post_id\" value=\"' . esc_attr(\$post_id) . '\">';\n";
                 $bridge_code .= "        \$cta_html .= '<input type=\"hidden\" name=\"action\" value=\"artitechcore_ce_submit_cta\">';\n";
@@ -350,7 +351,6 @@ function artitechcore_create_persistence_bridge($persist_schema, $persist_ce) {
                 $bridge_code .= "            \$cta_html .= '</div>';\n";
                 $bridge_code .= "        }\n";
                 $bridge_code .= "        \$cta_html .= '<button type=\"submit\" class=\"artitechcore-ce-submit-btn\">' . esc_html(" . var_export($cta_native_button, true) . ") . '</button><div class=\"artitechcore-ce-form-response\"></div></form>';\n";
-                $bridge_code .= "        \$cta_html .= '<script>jQuery(document).ready(function($){ $(\"#ce-bridge-form-' . esc_js(\$post_id) . '\").on(\"submit\",function(e){ e.preventDefault(); var \$f=\$(this), \$r=\$f.find(\".artitechcore-ce-form-response\"), \$b=\$f.find(\".artitechcore-ce-submit-btn\"); \$b.prop(\"disabled\",true).addClass(\"loading\"); \$r.hide(); $.post(\"' . admin_url('admin-ajax.php') . '\",\$f.serialize(),function(res){ if(res.success){ \$r.removeClass(\"error\").addClass(\"success\").text(res.data).fadeIn(); \$f[0].reset(); }else{ \$r.removeClass(\"success\").addClass(\"error\").text(res.data).fadeIn(); } \$b.prop(\"disabled\",false).removeClass(\"loading\"); }); }); });</script>';\n";
             } else {
                 $bridge_code .= "        \$cta_html .= do_shortcode('" . addslashes(wp_kses_post($cta_shortcode)) . "');\n";
             }
@@ -404,15 +404,19 @@ function artitechcore_create_persistence_bridge($persist_schema, $persist_ce) {
             $bridge_code .= "    }\n";
         }
 
-        $bridge_code .= "    if (\$_has_ce) \$enhanced_content = ARTITECHCORE_BRIDGE_CSS . \"\\n\" . \$enhanced_content;\n";
+        $bridge_code .= "    if (\$_has_ce) {\n";
+        $bridge_code .= "        \$enhanced_content = ARTITECHCORE_BRIDGE_CSS . \"\\n\" . \$enhanced_content;\n";
+        $bridge_code .= "        \$enhanced_content .= '<script>if(!window._artitech_bridge_js){window._artitech_bridge_js=true;document.addEventListener(\"submit\",function(e){if(e.target&&e.target.classList.contains(\"artitechcore-ce-native-form\")){e.preventDefault();var f=e.target,b=f.querySelector(\".artitechcore-ce-submit-btn\"),r=f.querySelector(\".artitechcore-ce-form-response\");if(b.classList.contains(\"loading\"))return;b.disabled=true;b.classList.add(\"loading\");if(r){r.style.display=\"none\";r.className=\"artitechcore-ce-form-response\";}fetch(\"'.admin_url('admin-ajax.php').'\",{method:\"POST\",body:new FormData(f)}).then(res=>res.json()).then(res=>{if(res.success){if(r){r.className=\"artitechcore-ce-form-response success\";r.textContent=res.data;r.style.display=\"block\";}f.reset();}else{if(r){r.className=\"artitechcore-ce-form-response error\";r.textContent=res.data||\"Error occurred\";r.style.display=\"block\";}}}).catch(()=>{if(r){r.className=\"artitechcore-ce-form-response error\";r.textContent=\"Connection error. Please try again.\";r.style.display=\"block\";}}).finally(()=>{b.disabled=false;b.classList.remove(\"loading\");});}});}</script>';\n";
+        $bridge_code .= "    }\n";
         $bridge_code .= "    return \$enhanced_content;\n";
         $bridge_code .= "}, 99);\n\n";
 
         if (in_array('cta', $persist_ce) && $cta_mode === 'native') {
             $bridge_code .= "add_action('wp_ajax_artitechcore_ce_submit_cta', 'artitechcore_bridge_cta_handler');\n";
             $bridge_code .= "add_action('wp_ajax_nopriv_artitechcore_ce_submit_cta', 'artitechcore_bridge_cta_handler');\n\n";
-            $bridge_code .= "function artitechcore_bridge_cta_handler() {\n";
-            $bridge_code .= "    check_ajax_referer('artitechcore_ce_submit_cta', '_ce_nonce');\n";
+            $bridge_code .= "if (!function_exists('artitechcore_bridge_cta_handler')) {\n";
+            $bridge_code .= "    function artitechcore_bridge_cta_handler() {\n";
+            $bridge_code .= "        check_ajax_referer('artitechcore_ce_submit_cta', '_ce_nonce');\n";
             $bridge_code .= "    \$ip = \$_SERVER['REMOTE_ADDR'];\n";
             $bridge_code .= "    \$transient_key = 'ce_cta_limit_' . md5(\$ip);\n";
             $bridge_code .= "    if (get_transient(\$transient_key)) wp_send_json_error('Please wait a few seconds before submitting again.');\n";
