@@ -216,13 +216,26 @@ function artitechcore_create_persistence_bridge($persist_schema, $persist_ce) {
         $bridge_code .= "    elseif (is_front_page()) \$post_id = get_option('page_on_front');\n";
         $bridge_code .= "    if (!\$post_id) return;\n";
         $bridge_code .= "    \$schema_raw = get_post_meta(\$post_id, '_artitechcore_schema_data', true);\n";
-        $bridge_code .= "    if (empty(\$schema_raw)) return;\n";
-        $bridge_code .= "    \$schema_array = is_array(\$schema_raw) ? \$schema_raw : json_decode(\$schema_raw, true);\n";
-        $bridge_code .= "    if (is_array(\$schema_array) && !empty(\$schema_array)) {\n";
-        $bridge_code .= "        \$json_output = wp_json_encode(\$schema_array);\n";
-        $bridge_code .= "        if (\$json_output) {\n";
+        $bridge_code .= "    if (!empty(\$schema_raw)) {\n";
+        $bridge_code .= "        \$schema_array = is_array(\$schema_raw) ? \$schema_raw : json_decode(\$schema_raw, true);\n";
+        $bridge_code .= "        if (is_array(\$schema_array) && !empty(\$schema_array)) {\n";
         $bridge_code .= "            echo \"\\n<!-- ArtitechCore Schema Bridge -->\\n\";\n";
-        $bridge_code .= "            echo '<script type=\"application/ld+json\" class=\"artitech-schema-bridge\">' . \$json_output . \"</script>\\n\";\n";
+        $bridge_code .= "            echo '<script type=\"application/ld+json\" class=\"artitech-schema-bridge\">' . wp_json_encode(\$schema_array) . \"</script>\\n\";\n";
+        $bridge_code .= "        }\n";
+        $bridge_code .= "    }\n";
+        
+        $bridge_code .= "    /* FAQ Schema Injection */\n";
+        $bridge_code .= "    \$faq_data = get_post_meta(\$post_id, '_artitechcore_ce_faq', true);\n";
+        $bridge_code .= "    if (!empty(\$faq_data) && is_array(\$faq_data)) {\n";
+        $bridge_code .= "        \$faq_schema = ['@context' => 'https://schema.org', '@type' => 'FAQPage', 'mainEntity' => []];\n";
+        $bridge_code .= "        foreach (\$faq_data as \$item) {\n";
+        $bridge_code .= "            if (!empty(\$item['q']) && !empty(\$item['a'])) {\n";
+        $bridge_code .= "                \$faq_schema['mainEntity'][] = ['@type' => 'Question', 'name' => \$item['q'], 'acceptedAnswer' => ['@type' => 'Answer', 'text' => \$item['a']]];\n";
+        $bridge_code .= "            }\n";
+        $bridge_code .= "        }\n";
+        $bridge_code .= "        if (!empty(\$faq_schema['mainEntity'])) {\n";
+        $bridge_code .= "            echo \"\\n<!-- ArtitechCore FAQ Schema Bridge -->\\n\";\n";
+        $bridge_code .= "            echo '<script type=\"application/ld+json\" class=\"artitech-faq-bridge\">' . wp_json_encode(\$faq_schema) . \"</script>\\n\";\n";
         $bridge_code .= "        }\n";
         $bridge_code .= "    }\n";
         $bridge_code .= "}, 30);\n\n";
@@ -251,28 +264,40 @@ function artitechcore_create_persistence_bridge($persist_schema, $persist_ce) {
         $rgba_shadow = "rgba($r,$g,$b,0.15)";
 
         // Generate hardcoded CE CSS (NEW: Compact & Horizontal)
-        $css_block  = "    .artitechcore-ce-kt { background: #fdfdfd; border-left: 4px solid {$theme_color}; padding: 20px 25px; margin: 30px 0; border-radius: 0 8px 8px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }\n";
-        $css_block .= "    .artitechcore-ce-kt-title { margin-top:0; color:#121322; font-size:1.25em; font-weight:700; margin-bottom:15px; }\n";
+        // Generate hardcoded CE CSS (Matched with main plugin for brand consistency)
+        $css_block  = "    .artitechcore-ce-kt { background: #ffffff; border-left: 4px solid {$theme_color}; padding: 20px 25px; margin: 30px 0; border-radius: 0 12px 12px 0; box-shadow: 0 4px 20px rgba({$r},{$g},{$b},0.08); }\n";
+        $css_block .= "    .artitechcore-ce-kt-title { margin-top:0; color:#121322; font-size:1.25em; font-weight:800; margin-bottom:15px; }\n";
         $css_block .= "    .artitechcore-ce-kt ul { margin:0; padding-left:20px; list-style:disc; }\n";
-        $css_block .= "    .artitechcore-ce-kt li { margin-bottom:8px; line-height:1.5; color:#444; }\n";
-        $css_block .= "    .artitechcore-ce-cta-wrapper { background:#ffffff; border:2px solid {$theme_color}; padding:25px; margin:35px 0; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.05); text-align:left; position:relative; overflow:hidden; }\n";
+        $css_block .= "    .artitechcore-ce-kt li { margin-bottom:8px; line-height:1.6; color:#334155; }\n";
+        $css_block .= "    .artitechcore-ce-conclusion { margin:40px 0 20px 0; padding:25px; background:rgba({$r},{$g},{$b},0.03); border-radius:12px; border-left:4px solid {$theme_color}; }\n";
+        $css_block .= "    .artitechcore-ce-conclusion h3 { font-size:1.5em; font-weight:800; margin:0 0 15px 0; color:#121322; }\n";
+        $css_block .= "    .artitechcore-ce-cta-wrapper { background:#ffffff; border:2px solid {$theme_color}; padding:25px; margin:35px 0; border-radius:16px; box-shadow:0 10px 40px rgba({$r},{$g},{$b},0.12); text-align:left; position:relative; overflow:hidden; }\n";
         $css_block .= "    .artitechcore-ce-cta-wrapper::before { content:''; position:absolute; top:0; left:0; bottom:0; width:6px; background:{$theme_color}; }\n";
-        $css_block .= "    .artitechcore-ce-cta-head { font-size:1.35em; font-weight:800; margin:0 0 8px 0; color:#121322; }\n";
-        $css_block .= "    .artitechcore-ce-cta-desc { font-size:1.0em; color:#555; margin:0 0 20px 0; line-height:1.5; }\n";
+        $css_block .= "    .artitechcore-ce-cta-head { font-size:1.4em; font-weight:900; margin:0 0 8px 0; color:#121322; line-height:1.2; }\n";
+        $css_block .= "    .artitechcore-ce-cta-desc { font-size:1.05em; color:#475569; margin:0 0 20px 0; line-height:1.5; }\n";
         $css_block .= "    .artitechcore-ce-native-form { display:flex; flex-wrap:wrap; gap:12px; align-items:flex-start; }\n";
         $css_block .= "    .artitechcore-ce-form-field { flex:1; min-width:180px; }\n";
         $css_block .= "    .artitechcore-ce-form-field.field-message { flex-basis:100%; }\n";
-        $css_block .= "    .artitechcore-ce-form-field input, .artitechcore-ce-form-field textarea { width:100%; padding:10px 14px; border:1px solid #ccc; border-radius:6px; font-size:14px; box-sizing:border-box; background:#fff; }\n";
-        $css_block .= "    .artitechcore-ce-submit-btn { background-color:{$theme_color}; color:#ffffff !important; border:none; padding:11px 25px; border-radius:6px; font-size:14px; font-weight:700; cursor:pointer; transition:all 0.2s; white-space:nowrap; box-shadow:0 4px 12px {$rgba_shadow}; display:inline-flex; align-items:center; justify-content:center; min-height:42px; }\n";
-        $css_block .= "    .artitechcore-ce-submit-btn:hover { filter:brightness(1.1); transform:translateY(-1px); box-shadow:0 6px 15px {$rgba_shadow}; }\n";
-        $css_block .= "    .artitechcore-ce-submit-btn:disabled { opacity:0.7; cursor:not-allowed; }\n";
+        $css_block .= "    .artitechcore-ce-form-field input, .artitechcore-ce-form-field textarea { width:100%; padding:12px 14px; border:1px solid rgba({$r},{$g},{$b},0.2); border-radius:8px; font-size:14px; box-sizing:border-box; background:#fff; color:#0f172a; transition:all 0.2s; }\n";
+        $css_block .= "    .artitechcore-ce-form-field input:focus, .artitechcore-ce-form-field textarea:focus { border-color:{$theme_color}; box-shadow:0 0 0 3px rgba({$r},{$g},{$b},0.1); outline:none; }\n";
+        $css_block .= "    .artitechcore-ce-submit-btn { background-color:{$theme_color}; color:#ffffff !important; border:none; padding:12px 28px; border-radius:8px; font-size:14px; font-weight:800; cursor:pointer; transition:all 0.2s; white-space:nowrap; box-shadow:0 4px 12px rgba({$r},{$g},{$b},0.2); display:inline-flex; align-items:center; justify-content:center; min-height:44px; }\n";
+        $css_block .= "    .artitechcore-ce-submit-btn:hover { filter:brightness(1.1); transform:translateY(-2px); box-shadow:0 8px 20px rgba({$r},{$g},{$b},0.25); }\n";
+        $css_block .= "    .artitechcore-ce-submit-btn:disabled { opacity:0.6; cursor:not-allowed; }\n";
         $css_block .= "    .artitechcore-ce-submit-btn.loading { position:relative; color:transparent !important; }\n";
-        $css_block .= "    .artitechcore-ce-submit-btn.loading::after { content:''; position:absolute; width:16px; height:16px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; animation:ce-spinner 0.6s linear infinite; }\n";
+        $css_block .= "    .artitechcore-ce-submit-btn.loading::after { content:''; position:absolute; width:18px; height:18px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; animation:ce-spinner 0.6s linear infinite; }\n";
         $css_block .= "    @keyframes ce-spinner { to { transform:rotate(360deg); } }\n";
-        $css_block .= "    .artitechcore-ce-form-response { flex-basis:100%; padding:10px; border-radius:6px; font-size:13px; margin-top:5px; display:none; }\n";
-        $css_block .= "    .artitechcore-ce-form-response.success { background:#e8f5e9; color:#2e7d32; border:1px solid #c8e6c9; }\n";
-        $css_block .= "    .artitechcore-ce-form-response.error { background:#ffebee; color:#c62828; border:1px solid #ffcdd2; }\n";
-        $css_block .= "    @media (max-width: 600px) { .artitechcore-ce-native-form { flex-direction:column; } .artitechcore-ce-form-field { width:100%; flex:none; } .artitechcore-ce-submit-btn { width:100%; } }\n";
+        $css_block .= "    .artitechcore-ce-form-response { flex-basis:100%; padding:12px; border-radius:8px; font-size:13px; margin-top:8px; display:none; font-weight:600; }\n";
+        $css_block .= "    .artitechcore-ce-form-response.success { background:rgba(34,197,94,0.1); color:#15803d; border:1px solid rgba(34,197,94,0.2); }\n";
+        $css_block .= "    .artitechcore-ce-form-response.error { background:rgba(239,68,68,0.1); color:#b91c1c; border:1px solid rgba(239,68,68,0.2); }\n";
+        $css_block .= "    .artitechcore-ce-faq { margin:40px 0; padding:30px; background:#ffffff; border:1px solid rgba({$r},{$g},{$b},0.15); border-radius:16px; box-shadow:0 10px 40px rgba(0,0,0,0.03); }\n";
+        $css_block .= "    .artitechcore-ce-faq-title { margin-top:0; margin-bottom:25px; font-size:1.6em; font-weight:900; color:#0f172a; border-bottom:3px solid {$theme_color}; display:inline-block; padding-bottom:5px; }\n";
+        $css_block .= "    .artitechcore-ce-faq-item { margin-bottom:25px; border-bottom:1px solid #f1f5f9; padding-bottom:20px; }\n";
+        $css_block .= "    .artitechcore-ce-faq-item:last-child { margin-bottom:0; border-bottom:none; padding-bottom:0; }\n";
+        $css_block .= "    .artitechcore-ce-faq-q { font-weight:800; color:{$theme_color}; margin-bottom:10px; font-size:1.15em; display:flex; gap:12px; }\n";
+        $css_block .= "    .artitechcore-ce-faq-q::before { content:'Q.'; opacity:0.5; font-weight:400; }\n";
+        $css_block .= "    .artitechcore-ce-faq-a { color:#334155; line-height:1.7; font-size:1em; display:flex; gap:12px; }\n";
+        $css_block .= "    .artitechcore-ce-faq-a::before { content:'A.'; opacity:0.5; font-weight:400; }\n";
+        $css_block .= "    @media (max-width: 600px) { .artitechcore-ce-native-form { flex-direction:column; } .artitechcore-ce-form-field { width:100%; flex:none; } .artitechcore-ce-submit-btn { width:100%; } .artitechcore-ce-faq { padding:20px; } }\n";
 
         // FIX #5: CSS is now a static variable echoed inside the_content filter, not on every page
         // We write the CSS as a heredoc constant so it's only echoed when content is injected
@@ -358,6 +383,24 @@ function artitechcore_create_persistence_bridge($persist_schema, $persist_ce) {
             $bridge_code .= "        \$_has_ce = true;\n";
             $bridge_code .= "        \$enhanced_content .= '<div class=\"artitechcore-ce-conclusion\"><h3 class=\"artitechcore-ce-conclusion-title\">" . esc_html($conc_head) . "</h3>';\n";
             $bridge_code .= "        \$enhanced_content .= '<p>' . nl2br(esc_html(\$conc)) . '</p></div>';\n";
+            $bridge_code .= "    }\n";
+        }
+
+        if (in_array('faq', $persist_ce)) {
+            $bridge_code .= "    \$faq = get_post_meta(\$post_id, '_artitechcore_ce_faq', true);\n";
+            $bridge_code .= "    if (!empty(\$faq) && is_array(\$faq)) {\n";
+            $bridge_code .= "        \$_has_ce = true;\n";
+            $bridge_code .= "        \$faq_html = '<div class=\"artitechcore-ce-faq\"><h3 class=\"artitechcore-ce-faq-title\">Frequently Asked Questions</h3>';\n";
+            $bridge_code .= "        foreach (\$faq as \$item) {\n";
+            $bridge_code .= "            if (!empty(\$item['q']) && !empty(\$item['a'])) {\n";
+            $bridge_code .= "                \$faq_html .= '<div class=\"artitechcore-ce-faq-item\">';\n";
+            $bridge_code .= "                \$faq_html .= '<div class=\"artitechcore-ce-faq-q\">' . esc_html(\$item['q']) . '</div>';\n";
+            $bridge_code .= "                \$faq_html .= '<div class=\"artitechcore-ce-faq-a\">' . wpautop(esc_html(\$item['a'])) . '</div>';\n";
+            $bridge_code .= "                \$faq_html .= '</div>';\n";
+            $bridge_code .= "            }\n";
+            $bridge_code .= "        }\n";
+            $bridge_code .= "        \$faq_html .= '</div>';\n";
+            $bridge_code .= "        \$enhanced_content .= \$faq_html;\n";
             $bridge_code .= "    }\n";
         }
 

@@ -739,7 +739,8 @@ function artitechcore_ce_persist_features_callback() {
     $features = [
         'key_takeaways' => 'Key Takeaways',
         'conclusion' => 'Conclusion',
-        'cta' => 'Call to Action (CTA)'
+        'cta' => 'Call to Action (CTA)',
+        'faq' => 'AI FAQ Generator'
     ];
     
     foreach ($features as $key => $label) {

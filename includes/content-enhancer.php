@@ -41,6 +41,7 @@ function artitechcore_ce_init() {
     if (!is_admin()) {
         // Frontend Hooks — conditional CSS/injection
         add_filter('the_content', 'artitechcore_ce_inject_content', 99);
+        add_action('wp_head', 'artitechcore_ce_inject_schema');
     }
 }
 
@@ -92,6 +93,9 @@ function artitechcore_ce_meta_box_html($post) {
     $conc     = get_post_meta($post->ID, '_artitechcore_ce_conclusion', true);
     $cta_head = get_post_meta($post->ID, '_artitechcore_ce_cta_heading', true);
     $cta_desc = get_post_meta($post->ID, '_artitechcore_ce_cta_desc', true);
+    $faq      = get_post_meta($post->ID, '_artitechcore_ce_faq', true);
+
+    if (!is_array($faq)) $faq = [];
 
     $kt_text = is_array($kt) ? implode("\n", $kt) : (string) $kt;
 
@@ -118,6 +122,7 @@ function artitechcore_ce_meta_box_html($post) {
                 <button type="button" class="button" data-ce-generate="kt" <?php echo !$has_api_key ? 'disabled' : ''; ?>>🎯 KT Only</button>
                 <button type="button" class="button" data-ce-generate="conclusion" <?php echo !$has_api_key ? 'disabled' : ''; ?>>📝 Conclusion Only</button>
                 <button type="button" class="button" data-ce-generate="cta" <?php echo !$has_api_key ? 'disabled' : ''; ?>>📢 CTA Only</button>
+                <button type="button" class="button" data-ce-generate="faq" <?php echo !$has_api_key ? 'disabled' : ''; ?>>❓ FAQ Only</button>
             </div>
         </div>
 
@@ -150,11 +155,31 @@ function artitechcore_ce_meta_box_html($post) {
 
         <div class="artitechcore-ce-field">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <label>Conclusion Paragraph</label>
+                <label>Conclusion (Final Paragraph)</label>
                 <button type="button" class="button button-link-delete button-small" data-ce-clear="conclusion" title="Clear Conclusion">✕ Clear</button>
             </div>
-            <textarea name="artitechcore_ce_conclusion" id="artitechcore_ce_conc_input"><?php echo esc_textarea($conc); ?></textarea>
+            <textarea name="artitechcore_ce_conclusion" id="artitechcore_ce_conclusion_input"><?php echo esc_textarea($conc); ?></textarea>
             <p class="description">Displayed at the very end of the post. If your post already has a conclusion, you can skip generating this.</p>
+        </div>
+
+        <div class="artitechcore-ce-field">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <label>AI FAQs (Auto-Schema Ready)</label>
+                <button type="button" class="button button-link-delete button-small" data-ce-clear="faq" title="Clear FAQs">✕ Clear FAQs</button>
+            </div>
+            <div id="artitechcore-ce-faq-container">
+                <?php if (empty($faq)): ?>
+                    <p class="description">No FAQs generated yet. Click "FAQ Only" or "Generate All" to create them.</p>
+                <?php else: ?>
+                    <?php foreach ($faq as $index => $item): ?>
+                        <div class="faq-item" style="margin-bottom:10px; padding:10px; background:#f9f9f9; border:1px solid #ddd; border-radius:4px;">
+                            <input type="text" name="artitechcore_ce_faq[<?php echo $index; ?>][q]" value="<?php echo esc_attr($item['q'] ?? ''); ?>" style="width:100%; margin-bottom:5px; font-weight:bold;" placeholder="Question">
+                            <textarea name="artitechcore_ce_faq[<?php echo $index; ?>][a]" style="width:100%; min-height:50px;" placeholder="Answer"><?php echo esc_textarea($item['a'] ?? ''); ?></textarea>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+            <p class="description">These will be rendered at the bottom of the post and automatically injected as JSON-LD FAQ Schema for Google.</p>
         </div>
     </div>
 
@@ -186,7 +211,7 @@ function artitechcore_ce_meta_box_html($post) {
                 return;
             }
 
-            var typeLabels = {all: 'All Enhancements', kt: 'Key Takeaways', conclusion: 'Conclusion', cta: 'CTA'};
+            var typeLabels = {all: 'All Enhancements', kt: 'Key Takeaways', conclusion: 'Conclusion', cta: 'CTA', faq: 'FAQs'};
             _ceGenerating = true;
             $('[data-ce-generate]').prop('disabled', true);
             btn.text('⏳ Generating...');
@@ -222,6 +247,17 @@ function artitechcore_ce_meta_box_html($post) {
                         if (res.data.cta_description) {
                             $('#artitechcore_ce_cta_desc_input').val(res.data.cta_description);
                         }
+                        if (res.data.faq && Array.isArray(res.data.faq)) {
+                            var faqContainer = $('#artitechcore-ce-faq-container');
+                            faqContainer.empty();
+                            res.data.faq.forEach(function(item, i) {
+                                var html = '<div class="faq-item" style="margin-bottom:10px; padding:10px; background:#f9f9f9; border:1px solid #ddd; border-radius:4px;">' +
+                                    '<input type="text" name="artitechcore_ce_faq[' + i + '][q]" value="' + (item.q || '') + '" style="width:100%; margin-bottom:5px; font-weight:bold;" placeholder="Question">' +
+                                    '<textarea name="artitechcore_ce_faq[' + i + '][a]" style="width:100%; min-height:50px;" placeholder="Answer">' + (item.a || '') + '</textarea>' +
+                                    '</div>';
+                                faqContainer.append(html);
+                            });
+                        }
                     } else {
                         status.text('✗ Error: ' + (res.data || 'Unknown error')).css('border-left-color', 'red');
                     }
@@ -242,10 +278,12 @@ function artitechcore_ce_meta_box_html($post) {
             if (field === 'kt') {
                 $('#artitechcore_ce_kt_input').val('');
             } else if (field === 'conclusion') {
-                $('#artitechcore_ce_conc_input').val('');
+                $('#artitechcore_ce_conclusion_input').val('');
             } else if (field === 'cta') {
                 $('#artitechcore_ce_cta_head_input').val('');
                 $('#artitechcore_ce_cta_desc_input').val('');
+            } else if (field === 'faq') {
+                $('#artitechcore-ce-faq-container').html('<p class="description">No FAQs generated yet. Click "FAQ Only" or "Generate All" to create them.</p>');
             }
         });
     });
@@ -278,6 +316,19 @@ function artitechcore_ce_save_meta_box($post_id) {
     if (isset($_POST['artitechcore_ce_cta_desc'])) {
         update_post_meta($post_id, '_artitechcore_ce_cta_desc', sanitize_textarea_field($_POST['artitechcore_ce_cta_desc']));
     }
+
+    if (isset($_POST['artitechcore_ce_faq']) && is_array($_POST['artitechcore_ce_faq'])) {
+        $faqs = [];
+        foreach ($_POST['artitechcore_ce_faq'] as $item) {
+            if (!empty($item['q']) && !empty($item['a'])) {
+                $faqs[] = [
+                    'q' => sanitize_text_field($item['q']),
+                    'a' => sanitize_textarea_field($item['a']),
+                ];
+            }
+        }
+        update_post_meta($post_id, '_artitechcore_ce_faq', $faqs);
+    }
 }
 
 /**
@@ -285,9 +336,10 @@ function artitechcore_ce_save_meta_box($post_id) {
  */
 function artitechcore_ce_ajax_handler() {
     check_ajax_referer('artitechcore_ce_ajax', 'nonce');
-    if (!current_user_can('edit_posts')) wp_send_json_error('Unauthorized');
-
     $post_id = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
+    if ($post_id && !current_user_can('edit_post', $post_id)) {
+        wp_send_json_error('Unauthorized to edit this post.');
+    }
     
     // Server-side rate limit: 1 generation per post per 10 seconds
     if ($post_id) {
@@ -314,7 +366,7 @@ function artitechcore_ce_ajax_handler() {
     }
 
     $generate_type = isset($_POST['generate_type']) ? sanitize_key($_POST['generate_type']) : 'all';
-    if (!in_array($generate_type, ['all', 'kt', 'conclusion', 'cta'], true)) {
+    if (!in_array($generate_type, ['all', 'kt', 'conclusion', 'cta', 'faq'], true)) {
         $generate_type = 'all';
     }
 
@@ -368,13 +420,20 @@ function artitechcore_ce_build_prompt($clean_content, $generate_type = 'all') {
                 . "Generate ONLY: 'cta_heading' (A punchy heading, max 7 words) and 'cta_description' (ONE short sentence, max 15 words).\n"
                 . "Return JSON with only the keys 'cta_heading' and 'cta_description'."
                 . $footer;
+        case 'faq':
+            return $base
+                . "Task: Analyze the blog post and generate 3 to 5 frequently asked questions with clear, concise answers.\n"
+                . "Generate ONLY: 'faq' — an array of objects, each with 'q' (question) and 'a' (answer).\n"
+                . "Return JSON with only the key 'faq'."
+                . $footer;
         default: // 'all'
             return $base
                 . "Task: Analyze the blog post and generate JSON formatted enhancements.\n"
                 . "1. 'key_takeaways': 3 to 5 punchy bullet points.\n"
                 . "2. 'conclusion': A short concluding paragraph.\n"
                 . "3. 'cta_heading': A HIGHLY CONCISE CTA heading (max 7 words).\n"
-                . "4. 'cta_description': ONE short, high-conversion sentence (max 15 words)."
+                . "4. 'cta_description': ONE short, high-conversion sentence (max 15 words).\n"
+                . "5. 'faq': An array of 3-5 objects with 'q' and 'a' keys."
                 . $footer;
     }
 }
@@ -490,22 +549,22 @@ function artitechcore_ce_enqueue_frontend_css() {
     $css = "
         :root {
             --artitechcore-brand: " . esc_attr($brand_color) . ";
-            --brand-rgb: $r, $g, $b;
+            --artitechcore-brand-rgb: $r, $g, $b;
         }
         .artitechcore-ce-kt {
-            background: #fdfdfd; 
-            border-left: 4px solid " . esc_attr($brand_color) . "; 
+            background: #ffffff; 
+            border-left: 4px solid var(--artitechcore-brand); 
             padding: 20px 25px; 
             margin: 30px 0;
-            border-radius: 0 8px 8px 0;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border-radius: 0 12px 12px 0;
+            box-shadow: 0 4px 20px rgba(var(--artitechcore-brand-rgb), 0.08);
             font-family: inherit;
         }
         .artitechcore-ce-kt-title {
             margin-top: 0;
             color: #121322;
             font-size: 1.25em;
-            font-weight: 700;
+            font-weight: 800;
             margin-bottom: 15px;
         }
         .artitechcore-ce-kt ul {
@@ -515,26 +574,30 @@ function artitechcore_ce_enqueue_frontend_css() {
         }
         .artitechcore-ce-kt li {
             margin-bottom: 8px;
-            line-height: 1.5;
-            color: #444;
+            line-height: 1.6;
+            color: #334155;
         }
         .artitechcore-ce-conclusion {
             margin: 40px 0 20px 0;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
+            padding: 25px;
+            background: rgba(var(--artitechcore-brand-rgb), 0.03);
+            border-radius: 12px;
+            border-left: 4px solid var(--artitechcore-brand);
         }
         .artitechcore-ce-conclusion h3 {
             font-size: 1.5em;
-            margin-bottom: 15px;
+            font-weight: 800;
+            margin: 0 0 15px 0;
+            color: #121322;
         }
 
         .artitechcore-ce-cta-wrapper {
             background: #ffffff;
-            border: 2px solid " . esc_attr($brand_color) . ";
+            border: 2px solid var(--artitechcore-brand);
             padding: 25px;
             margin: 35px 0;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(var(--artitechcore-brand-rgb), 0.12);
             text-align: left;
             position: relative;
             overflow: hidden;
@@ -543,17 +606,18 @@ function artitechcore_ce_enqueue_frontend_css() {
             content: '';
             position: absolute;
             top: 0; left: 0; bottom: 0; width: 6px;
-            background: " . esc_attr($brand_color) . ";
+            background: var(--artitechcore-brand);
         }
         .artitechcore-ce-cta-head {
-            font-size: 1.35em;
-            font-weight: 800;
+            font-size: 1.4em;
+            font-weight: 900;
             margin: 0 0 8px 0;
             color: #121322;
+            line-height: 1.2;
         }
         .artitechcore-ce-cta-desc {
-            font-size: 1.0em;
-            color: #444;
+            font-size: 1.05em;
+            color: #475569;
             margin: 0 0 20px 0;
             line-height: 1.5;
         }
@@ -573,49 +637,49 @@ function artitechcore_ce_enqueue_frontend_css() {
         .artitechcore-ce-form-field input, 
         .artitechcore-ce-form-field textarea {
             width: 100%;
-            padding: 10px 14px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
+            padding: 12px 14px;
+            border: 1px solid rgba(var(--artitechcore-brand-rgb), 0.2);
+            border-radius: 8px;
             font-size: 14px;
             box-sizing: border-box;
             background: #fff;
-            color: #121322;
+            color: #0f172a;
+            transition: all 0.2s;
         }
-        .artitechcore-ce-form-field input:focus {
-            border-color: " . esc_attr($brand_color) . ";
-            box-shadow: 0 0 0 3px " . artitechcore_ce_hex_to_rgba($brand_color, 0.1) . ";
+        .artitechcore-ce-form-field input:focus,
+        .artitechcore-ce-form-field textarea:focus {
+            border-color: var(--artitechcore-brand);
+            box-shadow: 0 0 0 3px rgba(var(--artitechcore-brand-rgb), 0.1);
             outline: none;
         }
         .artitechcore-ce-submit-btn {
-            background-color: var(--artitechcore-brand, #b47cfd);
+            background-color: var(--artitechcore-brand);
             color: #ffffff !important;
             border: none;
-            padding: 11px 25px;
-            border-radius: 6px;
+            padding: 12px 28px;
+            border-radius: 8px;
             font-size: 14px;
-            font-weight: 700;
+            font-weight: 800;
             cursor: pointer;
             transition: all 0.2s;
             white-space: nowrap;
-            box-shadow: 0 4px 12px rgba(var(--brand-rgb), 0.15);
-            -webkit-appearance: none;
+            box-shadow: 0 4px 12px rgba(var(--artitechcore-brand-rgb), 0.2);
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-height: 42px;
+            min-height: 44px;
         }
         .artitechcore-ce-submit-btn:hover {
             filter: brightness(1.1);
-            transform: translateY(-1px);
-            box-shadow: 0 6px 15px rgba(var(--brand-rgb), 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(var(--artitechcore-brand-rgb), 0.25);
         }
         .artitechcore-ce-submit-btn:active {
             transform: translateY(0);
         }
         .artitechcore-ce-submit-btn:disabled {
-            opacity: 0.7;
+            opacity: 0.6;
             cursor: not-allowed;
-            filter: grayscale(0.3);
         }
         .artitechcore-ce-submit-btn.loading {
             position: relative;
@@ -624,8 +688,7 @@ function artitechcore_ce_enqueue_frontend_css() {
         .artitechcore-ce-submit-btn.loading::after {
             content: '';
             position: absolute;
-            width: 16px;
-            height: 16px;
+            width: 18px; height: 18px;
             border: 2px solid #fff;
             border-top-color: transparent;
             border-radius: 50%;
@@ -636,18 +699,84 @@ function artitechcore_ce_enqueue_frontend_css() {
         }
         .artitechcore-ce-form-response {
             flex-basis: 100%;
-            padding: 10px;
-            border-radius: 6px;
+            padding: 12px;
+            border-radius: 8px;
             font-size: 13px;
-            margin-top: 5px;
+            margin-top: 8px;
             display: none;
+            font-weight: 600;
         }
-        .artitechcore-ce-form-response.success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
-        .artitechcore-ce-form-response.error { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+        .artitechcore-ce-form-response.success { 
+            background: rgba(34, 197, 94, 0.1); 
+            color: #15803d; 
+            border: 1px solid rgba(34, 197, 94, 0.2); 
+        }
+        .artitechcore-ce-form-response.error { 
+            background: rgba(239, 68, 68, 0.1); 
+            color: #b91c1c; 
+            border: 1px solid rgba(239, 68, 68, 0.2); 
+        }
+        
+        /* FAQ Styles */
+        .artitechcore-ce-faq { 
+            margin: 40px 0; 
+            padding: 30px; 
+            background: #ffffff; 
+            border: 1px solid rgba(var(--artitechcore-brand-rgb), 0.15); 
+            border-radius: 16px; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.03); 
+        }
+        .artitechcore-ce-faq-title { 
+            margin-top: 0; 
+            margin-bottom: 25px; 
+            font-size: 1.6em; 
+            font-weight: 900;
+            color: #0f172a; 
+            border-bottom: 3px solid var(--artitechcore-brand); 
+            display: inline-block; 
+            padding-bottom: 5px; 
+        }
+        .artitechcore-ce-faq-item { 
+            margin-bottom: 25px; 
+            border-bottom: 1px solid #f1f5f9; 
+            padding-bottom: 20px; 
+        }
+        .artitechcore-ce-faq-item:last-child { 
+            margin-bottom: 0; 
+            border-bottom: none; 
+            padding-bottom: 0; 
+        }
+        .artitechcore-ce-faq-q { 
+            font-weight: 800; 
+            color: var(--artitechcore-brand); 
+            margin-bottom: 10px; 
+            font-size: 1.15em; 
+            display: flex;
+            gap: 12px;
+        }
+        .artitechcore-ce-faq-q::before {
+            content: 'Q.';
+            opacity: 0.5;
+            font-weight: 400;
+        }
+        .artitechcore-ce-faq-a { 
+            color: #334155; 
+            line-height: 1.7; 
+            font-size: 1em; 
+            display: flex;
+            gap: 12px;
+        }
+        .artitechcore-ce-faq-a::before {
+            content: 'A.';
+            opacity: 0.5;
+            font-weight: 400;
+        }
+
         @media (max-width: 600px) {
             .artitechcore-ce-native-form { flex-direction: column; }
             .artitechcore-ce-form-field { width: 100%; flex: none; }
             .artitechcore-ce-submit-btn { width: 100%; }
+            .artitechcore-ce-faq { padding: 20px; }
         }
     ";
     
@@ -686,17 +815,19 @@ function artitechcore_ce_inject_content($content) {
     if (!is_array($supported_types) || !in_array(get_post_type(), $supported_types)) return $content;
 
     // Fetch Meta
-    $kt = get_post_meta($post_id, '_artitechcore_ce_key_takeaways', true);
-    $conc = get_post_meta($post_id, '_artitechcore_ce_conclusion', true);
+    $kt       = get_post_meta($post_id, '_artitechcore_ce_key_takeaways', true);
+    $conc     = get_post_meta($post_id, '_artitechcore_ce_conclusion', true);
     $cta_head = get_post_meta($post_id, '_artitechcore_ce_cta_heading', true);
     $cta_desc = get_post_meta($post_id, '_artitechcore_ce_cta_desc', true);
+    $faq      = get_post_meta($post_id, '_artitechcore_ce_faq', true);
     
     // Early bail if nothing to inject (FIX #5: no CSS loaded either)
-    $has_kt = !empty($kt) && is_array($kt) && count($kt) > 0;
+    $has_kt   = !empty($kt) && is_array($kt) && count($kt) > 0;
     $has_conc = !empty($conc);
-    $has_cta = !empty($cta_head);
+    $has_cta  = !empty($cta_head);
+    $has_faq  = !empty($faq) && is_array($faq) && count($faq) > 0;
     
-    if (!$has_kt && !$has_conc && !$has_cta) return $content;
+    if (!$has_kt && !$has_conc && !$has_cta && !$has_faq) return $content;
 
     // Only enqueue CSS when we actually have content to inject
     artitechcore_ce_enqueue_frontend_css();
@@ -758,6 +889,27 @@ function artitechcore_ce_inject_content($content) {
         }
     }
 
+    // 3.5 Inject FAQs (Auto-Schema Ready)
+    if ($has_faq) {
+        $faq_html = '<div class="artitechcore-ce-faq">';
+        $faq_html .= '<h3 class="artitechcore-ce-faq-title">' . esc_html__('Frequently Asked Questions', 'artitechcore') . '</h3>';
+        foreach ($faq as $item) {
+            $faq_html .= '<div class="artitechcore-ce-faq-item" itemscope itemtype="https://schema.org/Question">';
+            $faq_html .= '<span class="artitechcore-ce-faq-q" itemprop="name">' . esc_html($item['q']) . '</span>';
+            $faq_html .= '<div class="artitechcore-ce-faq-a" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">';
+            $faq_html .= '<div itemprop="text">' . wpautop(esc_html($item['a'])) . '</div>';
+            $faq_html .= '</div></div>';
+        }
+        $faq_html .= '</div>';
+        
+        // Insert before conclusion or at end
+        if ($has_conc) {
+            $enhanced_content .= "\n" . $faq_html;
+        } else {
+            $enhanced_content .= "\n" . $faq_html;
+        }
+    }
+
     // 4. Inject Conclusion
     if ($has_conc) {
         $conc_html = '<div class="artitechcore-ce-conclusion">';
@@ -768,6 +920,38 @@ function artitechcore_ce_inject_content($content) {
     }
 
     return $enhanced_content;
+}
+
+/**
+ * Inject JSON-LD FAQ Schema in wp_head
+ */
+function artitechcore_ce_inject_schema() {
+    if (!is_singular()) return;
+    
+    $post_id = get_the_ID();
+    $faq = get_post_meta($post_id, '_artitechcore_ce_faq', true);
+    
+    if (empty($faq) || !is_array($faq)) return;
+    
+    $schema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'FAQPage',
+        'mainEntity' => []
+    ];
+    
+    foreach ($faq as $item) {
+        $schema['mainEntity'][] = [
+            '@type' => 'Question',
+            'name' => esc_html($item['q']),
+            'acceptedAnswer' => [
+                '@type' => 'Answer',
+                'text' => wp_strip_all_tags(wpautop(esc_html($item['a'])))
+            ]
+        ];
+    }
+    
+    echo "\n<!-- ArtitechCore AI FAQ Schema -->\n";
+    echo '<script type="application/ld+json">' . json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "</script>\n";
 }
 
 /**
@@ -1130,6 +1314,7 @@ function artitechcore_ce_remove_from_post($post_id) {
     delete_post_meta($post_id, '_artitechcore_ce_conclusion');
     delete_post_meta($post_id, '_artitechcore_ce_cta_heading');
     delete_post_meta($post_id, '_artitechcore_ce_cta_desc');
+    delete_post_meta($post_id, '_artitechcore_ce_faq');
 }
 
 function artitechcore_ce_generate_for_post($post_id, $generate_type = 'all') {
@@ -1179,6 +1364,18 @@ function artitechcore_ce_generate_for_post($post_id, $generate_type = 'all') {
         }
         if (isset($json_result['cta_description'])) {
             update_post_meta($post_id, '_artitechcore_ce_cta_desc', sanitize_textarea_field($json_result['cta_description']));
+        }
+        if (isset($json_result['faq']) && is_array($json_result['faq'])) {
+            $faqs = [];
+            foreach ($json_result['faq'] as $item) {
+                if (!empty($item['q']) && !empty($item['a'])) {
+                    $faqs[] = [
+                        'q' => sanitize_text_field($item['q']),
+                        'a' => sanitize_textarea_field($item['a']),
+                    ];
+                }
+            }
+            update_post_meta($post_id, '_artitechcore_ce_faq', $faqs);
         }
 
         return true;
@@ -1255,6 +1452,14 @@ function artitechcore_ce_native_cta_ajax_handler() {
     check_ajax_referer('artitechcore_ce_submit_cta', '_ce_nonce');
     
     $post_id = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
+    
+    // Anti-spam Rate Limit: 1 per user/session per 30 seconds
+    $ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field($_SERVER['REMOTE_ADDR']) : 'unknown';
+    $limit_key = 'artitechcore_ce_form_limit_' . md5($ip . $post_id);
+    if (get_transient($limit_key)) {
+        wp_send_json_error(__('Please wait 30 seconds before sending another message.', 'artitechcore'));
+    }
+    set_transient($limit_key, 1, 30);
     $to = get_option('artitechcore_ce_cta_native_email', get_option('admin_email'));
     $subject = sprintf('[Lead] New submission from CTA on: %s', get_the_title($post_id));
     
