@@ -304,7 +304,7 @@ function artitechcore_render_cpt_management_content($is_tab = false) {
             <aside class="dg10-admin-sidebar" role="complementary" aria-label="<?php esc_attr_e('CPT Management Navigation', 'artitechcore'); ?>">
                 <div class="dg10-sidebar-header">
                     <div class="dg10-sidebar-title">
-                        <img src="<?php echo esc_url(ArtitechCore_PLUGIN_URL . 'assets/images/logo.svg'); ?>" 
+                        <img src="<?php echo esc_url(ARTITECHCORE_PLUGIN_URL . 'assets/images/logo.svg'); ?>" 
                              alt="<?php esc_attr_e('ArtitechCore Plugin Logo', 'artitechcore'); ?>" 
                              style="width: 24px; height: 24px;">
                         <?php esc_html_e('ArtitechCore', 'artitechcore'); ?>

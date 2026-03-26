@@ -2,9 +2,9 @@
 Contributors: dg10agency
 Tags: pages, schema markup, bulk creation, ai content, seo generator, menu generator, openai, gemini, hierarchy, structured data, json-ld, page builder, content enhancer
 Requires at least: 5.6
-Tested up to: 6.9.4
+Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 1.0
+Stable tag: 1.1.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 

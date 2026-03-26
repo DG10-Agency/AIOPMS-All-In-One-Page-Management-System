@@ -11,7 +11,7 @@ function artitechcore_add_admin_menu() {
         'manage_options',
         'artitechcore-main',
         'artitechcore_admin_page',
-        ArtitechCore_PLUGIN_URL . 'assets/images/logo.svg',
+        ARTITECHCORE_PLUGIN_URL . 'assets/images/logo.svg',
         25
     );
 
@@ -41,6 +41,15 @@ function artitechcore_add_admin_menu() {
         'manage_options',
         'artitechcore-ai-generator',
         'artitechcore_admin_page'
+    );
+
+    add_submenu_page(
+        'artitechcore-main',
+        __('AI Website Builder', 'artitechcore'),
+        __('AI Website Builder', 'artitechcore'),
+        'manage_options',
+        'artitechcore-website-builder',
+        'artitechcore_website_builder_tab'
     );
 
     add_submenu_page(

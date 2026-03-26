@@ -3,6 +3,9 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+// Load Brand Kit functionality
+require_once ARTITECHCORE_PLUGIN_PATH . 'includes/brand-kit.php';
+
 function artitechcore_extract_first_email($text) {
     if (!is_string($text) || $text === '') {
         return '';
@@ -371,6 +374,9 @@ function artitechcore_register_settings() {
     register_setting('artitechcore_settings_group', 'artitechcore_business_social_facebook', 'esc_url_raw');
     register_setting('artitechcore_settings_group', 'artitechcore_business_social_twitter', 'esc_url_raw');
     register_setting('artitechcore_settings_group', 'artitechcore_business_social_linkedin', 'esc_url_raw');
+
+    // Brand Kit Settings
+    register_setting('artitechcore_settings_group', 'artitechcore_brand_kit', 'artitechcore_sanitize_brand_kit');
 }
 add_action('admin_init', 'artitechcore_register_settings');
 
@@ -442,6 +448,86 @@ function artitechcore_settings_init() {
         'artitechcore_sitemap_url_callback',
         'artitechcore-main',
         'artitechcore_settings_section'
+    );
+
+    // Brand Kit Section (for AI Website Builder)
+    add_settings_section(
+        'artitechcore_brand_kit_section',
+        __('Brand Kit (AI Website Builder)', 'artitechcore'),
+        'artitechcore_brand_kit_section_callback',
+        'artitechcore-main'
+    );
+
+    add_settings_field(
+        'artitechcore_brand_kit_auto_detect',
+        '',
+        'artitechcore_brand_kit_auto_detect_callback',
+        'artitechcore-main',
+        'artitechcore_brand_kit_section'
+    );
+
+    add_settings_field(
+        'artitechcore_brand_name',
+        __('Brand Name', 'artitechcore'),
+        'artitechcore_brand_name_callback',
+        'artitechcore-main',
+        'artitechcore_brand_kit_section'
+    );
+
+    add_settings_field(
+        'artitechcore_brand_tagline',
+        __('Tagline / Headline', 'artitechcore'),
+        'artitechcore_brand_tagline_callback',
+        'artitechcore-main',
+        'artitechcore_brand_kit_section'
+    );
+
+    add_settings_field(
+        'artitechcore_brand_description',
+        __('Brand Description', 'artitechcore'),
+        'artitechcore_brand_description_callback',
+        'artitechcore-main',
+        'artitechcore_brand_kit_section'
+    );
+
+    add_settings_field(
+        'artitechcore_brand_colors',
+        __('Brand Colors', 'artitechcore'),
+        'artitechcore_brand_colors_callback',
+        'artitechcore-main',
+        'artitechcore_brand_kit_section'
+    );
+
+    add_settings_field(
+        'artitechcore_brand_typography',
+        __('Typography', 'artitechcore'),
+        'artitechcore_brand_typography_callback',
+        'artitechcore-main',
+        'artitechcore_brand_kit_section'
+    );
+
+    add_settings_field(
+        'artitechcore_brand_voice',
+        __('Brand Voice', 'artitechcore'),
+        'artitechcore_brand_voice_callback',
+        'artitechcore-main',
+        'artitechcore_brand_kit_section'
+    );
+
+    add_settings_field(
+        'artitechcore_design_aesthetic',
+        __('Design Aesthetic', 'artitechcore'),
+        'artitechcore_design_aesthetic_callback',
+        'artitechcore-main',
+        'artitechcore_brand_kit_section'
+    );
+
+    add_settings_field(
+        'artitechcore_image_style',
+        __('Image Style', 'artitechcore'),
+        'artitechcore_image_style_callback',
+        'artitechcore-main',
+        'artitechcore_brand_kit_section'
     );
 
     // Schema settings section
@@ -835,3 +921,273 @@ function artitechcore_ce_cta_native_callback() {
     </div>
     <?php
 }
+
+// ============================================
+// BRAND KIT CALLBACKS
+// ============================================
+
+/**
+ * Brand Kit section description
+ */
+function artitechcore_brand_kit_section_callback() {
+    echo '<p>Configure your brand identity for the AI Website Builder. These settings will be used to generate pages that match your brand\'s style, voice, and colors. You can also auto-detect this information from your existing site.</p>';
+}
+
+/**
+ * Auto-detect brand kit button
+ */
+function artitechcore_brand_kit_auto_detect_callback() {
+    $brand = artitechcore_get_brand_kit();
+    ?>
+    <div class="artitechcore-brand-auto-detect" style="margin-bottom: 20px; padding: 15px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px;">
+        <p><strong><?php esc_html_e('Auto-Detect from Your Site', 'artitechcore'); ?></strong></p>
+        <p style="margin-bottom: 10px;"><?php esc_html_e('Scan your WordPress site to automatically fill in brand information (business name, description, colors, etc.).', 'artitechcore'); ?></p>
+        <button type="button" id="artitechcore-auto-detect-brand" class="button button-secondary">
+            <?php esc_html_e('Auto-Detect Brand Info', 'artitechcore'); ?>
+        </button>
+        <span id="artitechcore-brand-detect-status" style="margin-left: 10px; display: none;"></span>
+    </div>
+
+    <script>
+    jQuery(document).ready(function($) {
+        $('#artitechcore-auto-detect-brand').on('click', function(e) {
+            e.preventDefault();
+            var btn = $(this);
+            var status = $('#artitechcore-brand-detect-status');
+
+            btn.prop('disabled', true).text('<?php esc_html_e('Detecting...', 'artitechcore'); ?>');
+            status.show().text('<?php esc_html_e('Scanning your site...', 'artitechcore'); ?>');
+
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'artitechcore_auto_detect_brand_kit',
+                    nonce: '<?php echo wp_create_nonce("artitechcore_brand_kit_nonce"); ?>'
+                },
+                success: function(res) {
+                    btn.prop('disabled', false).text('<?php esc_html_e('Auto-Detect Brand Info', 'artitechcore'); ?>');
+                    if (res.success) {
+                        status.text('<?php esc_html_e('✓ Detected! Refreshing...', 'artitechcore'); ?>');
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        status.text('<?php esc_html_e('✗ Error', 'artitechcore'); ?>: ' + (res.data.message || 'Unknown error')).css('color', 'red');
+                    }
+                },
+                error: function() {
+                    btn.prop('disabled', false).text('<?php esc_html_e('Auto-Detect Brand Info', 'artitechcore'); ?>');
+                    status.text('<?php esc_html_e('✗ AJAX error', 'artitechcore'); ?>').css('color', 'red');
+                }
+            });
+        });
+    });
+    </script>
+    <?php
+}
+
+/**
+ * Brand name field
+ */
+function artitechcore_brand_name_callback() {
+    $brand = artitechcore_get_brand_kit();
+    $value = $brand['brand_name'];
+    ?>
+    <input type="text" name="artitechcore_brand_kit[brand_name]" value="<?php echo esc_attr($value); ?>" class="regular-text" placeholder="<?php esc_attr_e('e.g., Austin Dental Center', 'artitechcore'); ?>">
+    <p class="description"><?php esc_html_e('Your business or organization name.', 'artitechcore'); ?></p>
+    <?php
+}
+
+/**
+ * Brand tagline field
+ */
+function artitechcore_brand_tagline_callback() {
+    $brand = artitechcore_get_brand_kit();
+    $value = $brand['tagline'];
+    ?>
+    <input type="text" name="artitechcore_brand_kit[tagline]" value="<?php echo esc_attr($value); ?>" class="regular-text" placeholder="<?php esc_attr_e('e.g., Your Family\'s Smile is Our Priority', 'artitechcore'); ?>">
+    <p class="description"><?php esc_html_e('A short tagline or headline that captures your brand essence.', 'artitechcore'); ?></p>
+    <?php
+}
+
+/**
+ * Brand description field
+ */
+function artitechcore_brand_description_callback() {
+    $brand = artitechcore_get_brand_kit();
+    $value = $brand['description'];
+    ?>
+    <textarea name="artitechcore_brand_kit[description]" rows="4" class="large-text" placeholder="<?php esc_attr_e('Briefly describe what your business does and what makes you unique...', 'artitechcore'); ?>"><?php echo esc_textarea($value); ?></textarea>
+    <p class="description"><?php esc_html_e('A 1-2 sentence description of your business. Used in about pages and AI content generation.', 'artitechcore'); ?></p>
+    <?php
+}
+
+/**
+ * Brand colors field
+ */
+function artitechcore_brand_colors_callback() {
+    $brand = artitechcore_get_brand_kit();
+    ?>
+    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 200px;">
+            <label><strong><?php esc_html_e('Primary Color', 'artitechcore'); ?></strong></label><br>
+            <input type="text" name="artitechcore_brand_kit[primary_color]" value="<?php echo esc_attr($brand['primary_color']); ?>" class="artitechcore-color-picker" data-default-color="#4A90E2">
+            <p class="description"><?php esc_html_e('Main brand color (used for headings, buttons, links).', 'artitechcore'); ?></p>
+        </div>
+        <div style="flex: 1; min-width: 200px;">
+            <label><strong><?php esc_html_e('Secondary Color', 'artitechcore'); ?></strong></label><br>
+            <input type="text" name="artitechcore_brand_kit[secondary_color]" value="<?php echo esc_attr($brand['secondary_color']); ?>" class="artitechcore-color-picker" data-default-color="#6C63FF">
+            <pp class="description"><?php esc_html_e('Secondary brand color (accents, highlights).', 'artitechcore'); ?></p>
+        </div>
+        <div style="flex: 1; min-width: 200px;">
+            <label><strong><?php esc_html_e('Accent Color', 'artitechcore'); ?></strong></label><br>
+            <input type="text" name="artitechcore_brand_kit[accent_color]" value="<?php echo esc_attr($brand['accent_color']); ?>" class="artitechcore-color-picker" data-default-color="#FF6B6B">
+            <p class="description"><?php esc_html_e('Accent color for CTAs and highlights.', 'artitechcore'); ?></p>
+        </div>
+    </div>
+    <?php
+}
+
+/**
+ * Typography fields
+ */
+function artitechcore_brand_typography_callback() {
+    $brand = artitechcore_get_brand_kit();
+    $google_fonts = [
+        'Inter' => 'Inter',
+        'Roboto' => 'Roboto',
+        'Open Sans' => 'Open Sans',
+        'Montserrat' => 'Montserrat',
+        'Poppins' => 'Poppins',
+        'Lato' => 'Lato',
+        'Source Sans Pro' => 'Source Sans Pro',
+        'Merriweather' => 'Merriweather',
+        'Playfair Display' => 'Playfair Display',
+        'Oswald' => 'Oswald',
+        'Raleway' => 'Raleway',
+        'Ubuntu' => 'Ubuntu',
+        'PT Sans' => 'PT Sans',
+        'Nunito' => 'Nunito',
+        ' system-ui' => 'System UI (default)',
+    ];
+    ?>
+    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 200px;">
+            <label><strong><?php esc_html_e('Heading Font', 'artitechcore'); ?></strong></label><br>
+            <select name="artitechcore_brand_kit[heading_font]" style="width: 100%; max-width: 300px;">
+                <?php foreach ($google_fonts as $key => $label): ?>
+                    <option value="<?php echo esc_attr($key); ?>" <?php selected($brand['heading_font'], $key); ?>>
+                        <?php echo esc_html($label); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <p class="description"><?php esc_html_e('Font for headings (H1, H2, H3).', 'artitechcore'); ?></p>
+        </div>
+        <div style="flex: 1; min-width: 200px;">
+            <label><strong><?php esc_html_e('Body Font', 'artitechcore'); ?></strong></label><br>
+            <select name="artitechcore_brand_kit[body_font]" style="width: 100%; max-width: 300px;">
+                <?php foreach ($google_fonts as $key => $label): ?>
+                    <option value="<?php echo esc_attr($key); ?>" <?php selected($brand['body_font'], $key); ?>>
+                        <?php echo esc_html($label); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <p class="description"><?php esc_html_e('Font for body text and paragraphs.', 'artitechcore'); ?></p>
+        </div>
+    </div>
+    <?php
+}
+
+/**
+ * Brand voice field
+ */
+function artitechcore_brand_voice_callback() {
+    $brand = artitechcore_get_brand_kit();
+    $voices = [
+        'professional' => 'Professional (authoritative, polished)',
+        'casual' => 'Casual (friendly, conversational)',
+        'innovative' => 'Innovative (cutting-edge, modern)',
+        'trustworthy' => 'Trustworthy (reliable, reassuring)',
+        'friendly' => 'Friendly (warm, approachable)',
+        'luxury' => 'Luxury (exclusive, premium)',
+    ];
+    ?>
+    <select name="artitechcore_brand_kit[brand_voice]" style="width: 100%; max-width: 300px;">
+        <?php foreach ($voices as $key => $label): ?>
+            <option value="<?php echo esc_attr($key); ?>" <?php selected($brand['brand_voice'], $key); ?>>
+                <?php echo esc_html($label); ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+    <p class="description"><?php esc_html_e('The tone and personality of your brand communication. This influences how AI writes your content.', 'artitechcore'); ?></p>
+    <?php
+}
+
+/**
+ * Design aesthetic field
+ */
+function artitechcore_design_aesthetic_callback() {
+    $brand = artitechcore_get_brand_kit();
+    $aesthetics = [
+        'minimal' => 'Minimal (lots of white space, clean)',
+        'bold' => 'Bold (high contrast, impactful)',
+        'corporate' => 'Corporate (traditional, professional)',
+        'playful' => 'Playful (colorful, fun, energetic)',
+        'luxury' => 'Luxury (elegant, sophisticated)',
+        'modern' => 'Modern (contemporary, clean)',
+    ];
+    ?>
+    <select name="artitechcore_brand_kit[design_aesthetic]" style="width: 100%; max-width: 300px;">
+        <?php foreach ($aesthetics as $key => $label): ?>
+            <option value="<?php echo esc_attr($key); ?>" <?php selected($brand['design_aesthetic'], $key); ?>>
+                <?php echo esc_html($label); ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+    <p class="description"><?php esc_html_e('Overall visual style. This guides layout, spacing, and design patterns in generated pages.', 'artitechcore'); ?></p>
+    <?php
+}
+
+/**
+ * Image style field
+ */
+function artitechcore_image_style_callback() {
+    $brand = artitechcore_get_brand_kit();
+    $styles = [
+        'photorealistic' => 'Photorealistic (real photos, lifelike)',
+        'illustrated' => 'Illustrated (artistic, drawn imagery)',
+        'mixed' => 'Mixed (combination of both)',
+    ];
+    ?>
+    <select name="artitechcore_brand_kit[image_style]" style="width: 100%; max-width: 300px;">
+        <?php foreach ($styles as $key => $label): ?>
+            <option value="<?php echo esc_attr($key); ?>" <?php selected($brand['image_style'], $key); ?>>
+                <?php echo esc_html($label); ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+    <p class="description"><?php esc_html_e('Preferred visual style for AI-generated images. Note: DALL-E 3 works best with photorealistic, Gemini may vary.', 'artitechcore'); ?></p>
+    <?php
+}
+
+// Enqueue color picker for Brand Kit
+function artitechcore_brand_kit_enqueue_scripts($hook) {
+    // Only load on ArtitechCore settings page
+    if (strpos($hook, 'artitechcore') === false) {
+        return;
+    }
+
+    // WordPress color picker
+    wp_enqueue_style('wp-color-picker');
+    wp_enqueue_script('wp-color-picker');
+    wp_enqueue_script('jquery');
+
+    // Initialize color pickers
+    wp_add_inline_script('wp-color-picker', "
+        jQuery(document).ready(function($) {
+            $('.artitechcore-color-picker').wpColorPicker();
+        });
+    ");
+}
+add_action('admin_enqueue_scripts', 'artitechcore_brand_kit_enqueue_scripts');

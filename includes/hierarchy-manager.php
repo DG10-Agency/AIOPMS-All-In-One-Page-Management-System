@@ -675,15 +675,15 @@ function artitechcore_enqueue_hierarchy_assets($hook) {
 
     if ($active_tab === 'hierarchy') {
         // Enqueue jsTree
-        wp_enqueue_style('jstree', ArtitechCore_PLUGIN_URL . 'assets/vendor/jstree/themes/default/style.min.css');
-        wp_enqueue_script('jstree', ArtitechCore_PLUGIN_URL . 'assets/vendor/jstree/jstree.min.js', array('jquery'), '3.3.15', true);
+        wp_enqueue_style('jstree', ARTITECHCORE_PLUGIN_URL . 'assets/vendor/jstree/themes/default/style.min.css');
+        wp_enqueue_script('jstree', ARTITECHCORE_PLUGIN_URL . 'assets/vendor/jstree/jstree.min.js', array('jquery'), '3.3.15', true);
         
         // Enqueue D3.js for Mind Map and Org Chart
-        wp_enqueue_script('d3', ArtitechCore_PLUGIN_URL . 'assets/vendor/d3/d3.v7.min.js', array(), '7.0.0', true);
+        wp_enqueue_script('d3', ARTITECHCORE_PLUGIN_URL . 'assets/vendor/d3/d3.v7.min.js', array(), '7.0.0', true);
 
         // Enqueue our hierarchy scripts
-        wp_enqueue_script('artitechcore-hierarchy', ArtitechCore_PLUGIN_URL . 'assets/js/hierarchy.js', array('jquery', 'jstree', 'd3'), null, true);
-        wp_enqueue_style('artitechcore-hierarchy', ArtitechCore_PLUGIN_URL . 'assets/css/hierarchy.css');
+        wp_enqueue_script('artitechcore-hierarchy', ARTITECHCORE_PLUGIN_URL . 'assets/js/hierarchy.js', array('jquery', 'jstree', 'd3'), null, true);
+        wp_enqueue_style('artitechcore-hierarchy', ARTITECHCORE_PLUGIN_URL . 'assets/css/hierarchy.css');
         
         // Localize script with data
         $localize_data = array(

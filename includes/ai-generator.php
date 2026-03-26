@@ -997,11 +997,11 @@ function artitechcore_create_suggested_pages($pages, $generate_images = false) {
 }
 
 // Generate and set featured image using AI
-function artitechcore_generate_and_set_featured_image($post_id, $page_title) {
+function artitechcore_generate_and_set_featured_image($post_id, $page_title, $override_brand_color = null) {
     try {
         // Input validation
-        if (empty($post_id) || empty($page_title)) {
-            throw new Exception(__('Missing required parameters for image generation.', 'artitechcore'));
+        if (empty($post_id) || empty($page_title) || !is_numeric($post_id)) {
+            throw new Exception(__('Missing or invalid parameters for image generation.', 'artitechcore'));
         }
 
         $post_id = absint($post_id);
@@ -1016,7 +1016,9 @@ function artitechcore_generate_and_set_featured_image($post_id, $page_title) {
 
         $provider = get_option('artitechcore_ai_provider', 'openai');
         $api_key = get_option('artitechcore_' . $provider . '_api_key');
-        $brand_color = get_option('artitechcore_brand_color', '#4A90E2');
+        
+        // Use override if provided, otherwise fallback to option
+        $brand_color = $override_brand_color ?: get_option('artitechcore_brand_color', '#4A90E2');
         
         if (empty($api_key)) {
             throw new Exception(__('API key not configured for image generation.', 'artitechcore'));
@@ -1137,23 +1139,47 @@ function artitechcore_generate_openai_image($prompt, $api_key) {
             throw new Exception(__('Failed to encode request data for OpenAI image generation.', 'artitechcore'));
         }
         
-        $response = wp_remote_post($url, [
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . $api_key,
-            ],
-            'body' => $body,
-            'timeout' => 60, // Longer timeout for image generation
-        ]);
+        // API Retry Loop (P1-5)
+        $max_retries = 3;
+        $retry_count = 0;
+        $response = null;
+
+        while ($retry_count < $max_retries) {
+            $response = wp_remote_post($url, [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer ' . $api_key,
+                ],
+                'body' => $body,
+                'timeout' => 60, // Longer timeout for image generation
+            ]);
+
+            if (!is_wp_error($response)) {
+                $response_code = wp_remote_retrieve_response_code($response);
+                if ($response_code === 200) {
+                    break; // Success
+                }
+                
+                // Only retry on rate limits (429) or server errors (5xx)
+                if ($response_code !== 429 && ($response_code < 500 || $response_code > 599)) {
+                    break; // Fatal error
+                }
+            }
+
+            $retry_count++;
+            if ($retry_count < $max_retries) {
+                sleep(pow(2, $retry_count));
+            }
+        }
         
         if (is_wp_error($response)) {
-            throw new Exception(sprintf(__('OpenAI image generation request failed: %s', 'artitechcore'), $response->get_error_message()));
+            throw new Exception(sprintf(__('OpenAI image generation request failed after %d attempts: %s', 'artitechcore'), $max_retries, $response->get_error_message()));
         }
 
         $response_code = wp_remote_retrieve_response_code($response);
         if ($response_code !== 200) {
             $error_message = wp_remote_retrieve_response_message($response);
-            throw new Exception(sprintf(__('OpenAI image generation returned error %d: %s', 'artitechcore'), $response_code, $error_message));
+            throw new Exception(sprintf(__('OpenAI image generation returned error %d after %d attempts: %s', 'artitechcore'), $response_code, $max_retries, $error_message));
         }
 
         $response_body = wp_remote_retrieve_body($response);

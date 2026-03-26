@@ -14,8 +14,8 @@ class ArtitechCore_Keyword_Analyzer {
     private $plugin_path;
     
     public function __construct() {
-        $this->plugin_url = ArtitechCore_PLUGIN_URL;
-        $this->plugin_path = ArtitechCore_PLUGIN_PATH;
+        $this->plugin_url = ARTITECHCORE_PLUGIN_URL;
+        $this->plugin_path = ARTITECHCORE_PLUGIN_PATH;
         
         // Initialize hooks
         add_action('wp_ajax_artitechcore_analyze_keywords', array($this, 'analyze_keywords_ajax'));

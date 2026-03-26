@@ -5,7 +5,7 @@
  * Description: The core engine for Artitech WP ecosystem, providing AI-powered page generation, hierarchy management, and structural organization.
  * Version: 1.1.2
  * Requires at least: 5.6
- * Tested up to: 6.9.4
+ * Tested up to: 6.4
  * Requires PHP: 7.4
  * Author: DG10 Agency
  * Author URI: https://www.dg10.agency
@@ -28,9 +28,9 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-define('ArtitechCore_PLUGIN_PATH', plugin_dir_path(__FILE__));
-define('ArtitechCore_PLUGIN_URL', plugin_dir_url(__FILE__));
-define('ArtitechCore_GITHUB_URL', 'https://github.com/DG10-Agency/ArtitechCore-WP');
+define('ARTITECHCORE_PLUGIN_PATH', plugin_dir_path(__FILE__));
+define('ARTITECHCORE_PLUGIN_URL', plugin_dir_url(__FILE__));
+define('ARTITECHCORE_GITHUB_URL', 'https://github.com/DG10-Agency/ArtitechCore-WP');
 
 /**
  * Plugin activation hook
@@ -83,6 +83,11 @@ function artitechcore_activate() {
     
     // Log activation
     error_log('ArtitechCore Plugin Activated - DB Version ' . ARTITECHCORE_DB_VERSION);
+
+    // Schedule background queue cleanup if builder files are present
+    if (!wp_next_scheduled('artitechcore_cleanup_old_builder_jobs')) {
+        wp_schedule_event(time(), 'daily', 'artitechcore_cleanup_old_builder_jobs');
+    }
 }
 
 /**
@@ -92,6 +97,7 @@ function artitechcore_activate() {
 function artitechcore_deactivate() {
     // Clear scheduled events
     wp_clear_scheduled_hook('artitechcore_cleanup_temporary_data');
+    wp_clear_scheduled_hook('artitechcore_cleanup_old_builder_jobs');
     
     // Clear any cached data
     wp_cache_flush();
@@ -491,7 +497,7 @@ function artitechcore_create_database_tables() {
         generation_time datetime DEFAULT CURRENT_TIMESTAMP,
         success tinyint(1) DEFAULT 1,
         error_message text,
-        PRIMARY KEY (id),
+        PRIMARY KEY  (id),
         KEY page_id (page_id),
         KEY generation_type (generation_type),
         KEY generation_time (generation_time)
@@ -513,7 +519,7 @@ function artitechcore_create_database_tables() {
         is_locked tinyint(1) DEFAULT 0,
         created_date datetime DEFAULT CURRENT_TIMESTAMP,
         updated_date datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        PRIMARY KEY (id),
+        PRIMARY KEY  (id),
         UNIQUE KEY object_identity (object_id, object_type),
         KEY schema_type (schema_type)
     ) $charset_collate;";
@@ -614,49 +620,50 @@ add_action('plugins_loaded', 'artitechcore_load_textdomain');
 // Output schema markup in wp_head is now handled in includes/schema-generator.php
 
 // Include necessary files
-require_once ArtitechCore_PLUGIN_PATH . 'includes/admin-menu.php';
-require_once ArtitechCore_PLUGIN_PATH . 'includes/page-creation.php';
-require_once ArtitechCore_PLUGIN_PATH . 'includes/csv-handler.php';
-require_once ArtitechCore_PLUGIN_PATH . 'includes/settings-page.php';
-require_once ArtitechCore_PLUGIN_PATH . 'includes/ai-generator.php';
-require_once ArtitechCore_PLUGIN_PATH . 'includes/custom-post-type-manager.php';
-require_once ArtitechCore_PLUGIN_PATH . 'includes/hierarchy-manager.php';
-require_once ArtitechCore_PLUGIN_PATH . 'includes/menu-generator.php';
-require_once ArtitechCore_PLUGIN_PATH . 'includes/schema-generator.php';
-require_once ArtitechCore_PLUGIN_PATH . 'includes/keyword-analyzer.php';
-require_once ArtitechCore_PLUGIN_PATH . 'includes/content-enhancer.php';
+require_once ARTITECHCORE_PLUGIN_PATH . 'includes/admin-menu.php';
+require_once ARTITECHCORE_PLUGIN_PATH . 'includes/page-creation.php';
+require_once ARTITECHCORE_PLUGIN_PATH . 'includes/csv-handler.php';
+require_once ARTITECHCORE_PLUGIN_PATH . 'includes/settings-page.php';
+require_once ARTITECHCORE_PLUGIN_PATH . 'includes/ai-generator.php';
+require_once ARTITECHCORE_PLUGIN_PATH . 'includes/custom-post-type-manager.php';
+require_once ARTITECHCORE_PLUGIN_PATH . 'includes/hierarchy-manager.php';
+require_once ARTITECHCORE_PLUGIN_PATH . 'includes/menu-generator.php';
+require_once ARTITECHCORE_PLUGIN_PATH . 'includes/schema-generator.php';
+require_once ARTITECHCORE_PLUGIN_PATH . 'includes/keyword-analyzer.php';
+require_once ARTITECHCORE_PLUGIN_PATH . 'includes/content-enhancer.php';
+require_once ARTITECHCORE_PLUGIN_PATH . 'includes/website-generator-queue.php';
 
 // Output schema markup in wp_head is now handled in includes/schema-generator.php
 
 // Enqueue scripts and styles
 function artitechcore_enqueue_assets() {
     // Enqueue brand CSS first (Variables & Base)
-    wp_enqueue_style('artitechcore-dg10-brand', ArtitechCore_PLUGIN_URL . 'assets/css/dg10-brand.css', array(), '1.0');
+    wp_enqueue_style('artitechcore-dg10-brand', ARTITECHCORE_PLUGIN_URL . 'assets/css/dg10-brand.css', array(), '1.0');
     
     // Enqueue Consolidated Admin UI CSS
-    wp_enqueue_style('artitechcore-admin-ui', ArtitechCore_PLUGIN_URL . 'assets/css/admin-ui.css', array('artitechcore-dg10-brand'), filemtime(ArtitechCore_PLUGIN_PATH . 'assets/css/admin-ui.css'));
+    wp_enqueue_style('artitechcore-admin-ui', ARTITECHCORE_PLUGIN_URL . 'assets/css/admin-ui.css', array('artitechcore-dg10-brand'), filemtime(ARTITECHCORE_PLUGIN_PATH . 'assets/css/admin-ui.css'));
 
     // Enqueue Schema Column Styles (Specific for Pages/Posts lists)
     $screen = get_current_screen();
     if ($screen && ($screen->base === 'edit' || $screen->base === 'upload')) {
-        wp_enqueue_style('artitechcore-schema-column', ArtitechCore_PLUGIN_URL . 'assets/css/schema-column.css', array(), filemtime(ArtitechCore_PLUGIN_PATH . 'assets/css/schema-column.css'));
+        wp_enqueue_style('artitechcore-schema-column', ARTITECHCORE_PLUGIN_URL . 'assets/css/schema-column.css', array(), filemtime(ARTITECHCORE_PLUGIN_PATH . 'assets/css/schema-column.css'));
     }
 
     // Enqueue CPT Management CSS
-    wp_enqueue_style('artitechcore-cpt-management', ArtitechCore_PLUGIN_URL . 'assets/css/cpt-management.css', array('artitechcore-admin-ui'), '1.0');
+    wp_enqueue_style('artitechcore-cpt-management', ARTITECHCORE_PLUGIN_URL . 'assets/css/cpt-management.css', array('artitechcore-admin-ui'), '1.0');
 
     // Enqueue Scripts
     $current_screen = get_current_screen();
 
     // CPT Management Scripts (only on CPT tab)
     if ($current_screen && strpos($current_screen->id, 'artitechcore-') !== false && isset($_GET['tab']) && $_GET['tab'] === 'cpt') {
-        wp_enqueue_script('artitechcore-cpt-management', ArtitechCore_PLUGIN_URL . 'assets/js/cpt-management.js', array('jquery'), '1.0', true);
+        wp_enqueue_script('artitechcore-cpt-management', ARTITECHCORE_PLUGIN_URL . 'assets/js/cpt-management.js', array('jquery'), '1.0', true);
         
         // Localize CPT management script
         wp_localize_script('artitechcore-cpt-management', 'artitechcore_cpt_data', array(
             'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('artitechcore_cpt_ajax'),
-            'plugin_url' => ArtitechCore_PLUGIN_URL,
+            'plugin_url' => ARTITECHCORE_PLUGIN_URL,
             'strings' => array(
                 'loading' => __('Loading...', 'artitechcore'),
                 'success' => __('Success!', 'artitechcore'),
@@ -668,7 +675,7 @@ function artitechcore_enqueue_assets() {
 
     // AI Generator Scripts (only on AI tab)
     if ($current_screen && strpos($current_screen->id, 'artitechcore-') !== false && isset($_GET['tab']) && $_GET['tab'] === 'ai') {
-        wp_enqueue_script('artitechcore-ai-generator', ArtitechCore_PLUGIN_URL . 'assets/js/ai-generator.js', array('jquery'), '1.0', true);
+        wp_enqueue_script('artitechcore-ai-generator', ARTITECHCORE_PLUGIN_URL . 'assets/js/ai-generator.js', array('jquery'), '1.0', true);
         
         // Share CPT data for ajaxurl and nonce consistency if needed, 
         // or localize specifically for AI
@@ -679,17 +686,17 @@ function artitechcore_enqueue_assets() {
     }
     
     // Main Admin Scripts
-    wp_enqueue_script('artitechcore-scripts', ArtitechCore_PLUGIN_URL . 'assets/js/scripts.js', array('jquery'), '1.0', true);
+    wp_enqueue_script('artitechcore-scripts', ARTITECHCORE_PLUGIN_URL . 'assets/js/scripts.js', array('jquery'), '1.0', true);
     
     // Keyword Analyzer Scripts
-    wp_enqueue_script('artitechcore-keyword-analyzer', ArtitechCore_PLUGIN_URL . 'assets/js/keyword-analyzer.js', array('jquery'), '1.0', true);
+    wp_enqueue_script('artitechcore-keyword-analyzer', ARTITECHCORE_PLUGIN_URL . 'assets/js/keyword-analyzer.js', array('jquery'), '1.0', true);
     wp_localize_script('artitechcore-keyword-analyzer', 'artitechcore_keyword_data', array(
         'ajaxurl' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('artitechcore_keyword_analysis')
     ));
 
     // Schema Generator Scripts
-    wp_enqueue_script('artitechcore-schema-generator', ArtitechCore_PLUGIN_URL . 'assets/js/schema-generator.js', array('jquery'), filemtime(ArtitechCore_PLUGIN_PATH . 'assets/js/schema-generator.js'), true);
+    wp_enqueue_script('artitechcore-schema-generator', ARTITECHCORE_PLUGIN_URL . 'assets/js/schema-generator.js', array('jquery'), filemtime(ARTITECHCORE_PLUGIN_PATH . 'assets/js/schema-generator.js'), true);
     wp_localize_script('artitechcore-schema-generator', 'artitechcore_schema_data', array(
         'ajaxurl' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('artitechcore_schema_preview')
@@ -697,7 +704,7 @@ function artitechcore_enqueue_assets() {
 
     // Localize script with plugin URL
     wp_localize_script('artitechcore-scripts', 'artitechcore_plugin_data', array(
-        'plugin_url' => ArtitechCore_PLUGIN_URL
+        'plugin_url' => ARTITECHCORE_PLUGIN_URL
     ));
 }
 add_action('admin_enqueue_scripts', 'artitechcore_enqueue_assets');

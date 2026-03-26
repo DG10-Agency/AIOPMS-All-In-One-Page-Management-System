@@ -2658,8 +2658,11 @@ function artitechcore_schema_management_dashboard() {
                         if (!empty($post_ids)) {
                             global $wpdb;
                             $table_name = $wpdb->prefix . 'artitechcore_schema_data';
-                            $ids_string = implode(',', array_map('intval', $post_ids));
-                            $results = $wpdb->get_results("SELECT * FROM $table_name WHERE object_id IN ($ids_string) AND object_type = 'post'");
+                            $placeholders = implode(',', array_fill(0, count($post_ids), '%d'));
+                            $results = $wpdb->get_results($wpdb->prepare(
+                                "SELECT * FROM $table_name WHERE object_id IN ($placeholders) AND object_type = 'post'",
+                                ...$post_ids
+                            ));
                             foreach ($results as $res) {
                                 $schema_lookup[$res->object_id] = $res;
                             }
@@ -2814,8 +2817,11 @@ function artitechcore_schema_management_dashboard() {
                     if (!empty($term_ids)) {
                         global $wpdb;
                         $table_name = $wpdb->prefix . 'artitechcore_schema_data';
-                        $ids_string = implode(',', array_map('intval', $term_ids));
-                        $results = $wpdb->get_results("SELECT * FROM $table_name WHERE object_id IN ($ids_string) AND object_type = 'term'");
+                        $placeholders = implode(',', array_fill(0, count($term_ids), '%d'));
+                        $results = $wpdb->get_results($wpdb->prepare(
+                            "SELECT * FROM $table_name WHERE object_id IN ($placeholders) AND object_type = 'term'",
+                            ...$term_ids
+                        ));
                         foreach ($results as $res) {
                             $term_schema_lookup[$res->object_id] = $res;
                         }
