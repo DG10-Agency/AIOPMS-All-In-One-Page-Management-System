@@ -41,7 +41,7 @@ function artitechcore_ce_init() {
     if (!is_admin()) {
         // Frontend Hooks — conditional CSS/injection
         add_filter('the_content', 'artitechcore_ce_inject_content', 99);
-        add_action('wp_head', 'artitechcore_ce_inject_schema');
+        // add_action('wp_head', 'artitechcore_ce_inject_schema'); // Removed: Handled by main schema-generator to prevent duplication
     }
 }
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: ArtitechCore WP
+ * Plugin Name: ArtitechCore
  * Plugin URI: https://github.com/DG10-Agency/ArtitechCore-WP
  * Description: The core engine for Artitech WP ecosystem, providing AI-powered page generation, hierarchy management, and structural organization.
  * Version: 1.1.2
@@ -22,6 +22,7 @@
  */
 
 define('ARTITECHCORE_VERSION', '1.1.2');
+define('ARTITECHCORE_DB_VERSION', 1);
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -68,11 +69,20 @@ function artitechcore_activate() {
     // Create custom database tables if needed
     artitechcore_create_database_tables();
     
+    // Handle database migrations
+    $installed_db_version = get_option('artitechcore_db_version', 0);
+    if ($installed_db_version < ARTITECHCORE_DB_VERSION) {
+        if ($installed_db_version < 1) {
+            artitechcore_migrate_schema_data_v1();
+        }
+        update_option('artitechcore_db_version', ARTITECHCORE_DB_VERSION);
+    }
+    
     // Set activation flag
     update_option('artitechcore_plugin_activated', true);
     
     // Log activation
-    error_log('ArtitechCore Plugin Activated - Version 1.1.1');
+    error_log('ArtitechCore Plugin Activated - DB Version ' . ARTITECHCORE_DB_VERSION);
 }
 
 /**
@@ -212,31 +222,50 @@ function artitechcore_create_persistence_bridge($persist_schema, $persist_ce) {
     if ($persist_schema) {
         $bridge_code .= "/** Schema Injection */\n";
         $bridge_code .= "add_action('wp_head', function() {\n";
-        $bridge_code .= "    \$post_id = null;\n";
-        $bridge_code .= "    if (is_singular()) \$post_id = get_the_ID();\n";
-        $bridge_code .= "    elseif (is_front_page()) \$post_id = get_option('page_on_front');\n";
-        $bridge_code .= "    if (!\$post_id) return;\n";
-        $bridge_code .= "    \$schema_raw = get_post_meta(\$post_id, '_artitechcore_schema_data', true);\n";
-        $bridge_code .= "    if (!empty(\$schema_raw)) {\n";
-        $bridge_code .= "        \$schema_array = is_array(\$schema_raw) ? \$schema_raw : json_decode(\$schema_raw, true);\n";
+        $bridge_code .= "    global \$wpdb;\n";
+        $bridge_code .= "    \$object_id = null;\n";
+        $bridge_code .= "    \$object_type = 'post';\n";
+        $bridge_code .= "    if (is_singular()) \$object_id = get_the_ID();\n";
+        $bridge_code .= "    elseif (is_front_page()) \$object_id = get_option('page_on_front');\n";
+        $bridge_code .= "    elseif (is_category() || is_tag() || is_tax()) {\n";
+        $bridge_code .= "        \$term = get_queried_object();\n";
+        $bridge_code .= "        if (\$term && isset(\$term->term_id)) {\n";
+        $bridge_code .= "            \$object_id = \$term->term_id;\n";
+        $bridge_code .= "            \$object_type = 'term';\n";
+        $bridge_code .= "        }\n";
+        $bridge_code .= "    }\n";
+        $bridge_code .= "    if (!\$object_id) return;\n";
+        $bridge_code .= "    \$table_name = \$wpdb->prefix . 'artitechcore_schema_data';\n";
+        $bridge_code .= "    // Check if table exists before querying\n";
+        $bridge_code .= "    if (\$wpdb->get_var(\"SHOW TABLES LIKE '\$table_name'\") !== \$table_name) return;\n";
+        $bridge_code .= "    \$row = \$wpdb->get_row(\$wpdb->prepare(\"SELECT schema_data FROM \$table_name WHERE object_id = %d AND object_type = %s\", \$object_id, \$object_type));\n";
+        $bridge_code .= "    if (!empty(\$row->schema_data)) {\n";
+        $bridge_code .= "        \$schema_array = json_decode(\$row->schema_data, true);\n";
         $bridge_code .= "        if (is_array(\$schema_array) && !empty(\$schema_array)) {\n";
         $bridge_code .= "            echo \"\\n<!-- ArtitechCore Schema Bridge -->\\n\";\n";
         $bridge_code .= "            echo '<script type=\"application/ld+json\" class=\"artitech-schema-bridge\">' . wp_json_encode(\$schema_array) . \"</script>\\n\";\n";
         $bridge_code .= "        }\n";
         $bridge_code .= "    }\n";
         
-        $bridge_code .= "    /* FAQ Schema Injection */\n";
-        $bridge_code .= "    \$faq_data = get_post_meta(\$post_id, '_artitechcore_ce_faq', true);\n";
+        $bridge_code .= "    /* FAQ Schema Injection (Redundancy Check) */\n";
+        $bridge_code .= "    \$faq_data = get_post_meta(\$object_id, '_artitechcore_ce_faq', true);\n";
         $bridge_code .= "    if (!empty(\$faq_data) && is_array(\$faq_data)) {\n";
-        $bridge_code .= "        \$faq_schema = ['@context' => 'https://schema.org', '@type' => 'FAQPage', 'mainEntity' => []];\n";
+        $bridge_code .= "        \$faq_items = [];\n";
         $bridge_code .= "        foreach (\$faq_data as \$item) {\n";
         $bridge_code .= "            if (!empty(\$item['q']) && !empty(\$item['a'])) {\n";
-        $bridge_code .= "                \$faq_schema['mainEntity'][] = ['@type' => 'Question', 'name' => \$item['q'], 'acceptedAnswer' => ['@type' => 'Answer', 'text' => \$item['a']]];\n";
+        $bridge_code .= "                \$faq_items[] = [\n";
+        $bridge_code .= "                    '@type' => 'Question',\n";
+        $bridge_code .= "                    'name' => esc_html(\$item['q']),\n";
+        $bridge_code .= "                    'acceptedAnswer' => [\n";
+        $bridge_code .= "                        '@type' => 'Answer',\n";
+        $bridge_code .= "                        'text' => wp_strip_all_tags(wpautop(esc_html(\$item['a'])))\n";
+        $bridge_code .= "                    ]\n";
+        $bridge_code .= "                ];\n";
         $bridge_code .= "            }\n";
         $bridge_code .= "        }\n";
-        $bridge_code .= "        if (!empty(\$faq_schema['mainEntity'])) {\n";
+        $bridge_code .= "        if (!empty(\$faq_items)) {\n";
         $bridge_code .= "            echo \"\\n<!-- ArtitechCore FAQ Schema Bridge -->\\n\";\n";
-        $bridge_code .= "            echo '<script type=\"application/ld+json\" class=\"artitech-faq-bridge\">' . wp_json_encode(\$faq_schema) . \"</script>\\n\";\n";
+        $bridge_code .= "            echo '<script type=\"application/ld+json\" class=\"artitech-faq-bridge\">' . wp_json_encode(['@context' => 'https://schema.org', '@type' => 'FAQPage', 'mainEntity' => \$faq_items]) . \"</script>\\n\";\n";
         $bridge_code .= "        }\n";
         $bridge_code .= "    }\n";
         $bridge_code .= "}, 30);\n\n";
@@ -476,17 +505,77 @@ function artitechcore_create_database_tables() {
     
     $sql = "CREATE TABLE $table_name (
         id mediumint(9) NOT NULL AUTO_INCREMENT,
-        post_id bigint(20) NOT NULL,
+        object_id bigint(20) NOT NULL,
+        object_type varchar(20) NOT NULL DEFAULT 'post',
         schema_type varchar(100) NOT NULL,
         schema_data longtext NOT NULL,
+        origin varchar(20) DEFAULT 'generated',
+        is_locked tinyint(1) DEFAULT 0,
         created_date datetime DEFAULT CURRENT_TIMESTAMP,
         updated_date datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         PRIMARY KEY (id),
-        UNIQUE KEY post_id (post_id),
+        UNIQUE KEY object_identity (object_id, object_type),
         KEY schema_type (schema_type)
     ) $charset_collate;";
     
     dbDelta($sql);
+}
+
+/**
+ * Migration: Move schema data from meta to custom table (v1)
+ */
+function artitechcore_migrate_schema_data_v1() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'artitechcore_schema_data';
+
+    $post_meta_type   = $wpdb->get_results("SELECT post_id, meta_value FROM {$wpdb->postmeta} WHERE meta_key = '_artitechcore_schema_type' AND meta_value != ''");
+    $post_meta_data   = $wpdb->get_results("SELECT post_id, meta_value FROM {$wpdb->postmeta} WHERE meta_key = '_artitechcore_schema_data' AND meta_value != ''");
+    $post_meta_origin = $wpdb->get_results("SELECT post_id, meta_value FROM {$wpdb->postmeta} WHERE meta_key = '_artitechcore_schema_origin' AND meta_value != ''");
+    $post_meta_locked = $wpdb->get_results("SELECT post_id, meta_value FROM {$wpdb->postmeta} WHERE meta_key = '_artitechcore_schema_locked' AND meta_value != ''");
+    
+    $data_map = [];
+    foreach ($post_meta_type as $row)   $data_map[$row->post_id]['type']   = $row->meta_value;
+    foreach ($post_meta_data as $row)   $data_map[$row->post_id]['data']   = $row->meta_value;
+    foreach ($post_meta_origin as $row) $data_map[$row->post_id]['origin'] = $row->meta_value;
+    foreach ($post_meta_locked as $row) $data_map[$row->post_id]['locked'] = $row->meta_value;
+
+    foreach ($data_map as $post_id => $vals) {
+        if (!empty($vals['type']) && !empty($vals['data'])) {
+            $wpdb->replace($table_name, [
+                'object_id'   => $post_id,
+                'object_type' => 'post',
+                'schema_type' => $vals['type'],
+                'schema_data' => $vals['data'],
+                'origin'      => $vals['origin'] ?? 'generated',
+                'is_locked'   => !empty($vals['locked']) ? 1 : 0
+            ]);
+        }
+    }
+
+    // 2. Migrate Term Meta
+    $term_meta_type   = $wpdb->get_results("SELECT term_id, meta_value FROM {$wpdb->termmeta} WHERE meta_key = '_artitechcore_schema_type' AND meta_value != ''");
+    $term_meta_data   = $wpdb->get_results("SELECT term_id, meta_value FROM {$wpdb->termmeta} WHERE meta_key = '_artitechcore_schema_data' AND meta_value != ''");
+    $term_meta_origin = $wpdb->get_results("SELECT term_id, meta_value FROM {$wpdb->termmeta} WHERE meta_key = '_artitechcore_schema_origin' AND meta_value != ''");
+    $term_meta_locked = $wpdb->get_results("SELECT term_id, meta_value FROM {$wpdb->termmeta} WHERE meta_key = '_artitechcore_schema_locked' AND meta_value != ''");
+    
+    $term_map = [];
+    foreach ($term_meta_type as $row)   $term_map[$row->term_id]['type']   = $row->meta_value;
+    foreach ($term_meta_data as $row)   $term_map[$row->term_id]['data']   = $row->meta_value;
+    foreach ($term_meta_origin as $row) $term_map[$row->term_id]['origin'] = $row->meta_value;
+    foreach ($term_meta_locked as $row) $term_map[$row->term_id]['locked'] = $row->meta_value;
+
+    foreach ($term_map as $term_id => $vals) {
+        if (!empty($vals['type']) && !empty($vals['data'])) {
+            $wpdb->replace($table_name, [
+                'object_id'   => $term_id,
+                'object_type' => 'term',
+                'schema_type' => $vals['type'],
+                'schema_data' => $vals['data'],
+                'origin'      => $vals['origin'] ?? 'generated',
+                'is_locked'   => !empty($vals['locked']) ? 1 : 0
+            ]);
+        }
+    }
 }
 
 /**

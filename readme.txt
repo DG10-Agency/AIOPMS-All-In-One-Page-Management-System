@@ -1,6 +1,6 @@
-=== ArtitechCore WP ===
+=== ArtitechCore ===
 Contributors: dg10agency
-Tags: pages, schema markup, bulk creation, ai content, seo generator, menu generator, openai, gemini, hierarchy
+Tags: pages, schema markup, bulk creation, ai content, seo generator, menu generator, openai, gemini, hierarchy, structured data, json-ld, page builder, content enhancer
 Requires at least: 5.6
 Tested up to: 6.9.4
 Requires PHP: 7.4
@@ -44,19 +44,29 @@ Yes! In the Schema Generator dashboard, you can filter your pages and apply "Gen
 Absolutely. There is a built-in CSV export button that captures all structured data stored for your Posts, Pages, and Taxonomies into a single portable file.
 
 = Which AI provider do you recommend? =
-For most content and structural generation, we strictly recommend **OpenAI**. For high-speed large-scale suggestions, Google Gemini is an excellent alternative.
+For most content and structural generation, we strictly recommend **OpenAI**. For high-speed large-scale suggestions, Google Gemini is an excellent alternative. DeepSeek is also supported as a cost-effective option.
 
 = Is the schema markup invisible to users? =
 Yes. All schema is generated as JSON-LD and inserted into the `<head>` of your website. It is designed for search engines like Google and Bing and will not affect your frontend layout.
 
 = Is my API Key secure? =
-Yes, your API keys are stored securely in your WordPress database and are only used for direct server-to-server communication with the AI provider.
+Yes, your API keys are stored securely in your WordPress database and are only used for direct server-to-server communication with the AI provider. Keys are never exposed to the frontend or third parties.
 
 = How does the AI Content Enhancer improve SEO? =
 By generating **Key Takeaways** at the top of the post, you capture search intent faster and improve "Dwell Time." The **Smart Conclusion** ensures a clean semantic structure, following SEO best practices for article endings.
 
 = Can I keep my AI enhancements if I deactivate the plugin? =
 Yes. In the Content Enhancer settings, you can enable "Persistence." When the plugin is deactivated or uninstalled, a lightweight "bridge" is created in your `mu-plugins` folder to ensure your Key Takeaways, Conclusions, and CTAs continue to display perfectly.
+
+= What happens to my data if I uninstall the plugin? =
+You can choose to keep SEO schemas and/or AI enhancement data after uninstallation. The Persistence Bridge feature maintains frontend output even without the active plugin. All data remains in the database unless you choose to delete it during uninstall.
+
+== Requirements ==
+* WordPress 5.6 or higher
+* PHP 7.4 or higher
+* MySQL 5.6 or higher (or MariaDB 10.0+)
+* Valid API key from one of the supported AI providers (OpenAI, Google Gemini, or DeepSeek) for AI features
+* Minimum 128MB PHP memory limit recommended for bulk processing
 
 == Screenshots ==
 
@@ -88,4 +98,14 @@ Updates Coming soon...
 
 == Privacy Policy ==
 
-ArtitechCore does not store or collect personal user data. If AI features are used, your business context and content are sent to the selected AI provider (OpenAI, Google, or DeepSeek) according to their respective privacy terms. No data is shared with third parties beyond the specific provider selected by the administrator.
+ArtitechCore does not store or collect personal user data on our servers.
+
+**Third-Party AI Services:**
+When you use AI features, your content and business context are sent to:
+- OpenAI: https://openai.com/privacy/
+- Google Gemini: https://policies.google.com/privacy
+- DeepSeek: https://deepseek.com/privacy
+
+Only the site administrator can configure which provider is used. No data is shared with any other third parties. All API keys are stored securely in the WordPress database and are never exposed to the frontend.
+
+You can disable AI features at any time from the plugin settings. All schema data and AI-generated content are stored locally in your WordPress database.

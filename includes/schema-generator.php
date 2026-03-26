@@ -17,6 +17,60 @@ if (!defined('ArtitechCore_SCHEMA_REVIEW')) define('ArtitechCore_SCHEMA_REVIEW',
 if (!defined('ArtitechCore_SCHEMA_EVENT')) define('ArtitechCore_SCHEMA_EVENT', 'event');
 
 /**
+ * Get schema data from custom table
+ * @param int $object_id The post or term ID.
+ * @param string $object_type The object type ('post' or 'term').
+ * @return array|false The row data as an associative array or false if not found.
+ */
+function artitechcore_get_schema_data($object_id, $object_type = 'post') {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'artitechcore_schema_data';
+    
+    $row = $wpdb->get_row($wpdb->prepare(
+        "SELECT * FROM $table_name WHERE object_id = %d AND object_type = %s",
+        $object_id,
+        $object_type
+    ), ARRAY_A);
+    
+    return $row ? $row : false;
+}
+
+/**
+ * Save schema data to custom table
+ */
+function artitechcore_save_schema_data($object_id, $data, $schema_type, $object_type = 'post', $origin = 'generated', $is_locked = 0) {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'artitechcore_schema_data';
+    
+    // Ensure data is properly encoded if it's an array
+    if (is_array($data)) {
+        $data = wp_json_encode($data);
+    }
+
+    return $wpdb->replace($table_name, [
+        'object_id' => $object_id,
+        'object_type' => $object_type,
+        'schema_type' => $schema_type,
+        'schema_data' => $data,
+        'origin' => $origin,
+        'is_locked' => $is_locked
+    ]);
+}
+
+/**
+ * Delete schema data from custom table
+ */
+function artitechcore_delete_schema_data($object_id, $object_type = 'post') {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'artitechcore_schema_data';
+    
+    return $wpdb->delete($table_name, [
+        'object_id' => $object_id,
+        'object_type' => $object_type
+    ]);
+}
+
+/**
  * AI-enriched global entity profile (cached).
  *
  * Purpose:
@@ -200,14 +254,9 @@ function artitechcore_build_primary_person_node($profile) {
 
 if (!function_exists('artitechcore_get_schema_source')) {
 function artitechcore_get_schema_source($post_id) {
-    $origin = get_post_meta($post_id, '_artitechcore_schema_origin', true);
-    if ($origin === 'generated' || $origin === 'override') {
-        return $origin;
-    }
-    // Fallback heuristic (older installs): if locked, likely user-edited via editor
-    $locked = get_post_meta($post_id, '_artitechcore_schema_locked', true);
-    if (!empty($locked)) {
-        return 'override';
+    $schema = artitechcore_get_schema_data($post_id, 'post');
+    if ($schema) {
+        return $schema['origin'];
     }
     return 'unknown';
 }
@@ -1048,12 +1097,8 @@ if (!function_exists('artitechcore_generate_schema_markup')) {
             '@graph' => $graph
         ];
 
-        // Store schema data as post meta
-        update_post_meta($post_id, '_artitechcore_schema_type', $schema_type);
-        update_post_meta($post_id, '_artitechcore_schema_data', $schema_data);
-        update_post_meta($post_id, '_artitechcore_schema_origin', 'generated');
-        // If this was regenerated, clear any previous lock
-        delete_post_meta($post_id, '_artitechcore_schema_locked');
+        // Store schema data in custom table
+        artitechcore_save_schema_data($post_id, $schema_data, $schema_type, 'post', 'generated', 0);
         
         return $schema_data;
     }
@@ -1062,15 +1107,16 @@ if (!function_exists('artitechcore_generate_schema_markup')) {
 /**
  * Output schema markup in wp_head (posts + taxonomy archives).
  *
- * - Singular: outputs post meta `_artitechcore_schema_data` if present.
- * - Term archives: outputs term meta `_artitechcore_schema_data` if present; if missing and auto-enabled, generates a baseline CollectionPage graph.
+ * - Singular: outputs schema data from custom table if present.
+ * - Term archives: outputs schema data from custom table if present; if missing and auto-enabled, generates a baseline CollectionPage graph.
  */
 function artitechcore_output_schema_markup() {
     // Term archives (category/tag/custom tax)
     if (is_category() || is_tag() || is_tax()) {
         $term = get_queried_object();
         if ($term && isset($term->term_id, $term->taxonomy)) {
-            $schema_data = get_term_meta($term->term_id, '_artitechcore_schema_data', true);
+            $schema_row = artitechcore_get_schema_data($term->term_id, 'term');
+            $schema_data = !empty($schema_row['schema_data']) ? json_decode($schema_row['schema_data'], true) : null;
 
             if (empty($schema_data) && get_option('artitechcore_auto_schema_generation', true)) {
                 $schema_data = artitechcore_generate_term_schema_markup($term->term_id, $term->taxonomy, true);
@@ -1092,7 +1138,8 @@ function artitechcore_output_schema_markup() {
         return;
     }
 
-    $schema_data = get_post_meta(get_the_ID(), '_artitechcore_schema_data', true);
+    $schema_row = artitechcore_get_schema_data(get_the_ID(), 'post');
+    $schema_data = !empty($schema_row['schema_data']) ? json_decode($schema_row['schema_data'], true) : null;
     if (!empty($schema_data)) {
         echo "\n" . '<!-- ArtitechCore Schema -->' . "\n";
         echo '<script type="application/ld+json">' . "\n";
@@ -1111,7 +1158,7 @@ add_action('wp_head', 'artitechcore_output_schema_markup');
 
 /**
  * Generate a baseline schema graph for a taxonomy term archive.
- * Stores it in term meta `_artitechcore_schema_data`.
+ * Stores it in the custom schema table.
  */
 function artitechcore_generate_term_schema_markup($term_id, $taxonomy, $use_ai = true) {
     $term = get_term($term_id, $taxonomy);
@@ -1145,8 +1192,8 @@ function artitechcore_generate_term_schema_markup($term_id, $taxonomy, $use_ai =
         '@graph' => $graph,
     ];
 
-    update_term_meta($term_id, '_artitechcore_schema_data', $schema_data);
-    update_term_meta($term_id, '_artitechcore_schema_origin', 'generated');
+    // Save to custom database table
+    artitechcore_save_schema_data($term_id, $schema_data, 'CollectionPage', 'term', 'generated', 0);
 
     return $schema_data;
 }
@@ -1191,48 +1238,57 @@ function artitechcore_generate_website_schema() {
 function artitechcore_generate_faq_schema($post_id) {
     $post = get_post($post_id);
     $content = $post->post_content;
-    
-    // Try AI extraction first for better accuracy
-    $ai_data = artitechcore_ai_extract_schema_data($post_id, 'faq');
-    
-    if ($ai_data && is_array($ai_data)) {
-        $faq_items = [];
-        foreach ($ai_data as $item) {
-            if (isset($item['question']) && isset($item['answer']) && !empty($item['question']) && !empty($item['answer'])) {
+    $faq_items = [];
+
+    // 1. Check for AI Content Enhancer FAQs (Highest Priority/Manual Edit)
+    $ce_faq = get_post_meta($post_id, '_artitechcore_ce_faq', true);
+    if (!empty($ce_faq) && is_array($ce_faq)) {
+        foreach ($ce_faq as $item) {
+            if (!empty($item['q']) && !empty($item['a'])) {
                 $faq_items[] = [
                     '@type' => 'Question',
-                    'name' => sanitize_text_field($item['question']),
+                    'name' => sanitize_text_field($item['q']),
                     'acceptedAnswer' => [
                         '@type' => 'Answer',
-                        'text' => sanitize_textarea_field($item['answer'])
+                        'text' => wp_strip_all_tags(wpautop(sanitize_textarea_field($item['a'])))
                     ]
                 ];
             }
         }
-        if (!empty($faq_items)) {
-            return [
-                '@context' => 'https://schema.org',
-                '@type' => 'FAQPage',
-                'mainEntity' => $faq_items
-            ];
+    }
+
+    // 2. Try Generic AI extraction if no CE FAQs
+    if (empty($faq_items)) {
+        $ai_data = artitechcore_ai_extract_schema_data($post_id, 'faq');
+        if ($ai_data && is_array($ai_data)) {
+            foreach ($ai_data as $item) {
+                if (isset($item['question']) && isset($item['answer']) && !empty($item['question']) && !empty($item['answer'])) {
+                    $faq_items[] = [
+                        '@type' => 'Question',
+                        'name' => sanitize_text_field($item['question']),
+                        'acceptedAnswer' => [
+                            '@type' => 'Answer',
+                            'text' => sanitize_textarea_field($item['answer'])
+                        ]
+                    ];
+                }
+            }
         }
     }
 
-    // Fallback: Extract questions and answers from content using regex
-    $faq_items = artitechcore_extract_faq_items($content);
+    // 3. Fallback: Regex extraction
+    if (empty($faq_items)) {
+        $faq_items = artitechcore_extract_faq_items($content);
+    }
     
     if (empty($faq_items)) {
-        // Fallback to webpage schema if no FAQ items found
         return artitechcore_generate_webpage_schema($post_id);
     }
 
-    $schema = [
-        '@context' => 'https://schema.org',
+    return [
         '@type' => 'FAQPage',
         'mainEntity' => $faq_items
     ];
-
-    return $schema;
 }
 
 
@@ -1395,7 +1451,15 @@ function artitechcore_generate_service_schema($post_id) {
             $schema['hasOfferCatalog'] = [
                 '@type' => 'OfferCatalog',
                 'name' => 'Service Features',
-                'itemListElement' => array_map('sanitize_text_field', $ai_data['features'])
+                'itemListElement' => array_map(function($feature) {
+                    return [
+                        '@type' => 'ListItem',
+                        'item' => [
+                            '@type' => 'Thing',
+                            'name' => sanitize_text_field($feature)
+                        ]
+                    ];
+                }, $ai_data['features'])
             ];
         }
         if (!empty($ai_data['offers']) && is_array($ai_data['offers'])) {
@@ -1509,16 +1573,20 @@ function artitechcore_get_organization_schema() {
     $business_description = get_option('artitechcore_business_description', get_bloginfo('description'));
     $site_url = home_url();
     
+    $logo_url = get_site_icon_url();
     $schema = [
         '@type' => 'Organization',
         '@id' => $site_url . '/#organization',
         'name' => $business_name,
-        'url' => $site_url,
-        'logo' => [
-            '@type' => 'ImageObject',
-            'url' => get_site_icon_url() ?: ''
-        ]
+        'url' => $site_url
     ];
+
+    if ($logo_url) {
+        $schema['logo'] = [
+            '@type' => 'ImageObject',
+            'url' => esc_url_raw($logo_url)
+        ];
+    }
 
     // Add description if available
     if (!empty($business_description)) {
@@ -1545,10 +1613,7 @@ function artitechcore_get_organization_schema() {
     // Add address if available
     $address = get_option('artitechcore_business_address', '');
     if (!empty($address)) {
-        $schema['address'] = [
-            '@type' => 'PostalAddress',
-            'streetAddress' => sanitize_text_field($address)
-        ];
+        $schema['address'] = artitechcore_build_postal_address($address);
     }
 
     // Add social links if available
@@ -1598,10 +1663,8 @@ function artitechcore_generate_breadcrumb_schema($post_id) {
     $breadcrumbs[] = [
         '@type' => 'ListItem',
         'position' => $position++,
-        'item' => [
-            '@id' => $site_url,
-            'name' => 'Home'
-        ]
+        'name' => 'Home',
+        'item' => $site_url
     ];
 
     $ancestors = get_post_ancestors($post_id);
@@ -1611,10 +1674,8 @@ function artitechcore_generate_breadcrumb_schema($post_id) {
             $breadcrumbs[] = [
                 '@type' => 'ListItem',
                 'position' => $position++,
-                'item' => [
-                    '@id' => get_permalink($ancestor_id),
-                    'name' => get_the_title($ancestor_id)
-                ]
+                'name' => get_the_title($ancestor_id),
+                'item' => get_permalink($ancestor_id)
             ];
         }
     }
@@ -1623,10 +1684,8 @@ function artitechcore_generate_breadcrumb_schema($post_id) {
     $breadcrumbs[] = [
         '@type' => 'ListItem',
         'position' => $position,
-        'item' => [
-            '@id' => get_permalink($post_id),
-            'name' => get_the_title($post_id)
-        ]
+        'name' => get_the_title($post_id),
+        'item' => get_permalink($post_id)
     ];
 
     return [
@@ -1680,10 +1739,7 @@ function artitechcore_generate_local_business_schema($post_id) {
 
     // Add address if available
     if (!empty($address)) {
-        $schema['address'] = [
-            '@type' => 'PostalAddress',
-            'streetAddress' => sanitize_text_field($address)
-        ];
+        $schema['address'] = artitechcore_build_postal_address($address);
     }
 
     // Add contact info
@@ -1892,8 +1948,12 @@ function artitechcore_generate_review_schema($post_id) {
         $reviewed_item = artitechcore_extract_reviewed_item($post->post_title, $content);
     }
     
+    // Fix: Clamp rating to valid range (1-5)
+    if ($rating !== null) {
+        $rating = max(1, min(5, $rating));
+    }
+    
     $schema = [
-        '@context' => 'https://schema.org',
         '@type' => 'Review',
         'headline' => sanitize_text_field(get_the_title($post_id)),
         'reviewBody' => sanitize_text_field(wp_strip_all_tags(wp_trim_words($content, 200))),
@@ -1908,13 +1968,15 @@ function artitechcore_generate_review_schema($post_id) {
         $schema['reviewRating'] = [
             '@type' => 'Rating',
             'ratingValue' => $rating,
-            'bestRating' => 5
+            'bestRating' => 5,
+            'worstRating' => 1
         ];
     }
 
     if ($reviewed_item) {
+        // Fix: Use Product as a more valid type for itemReviewed than generic Thing
         $schema['itemReviewed'] = [
-            '@type' => 'Thing',
+            '@type' => 'Product',
             'name' => $reviewed_item
         ];
     }
@@ -2001,7 +2063,8 @@ function artitechcore_generate_event_schema($post_id) {
     if ($event_location) {
         $schema['location'] = [
             '@type' => 'Place',
-            'name' => $event_location
+            'name' => $event_location,
+            'address' => artitechcore_build_postal_address(get_option('artitechcore_business_address', 'Worldwide'))
         ];
     }
 
@@ -2110,7 +2173,8 @@ add_filter('manage_page_posts_columns', 'artitechcore_add_schema_column');
 // Display schema type in the schema column
 function artitechcore_display_schema_column($column, $post_id) {
     if ($column === 'schema') {
-        $schema_type = get_post_meta($post_id, '_artitechcore_schema_type', true);
+        $schema_row = artitechcore_get_schema_data($post_id, 'post');
+        $schema_type = !empty($schema_row['schema_type']) ? $schema_row['schema_type'] : '';
         if (!empty($schema_type)) {
             echo '<span class="artitechcore-schema-badge artitechcore-schema-' . esc_attr($schema_type) . '">' . esc_html(ucfirst($schema_type)) . '</span>';
         } else {
@@ -2151,15 +2215,16 @@ function artitechcore_handle_schema_column_sorting($query) {
     }
 
     if ($query->get('orderby') === 'schema') {
-        $query->set('meta_key', '_artitechcore_schema_type');
-        $query->set('orderby', 'meta_value');
+        // Meta-based sorting is disabled in the new custom table architecture.
+        // Dashboard sorting is handled via the dedicated Schema Management interface.
     }
 }
 add_action('pre_get_posts', 'artitechcore_handle_schema_column_sorting');
 
 // Add quick actions for schema generation
 function artitechcore_add_schema_quick_actions($actions, $post) {
-    $schema_type = get_post_meta($post->ID, '_artitechcore_schema_type', true);
+    $schema_row = artitechcore_get_schema_data($post->ID, 'post');
+    $schema_type = !empty($schema_row['schema_type']) ? $schema_row['schema_type'] : '';
 
     if (empty($schema_type)) {
         $actions['generate_schema'] = '<a href="' . wp_nonce_url(admin_url('admin.php?page=artitechcore-main&action=generate_schema&post=' . $post->ID), 'generate_schema_' . $post->ID) . '">Generate Schema</a>';
@@ -2212,9 +2277,7 @@ add_action('admin_notices', 'artitechcore_schema_generation_notices');
 
 // Remove schema from a page
 function artitechcore_remove_schema_from_page($post_id) {
-    delete_post_meta($post_id, '_artitechcore_schema_type');
-    delete_post_meta($post_id, '_artitechcore_schema_data');
-    return true;
+    return artitechcore_delete_schema_data($post_id, 'post');
 }
 
 // Handle schema removal actions
@@ -2407,24 +2470,27 @@ function artitechcore_schema_management_dashboard() {
         'types' => []
     ];
 
-    // Count posts that have _artitechcore_schema_type meta (any value)
+    // Count posts that have schema in the custom table
+    $table_name = $wpdb->prefix . 'artitechcore_schema_data';
+    
     // Build the post_type IN clause for the same filter set
     $stat_post_types = $filter_post_type ? [$filter_post_type] : $allowed_post_types;
     $pt_placeholders = implode(',', array_fill(0, count($stat_post_types), '%s'));
-    $stat_statuses = $filter_status ? [$filter_status] : ['publish', 'draft', 'pending', 'private', 'future'];
+    $stat_statuses = $filter_status ? [$filter_status] : ['publish', 'draft', 'pending', 'private', 'future', 'trash'];
     $st_placeholders = implode(',', array_fill(0, count($stat_statuses), '%s'));
 
-    // Query schema type distribution
+    // Query schema type distribution from custom table
     $prepare_args = array_merge($stat_post_types, $stat_statuses);
     $type_rows = $wpdb->get_results($wpdb->prepare(
-        "SELECT pm.meta_value AS schema_type, COUNT(*) AS cnt
-         FROM {$wpdb->postmeta} pm
-         INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
-         WHERE pm.meta_key = '_artitechcore_schema_type'
-           AND pm.meta_value != ''
-           AND p.post_type IN ($pt_placeholders)
-           AND p.post_status IN ($st_placeholders)
-         GROUP BY pm.meta_value",
+        "SELECT schema_type, COUNT(*) AS cnt
+         FROM $table_name
+         WHERE object_type = 'post'
+           AND object_id IN (
+               SELECT ID FROM {$wpdb->posts}
+               WHERE post_type IN ($pt_placeholders)
+               AND post_status IN ($st_placeholders)
+           )
+         GROUP BY schema_type",
         ...$prepare_args
     ));
 
@@ -2442,7 +2508,7 @@ function artitechcore_schema_management_dashboard() {
         <div class="artitechcore-bulk-actions" style="margin-top: 10px;">
             <h2>Export</h2>
             <p class="description" style="margin-top:0;">
-                Export a CSV backup of all schema stored in WordPress (generated by this plugin, edited via the schema editor, or manually added into the <code>_artitechcore_schema_data</code> custom field).
+                Export a CSV backup of all schema stored in the custom high-performance database table.
             </p>
             <p>
                 <a class="button button-primary" href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=artitechcore_export_schema_csv'), 'artitechcore_export_schema_csv')); ?>">
@@ -2572,7 +2638,7 @@ function artitechcore_schema_management_dashboard() {
                     
                     <!-- Pages Table -->
                     <div class="artitechcore-schema-table-wrap">
-                    <table class="wp-list-table widefat fixed striped">
+                    <table class="widefat fixed striped">
                     <thead>
                         <tr>
                             <td class="manage-column column-cb check-column">
@@ -2585,10 +2651,24 @@ function artitechcore_schema_management_dashboard() {
                         </tr>
                     </thead>
                     <tbody>
+                        <?php 
+                        $pages = $posts_q->posts;
+                        $post_ids = wp_list_pluck($pages, 'ID');
+                        $schema_lookup = [];
+                        if (!empty($post_ids)) {
+                            global $wpdb;
+                            $table_name = $wpdb->prefix . 'artitechcore_schema_data';
+                            $ids_string = implode(',', array_map('intval', $post_ids));
+                            $results = $wpdb->get_results("SELECT * FROM $table_name WHERE object_id IN ($ids_string) AND object_type = 'post'");
+                            foreach ($results as $res) {
+                                $schema_lookup[$res->object_id] = $res;
+                            }
+                        }
+                        ?>
                         <?php foreach ($pages as $page): ?>
                         <?php 
-                        $schema_type = get_post_meta($page->ID, '_artitechcore_schema_type', true);
-                        $schema_data = get_post_meta($page->ID, '_artitechcore_schema_data', true);
+                        $schema_row = isset($schema_lookup[$page->ID]) ? $schema_lookup[$page->ID] : null;
+                        $schema_type = $schema_row ? $schema_row->schema_type : '';
                         ?>
                         <tr data-post-type="<?php echo esc_attr($page->post_type); ?>" data-post-status="<?php echo esc_attr($page->post_status); ?>">
                             <th class="check-column">
@@ -2728,11 +2808,24 @@ function artitechcore_schema_management_dashboard() {
                 <?php if (is_wp_error($terms) || empty($terms)): ?>
                     <tr><td colspan="4">No terms found.</td></tr>
                 <?php else: ?>
+                    <?php
+                    $term_ids = wp_list_pluck($terms, 'term_id');
+                    $term_schema_lookup = [];
+                    if (!empty($term_ids)) {
+                        global $wpdb;
+                        $table_name = $wpdb->prefix . 'artitechcore_schema_data';
+                        $ids_string = implode(',', array_map('intval', $term_ids));
+                        $results = $wpdb->get_results("SELECT * FROM $table_name WHERE object_id IN ($ids_string) AND object_type = 'term'");
+                        foreach ($results as $res) {
+                            $term_schema_lookup[$res->object_id] = $res;
+                        }
+                    }
+                    ?>
                     <?php foreach ($terms as $term): ?>
                         <?php
-                        $t_schema = get_term_meta($term->term_id, '_artitechcore_schema_data', true);
-                        $t_source = get_term_meta($term->term_id, '_artitechcore_schema_origin', true);
-                        $has_schema = !empty($t_schema);
+                        $t_row = isset($term_schema_lookup[$term->term_id]) ? $term_schema_lookup[$term->term_id] : null;
+                        $has_schema = !empty($t_row);
+                        $t_source = $t_row ? $t_row->origin : '';
                         ?>
                         <tr>
                             <td><strong><?php echo esc_html($term->name); ?></strong></td>
@@ -2808,7 +2901,7 @@ function artitechcore_schema_management_dashboard() {
                 </div>
                 <div class="artitechcore-info-card">
                     <h3>Manual Removal</h3>
-                    <p>To manually remove schema from a page, edit the page and remove the <code>_artitechcore_schema_type</code> and <code>_artitechcore_schema_data</code> custom fields.</p>
+                    <p>To manually remove schema from a page, use the <b>Remove</b> action in the Schema Management dashboard above.</p>
                 </div>
                 <div class="artitechcore-info-card">
                     <h3>AI-Powered Detection</h3>
@@ -2835,11 +2928,12 @@ function artitechcore_ajax_get_schema_preview() {
         wp_send_json_error(['message' => esc_html__('Unauthorized', 'artitechcore')], 403);
     }
 
-    $schema_data = get_post_meta($page_id, '_artitechcore_schema_data', true);
-    if (empty($schema_data)) {
+    $schema_row = artitechcore_get_schema_data($page_id, 'post');
+    if (empty($schema_row)) {
         wp_send_json_error(['message' => esc_html__('No schema data found for this item. Generate schema first, then preview again.', 'artitechcore')]);
     }
 
+    $schema_data = $schema_row['schema_data'];
     $schema_json = is_string($schema_data)
         ? trim($schema_data)
         : wp_json_encode($schema_data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
@@ -2851,9 +2945,9 @@ function artitechcore_ajax_get_schema_preview() {
     wp_send_json_success([
         'post_id' => $page_id,
         'schema_json' => $schema_json,
-        'schema_type' => get_post_meta($page_id, '_artitechcore_schema_type', true),
-        'schema_source' => function_exists('artitechcore_get_schema_source') ? artitechcore_get_schema_source($page_id) : '',
-        'locked' => !empty(get_post_meta($page_id, '_artitechcore_schema_locked', true)),
+        'schema_type' => $schema_row['schema_type'],
+        'schema_source' => $schema_row['origin'],
+        'locked' => !empty($schema_row['is_locked']),
     ]);
 }
 add_action('wp_ajax_artitechcore_get_schema_preview', 'artitechcore_ajax_get_schema_preview');
@@ -2877,11 +2971,12 @@ function artitechcore_ajax_get_term_schema_preview() {
         wp_send_json_error(['message' => esc_html__('Term not found.', 'artitechcore')]);
     }
 
-    $schema_data = get_term_meta($term_id, '_artitechcore_schema_data', true);
-    if (empty($schema_data)) {
+    $schema_row = artitechcore_get_schema_data($term_id, 'term');
+    if (empty($schema_row)) {
         wp_send_json_error(['message' => esc_html__('No schema data found for this term. Generate schema first, then preview again.', 'artitechcore')]);
     }
 
+    $schema_data = $schema_row['schema_data'];
     $schema_json = is_string($schema_data)
         ? trim($schema_data)
         : wp_json_encode($schema_data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
@@ -2890,15 +2985,12 @@ function artitechcore_ajax_get_term_schema_preview() {
         wp_send_json_error(['message' => esc_html__('Schema data exists but could not be encoded as JSON.', 'artitechcore')]);
     }
 
-    $origin = get_term_meta($term_id, '_artitechcore_schema_origin', true);
-    $locked = !empty(get_term_meta($term_id, '_artitechcore_schema_locked', true));
-
     wp_send_json_success([
         'term_id' => $term_id,
         'taxonomy' => $taxonomy,
         'schema_json' => $schema_json,
-        'schema_source' => ($origin === 'generated' || $origin === 'override') ? $origin : 'unknown',
-        'locked' => $locked,
+        'schema_source' => $schema_row['origin'],
+        'locked' => !empty($schema_row['is_locked']),
     ]);
 }
 add_action('wp_ajax_artitechcore_get_term_schema_preview', 'artitechcore_ajax_get_term_schema_preview');
@@ -2933,9 +3025,11 @@ function artitechcore_ajax_save_schema_override() {
         wp_send_json_error(['message' => esc_html__('Could not encode schema JSON.', 'artitechcore')]);
     }
 
-    update_post_meta($page_id, '_artitechcore_schema_data', $decoded);
-    update_post_meta($page_id, '_artitechcore_schema_locked', 1);
-    update_post_meta($page_id, '_artitechcore_schema_origin', 'override');
+    // Get existing type to preserve it if not provided
+    $current = artitechcore_get_schema_data($page_id, 'post');
+    $type = $current ? $current['schema_type'] : 'webpage';
+
+    artitechcore_save_schema_data($page_id, $decoded, $type, 'post', 'override', 1);
 
     wp_send_json_success([
         'message' => esc_html__('Schema saved.', 'artitechcore'),
@@ -2973,9 +3067,11 @@ function artitechcore_ajax_save_term_schema_override() {
         wp_send_json_error(['message' => esc_html__('Could not encode schema JSON.', 'artitechcore')]);
     }
 
-    update_term_meta($term_id, '_artitechcore_schema_data', $decoded);
-    update_term_meta($term_id, '_artitechcore_schema_locked', 1);
-    update_term_meta($term_id, '_artitechcore_schema_origin', 'override');
+    // Get existing type to preserve it if not provided
+    $current = artitechcore_get_schema_data($term_id, 'term');
+    $type = $current ? $current['schema_type'] : 'CollectionPage';
+
+    artitechcore_save_schema_data($term_id, $decoded, $type, 'term', 'override', 1);
 
     wp_send_json_success([
         'message' => esc_html__('Schema saved.', 'artitechcore'),
@@ -2985,10 +3081,7 @@ function artitechcore_ajax_save_term_schema_override() {
 add_action('wp_ajax_artitechcore_save_term_schema_override', 'artitechcore_ajax_save_term_schema_override');
 
 function artitechcore_remove_schema_from_term($term_id) {
-    delete_term_meta($term_id, '_artitechcore_schema_data');
-    delete_term_meta($term_id, '_artitechcore_schema_origin');
-    delete_term_meta($term_id, '_artitechcore_schema_locked');
-    return true;
+    return artitechcore_delete_schema_data($term_id, 'term');
 }
 
 // Handle term schema management actions
@@ -3058,19 +3151,10 @@ function artitechcore_admin_export_schema_csv() {
     }
     check_admin_referer('artitechcore_export_schema_csv');
 
-    // Query all posts that have schema stored in _artitechcore_schema_data
-    $q = new WP_Query([
-        'post_type' => 'any',
-        'post_status' => 'any',
-        'posts_per_page' => -1,
-        'fields' => 'ids',
-        'meta_query' => [
-            [
-                'key' => '_artitechcore_schema_data',
-                'compare' => 'EXISTS',
-            ],
-        ],
-    ]);
+    // Query all objects that have schema stored in the custom table
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'artitechcore_schema_data';
+    $rows = $wpdb->get_results("SELECT * FROM $table_name");
 
     $filename = 'artitechcore-schema-export-' . gmdate('Y-m-d-His') . '.csv';
     nocache_headers();
@@ -3087,94 +3171,58 @@ function artitechcore_admin_export_schema_csv() {
     // Header row
     fputcsv($out, [
         'entity_type',
-        'post_id',
-        'post_type',
-        'post_status',
-        'post_title',
+        'id',
+        'type_or_taxonomy',
+        'status',
+        'title_or_name',
         'permalink',
         'last_modified_gmt',
         'schema_type',
-        'schema_source',
-        'schema_locked',
-        'schema_json',
+        'origin',
+        'is_locked',
+        'schema_data',
     ]);
 
-    foreach ((array)$q->posts as $post_id) {
-        $post = get_post($post_id);
-        if (!$post) {
-            continue;
-        }
+    foreach ((array)$rows as $row) {
+        $object_id = $row->object_id;
+        $object_type = $row->object_type;
+        $schema_json = $row->schema_data;
+        $schema_type = $row->schema_type;
+        $origin = $row->origin;
+        $locked = $row->is_locked;
 
-        $schema_data = get_post_meta($post_id, '_artitechcore_schema_data', true);
-        if (empty($schema_data)) {
-            continue;
-        }
-
-        // Encode as JSON for single-cell export (data-accurate; formatting can differ)
-        $schema_json = is_string($schema_data)
-            ? $schema_data
-            : wp_json_encode($schema_data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-
-        $schema_type = get_post_meta($post_id, '_artitechcore_schema_type', true);
-        $locked = get_post_meta($post_id, '_artitechcore_schema_locked', true);
-
-        fputcsv($out, [
-            'post',
-            (int)$post_id,
-            $post->post_type,
-            $post->post_status,
-            $post->post_title,
-            get_permalink($post_id),
-            get_post_modified_time('c', true, $post_id),
-            $schema_type,
-            artitechcore_get_schema_source($post_id),
-            !empty($locked) ? '1' : '0',
-            $schema_json,
-        ]);
-    }
-
-    // Also export term schemas (taxonomy archives) if present
-    $terms = get_terms([
-        'taxonomy' => get_taxonomies(['public' => true], 'names'),
-        'hide_empty' => false,
-        'number' => 0,
-        'meta_query' => [
-            [
-                'key' => '_artitechcore_schema_data',
-                'compare' => 'EXISTS',
-            ]
-        ],
-    ]);
-
-    if (!is_wp_error($terms) && !empty($terms)) {
-        foreach ($terms as $term) {
-            $schema_data = get_term_meta($term->term_id, '_artitechcore_schema_data', true);
-            if (empty($schema_data)) {
-                continue;
-            }
-            $schema_json = is_string($schema_data)
-                ? $schema_data
-                : wp_json_encode($schema_data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-
-            $origin = get_term_meta($term->term_id, '_artitechcore_schema_origin', true);
-            $source = ($origin === 'generated' || $origin === 'override') ? $origin : 'unknown';
-            $locked = get_term_meta($term->term_id, '_artitechcore_schema_locked', true);
-
+        if ($object_type === 'post') {
+            $post = get_post($object_id);
+            if (!$post) continue;
+            
+            fputcsv($out, [
+                'post',
+                (int)$object_id,
+                $post->post_type,
+                $post->post_status,
+                $post->post_title,
+                get_permalink($object_id),
+                get_post_modified_time('c', true, $object_id),
+                $schema_type,
+                $origin,
+                !empty($locked) ? '1' : '0',
+                $schema_json,
+            ]);
+        } else {
+            $term = get_term($object_id);
+            if (!$term || is_wp_error($term)) continue;
+            
             $link = get_term_link($term);
-            if (is_wp_error($link)) {
-                $link = '';
-            }
-
             fputcsv($out, [
                 'term',
-                (int)$term->term_id,
+                (int)$object_id,
                 $term->taxonomy,
                 '',
                 $term->name,
-                $link,
+                !is_wp_error($link) ? $link : '',
                 '',
-                '',
-                $source,
+                $schema_type,
+                $origin,
                 !empty($locked) ? '1' : '0',
                 $schema_json,
             ]);
@@ -3188,8 +3236,8 @@ add_action('admin_post_artitechcore_export_schema_csv', 'artitechcore_admin_expo
 
 // Prevent auto-regeneration from overwriting a user override
 function artitechcore_should_skip_auto_schema_generation($post_id) {
-    $locked = get_post_meta($post_id, '_artitechcore_schema_locked', true);
-    return !empty($locked);
+    $schema = artitechcore_get_schema_data($post_id, 'post');
+    return $schema && !empty($schema['is_locked']);
 }
 
 /**
@@ -3209,4 +3257,38 @@ function artitechcore_prune_generation_logs() {
             )
         );
     }
+}
+/**
+ * Helper to build a PostalAddress object from a string
+ * Tries to perform basic parsing for better rich result compliance
+ */
+function artitechcore_build_postal_address($address_str) {
+    if (empty($address_str)) return null;
+
+    $address = [
+        '@type' => 'PostalAddress',
+        'streetAddress' => sanitize_text_field($address_str)
+    ];
+
+    // Simple heuristic-based parsing for richer data
+    $parts = explode(',', $address_str);
+    if (count($parts) >= 3) {
+        $address['streetAddress'] = sanitize_text_field(trim($parts[0]));
+        $address['addressLocality'] = sanitize_text_field(trim($parts[1]));
+        
+        // Try to split State/Zip if third part exists
+        $state_zip = trim($parts[2]);
+        if (preg_match('/^([A-Z]{2})\s+(\d{5}(?:-\d{4})?)$/i', $state_zip, $matches)) {
+            $address['addressRegion'] = sanitize_text_field($matches[1]);
+            $address['postalCode'] = sanitize_text_field($matches[2]);
+        } else {
+            $address['addressRegion'] = sanitize_text_field($state_zip);
+        }
+
+        if (count($parts) >= 4) {
+            $address['addressCountry'] = sanitize_text_field(trim($parts[3]));
+        }
+    }
+
+    return $address;
 }
